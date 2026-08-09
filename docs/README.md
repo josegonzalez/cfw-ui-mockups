@@ -12,6 +12,13 @@ Index of the documentation in this repo. Start here.
 | [testing.md](testing.md) | What is tested where, and how to run each suite |
 | [legacy.md](legacy.md) | What lives under `legacy/`, why it is kept, and how to compare against it |
 
+## Widgets
+
+[widgets/README.md](widgets/README.md) is the widget catalogue - the shared vocabulary every
+screen is built from, and the real deliverable of this port. Each widget has a page recording
+what it does, its props, its animation parameters, which themes use it, and its fallback where
+it relies on something a simple renderer lacks.
+
 ## Registries
 
 | Document | What it covers |
@@ -42,5 +49,4 @@ Nothing links to them until they exist.
 
 | Document | Arrives with |
 | --- | --- |
-| `widgets/README.md` and a page per widget | The widget kit |
 | `porting/<theme>.md` | Each theme port, recording defects fixed and deviations taken |
