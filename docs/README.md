@@ -38,15 +38,17 @@ inventory, alongside the reference material extracted from its upstream source.
 | Vitro Launcher | [themes/vitrolauncher.md](themes/vitrolauncher.md) | [themes/vitrolauncher/reference/](themes/vitrolauncher/reference/) |
 | Example OS | [themes/example-cfw.md](themes/example-cfw.md) | none - it is a scaffold, not a reproduction |
 
-These pages currently describe the original mockups. Each is rewritten for the React
-implementation as its theme is ported, at which point `themes/example-cfw.md` also becomes the
-template for adding a new theme.
+Pages still carrying a status banner describe the original mockups; each is rewritten for the
+React implementation as its theme is ported.
 
-## Still to come
+**[themes/example-cfw.md](themes/example-cfw.md) is the template for adding a theme.** It is
+ported, and it documents what a theme is made of and how to start a new one.
 
-The port is being landed in phases, and these pages arrive with the phase that earns them.
-Nothing links to them until they exist.
+## Porting notes
 
-| Document | Arrives with |
-| --- | --- |
-| `porting/<theme>.md` | Each theme port, recording defects fixed and deviations taken |
+What changed between the original vanilla-JS mockup and the React implementation: every defect
+fixed, every deliberate deviation, and how each was verified.
+
+- [porting/example-cfw.md](porting/example-cfw.md)
+
+A page arrives here with each theme port.
