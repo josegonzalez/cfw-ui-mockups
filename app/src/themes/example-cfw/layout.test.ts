@@ -49,13 +49,36 @@ describe('resolve at 640x480, against the original hardcoded values', () => {
     expect(l.gameList.detail.width).toBe(340)
   })
 
-  it('starts the body below the header and rule', () => {
+  it('drops the menu below the rule, and runs it to the footer', () => {
     // 44 header + 1 rule + 12 gap.
     expect(l.menu.box.top).toBe(57)
+    expect(l.menu.box.top + l.menu.box.height).toBe(l.footer.top)
   })
 
-  it('leaves the body exactly the space between header and footer', () => {
-    expect(l.menu.box.top + l.menu.box.height).toBe(l.footer.top)
+  it('starts the game list flush against the rule with a fixed height', () => {
+    // The two screens genuinely differ here, and applying the menu's spacing to the game list
+    // pushes it down and stretches the detail column over the band above the footer.
+    expect(l.gameList.detail.top).toBe(45)
+    expect(l.gameList.detail.height).toBe(356)
+    expect(l.gameList.detail.top + l.gameList.detail.height).toBe(401)
+    expect(l.gameList.detail.top + l.gameList.detail.height).toBeLessThan(l.footer.top)
+  })
+
+  it('insets the list asymmetrically, as authored', () => {
+    // 12 left, 8 right, 8 top and bottom, inside the 300-wide column.
+    expect(l.gameList.list.left).toBe(12)
+    expect(l.gameList.list.width).toBe(280)
+    expect(l.gameList.list.top).toBe(53)
+    // Clips at the padding box, level with the bottom of the body, not 8px short of it.
+    expect(l.gameList.list.top + l.gameList.list.height).toBe(401)
+  })
+
+  it('centres the detail stack in the body', () => {
+    // art 160 + gap 16 + title line 28.5 + meta line 19.5 = 224, centred in 45..401.
+    expect(l.gameList.art.top).toBeCloseTo(111, 6)
+    expect(l.gameList.detailTitleFont).toBe(19)
+    expect(l.gameList.detailMetaFont).toBe(13)
+    expect(l.gameList.detailTitle.top).toBeCloseTo(287, 6)
   })
 })
 

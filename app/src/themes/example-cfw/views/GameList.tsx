@@ -99,7 +99,7 @@ export function GameList({ layout, selectedIndex, firstVisible }: GameListProps)
 
       <div
         style={{
-          ...place({ ...gameList.detailTitle, font: layout.gameList.detailTitle.height / 1.4 }),
+          ...place({ ...gameList.detailTitle, font: gameList.detailTitleFont }),
           color: PALETTE.text,
           fontWeight: 700,
           textAlign: 'center',
@@ -113,7 +113,7 @@ export function GameList({ layout, selectedIndex, firstVisible }: GameListProps)
 
       <div
         style={{
-          ...place({ ...gameList.detailMeta, font: gameList.detailMeta.height / 1.6 }),
+          ...place({ ...gameList.detailMeta, font: gameList.detailMetaFont }),
           color: PALETTE.muted,
           textAlign: 'center',
         }}
@@ -136,8 +136,7 @@ export function GameList({ layout, selectedIndex, firstVisible }: GameListProps)
         colors={{ fg: PALETTE.muted, badgeBg: PALETTE.accent }}
         font={layout.footerFont}
         badge="plain"
-        gap={layout.footerFont * 1.6}
-        bold
+        gap={layout.footerHintGap}
       />
     </>
   )

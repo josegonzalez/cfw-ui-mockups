@@ -53,6 +53,32 @@ that every theme overrides.
 **The `cfw-button` escape hatch.** It existed so a page could react to input without the helper
 knowing about it. Components subscribe through `useButtonPress` instead.
 
+## Found by looking at it
+
+Four faults survived every automated check and were caught only by rendering both versions and
+comparing the images. Each is now covered by an assertion.
+
+**The two screens do not share body geometry.** The menu drops 12px below the header rule and
+runs to the footer; the game list starts flush against the rule with a fixed 356px height,
+leaving a band of background above the footer. Applying the menu's spacing to both pushed the
+game list down and stretched its detail column over that band.
+
+**The list clipped its own selection.** The selected row shifts 6px right, and the list
+container's `overflow: hidden` sliced it off at the right edge. The clip is vertical in intent -
+it exists so a partial bottom row cuts cleanly - but CSS cannot hide one axis and show the
+other, so the container is now widened by the shift.
+
+**A partial row must be drawn.** The original scrolls, so its seventh game is half-visible at
+the bottom of the list. Rendering only whole rows made the list read as though it had nothing
+more to show. `TextList` now counts whole rows for scrolling and includes the partial one for
+drawing.
+
+**Hint labels were bold.** `HelpBar`'s `bold` prop bolded the label as well as the glyph, where
+the original bolds only the glyph. That widened the footer strip by about 13px.
+
+None of these are visible in computed styles, element boxes, or console output. This is the
+class of fault that only compositing shows.
+
 ## Verification
 
 - `layout.test.ts` - the 640x480 resolution against the original's hardcoded values, and every

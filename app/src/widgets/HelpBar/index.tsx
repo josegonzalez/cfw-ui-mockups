@@ -148,7 +148,8 @@ export function HelpBar({
           style={{
             display: 'inline-flex',
             alignItems: 'center',
-            gap: `${font * 0.35}px`,
+            // A word space, matching how these read when the glyph is inline text.
+            gap: `${font * 0.28}px`,
             fontWeight: bold ? 700 : 400,
           }}
         >

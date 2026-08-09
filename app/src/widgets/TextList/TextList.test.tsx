@@ -87,6 +87,42 @@ describe('TextList', () => {
     expect(screen.getAllByText(/^Item /)).toHaveLength(4)
   })
 
+  it('draws the partial row at the bottom, so the list does not read as finished', () => {
+    // 340px of box with 48px rows and a 4px gap fits six whole rows and part of a seventh. A
+    // list that stops on a clean row edge looks like it has nothing more to show.
+    render(
+      <TextList
+        box={{ left: 0, top: 0, width: 300, height: 340 }}
+        items={items}
+        selectedIndex={0}
+        rowHeight={48}
+        gap={4}
+        colors={colors}
+        labelFont={16}
+      />,
+    )
+
+    expect(screen.getAllByText(/^Item /)).toHaveLength(7)
+  })
+
+  it('still scrolls on whole rows, so the selection never lands in the clipped one', () => {
+    render(
+      <TextList
+        box={{ left: 0, top: 0, width: 300, height: 340 }}
+        items={items}
+        selectedIndex={6}
+        rowHeight={48}
+        gap={4}
+        colors={colors}
+        labelFont={16}
+      />,
+    )
+
+    // Selecting the seventh item scrolls, rather than leaving it half-drawn at the bottom.
+    expect(screen.queryByText('Item 0')).not.toBeInTheDocument()
+    expect(screen.getByText('Item 6')).toBeInTheDocument()
+  })
+
   it('scrolls to keep the selection visible', () => {
     render(
       <TextList

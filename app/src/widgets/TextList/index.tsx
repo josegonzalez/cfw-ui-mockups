@@ -109,15 +109,30 @@ export function TextList({
   firstVisible,
 }: TextListProps) {
   const pitch = rowHeight + gap
+
+  // Two counts, because they answer different questions. Scrolling must keep the selection
+  // *fully* visible, so it counts whole rows. Drawing should fill the box, so it includes the
+  // partial row at the bottom - a list that ends on a clean row edge reads as though it has
+  // nothing more to show.
   const visibleCount = pitch > 0 ? Math.max(1, Math.floor((box.height + gap) / pitch)) : items.length
+  const renderCount = pitch > 0 ? Math.max(1, Math.ceil((box.height + gap) / pitch)) : items.length
+
   const first =
     firstVisible !== undefined
       ? nextFirstVisible(firstVisible, selectedIndex, visibleCount, items.length)
       : firstVisibleIndex(selectedIndex, visibleCount, items.length)
-  const window = items.slice(first, first + visibleCount)
+  const window = items.slice(first, first + renderCount)
+
+  // The container clips so a partial bottom row is cut cleanly. That clip is vertical in
+  // intent, but `overflow` cannot be hidden on one axis and visible on the other, so the box is
+  // widened by the selection shift - otherwise the shifted row is sliced off at its right edge.
+  const clipWidth = box.width + Math.max(0, selectedShiftX ?? 0)
 
   return (
-    <div style={{ ...place(box), overflow: 'hidden' }} data-widget="TextList">
+    <div
+      style={{ ...place({ ...box, width: clipWidth }), overflow: 'hidden' }}
+      data-widget="TextList"
+    >
       {window.map((item, offset) => (
         <ListRow
           key={item.key}

@@ -117,8 +117,7 @@ export function MainMenu({ layout, selectedIndex }: MainMenuProps) {
         colors={{ fg: PALETTE.muted, badgeBg: PALETTE.accent }}
         font={layout.footerFont}
         badge="plain"
-        gap={layout.footerFont * 1.6}
-        bold
+        gap={layout.footerHintGap}
       />
     </>
   )
