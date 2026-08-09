@@ -1,0 +1,6 @@
+@import 'tailwindcss';
+
+/*
+ * Tailwind is used by the gallery chrome only. Theme screens never use it - they lay out
+ * at native device pixels from resolved geometry, per the portability discipline.
+ */

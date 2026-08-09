@@ -1,0 +1,22 @@
+# Build output
+dist/
+build/
+
+# Dependencies
+node_modules/
+
+# Test and tooling output
+coverage/
+playwright-report/
+test-results/
+storybook-static/
+*.tsbuildinfo
+
+# Working scratch space, never committed
+tmp/
+
+# Editor and OS
+.DS_Store
+.idea/
+.vscode/
+*.swp
