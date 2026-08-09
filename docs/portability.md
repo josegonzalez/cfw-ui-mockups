@@ -43,8 +43,7 @@ Motion is declared as descriptors, never as imperative DOM writes. No widget cal
 `element.animate`, writes `style.setProperty`, or forces a reflow. Those live in the renderer
 adapter.
 
-The descriptor format is documented in `animation.md`, which lands with the shared foundation
-layers.
+See [animation.md](animation.md) for the descriptor format.
 
 There is one apparent exception worth naming: PlayStation X's transform channels
 (`--px-ox`, `--px-oy`, `--px-x`, `--px-y`, `--px-sc`) are CSS custom properties. They are not

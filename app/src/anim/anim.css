@@ -1,0 +1,44 @@
+/*
+ * The transform-channel recomposition.
+ *
+ * Up to three transform channels animate at once on a single element, and two Web Animations
+ * cannot both target `transform`. So each channel animates its own registered custom property
+ * and this rule composes them into one transform. The registration matters: without
+ * `@property`, a custom property is an untyped string and the browser cannot interpolate it,
+ * so every animation would snap between keyframes instead of tweening.
+ *
+ * Order is not arbitrary. `translate(x, y)` is the authored position offset, `translate(ox,
+ * oy)` is the transient nudge layered on top, and `scale` comes last so it scales about the
+ * element's own box rather than amplifying the translations.
+ */
+@property --px-ox {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 0px;
+}
+@property --px-oy {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 0px;
+}
+@property --px-x {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 0px;
+}
+@property --px-y {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 0px;
+}
+@property --px-sc {
+  syntax: '<number>';
+  inherits: false;
+  initial-value: 1;
+}
+
+.px-anim {
+  transform: translate(var(--px-x), var(--px-y)) translate(var(--px-ox), var(--px-oy))
+    scale(var(--px-sc));
+  will-change: transform, opacity;
+}

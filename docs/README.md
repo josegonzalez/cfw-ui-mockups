@@ -6,7 +6,9 @@ Index of the documentation in this repo. Start here.
 
 | Document | What it covers |
 | --- | --- |
+| [architecture.md](architecture.md) | How the app is put together: composition root, geometry, input, assets |
 | [portability.md](portability.md) | The discipline that keeps widgets translatable to a non-DOM renderer, and how it is enforced |
+| [animation.md](animation.md) | The animation descriptor format, the neutral timeline, easing registry and renderer adapters |
 | [testing.md](testing.md) | What is tested where, and how to run each suite |
 | [legacy.md](legacy.md) | What lives under `legacy/`, why it is kept, and how to compare against it |
 
@@ -40,6 +42,5 @@ Nothing links to them until they exist.
 
 | Document | Arrives with |
 | --- | --- |
-| `architecture.md`, `animation.md` | The shared foundation layers |
 | `widgets/README.md` and a page per widget | The widget kit |
 | `porting/<theme>.md` | Each theme port, recording defects fixed and deviations taken |
