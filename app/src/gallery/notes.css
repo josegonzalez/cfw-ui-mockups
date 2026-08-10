@@ -1,0 +1,191 @@
+/*
+ * The notes viewer.
+ *
+ * Long-form prose, so the priorities are different from the rest of the gallery: a comfortable
+ * measure, generous line height, and enough contrast between heading levels to skim by.
+ */
+
+.notes {
+  min-height: 100vh;
+  padding: 32px 24px 96px;
+  background: var(--gal-bg);
+  color: var(--gal-ink);
+  font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+}
+
+.notes__bar {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  max-width: 860px;
+  margin: 0 auto 32px;
+}
+
+.notes__path {
+  color: var(--gal-ink-3);
+  font-family: ui-monospace, monospace;
+  font-size: 13px;
+}
+
+.notes__raw {
+  margin-left: auto;
+}
+
+.notes__status {
+  max-width: 860px;
+  margin: 0 auto;
+  color: var(--gal-ink-2);
+}
+
+.notes__status--error {
+  color: #ff9d9d;
+}
+
+.notes__body {
+  max-width: 860px;
+  margin: 0 auto;
+  /* Roughly 70 characters at this size - past that the eye loses the next line. */
+  font-size: 16px;
+  line-height: 1.7;
+  color: var(--gal-ink-2);
+}
+
+.notes__body > *:first-child {
+  margin-top: 0;
+}
+
+.notes__body h1,
+.notes__body h2,
+.notes__body h3,
+.notes__body h4 {
+  margin: 2em 0 0.6em;
+  color: var(--gal-ink);
+  line-height: 1.25;
+  text-wrap: balance;
+}
+
+.notes__body h1 {
+  font-size: 34px;
+  letter-spacing: -0.02em;
+}
+
+.notes__body h2 {
+  font-size: 23px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--gal-line);
+}
+
+.notes__body h3 {
+  font-size: 18px;
+}
+
+.notes__body h4 {
+  font-size: 16px;
+  color: var(--gal-ink-2);
+}
+
+.notes__body p,
+.notes__body ul,
+.notes__body ol {
+  margin: 1em 0;
+}
+
+.notes__body li {
+  margin: 0.35em 0;
+}
+
+.notes__body a {
+  color: var(--gal-neon);
+  text-underline-offset: 3px;
+}
+
+.notes__body strong {
+  color: var(--gal-ink);
+}
+
+.notes__body code {
+  padding: 2px 5px;
+  border: 1px solid var(--gal-line);
+  border-radius: 5px;
+  background: var(--gal-surface);
+  font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+  font-size: 0.88em;
+  color: #cfe8ff;
+}
+
+.notes__body pre {
+  margin: 1.2em 0;
+  padding: 16px 18px;
+  border: 1px solid var(--gal-line);
+  border-radius: 10px;
+  background: var(--gal-surface);
+  overflow-x: auto;
+  line-height: 1.55;
+}
+
+.notes__body pre code {
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--gal-ink-2);
+  font-size: 13.5px;
+}
+
+.notes__body blockquote {
+  margin: 1.2em 0;
+  padding: 2px 18px;
+  border-left: 3px solid color-mix(in srgb, var(--gal-neon) 60%, transparent);
+  background: var(--gal-surface);
+  border-radius: 0 8px 8px 0;
+  color: var(--gal-ink-2);
+}
+
+/* Tables carry most of the reference material, so they get room to breathe and can scroll. */
+.notes__body table {
+  display: block;
+  width: 100%;
+  margin: 1.4em 0;
+  border-collapse: collapse;
+  overflow-x: auto;
+  font-size: 14.5px;
+}
+
+.notes__body th,
+.notes__body td {
+  padding: 9px 14px;
+  border: 1px solid var(--gal-line);
+  text-align: left;
+  vertical-align: top;
+}
+
+.notes__body th {
+  background: var(--gal-surface);
+  color: var(--gal-ink);
+  font-weight: 650;
+  white-space: nowrap;
+}
+
+.notes__body hr {
+  margin: 2.4em 0;
+  border: none;
+  border-top: 1px solid var(--gal-line);
+}
+
+.notes__body img {
+  max-width: 100%;
+  border-radius: 8px;
+}
+
+/*
+ * A hex colour, painted as itself.
+ *
+ * The border is a light overlay rather than a fixed colour so it reads against both very dark
+ * and very light swatches, and it is what keeps a near-black palette entry from vanishing into
+ * the page.
+ */
+.notes__body code.notes__swatch {
+  border-color: rgb(255 255 255 / 22%);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}

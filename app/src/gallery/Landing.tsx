@@ -3,6 +3,7 @@ import { DEVICES } from '../device/devices'
 import { SCREEN_MANIFEST, screenId } from '../themes/manifest'
 import { THEMES, catalogueTotals, type ThemeEntry } from '../themes/catalogue'
 import { Hero } from './hero/Hero'
+import { NOTES_PREFIX } from './NotesViewer'
 import './gallery.css'
 import './hero/hero.css'
 
@@ -88,7 +89,7 @@ function ThemeCard({ theme }: { theme: ThemeEntry }) {
             </a>
           ) : null}
 
-          <a className="gal-btn" href={`/${theme.docPath}`}>
+          <a className="gal-btn" href={`#${NOTES_PREFIX}${theme.docPath}`}>
             Read the notes
           </a>
         </div>
@@ -191,7 +192,7 @@ export function Landing() {
         <footer className="gal__footer">
           Every set reproduces someone else's work. Elementerial is by mluizvitor, PlayStation X by
           pajarorrojo, Vitro Launcher by KevDoy. Documentation lives in{' '}
-          <a href="/docs/README.md">docs/</a>; the original vanilla-JS mockups are archived under{' '}
+          <a href={`#${NOTES_PREFIX}docs/README.md`}>docs/</a>; the original vanilla-JS mockups are archived under{' '}
           <a href="/legacy/index.html">legacy/</a> and still render.
         </footer>
       </div>

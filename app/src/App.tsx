@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Landing } from './gallery/Landing'
+import { NotesViewer, notesPathFromHash } from './gallery/NotesViewer'
 import { ROUTES } from './themes/registry'
 import { findRoute } from './routes'
 import { THEMES } from './themes/catalogue'
@@ -26,8 +27,11 @@ function useHashRoute(): string {
 
 export function App() {
   const hash = useHashRoute()
-  const route = findRoute(ROUTES, hash)
 
+  const notes = notesPathFromHash(hash)
+  if (notes) return <NotesViewer path={notes} />
+
+  const route = findRoute(ROUTES, hash)
   if (!route) return <Landing />
 
   const theme = THEMES.find((t) => t.slug === route.theme)

@@ -25,7 +25,10 @@ const SHARED_DIRS = ['docs', 'legacy']
  * build so a built site is self-contained rather than quietly losing half its links.
  */
 function serveRepoDirs(): Plugin {
-  let outDir = 'dist'
+  const appDir = fileURLToPath(new URL('.', import.meta.url))
+  // The one output directory the copy is allowed to write into.
+  const expectedOutDir = resolve(appDir, 'dist')
+  let absOutDir = expectedOutDir
 
   const mount = (server: ViteDevServer | PreviewServer) => {
     for (const dir of SHARED_DIRS) {
@@ -49,15 +52,23 @@ function serveRepoDirs(): Plugin {
   return {
     name: 'cfw:serve-repo-dirs',
     configResolved(config) {
-      outDir = config.build.outDir
+      absOutDir = resolve(config.root, config.build.outDir)
     },
     configureServer: mount,
     configurePreviewServer: mount,
     async closeBundle() {
+      /*
+       * Only the app's own build gets the copy.
+       *
+       * A Vite build runs this hook once per environment, and the ones that are not producing
+       * the site resolve against placeholder paths - which is enough to scatter 15MB of copied
+       * archive into a directory nobody asked for. Checking the resolved output directory is
+       * what keeps the copy where it belongs.
+       */
+      if (absOutDir !== expectedOutDir) return
+
       for (const dir of SHARED_DIRS) {
-        await cp(resolve(repoRoot, dir), resolve(repoRoot, 'app', outDir, dir), {
-          recursive: true,
-        })
+        await cp(resolve(repoRoot, dir), resolve(absOutDir, dir), { recursive: true })
       }
     },
   }

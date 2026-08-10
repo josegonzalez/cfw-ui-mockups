@@ -105,6 +105,17 @@ test('every theme is represented with preview art that actually loads', async ({
   expect(broken).toEqual([])
 })
 
+test('the notes open as a rendered page', async ({ page }) => {
+  // These used to link straight at the `.md` file, which left it to the browser whether the
+  // notes displayed, downloaded, or did nothing at all.
+  await page.goto('/')
+  await page.locator('a.gal-btn', { hasText: 'Read the notes' }).first().click()
+
+  await expect(page).toHaveURL(/#notes\/docs\//)
+  await expect(page.locator('.notes__body h1')).toBeVisible()
+  await expect(page.locator('.notes__body')).not.toBeEmpty()
+})
+
 test('every link off the landing page resolves', async ({ page, request }) => {
   /*
    * The "Read the notes" and "Open the original" buttons point at `docs/` and `legacy/`, which

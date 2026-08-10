@@ -85,3 +85,11 @@ test('capture hero device booting', async ({ page }) => {
   await page.waitForTimeout(700)
   await page.screenshot({ path: resolve(OUT, 'hero-device-booting.png') })
 })
+
+test('capture notes', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 1000 })
+  await page.goto('/#notes/docs/themes/example-cfw.md')
+  await page.waitForSelector('.notes__swatch')
+  await page.locator('.notes__swatch').first().scrollIntoViewIfNeeded()
+  await page.screenshot({ path: resolve(OUT, 'notes.png') })
+})

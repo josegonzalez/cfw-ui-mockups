@@ -48,7 +48,20 @@ const noImperativeDom = [
 ]
 
 export default tseslint.config(
-  { ignores: ['dist', 'storybook-static', 'coverage', 'playwright-report', 'test-results'] },
+  /*
+   * Explicit `/**` globs. A bare directory name does not reliably exclude everything beneath
+   * it, and the build copies the pre-React archive into `dist/`, which would otherwise be
+   * linted as if it were source - hundreds of errors about code that is deliberately frozen.
+   */
+  {
+    ignores: [
+      'dist/**',
+      'storybook-static/**',
+      'coverage/**',
+      'playwright-report/**',
+      'test-results/**',
+    ],
+  },
   js.configs.recommended,
   ...tseslint.configs.recommended,
   {
