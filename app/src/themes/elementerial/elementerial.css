@@ -1,0 +1,403 @@
+/*
+ * Elementerial's own styling.
+ *
+ * Geometry arrives as literal pixels from `layout.ts` and is written inline, so this file owns
+ * only colour, type, z-order and motion. Nothing here reads the viewport.
+ *
+ * Class names are the original's, so a grep for `el-tile` finds both. Colour comes from the
+ * scheme's custom properties, which is the one place in the repo where the cascade genuinely
+ * earns its keep: switching scheme is a single style recalc across every view, with no rebuild
+ * and no re-render. Widgets still take their colours as props - these variables are consumed by
+ * the theme's own decorative rules.
+ */
+
+/* ---- fonts ------------------------------------------------------------ */
+/* Inter for everything on screen; Roboto Condensed only for the help bar. */
+
+@font-face {
+  font-family: 'Inter';
+  src: url('assets/fonts/Inter/Inter-Regular.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: block;
+}
+@font-face {
+  font-family: 'Inter';
+  src: url('assets/fonts/Inter/Inter-Bold.otf') format('opentype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: block;
+}
+@font-face {
+  font-family: 'Inter';
+  src: url('assets/fonts/Inter/Inter-Light.otf') format('opentype');
+  font-weight: 300;
+  font-style: normal;
+  font-display: block;
+}
+@font-face {
+  font-family: 'RobotoCondensed';
+  src: url('assets/fonts/RobotoCondensed/RobotoCondensed-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: block;
+}
+
+/* ---- root ------------------------------------------------------------- */
+
+.el-root {
+  /*
+   * Motion, read out of the upstream engine rather than guessed.
+   */
+  --el-ease-out: cubic-bezier(0, 0, 0.58, 1);
+  --el-ease-out-quint: cubic-bezier(0.23, 1, 0.32, 1);
+  --el-carousel-move: 500ms;
+  /*
+   * The two info transitions. The 300ms wait between them is scheduling rather than a
+   * transition, so it lives with them in `INFO_TIMING` and a test holds the pair in step.
+   */
+  --el-info-out: 150ms;
+  --el-info-in: 300ms;
+  --el-cover-in: 1000ms;
+  --el-min-logo-opacity: 0.5;
+  --el-grid-select: 250ms;
+
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: var(--bgColor);
+  color: var(--fgColor);
+  font-family: 'Inter', system-ui, sans-serif;
+  /*
+   * Load-bearing. The theme's own z-order runs from -9 (system artwork) to 100 (overlays),
+   * mirroring the engine's, and this root paints an opaque bgColor fill. Without a stacking
+   * context here, every negative-z layer escapes to the nearest ancestor that has one and paints
+   * *behind* that fill - which hides the artwork, the scrims and the video art on every view
+   * while leaving all their computed geometry correct. The original forced the same context on
+   * its per-view wrapper; this port has no wrapper, so it belongs here.
+   */
+  isolation: isolate;
+  /*
+   * The device frame defaults the screen to pixelated. Elementerial is a smooth Material theme
+   * with gradient artwork and downscaled photographs, so that default is actively wrong here.
+   */
+  image-rendering: auto;
+  -webkit-font-smoothing: antialiased;
+  user-select: none;
+}
+
+.el-root * {
+  box-sizing: border-box;
+}
+
+/*
+ * The device frame rounds the screen by 8px. Elementerial rounds its own corners with a border
+ * overlay, so the frame's radius would clip inside the theme's and fight it. This stylesheet is
+ * only loaded by Elementerial screens, so handing the corners to the overlay is safe.
+ */
+.el-root .device__screen,
+.screen:has(.el-root) {
+  border-radius: 0;
+}
+
+/* ---- text ------------------------------------------------------------- */
+/* A 1px soft halo is the closest equivalent to the engine's 1px glow. */
+
+.el-system-name,
+.el-system-info,
+.el-logo-text,
+.el-md-name {
+  position: absolute;
+  color: var(--fgColor-90);
+  text-shadow: 0 0 1px var(--bgColor-10);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1;
+}
+
+.el-system-name {
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.el-system-info {
+  font-weight: 400;
+  text-transform: uppercase;
+  transition: opacity var(--el-info-in) linear;
+}
+
+/*
+ * The info line is not one of the cross-fading extras; the engine gives it its own three-part
+ * animation - out over 150ms, swap the text, in over 300ms - which is why it has its own states
+ * rather than riding the carousel transition.
+ */
+.el-system-info.is-leaving {
+  opacity: 0;
+  transition: opacity var(--el-info-out) linear;
+}
+
+.el-system-info.is-pending {
+  opacity: 0;
+  transition: none;
+}
+
+.el-logo-text {
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.el-md-name {
+  font-weight: 400;
+}
+
+.el-md-description {
+  position: absolute;
+  color: var(--fgColor-90);
+  overflow: hidden;
+}
+
+/* ---- artwork ---------------------------------------------------------- */
+
+.el-cover,
+.el-cover-list {
+  position: absolute;
+  object-fit: cover;
+  display: block;
+}
+
+@keyframes el-cover-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Re-fires on every system change, because the engine restarts the storyboard. */
+.el-cover.is-animated {
+  animation: el-cover-in var(--el-cover-in) var(--el-ease-out) both;
+}
+
+/*
+ * The outgoing artwork and name fade out *on top of* the incoming ones rather than sliding,
+ * because the engine lerps their opacity while the camera offset jumps straight to its target.
+ * Two separate layers rather than one wrapper, so the theme's z-order survives - a wrapper with
+ * opacity below 1 makes its own stacking context and traps them together.
+ */
+.el-cover--out,
+.el-system-name--out {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.el-cover--out.is-fading,
+.el-system-name--out.is-fading {
+  transition: opacity var(--el-carousel-move) var(--el-ease-out-quint);
+}
+
+/* ---- carousel --------------------------------------------------------- */
+
+.el-carousel {
+  /* The carousel's own background is the scheme background at zero alpha. */
+  background: var(--bgColor-0);
+}
+
+/*
+ * The selected card grows by 1.4 and overlaps both neighbours. Without an explicit lift, the
+ * neighbour later in DOM order paints over it.
+ */
+.el-logo[data-selected] {
+  z-index: 2;
+}
+
+/* ---- text list -------------------------------------------------------- */
+
+.el-list {
+  position: absolute;
+  overflow: hidden;
+}
+
+.el-row {
+  display: flex;
+  align-items: center;
+  color: var(--fgColor);
+  white-space: nowrap;
+  width: 100%;
+}
+
+/*
+ * The label clips, not the row. The selection bar spans the full list width while the text is
+ * inset by the engine's horizontal margin, so clipping the row would let an over-long title run
+ * the extra margin's width past where the engine stops it.
+ */
+.el-row > span {
+  display: block;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.el-row[data-selected] {
+  background: var(--mainColor);
+  color: var(--onMainColor);
+}
+
+/* ---- tiles ------------------------------------------------------------ */
+
+.el-tile-bg {
+  position: absolute;
+  inset: 0;
+  background: var(--mainColor);
+  opacity: 0;
+  transition: opacity var(--el-grid-select) linear;
+}
+
+.el-tile[data-on] .el-tile-bg {
+  opacity: 1;
+}
+
+.el-tile-art {
+  position: absolute;
+  display: block;
+  object-fit: cover;
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+}
+
+.el-tile-caption {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  text-align: center;
+  color: var(--fgColor);
+  overflow: hidden;
+}
+
+.el-tile[data-on] .el-tile-caption {
+  color: var(--onMainColor);
+}
+
+.el-tile-fav {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 2;
+}
+
+/* ---- boxes view ------------------------------------------------------- */
+/* Only this view zooms the selection and dims the rest; the plain grid does neither. */
+
+.el-view--boxes .el-tile {
+  transition: transform var(--el-grid-select) var(--el-ease-out);
+}
+
+.el-view--boxes .el-tile[data-on] {
+  z-index: 2;
+}
+
+.el-view--boxes .el-tile-art {
+  filter: brightness(0.667);
+  transition: filter var(--el-grid-select) linear;
+}
+
+.el-view--boxes .el-tile[data-on] .el-tile-art {
+  filter: none;
+}
+
+.el-view--boxes .el-tile-marquee {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  object-fit: contain;
+  transition:
+    width var(--el-grid-select) var(--el-ease-out),
+    height var(--el-grid-select) var(--el-ease-out);
+  z-index: 1;
+}
+
+/*
+ * Deliberately scheme-independent: white on an eighty-percent black chip, in all twenty-eight
+ * scheme and style combinations.
+ */
+.el-view--boxes .el-tile-caption {
+  color: #ffffff;
+  background: #000000cc;
+  z-index: 3;
+}
+
+.el-view--boxes .el-tile[data-on] .el-tile-caption {
+  color: #ffffff;
+}
+
+/* ---- elementflix ------------------------------------------------------ */
+/* Inherits the tile machinery, then: square corners, no dimming, no marquee. */
+
+.el-view--elementflix .el-tile {
+  transition: transform var(--el-grid-select) var(--el-ease-out);
+}
+
+.el-view--elementflix .el-tile[data-on] {
+  z-index: 2;
+}
+
+.el-view--elementflix .el-tile-caption {
+  color: var(--fgColor-80);
+}
+
+.el-view--elementflix .el-tile[data-on] .el-tile-caption {
+  color: var(--fgColor);
+}
+
+/*
+ * The only place the dark and light style files genuinely differ for these views: dark draws the
+ * selected tile plate flat white, light leaves it as the scheme's accent.
+ */
+.el-root.style-dark .el-view--elementflix .el-tile-bg {
+  background: #ffffff;
+}
+
+.el-root.style-light .el-view--elementflix .el-tile-bg {
+  background: var(--mainColor);
+}
+
+/* ---- help bar --------------------------------------------------------- */
+
+.el-help {
+  font-family: 'RobotoCondensed', 'Roboto Condensed', system-ui, sans-serif;
+  color: var(--fgColor);
+  transform: translateY(-50%);
+}
+
+/* ---- status bar ------------------------------------------------------- */
+/* The clock and status glyphs are always white, in every scheme and both styles. */
+
+.el-clock {
+  color: #ffffff;
+  transform: translateY(-50%);
+  line-height: 1;
+}
+
+.el-battery {
+  position: absolute;
+  display: flex;
+  align-items: center;
+}
+
+.el-battery img {
+  display: block;
+}
+
+.el-activity {
+  position: absolute;
+  display: flex;
+}
+
+.el-activity span {
+  display: block;
+  border-radius: 50%;
+  background: var(--fgColor-30);
+}

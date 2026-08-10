@@ -13,10 +13,12 @@ props.
 | `box` | `Box` | Resolved device pixels |
 | `items` | `HelpItem[]` | `{ glyph, label }` |
 | `colors` | `HelpBarColors` | `{ fg, badgeBg?, badgeFg? }` |
-| `font` | `number` | Device pixels; badge and gap sizes derive from it |
+| `font` | `number` | Label size, in device pixels |
 | `badge` | `'circle' \| 'plain'` | |
+| `badgeFont` | `number?` | The badge's own size. Defaults to `font * 0.72` |
 | `gap` | `number?` | Defaults to `font * 0.85` |
 | `uppercase`, `bold` | `boolean?` | |
+| `fontFamily` | `string?` | A prop, not a class - one theme sets its bar in a different family |
 
 `glyph` is a device button: `a`, `b`, `x`, `y`, `l`, `r`, `start`, `select`, `menu`. It is
 typed against the shared button union, so a hint cannot refer to a button that does not exist.
@@ -26,6 +28,13 @@ typed against the shared button union, so a hint cannot refer to a button that d
 **`circle`** - a filled disc with the letter knocked out.
 
 **`plain`** - the letter alone, in the accent colour.
+
+## Badge size is stated, not derived
+
+A badge carries its own font, and its geometry is proportioned from that rather than from the
+label: a circle is 1.05 of it across, a pill 1.15 by 0.62. Deriving them from the label size
+instead makes every badge in the bar about forty percent too large, which is what the first
+version of this widget did.
 
 ## Start and Select
 

@@ -60,7 +60,7 @@ export const THEMES: readonly ThemeEntry[] = [
     views: 8,
     devices: ['rg35xx', 'rg351m', 'rg552', 'rg-cubexx'],
     fonts: ['Inter', 'Roboto Condensed'],
-    ported: false,
+    ported: true,
     legacyPath: 'legacy/elementerial/rg35xx/theme.html',
     docPath: 'docs/themes/elementerial.md',
   },

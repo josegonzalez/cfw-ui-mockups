@@ -16,6 +16,12 @@ const REPO = resolve(process.cwd(), '..')
 const LEGACY: Record<string, string> = {
   'example-cfw/rg35xx/main-menu': 'legacy/example-cfw/rg35xx/main-menu.html',
   'example-cfw/rg35xx/game-list': 'legacy/example-cfw/rg35xx/game-list.html',
+  // Elementerial's legacy filenames match its screen slugs, so the pairs line up by name.
+  ...Object.fromEntries(
+    SCREEN_MANIFEST.filter((entry) => entry.theme === 'elementerial' && !entry.interactive).map(
+      (entry) => [screenId(entry), `legacy/elementerial/${entry.device}/${entry.screen}.html`],
+    ),
+  ),
 }
 
 test('capture landing', async ({ page }) => {
@@ -64,26 +70,21 @@ test('capture viewer', async ({ page }) => {
   await page.screenshot({ path: resolve(OUT, 'viewer.png') })
 })
 
-/** Each hero treatment, with the preview switcher hidden so it does not sit over the stat row. */
-for (const hero of ['device', 'neon', 'marquee']) {
-  test(`capture hero ${hero}`, async ({ page }) => {
-    await page.setViewportSize({ width: 1280, height: 860 })
-    await page.goto(`/?hero=${hero}`)
-    await page.addStyleTag({ content: '.hero-switch{display:none}' })
-    // The device treatment boots before it settles; wait for the launcher rather than guessing.
-    await page.waitForSelector('.bootscreen', { state: 'detached' }).catch(() => {})
-    await page.waitForTimeout(600)
-    await page.screenshot({ path: resolve(OUT, `hero-${hero}.png`) })
-  })
-}
-
-test('capture hero device booting', async ({ page }) => {
+test('capture hero', async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 860 })
-  await page.goto('/?hero=device')
-  await page.addStyleTag({ content: '.hero-switch{display:none}' })
+  await page.goto('/')
+  // The hero boots before it settles; wait for the launcher rather than guessing at a delay.
+  await page.waitForSelector('.bootscreen', { state: 'detached' }).catch(() => {})
+  await page.waitForTimeout(600)
+  await page.screenshot({ path: resolve(OUT, 'hero.png') })
+})
+
+test('capture hero booting', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 860 })
+  await page.goto('/')
   await page.waitForSelector('.bootscreen')
   await page.waitForTimeout(700)
-  await page.screenshot({ path: resolve(OUT, 'hero-device-booting.png') })
+  await page.screenshot({ path: resolve(OUT, 'hero-booting.png') })
 })
 
 test('capture notes', async ({ page }) => {

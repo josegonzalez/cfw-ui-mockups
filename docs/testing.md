@@ -27,6 +27,12 @@ every device and option combination is resolved and snapshotted. This is the mos
 surface in the port: the resolvers turn fractional spec values into literal pixel boxes, and a
 wrong constant produces a screen that looks plausible but is subtly wrong everywhere.
 
+**Golden fixtures from the original.** Where a port reproduces existing code rather than
+implementing a spec, the fixtures are captured by running the **original** under `node:vm` and
+comparing value by value - `app/scripts/gen-layout-golden.mjs` and `gen-data.mjs` do this for
+Elementerial's resolver, library and generated art. A self-snapshot only proves a port agrees
+with itself; this proves it agrees with what it reproduces.
+
 **The animation compiler.** Descriptors compile to a renderer-neutral timeline, and the
 timeline is what is asserted, so the tests survive swapping the web adapter for another
 renderer. Covered: the four compiler rules, hold-frame insertion, the `_` event fallback, the
@@ -81,8 +87,15 @@ had no mask, and painted solid over every Elementerial view. Every numeric check
 element boxes, palette tokens, font sizes, row pitch, input handling, zero console errors -
 because nothing about that fault is visible in computed styles. Only compositing shows it.
 
+A masked scrim is exempt from that guard - the mask is what stops it painting solid, and
+covering the whole panel is exactly what it is for. Its own failure mode, a mask that does not
+load, shows up as a failed request in the zero-console-errors check.
+
 The general lesson holds beyond that one bug: **verify a visual deliverable by looking at it.**
-Geometry assertions are necessary and not sufficient.
+Geometry assertions are necessary and not sufficient. Each theme port has run
+`npx playwright test capture`, which writes every screen beside its legacy counterpart into
+`tmp/claude/capture/` for exactly that comparison; both ports so far found faults there that
+nothing else caught, and each one is listed in the theme's page under `docs/porting/`.
 
 ## What is not tested
 

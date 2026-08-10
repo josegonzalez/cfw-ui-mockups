@@ -34,10 +34,22 @@ export interface HelpBarProps {
   readonly colors: HelpBarColors
   readonly font: number
   readonly badge?: HelpBadgeStyle | undefined
+  /**
+   * The badge's font size in device pixels, which its circle and pill are proportioned from.
+   * Defaults to 0.72 of the label font, which is what every source in the repo uses.
+   */
+  readonly badgeFont?: number | undefined
   /** Gap between hints, in device pixels. Defaults to a proportion of the font size. */
   readonly gap?: number | undefined
   readonly uppercase?: boolean | undefined
   readonly bold?: boolean | undefined
+  /**
+   * Overrides the screen's font for this bar.
+   *
+   * A prop rather than a class, because a renderer without CSS cannot apply one. One theme sets
+   * its hint bar in a different family from the rest of its screen.
+   */
+  readonly fontFamily?: string | undefined
 }
 
 const GLYPH_TEXT: Record<HelpGlyph, string> = {
@@ -55,6 +67,15 @@ const GLYPH_TEXT: Record<HelpGlyph, string> = {
 /** Start and Select are drawn as a pictogram, because neither carries a letter on the hardware. */
 const PILL_GLYPHS = new Set<HelpGlyph>(['start', 'select'])
 
+/**
+ * Glyph proportions, as multiples of the badge's own font size.
+ *
+ * Stated rather than derived from the label size, because the badge carries its own font: a
+ * circle is 1.05 of it across, a pill 1.15 by 0.62. Deriving them from the label instead makes
+ * every badge in the bar about forty percent too large.
+ */
+const BADGE = { circle: 1.05, pillW: 1.15, pillH: 0.62, radius: 0.31 } as const
+
 function PillGlyph({ size, bg, fg }: { size: number; bg: string; fg: string }) {
   // Three bars inside a rounded capsule, matching the moulded pill these buttons have.
   const bar = `linear-gradient(${fg}, ${fg})`
@@ -62,9 +83,9 @@ function PillGlyph({ size, bg, fg }: { size: number; bg: string; fg: string }) {
     <span
       style={{
         display: 'inline-block',
-        width: `${size * 1.15}px`,
-        height: `${size * 0.62}px`,
-        borderRadius: '999px',
+        width: `${size * BADGE.pillW}px`,
+        height: `${size * BADGE.pillH}px`,
+        borderRadius: `${size * BADGE.radius}px`,
         background: `${bar} 22% / 1px 55% no-repeat, ${bar} 50% / 1px 55% no-repeat, ${bar} 78% / 1px 55% no-repeat, ${bg}`,
         flex: '0 0 auto',
       }}
@@ -81,6 +102,7 @@ function GlyphBadge({
   glyph: HelpGlyph
   style: HelpBadgeStyle
   colors: HelpBarColors
+  /** The badge's own font size, not the label's. */
   font: number
 }) {
   if (style === 'plain') {
@@ -99,12 +121,12 @@ function GlyphBadge({
       style={{
         display: 'inline-grid',
         placeItems: 'center',
-        width: `${font * 1.05}px`,
-        height: `${font * 1.05}px`,
+        width: `${font * BADGE.circle}px`,
+        height: `${font * BADGE.circle}px`,
         borderRadius: '999px',
         background: bg,
         color: fg,
-        fontSize: `${font * 0.72}px`,
+        fontSize: `${font}px`,
         fontWeight: 700,
         flex: '0 0 auto',
       }}
@@ -126,10 +148,13 @@ export function HelpBar({
   colors,
   font,
   badge = 'circle',
+  badgeFont,
   gap,
   uppercase = false,
   bold = false,
+  fontFamily,
 }: HelpBarProps) {
+  const glyphFont = badgeFont ?? font * 0.72
   const style: CSSProperties = {
     ...place({ ...box, font }),
     display: 'flex',
@@ -138,6 +163,7 @@ export function HelpBar({
     color: colors.fg,
     whiteSpace: 'nowrap',
     overflow: 'hidden',
+    ...(fontFamily ? { fontFamily } : {}),
   }
 
   return (
@@ -149,11 +175,11 @@ export function HelpBar({
             display: 'inline-flex',
             alignItems: 'center',
             // A word space, matching how these read when the glyph is inline text.
-            gap: `${font * 0.28}px`,
+            gap: `${glyphFont * 0.32}px`,
             fontWeight: bold ? 700 : 400,
           }}
         >
-          <GlyphBadge glyph={item.glyph} style={badge} colors={colors} font={font} />
+          <GlyphBadge glyph={item.glyph} style={badge} colors={colors} font={glyphFont} />
           <span style={{ textTransform: uppercase ? 'uppercase' : 'none' }}>{item.label}</span>
         </span>
       ))}

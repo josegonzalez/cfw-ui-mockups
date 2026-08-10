@@ -148,7 +148,13 @@
   gap: 14px;
 }
 
-.pill {
+/*
+ * Scoped to the button cluster on purpose. In the original stylesheet this was a bare `.pill`,
+ * and it reached into Elementerial's help bar - whose Start and Select pictograms also carry a
+ * `pill` class - padding them out to the button's own 5px/12px and stamping the button's inset
+ * highlight on them. The frame is mockup chrome and must not be able to style a screen.
+ */
+.device__meta .pill {
   padding: 5px 12px;
   border-radius: 999px;
   background: #242629;

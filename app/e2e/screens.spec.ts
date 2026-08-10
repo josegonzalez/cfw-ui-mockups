@@ -61,6 +61,15 @@ for (const route of ROUTES) {
           continue
         }
 
+        /*
+         * A masked tint is legitimate: the mask is what stops it painting solid, and a scrim
+         * over the whole panel is how every theme here darkens artwork. The failure mode - a
+         * mask that does not load, leaving the flat fill behind it - is caught by the
+         * console-errors test above, which fails on any failed request.
+         */
+        const mask = style.maskImage ?? style.webkitMaskImage
+        if (mask && mask !== 'none') continue
+
         const bg = style.backgroundColor
         const alpha = /rgba?\([^)]*,\s*([\d.]+)\s*\)/.exec(bg)
         const isOpaque = bg !== 'rgba(0, 0, 0, 0)' && bg !== 'transparent' && (!alpha || Number(alpha[1]) > 0.95)
@@ -98,11 +107,20 @@ test('every theme is represented with preview art that actually loads', async ({
   const cards = page.locator('.gal-card')
   await expect(cards).toHaveCount(4)
 
-  // A broken preview still renders an <img> box, so check the decoded dimensions.
-  const broken = await page.locator('.gal-card__img').evaluateAll((imgs) =>
-    imgs.filter((img) => !(img as HTMLImageElement).naturalWidth).map((img) => img.getAttribute('src')),
-  )
-  expect(broken).toEqual([])
+  // A broken preview still renders an <img> box, so check the decoded dimensions. Polled
+  // rather than sampled once: an image that has not finished decoding also reports zero, and
+  // under a loaded worker that is a coin flip rather than a fault.
+  await expect
+    .poll(
+      () =>
+        page.locator('.gal-card__img').evaluateAll((imgs) =>
+          imgs
+            .filter((img) => !(img as HTMLImageElement).naturalWidth)
+            .map((img) => img.getAttribute('src')),
+        ),
+      { message: 'preview art that never decoded' },
+    )
+    .toEqual([])
 })
 
 test('the notes open as a rendered page', async ({ page }) => {

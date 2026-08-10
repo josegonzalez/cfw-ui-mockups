@@ -1,10 +1,5 @@
 # Elementerial
 
-> **Status:** this page still describes the original vanilla-JS mockup, whose code and
-> screens now live under [`legacy/elementerial/`](../../legacy/elementerial/). Any bare path here such
-> as `elementerial/...` should be read with that prefix. It is rewritten for the React
-> implementation when this theme is ported.
-
 Mockups of **Elementerial**, an EmulationStation theme by mluizvitor, built from scratch
 around Android TV's interface with Material Design principles and the elementary OS colour
 palette. It is a Batocera-flavoured EmulationStation theme (`formatVersion 7`), the kind
@@ -13,29 +8,40 @@ shipped by AmberELEC, ArkOS, Knulli and RetroBat.
 - Source repository: `github.com/mluizvitor/es-theme-elementerial` at commit `e710525`
 - Detailed spec extracted from source: [`reference/source-notes.md`](elementerial/reference/source-notes.md)
 - Reference screenshots from the theme's README: [`reference/`](elementerial/reference/)
+- What changed in the React port: [`porting/elementerial.md`](../porting/elementerial.md)
+
+Implemented at `app/src/themes/elementerial/`. The archived original is under
+[`legacy/elementerial/`](../../legacy/elementerial/).
 
 This is the first EmulationStation theme in the repo, so it also establishes how ES's
 normalized-coordinate theming model maps onto this repo's native-pixel rule. That mapping
-lives in `layout.js` and is the only genuinely new machinery here.
+lives in `layout.ts` and is the only genuinely new machinery here.
 
 ## Screens
 
-Every one of the theme's views is mocked on every device it supports: four devices x
-(one interactive prototype carrying all eight views + eight static snapshots) = 36 pages.
-The static pages are booted from the same builders with `interactive: false`, so they carry
-no key handlers, no intervals and no entry animations.
+Every one of the theme's views is published on every device it supports: four devices x
+(one interactive build carrying all eight views and every subset + eight static snapshots)
+= 36 routes. A static route is the same component with `animate={false}`, so motion settles
+to its resting values rather than playing - there is no second implementation to drift.
 
-| Screen | File (same name under each device folder) |
+| Screen | Route (same slug under each device) |
 | --- | --- |
-| Interactive, all views and subsets | `theme.html` |
-| System carousel | `system.html` |
-| Basic gamelist | `gamelist-basic.html` |
-| Detailed gamelist | `gamelist-detailed.html` |
-| Video gamelist | `gamelist-video.html` |
-| Grid | `grid.html` |
-| Boxes | `boxes.html` |
-| Elementflix | `elementflix.html` |
-| Menu | `menu.html` |
+| Interactive, all views and subsets | `#elementerial/<device>/interactive` |
+| System carousel | `#elementerial/<device>/system` |
+| Basic gamelist | `#elementerial/<device>/gamelist-basic` |
+| Detailed gamelist | `#elementerial/<device>/gamelist-detailed` |
+| Video gamelist | `#elementerial/<device>/gamelist-video` |
+| Grid | `#elementerial/<device>/grid` |
+| Boxes | `#elementerial/<device>/boxes` |
+| Elementflix | `#elementerial/<device>/elementflix` |
+| Menu | `#elementerial/<device>/menu` |
+
+The slugs match the legacy filenames, so the A/B capture in `e2e/capture.spec.ts` pairs each
+screen with its original by name.
+
+Each static screen carries its own scheme, style and system - the same ones the original
+static pages booted with. Fourteen schemes in two styles is most of what this theme is, and
+showing every screen in the same colours would hide it.
 
 The four devices cover all four of the theme's aspect variants, and its overlay PNGs for
 each are already the exact device resolution, so nothing is resampled:
@@ -50,7 +56,7 @@ each are already the exact device resolution, so nothing is resampled:
 Menu panel geometry is the one thing not transcribed from the theme: `view-menu.xml`
 supplies fonts, colours, the panel background, the button and switch artwork and the icon
 set, but the panel's position and size belong to EmulationStation's `MenuComponent`. Those
-measurements are an approximation, flagged in `layout.js` and in the page's porting notes.
+measurements are an approximation, flagged in `layout.ts` and in `views/MenuView.tsx`.
 
 ## Theme and config format
 
@@ -189,9 +195,11 @@ The on-screen buttons in the device frame dispatch the same actions.
 
 The interactive build adds mockup-only keys, deliberately chosen outside that map so they
 can never be mistaken for a device button: `[` `]` cycle the view, `,` `.` cycle the colour
-scheme, `\` toggles dark/light, `-` `=` change the font size. The same controls appear as a
-strip below the device frame. Elementerial's real switcher is EmulationStation's Theme
-Configuration menu, which is out of scope, so none of this is drawn inside the screen.
+scheme, `\` toggles dark/light, `-` `=` change the font size, `/` changes system and `'`
+flips the grid direction. The same controls appear as a strip below the device frame. They
+live in `Interactive.tsx` rather than in the theme, so a static screen and the live build
+pass the theme exactly the same props. Elementerial's real switcher is EmulationStation's
+Theme Configuration menu, which is out of scope, so none of this is drawn inside the screen.
 
 ## Assets
 
@@ -207,24 +215,34 @@ generated as SVG data URIs in `views.js`, drawn in the theme's own accent gradie
 read the live scheme, so they re-tint with it. The thumbnail and marquee grid modes reuse
 those stand-ins, since the mockup has only one class of generated art.
 
-`masks.css` is generated. Everything the theme tints at runtime has to reach CSS as a mask -
-the three `bgColor` scrims per aspect, the elementflix edge fades, the menu icons and the
-rating stars - and Chrome treats every `file://` URL as a unique origin, so it CORS-blocks
-`mask-image` across them. Referencing the files directly makes all of it silently vanish
-when a screen is opened from Finder, so each source is embedded as a data URI instead. The
-scrims are downsampled to a quarter of the device resolution and stretched back, which is
-visually lossless on ramps this smooth. `borders.png` and `osd-bg.png` need no tint - the
-theme draws them at `000000` and the PNGs are already black - so they stay ordinary
-background images.
+Everything the theme tints at runtime is drawn as a mask over a flat fill: the three
+`bgColor` scrims per aspect, the elementflix edge fades, the menu icons and the rating stars.
+The overlay PNGs are white wherever alpha is above zero and EmulationStation draws them as
+`texel.rgb * color.rgb`, so masking a solid fill reproduces the exact pixels and re-tints for
+free when the scheme changes. `borders.png` and `osd-bg.png` need no tint - the theme draws
+them at `000000` and the PNGs are already black - so they are drawn as plain images.
+
+The original had to inline all of those as base64, because Chrome treats every `file://` URL
+as a unique origin and CORS-blocks `mask-image` across them. Served over HTTP the real files
+work, so they are resolved like every other asset and the generated stylesheet is gone.
 
 ## Files
 
-- `elementerial.css` - fonts, the CSS-variable contract, the scrim system, per-view styling, transitions
-- `masks.css` - generated data-URI masks for everything the theme tints at runtime
-- `palette.js` - the 14 schemes x dark/light, the alpha table, `applyScheme`
-- `layout.js` - the normalized ES spec, per-aspect overrides, and the resolver that turns them into literal px
-- `views.js` - sample library data, generated placeholder art, and the five view builders
-- `elementerial.js` - the controller: input, view switching, live re-theming, transitions
+Under `app/src/themes/elementerial/`:
+
+- `index.tsx` - the theme root: resolves the layout, owns the cursors, routes input, picks a view
+- `Interactive.tsx` - the live build's subsets and the mockup-only keys that cycle them
+- `layout.ts` - the normalized ES spec, per-aspect overrides, and the resolver that turns them into literal px
+- `palette.ts` - the 14 schemes x dark/light, the alpha table, and the custom properties they emit
+- `library.ts` - the sample systems and games, generated from the original's own data
+- `art.ts` - the generated screenshot, marquee and star artwork, as SVG data URIs
+- `assets.ts` - every asset lookup, resolved through Vite's glob import so a missing file is a build error
+- `elementerial.css` - fonts, motion variables, and the decorative styling the widgets do not own
+- `views/` - one module per view, plus `Chrome.tsx` for the hint bar, clock, status glyphs and overlays
+- `manifest.ts` / `routes.tsx` - what screens exist, and how each is mounted
+
+The widgets these views are built from live in `app/src/widgets/`; see
+[the widget catalogue](../widgets/README.md).
 
 ## Conventions and gotchas
 
@@ -233,6 +251,11 @@ background images.
 - `.el-root` overrides `.screen`'s `image-rendering: pixelated`. Elementerial is a smooth
   Material theme with gradient SVG logos and downscaled photographs; pixelating it would be
   actively wrong.
+- `.el-root` also declares `isolation: isolate`, and that is load-bearing. The theme's own
+  z-order runs from -9 to 100, mirroring the engine's, and the root paints an opaque
+  `bgColor` fill. Without a stacking context every negative layer escapes to the nearest
+  ancestor that has one and paints behind that fill, which hides the artwork and every scrim
+  on every view while leaving all their geometry correct.
 - The 1:1 aspect has no `osd-bg.png` of its own and borrows the 4:3 one, stretched
   (`aspect/1-1.xml:131`). That is reproduced rather than fixed.
 - The 1:1 aspect is also the only one that re-lays-out the detailed view and turns

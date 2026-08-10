@@ -1,5 +1,6 @@
 import type { DeviceSlug } from '../device/devices'
 import type { ThemeSlug } from '../widgets/types'
+import { ELEMENTERIAL_MANIFEST } from './elementerial/manifest'
 import { EXAMPLE_MANIFEST } from './example-cfw/manifest'
 
 /**
@@ -19,7 +20,10 @@ export interface ScreenManifestEntry {
   readonly interactive: boolean
 }
 
-export const SCREEN_MANIFEST: readonly ScreenManifestEntry[] = [...EXAMPLE_MANIFEST]
+export const SCREEN_MANIFEST: readonly ScreenManifestEntry[] = [
+  ...ELEMENTERIAL_MANIFEST,
+  ...EXAMPLE_MANIFEST,
+]
 
 /** Stable URL fragment for a screen. */
 export function screenId(entry: Pick<ScreenManifestEntry, 'theme' | 'device' | 'screen'>): string {

@@ -24,7 +24,10 @@ export type MenuEntry =
 export interface MenuColors {
   readonly panel: string
   readonly fg: string
+  /** The footer, and anything else set back from the row text. */
   readonly mutedFg: string
+  /** A row's current value. Themes accent this rather than muting it. */
+  readonly valueFg: string
   readonly selectedFg: string
   readonly selectedBg: string
   readonly groupFg: string
@@ -32,6 +35,9 @@ export interface MenuColors {
   readonly groupRule: string
   readonly rowRule: string
   readonly shade: string
+  readonly buttonBorder: string
+  readonly buttonSelectedBg: string
+  readonly buttonSelectedFg: string
 }
 
 export interface MenuPanelProps {
@@ -82,8 +88,48 @@ export function selectableRows(entries: readonly MenuEntry[]): number {
   return entries.filter((entry) => entry.kind === 'row').length
 }
 
+export interface MenuFit {
+  readonly entries: readonly MenuEntry[]
+  readonly panelHeight: number
+}
+
+/**
+ * How much of the menu fits, and how tall that makes the panel.
+ *
+ * The panel is sized to a whole number of entries rather than clipped to a maximum height. The
+ * engines scroll their menus; a mockup shows a fixed window instead, and a row sliced through
+ * the middle reads as a rendering fault rather than as "there is more below".
+ */
+export function fitMenu(
+  entries: readonly MenuEntry[],
+  metrics: {
+    maxHeight: number
+    titleHeight: number
+    footerHeight: number
+    rowHeight: number
+    groupHeight: number
+  },
+): MenuFit {
+  const available = metrics.maxHeight - metrics.titleHeight - metrics.footerHeight
+  let used = 0
+  let shown = 0
+
+  for (const entry of entries) {
+    const height = entry.kind === 'group' ? metrics.groupHeight : metrics.rowHeight
+    if (used + height > available) break
+    used += height
+    shown++
+  }
+
+  return {
+    entries: entries.slice(0, shown),
+    panelHeight: metrics.titleHeight + used + metrics.footerHeight,
+  }
+}
+
 export function MenuPanel(props: MenuPanelProps) {
-  const { colors, entries, selectedIndex } = props
+  const { colors, selectedIndex } = props
+  const { entries, panelHeight } = fitMenu(props.entries, props)
 
   // Row positions are computed up front rather than counted while rendering: a counter mutated
   // inside the JSX map is order-dependent in a way React does not guarantee.
@@ -92,15 +138,6 @@ export function MenuPanel(props: MenuPanelProps) {
   for (const entry of entries) {
     if (entry.kind === 'row') rowIndex.set(entry.key, ordinal++)
   }
-
-  const bodyHeight = entries.reduce(
-    (sum, entry) => sum + (entry.kind === 'group' ? props.groupHeight : props.rowHeight),
-    0,
-  )
-  const panelHeight = Math.min(
-    props.maxHeight,
-    props.titleHeight + bodyHeight + props.footerHeight + props.padding,
-  )
 
   return (
     <>
@@ -120,7 +157,7 @@ export function MenuPanel(props: MenuPanelProps) {
           left: `${props.left}px`,
           top: `${(props.screenHeight - panelHeight) / 2}px`,
           width: `${props.width}px`,
-          maxHeight: `${props.maxHeight}px`,
+          height: `${panelHeight}px`,
           borderRadius: `${props.radius}px`,
           background: colors.panel,
           color: colors.fg,
@@ -292,17 +329,17 @@ function MenuRow({
         <span
           style={{
             padding: `${font * 0.15}px ${font * 0.6}px`,
-            border: `2px solid ${selected ? colors.selectedFg : '#666666'}`,
+            border: `2px solid ${selected ? colors.buttonSelectedBg : colors.buttonBorder}`,
             borderRadius: '5px',
-            background: selected ? colors.selectedFg : 'transparent',
-            color: selected ? colors.selectedBg : fg,
+            background: selected ? colors.buttonSelectedBg : 'transparent',
+            color: selected ? colors.buttonSelectedFg : fg,
             flex: '0 0 auto',
           }}
         >
           {entry.value}
         </span>
       ) : entry.value && !entry.toggle ? (
-        <span style={{ color: selected ? fg : colors.mutedFg, flex: '0 0 auto' }}>
+        <span style={{ color: selected ? fg : colors.valueFg, flex: '0 0 auto' }}>
           {entry.value}
         </span>
       ) : null}

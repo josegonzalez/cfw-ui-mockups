@@ -601,3 +601,95 @@
     transition: none;
   }
 }
+
+/* --- subset strip -------------------------------------------------------- */
+
+/*
+ * The mockup harness for an interactive screen. Every theme ships subsets - colour schemes,
+ * font sizes, view styles - and the original mockups exposed them on punctuation keys plus a
+ * strip below the device. This is that strip, shared rather than rebuilt per theme.
+ */
+.gal-subsets {
+  display: grid;
+  gap: 14px;
+  width: 100%;
+  max-width: 1120px;
+  padding: 16px 18px 18px;
+  border: 1px solid var(--gal-line);
+  border-radius: 14px;
+  background: var(--gal-surface);
+}
+
+.gal-subsets__group {
+  display: grid;
+  gap: 7px;
+}
+
+.gal-subsets__title {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin: 0;
+  color: var(--gal-ink-3);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.gal-subsets__keys {
+  padding: 1px 6px;
+  border: 1px solid var(--gal-line);
+  border-radius: 5px;
+  color: var(--gal-ink-3);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.gal-subsets__row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.gal-subsets__opt {
+  padding: 5px 10px;
+  border: 1px solid var(--gal-line);
+  border-radius: 8px;
+  background: var(--gal-surface-2);
+  color: var(--gal-ink-2);
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 600;
+  text-transform: capitalize;
+  cursor: pointer;
+  transition:
+    border-color 0.15s ease,
+    background 0.15s ease,
+    color 0.15s ease;
+}
+
+.gal-subsets__opt:hover {
+  border-color: color-mix(in srgb, var(--gal-neon) 50%, transparent);
+  color: var(--gal-ink);
+}
+
+.gal-subsets__opt--on {
+  border-color: color-mix(in srgb, var(--gal-neon) 70%, transparent);
+  background: color-mix(in srgb, var(--gal-neon) 16%, var(--gal-surface));
+  color: var(--gal-ink);
+}
+
+.gal-subsets__opt:focus-visible {
+  outline: 2px solid var(--gal-neon);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gal-subsets__opt {
+    transition: none;
+  }
+}

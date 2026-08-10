@@ -65,24 +65,35 @@ describe('landing page', () => {
     }
   })
 
+  // Derived from the catalogue rather than naming a theme, so porting one does not turn a
+  // passing assertion into a stale one that has to be rewritten.
   it('points an unported theme at its archived original', () => {
+    const unported = THEMES.filter((t) => !t.ported)
     render(<App />)
-    const card = screen.getByRole('article', { name: 'Elementerial' })
 
-    expect(within(card).getByRole('link', { name: /open the original/i })).toHaveAttribute(
-      'href',
-      '/legacy/elementerial/rg35xx/theme.html',
-    )
+    for (const theme of unported) {
+      const card = screen.getByRole('article', { name: theme.name })
+      expect(within(card).getByRole('link', { name: /open the original/i })).toHaveAttribute(
+        'href',
+        `/${theme.legacyPath}`,
+      )
+    }
   })
 
   it('points a ported theme at its live build', () => {
+    const ported = THEMES.filter((t) => t.ported)
+    expect(ported.length).toBeGreaterThan(0)
     render(<App />)
-    const card = screen.getByRole('article', { name: 'Example OS' })
 
-    expect(within(card).getByRole('link', { name: /open the live build/i })).toHaveAttribute(
-      'href',
-      '#example-cfw/rg35xx/interactive',
-    )
+    for (const theme of ported) {
+      const card = screen.getByRole('article', { name: theme.name })
+      const live = SCREEN_MANIFEST.find((s) => s.theme === theme.slug && s.interactive)
+      expect(live).toBeDefined()
+      expect(within(card).getByRole('link', { name: /open the live build/i })).toHaveAttribute(
+        'href',
+        `#${screenId(live!)}`,
+      )
+    }
   })
 })
 

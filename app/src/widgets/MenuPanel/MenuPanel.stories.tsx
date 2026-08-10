@@ -24,6 +24,7 @@ const colors = {
   panel: '#1D1616',
   fg: '#ffffff',
   mutedFg: '#ffffffcc',
+  valueFg: '#ff8c82',
   selectedFg: '#FFEBEB',
   selectedBg: '#ED5353',
   groupFg: '#ff8c82',
@@ -31,6 +32,9 @@ const colors = {
   groupRule: '#ff8c8299',
   rowRule: '#ffffff0d',
   shade: 'rgba(0, 0, 0, 0.6)',
+  buttonBorder: '#666666',
+  buttonSelectedBg: '#ffffff',
+  buttonSelectedFg: '#000000',
 }
 
 const renderMenu: NonNullable<Story['render']> = (args) => (

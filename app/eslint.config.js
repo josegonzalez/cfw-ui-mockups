@@ -60,6 +60,8 @@ export default tseslint.config(
       'coverage/**',
       'playwright-report/**',
       'test-results/**',
+      // Scratch space. Gitignored, never shipped, and not worth a lint failure.
+      'tmp/**',
     ],
   },
   js.configs.recommended,

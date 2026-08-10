@@ -192,15 +192,87 @@ describe('TileGrid', () => {
     expect(screen.queryByText('g0')).not.toBeInTheDocument()
   })
 
+  it('fills down each column before moving right when column-major', () => {
+    // The order the source uses for a sideways-scrolling grid: item 1 is below item 0.
+    expect(tileBox(metrics, 1, 'column-major')).toMatchObject({ col: 0, row: 1, top: 155 })
+    expect(tileBox(metrics, 2, 'column-major')).toMatchObject({ col: 1, row: 0, left: 210 })
+  })
+
   it('slides by one when stripping, keeping the selection near the middle', () => {
     const strip: TileGridMetrics = { ...metrics, rows: 1 }
     const { container } = render(
-      <TileGrid metrics={strip} items={items} selectedIndex={5} renderTile={renderTile} keyOf={(g) => g} scroll="strip" />,
+      <TileGrid
+        metrics={strip}
+        items={items}
+        selectedIndex={5}
+        renderTile={renderTile}
+        keyOf={(g) => g}
+        order="column-major"
+        scroll="strip"
+      />,
     )
 
-    // Selection 5, centre column 1, so the strip offsets by four pitches of 200.
+    // Selection 5, three columns visible, so it centres on column 4 - four pitches of 200.
     expect((container.querySelector('[data-part="strip"]') as HTMLElement).style.transform).toBe(
       'translate(-800px, 0px)',
+    )
+  })
+
+  it('stops the strip at the end rather than scrolling past the last tile', () => {
+    const strip: TileGridMetrics = { ...metrics, rows: 1 }
+    const { container } = render(
+      <TileGrid
+        metrics={strip}
+        items={items}
+        selectedIndex={13}
+        renderTile={renderTile}
+        keyOf={(g) => g}
+        order="column-major"
+        scroll="strip"
+      />,
+    )
+
+    // Last of 14 with three visible: the window stops at column 11, not at column 12.
+    expect((container.querySelector('[data-part="strip"]') as HTMLElement).style.transform).toBe(
+      'translate(-2200px, 0px)',
+    )
+  })
+
+  it('draws every tile when scrolling, including the one clipped at the edge', () => {
+    // A paged grid renders one page; a scrolling one renders the lot and clips, which is what
+    // makes a half-visible column at the edge appear at all.
+    const strip: TileGridMetrics = { ...metrics, rows: 1 }
+    const { container } = render(
+      <TileGrid
+        metrics={strip}
+        items={items}
+        selectedIndex={0}
+        renderTile={renderTile}
+        keyOf={(g) => g}
+        order="column-major"
+        scroll="strip"
+      />,
+    )
+
+    const stripEl = container.querySelector('[data-part="strip"]') as HTMLElement
+    expect(within(stripEl).getAllByText(/^g\d+$/)).toHaveLength(14)
+  })
+
+  it('scrolls vertically when the axis is rows', () => {
+    const { container } = render(
+      <TileGrid
+        metrics={metrics}
+        items={items}
+        selectedIndex={12}
+        renderTile={renderTile}
+        keyOf={(g) => g}
+        scroll="rows"
+      />,
+    )
+
+    // Row 4 of 5 with two visible: the window stops at row 3, so it offsets by three pitches.
+    expect((container.querySelector('[data-part="strip"]') as HTMLElement).style.transform).toBe(
+      'translate(0px, -450px)',
     )
   })
 
@@ -228,6 +300,7 @@ describe('MenuPanel', () => {
     panel: '#1D1616',
     fg: '#ffffff',
     mutedFg: '#ffffffcc',
+    valueFg: '#ff8c82',
     selectedFg: '#FFEBEB',
     selectedBg: '#ED5353',
     groupFg: '#ff8c82',
@@ -235,6 +308,9 @@ describe('MenuPanel', () => {
     groupRule: '#ff8c8299',
     rowRule: '#ffffff0d',
     shade: 'rgba(0, 0, 0, 0.6)',
+    buttonBorder: '#666666',
+    buttonSelectedBg: '#ffffff',
+    buttonSelectedFg: '#000000',
   }
 
   const props = {
