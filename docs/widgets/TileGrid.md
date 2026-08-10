@@ -36,7 +36,24 @@ along the axis they scroll.
 | `page` | Turns a whole screen of tiles at a time, and draws only the current page |
 | `strip` | Scrolls sideways by one column, keeping the selected column near the middle |
 | `rows` | Scrolls vertically by one row, keeping the selected row near the middle |
+| `centered` | The selection never moves; the strip travels behind it |
 | `none` | Never scrolls |
+
+## Centre-selection is a different behaviour, not a variant
+
+With `centered` the cursor is pinned and the content moves under it, so the selection frame can
+be a separate element that never moves at all - which is exactly how the sources build it. There
+is deliberately no window and no clamp: the first and last items travel past the frame like any
+other, because the frame is not part of the grid.
+
+`centerAnchor` says where the selected column lands, measured in whole cell pitches from the
+strip's origin. It is a number rather than a flag because the sources pin it two different ways -
+one to a cell index inside the grid's own box, the other to the centre of the screen - and both
+are the same statement about where the selection sits.
+
+Padding is deliberately excluded from that measurement. Both sources translate by whole pitches,
+which is why the frame sits a padding's width to the left of the tile it surrounds rather than
+exactly on it.
 
 `strip` and `rows` lay out **every** item and clip to the box. That is what makes the partly
 visible column or row at the edge appear - and that sliver is often the only cue that there is

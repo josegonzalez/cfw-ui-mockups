@@ -4,6 +4,7 @@ import { Badge } from './Badge'
 import { IconRow } from './IconRow'
 import { ProgressBar } from './ProgressBar'
 import { Ticker } from './Ticker'
+import { TileGrid } from './TileGrid'
 
 const box = { left: 10, top: 20, width: 300, height: 40 }
 
@@ -158,5 +159,106 @@ describe('ProgressBar', () => {
       />,
     )
     expect(fill(container).style.background).toContain('linear-gradient')
+  })
+})
+
+describe('TileGrid centre-selection', () => {
+  const metrics = {
+    box: { left: -646.4, top: 61.2, width: 1921.28, height: 280.8 },
+    cols: 9,
+    rows: 1,
+    tileW: 213.48,
+    tileH: 280.8,
+    padding: [10.24, 36] as const,
+    margin: [0, 0] as const,
+  }
+  const items = Array.from({ length: 12 }, (_, i) => `g${i}`)
+  const renderTile = (item: string) => <span>{item}</span>
+  const strip = (c: HTMLElement) => c.querySelector('[data-part="strip"]') as HTMLElement
+  /** The x of the strip's transform. Compared as a number: these are float pitches. */
+  const shiftOf = (c: HTMLElement) =>
+    Number.parseFloat(/translate\((-?[\d.]+)px/.exec(strip(c).style.transform)![1]!)
+
+  it('pins the cursor and moves the content under it', () => {
+    /*
+     * The original writes `translateX(-(cursor - centerIndex) * cellW)`. Anchoring at
+     * `centerIndex * cellW` reproduces it exactly, and expresses why: put the selected cell's
+     * left edge where the centre column is.
+     */
+    const anchor = metrics.cols === 9 ? 4 * metrics.tileW : 0
+    const { container } = render(
+      <TileGrid
+        metrics={metrics}
+        items={items}
+        selectedIndex={6}
+        renderTile={renderTile}
+        keyOf={(g) => g}
+        order="column-major"
+        scroll="centered"
+        centerAnchor={anchor}
+      />,
+    )
+
+    expect(shiftOf(container)).toBeCloseTo(-(6 - 4) * metrics.tileW, 6)
+  })
+
+  it('anchors to the screen centre just as readily as to a cell', () => {
+    // The carousel view pins its selection to the middle of the panel rather than to a column.
+    // Both are "put the selected cell's left edge at this x", which is why the anchor is a
+    // number rather than a flag.
+    const screenCentre = 1280 / 2 - metrics.tileW / 2
+    const { container } = render(
+      <TileGrid
+        metrics={metrics}
+        items={items}
+        selectedIndex={3}
+        renderTile={renderTile}
+        keyOf={(g) => g}
+        order="column-major"
+        scroll="centered"
+        centerAnchor={screenCentre}
+      />,
+    )
+
+    expect(shiftOf(container)).toBeCloseTo(screenCentre - 3 * metrics.tileW, 6)
+  })
+
+  it('runs off both ends rather than clamping', () => {
+    // Deliberate: the frame marking the selection is a separate element that never moves, so
+    // the first and last items have to travel past it like any other.
+    const at = (index: number) => {
+      const { container } = render(
+        <TileGrid
+          metrics={metrics}
+          items={items}
+          selectedIndex={index}
+          renderTile={renderTile}
+          keyOf={(g) => g}
+          order="column-major"
+          scroll="centered"
+          centerAnchor={4 * metrics.tileW}
+        />,
+      )
+      return shiftOf(container)
+    }
+
+    expect(at(0)).toBeCloseTo(4 * metrics.tileW, 6)
+    expect(at(11)).toBeCloseTo(-(11 - 4) * metrics.tileW, 6)
+  })
+
+  it('draws every tile, since there is no window to fall outside of', () => {
+    const { container } = render(
+      <TileGrid
+        metrics={metrics}
+        items={items}
+        selectedIndex={0}
+        renderTile={renderTile}
+        keyOf={(g) => g}
+        order="column-major"
+        scroll="centered"
+        centerAnchor={0}
+      />,
+    )
+    expect(within(strip(container)).getAllByText(/^g\d+$/)).toHaveLength(12)
   })
 })
