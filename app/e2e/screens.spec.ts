@@ -136,3 +136,15 @@ test('every link off the landing page resolves', async ({ page, request }) => {
     expect(response.status(), `${href} should not be a dead link`).toBe(200)
   }
 })
+
+test('the device switcher swaps the panel without leaving the screen', async ({ page }) => {
+  await page.goto('/#example-cfw/rg35xx/game-list')
+  await expect(page.locator('.device-viewport')).toHaveAttribute('style', /--screen-w: *640/)
+
+  await page.getByRole('group', { name: 'Device' }).getByText('RG CubeXX').click()
+
+  await expect(page).toHaveURL(/#example-cfw\/rg-cubexx\/game-list/)
+  await expect(page.locator('.device-viewport')).toHaveAttribute('style', /--screen-w: *720/)
+  // Same screen, different panel.
+  await expect(page.locator('[data-view]')).toHaveAttribute('data-view', 'game-list')
+})

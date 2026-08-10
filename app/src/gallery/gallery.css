@@ -538,3 +538,66 @@
     transform: none;
   }
 }
+
+/* --- device switcher ----------------------------------------------------- */
+
+/*
+ * Sits in the viewer chrome so the same screen can be compared across panels without a trip
+ * back to the index. Links rather than buttons, so each device is addressable and shareable.
+ */
+.gal-devices {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.gal-devices__opt {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  padding: 6px 10px;
+  border: 1px solid var(--gal-line);
+  border-radius: 8px;
+  background: var(--gal-surface);
+  color: var(--gal-ink-2);
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  transition:
+    border-color 0.15s ease,
+    background 0.15s ease,
+    color 0.15s ease;
+}
+
+.gal-devices__opt:hover {
+  border-color: color-mix(in srgb, var(--gal-neon) 50%, transparent);
+  color: var(--gal-ink);
+}
+
+.gal-devices__opt--on {
+  border-color: color-mix(in srgb, var(--gal-neon) 70%, transparent);
+  background: color-mix(in srgb, var(--gal-neon) 16%, var(--gal-surface));
+  color: var(--gal-ink);
+}
+
+.gal-devices__opt:focus-visible {
+  outline: 2px solid var(--gal-neon);
+  outline-offset: 2px;
+}
+
+.gal-devices__res {
+  color: var(--gal-ink-3);
+  font-weight: 500;
+  font-size: 11.5px;
+  font-variant-numeric: tabular-nums;
+}
+
+.gal-viewer__hint {
+  margin-left: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gal-devices__opt {
+    transition: none;
+  }
+}

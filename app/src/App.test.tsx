@@ -96,6 +96,43 @@ describe('screen viewer', () => {
     expect(document.querySelector('.screen')).not.toBeNull()
   })
 
+  it('offers the other devices this screen runs on, and marks the current one', () => {
+    // Comparing one layout across panels is the point of the repo, so it should not need a trip
+    // back to the index.
+    atHash('#example-cfw/rg35xx/main-menu')
+    render(<App />)
+
+    const group = screen.getByRole('group', { name: 'Device' })
+    const options = within(group).getAllByRole('link')
+
+    expect(options.length).toBeGreaterThan(1)
+    expect(within(group).getByText('RG35XX').closest('a')).toHaveAttribute('aria-current', 'true')
+  })
+
+  it('keeps the same screen when switching device', () => {
+    atHash('#example-cfw/rg35xx/game-list')
+    render(<App />)
+
+    const group = screen.getByRole('group', { name: 'Device' })
+    expect(within(group).getByText('RG CubeXX').closest('a')).toHaveAttribute(
+      'href',
+      '#example-cfw/rg-cubexx/game-list',
+    )
+  })
+
+  it('orders the devices by panel size', () => {
+    atHash('#example-cfw/rg35xx/main-menu')
+    render(<App />)
+
+    const labels = within(screen.getByRole('group', { name: 'Device' }))
+      .getAllByRole('link')
+      .map((a) => a.textContent)
+
+    // 640x480 before 720x720.
+    expect(labels[0]).toContain('RG35XX')
+    expect(labels[1]).toContain('RG CubeXX')
+  })
+
   it('tells you the controls only on an interactive route', () => {
     atHash('#example-cfw/rg35xx/interactive')
     const live = render(<App />)

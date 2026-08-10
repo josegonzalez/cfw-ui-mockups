@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react'
 import { Landing } from './gallery/Landing'
 import { NotesViewer, notesPathFromHash } from './gallery/NotesViewer'
+import { ViewerBar } from './gallery/ViewerBar'
 import { ROUTES } from './themes/registry'
 import { findRoute } from './routes'
-import { THEMES } from './themes/catalogue'
 import './gallery/gallery.css'
 
 /**
@@ -34,24 +34,9 @@ export function App() {
   const route = findRoute(ROUTES, hash)
   if (!route) return <Landing />
 
-  const theme = THEMES.find((t) => t.slug === route.theme)
-
   return (
     <main className="gal-viewer">
-      <div className="gal-viewer__bar">
-        <a className="gal-btn" href="#">
-          All screens
-        </a>
-        <span className="gal-viewer__title">
-          {theme?.name ?? route.theme} · {route.title}
-        </span>
-        <span className="gal-viewer__hint">
-          {route.device}
-          {route.interactive
-            ? ' · arrows to move, Z is A, X is B - or click the buttons'
-            : ' · static snapshot'}
-        </span>
-      </div>
+      <ViewerBar route={route} />
       {route.render()}
     </main>
   )
