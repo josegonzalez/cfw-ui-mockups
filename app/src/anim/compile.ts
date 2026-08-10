@@ -243,9 +243,16 @@ export function compileStoryboard(sb: Storyboard, ctx: DeviceContext): CompiledT
  * Where each channel comes to rest once motion has stopped.
  *
  * One-shots settle at their final value. Repeating and autoreverse tracks settle at t=0, which
- * is where they visually begin. The autoreverse case is the one that bites: such a track plays
- * out and back, so it rests at its `from`, and treating it as resting at `to` displaces every
- * static screen by the outbound leg.
+ * is where they visually begin. The finite autoreverse case is the one that bites: such a track
+ * plays out and back, so it rests at its `from`, and treating it as resting at `to` displaces
+ * every static screen by the outbound leg.
+ *
+ * An *infinite* autoreverse track is different, because it has no end - it alternates forever
+ * and spends equal time at both. What it comes to rest at is the element's authored value, and
+ * that is the channel's identity: opacity 1, scale 1, offsets 0. For almost every such track
+ * `from` already is that value and the animation moves away from it, so the two readings agree.
+ * Where they disagree, taking `from` deletes the element from every static screen rather than
+ * displacing it - the achievements trophy blinks 0 -> 1, so resting at 0 makes it invisible.
  */
 export function restingValues(sb: Storyboard, ctx: DeviceContext): Map<Channel, number> {
   const out = new Map<Channel, number>()
@@ -260,7 +267,7 @@ export function restingValues(sb: Storyboard, ctx: DeviceContext): Map<Channel, 
 
     let value: number
     if (sb.repeat) value = startValue(first)
-    else if (infinite && finite.length === 0) value = startValue(infinite)
+    else if (infinite && finite.length === 0) value = infiniteRest(channel, infinite)
     else if (last) value = last.autoreverse ? startValue(last) : endValue(last)
     else value = startValue(first)
 
@@ -268,6 +275,22 @@ export function restingValues(sb: Storyboard, ctx: DeviceContext): Map<Channel, 
   }
 
   return out
+}
+
+/**
+ * The resting value of a channel driven only by an infinite track.
+ *
+ * A one-directional infinite track restarts from its `from` on every iteration, so that is
+ * where it visually begins and where it rests. An alternating one has no beginning to speak of,
+ * so it rests at whichever end is the element's authored value.
+ */
+function infiniteRest(channel: Channel, a: AnimationSpec): number {
+  const start = startValue(a)
+  if (!a.autoreverse) return start
+
+  const authored = CHANNELS[channel].rest
+  const end = endValue(a)
+  return start === authored || end !== authored ? start : end
 }
 
 /**

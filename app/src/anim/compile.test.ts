@@ -193,6 +193,38 @@ describe('restingValues', () => {
     expect(restingValues(sb, ctx).get('opacity')).toBe(1)
   })
 
+  it('rests an infinite alternator at the authored end, not always at `from`', () => {
+    /*
+     * An infinite autoreverse track has no end - it spends equal time at both. It rests at the
+     * element's authored value, which is the channel's identity. The achievements trophy blinks
+     * 0 -> 1, so taking `from` deletes it from every static screen rather than displacing it.
+     */
+    const blink: Storyboard = {
+      animations: [
+        { property: 'opacity', from: 0, to: 1, duration: 350, autoreverse: true, repeat: 'forever' },
+      ],
+    }
+    expect(restingValues(blink, ctx).get('opacity')).toBe(1)
+  })
+
+  it('still rests a one-directional infinite track at its `from`', () => {
+    // No alternation, so every iteration restarts there and that is where it visually begins.
+    const drift: Storyboard = {
+      animations: [{ property: 'opacity', from: 0.2, to: 1, duration: 350, repeat: 'forever' }],
+    }
+    expect(restingValues(drift, ctx).get('opacity')).toBe(0.2)
+  })
+
+  it('leaves an alternator that touches the identity at neither end alone', () => {
+    // Nothing to prefer, so it keeps the `from` reading rather than guessing.
+    const sb: Storyboard = {
+      animations: [
+        { property: 'scale', from: 0.5, to: 0.8, duration: 300, autoreverse: true, repeat: 'forever' },
+      ],
+    }
+    expect(restingValues(sb, ctx).get('scale')).toBe(0.5)
+  })
+
   it('rests a group-repeat storyboard at the first authored value', () => {
     const sb: Storyboard = {
       repeat: 'forever',

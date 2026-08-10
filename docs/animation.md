@@ -104,13 +104,24 @@ Where a channel sits once motion has stopped:
 | Case | Rests at |
 | --- | --- |
 | One-shot | its final value |
-| `autoreverse` | its **`from`** |
-| Repeat-only | its `from` |
+| Finite `autoreverse` | its **`from`** |
+| Repeat-only, one-directional | its `from` |
+| Repeat-only, `autoreverse` | the **authored** end - see below |
 | Group repeat | the first authored value |
 
-The autoreverse row is the one that bites. Such a track plays out and back, so it ends where it
-started. Treating it as resting at `to` leaves every static screen permanently displaced by the
-outbound leg - a 150ms nudge becomes a permanent offset.
+The finite autoreverse row is the one that bites. Such a track plays out and back, so it ends
+where it started. Treating it as resting at `to` leaves every static screen permanently displaced
+by the outbound leg - a 150ms nudge becomes a permanent offset.
+
+An *infinite* autoreverse track is a different case, and reading it the same way is what the
+second-to-last row exists to prevent. It has no end: it alternates forever and spends equal time
+at both extremes, so what it comes to rest at is the element's authored value - which is the
+channel's identity, `opacity` 1, `scale` 1, offsets 0. For almost every such track `from` already
+*is* that value and the animation moves away from it, so both readings agree and the distinction
+never shows. Where they disagree, taking `from` does not displace the element, it deletes it:
+PlayStation X's achievements trophy blinks `opacity 0 -> 1`, so resting at `from` makes it
+invisible on every static screen. An alternator whose ends straddle neither the identity keeps
+the `from` reading rather than guessing.
 
 ## Why transform is never animated directly
 

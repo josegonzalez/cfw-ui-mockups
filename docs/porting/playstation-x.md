@@ -91,6 +91,19 @@ and the two hardcodes are gone: the gold trophy was
 meant the colour could not follow the accent and was not a token at all - it is a mask painted
 from `cheevosOnColor`. The multi-disc chip was a literal `#F3C300`.
 
+**The top-bar achievements trophy never drew.** It blinks `opacity 0 -> 1` forever, and the
+resting rule for an autoreverse track was its `from` - so it settled to fully transparent and was
+absent from every static screen. It is the only track in the corpus whose `from` is the away-from-
+authored end; the other fourteen start at the element's authored value and move off it, which is
+why the rule held everywhere else. `docs/animation.md` carries the refinement: an infinite
+alternator rests at the authored end, a finite one still rests at its `from`.
+
+The reference screenshots show the trophy alongside the star and the year, and the port now
+matches them on 16:9. On the two 480-tall devices the theme's own coordinates place the trophy
+(`0.885` on `4-3`) inside the year's box (`0.875`, `0.048` wide), so the two overlap. That clash
+is the theme's, not the port's - it was simply invisible while the icon was. No reference
+screenshot of a 4:3 panel exists to check it against, so it is left as the numbers say.
+
 **`transform-origin` was set by a CSS class rather than the resolved `origin`,** contradicting
 `source-notes.md:319`. The resolved origin drives it. Verified against the reference screenshots
 and the legacy pages across all four devices before keeping the change.
