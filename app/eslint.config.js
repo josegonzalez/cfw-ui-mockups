@@ -84,6 +84,11 @@ export default tseslint.config(
     },
   },
   {
+    // Build-time scripts run under Node, not in a browser.
+    files: ['scripts/**/*.mjs'],
+    languageOptions: { globals: globals.node },
+  },
+  {
     files: ['src/widgets/**/*.{ts,tsx}'],
     ignores: ['src/widgets/**/*.{test,spec,stories}.{ts,tsx}'],
     rules: {
