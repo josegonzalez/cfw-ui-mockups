@@ -268,6 +268,6 @@ uncommitted Python scripts; both are executable assertions now.
 
 The fixtures prove the numbers and say nothing about what those numbers paint, so every screen
 was also rendered and compared against its legacy page on all four devices. That pass found
-ten faults that every numeric check had passed. They are listed, with the class of fault, in
+eleven faults that every numeric check had passed. They are listed, with the class of fault, in
 [`porting/playstation-x.md`](../porting/playstation-x.md), and `views/views.test.tsx` asserts
 each one.

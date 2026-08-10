@@ -484,18 +484,25 @@ function Picto({ box, src }: { box: PsxLayout; src: string | null }) {
  * centre in, so the line is centred on the `y` coordinate itself. Taking that 0.001 literally
  * gives a half-pixel-tall element, which is exactly what the system name collapsed to before
  * this existed.
+ *
+ * A height authored as ~0 is not the same as no height at all, and conflating the two lifts an
+ * unsized element by half a line. `help` and `systemFolder` author no size, and ES lays them out
+ * from their `y` downwards like any other element - so they keep their top edge and size to their
+ * own content. The original never hit this case: it called its `textLine` on six elements, five
+ * with real boxes and one authored `0.001`.
  */
 export function textLine(node: PsxLayout, align?: 'left' | 'right' | 'center'): CSSProperties {
   const font = node.font ?? 16
   const lineHeight = Math.ceil(font * 1.25)
-  const hasBox = node.h !== undefined && node.h >= lineHeight * 0.5
+  const sized = node.h !== undefined
+  const hasBox = sized && node.h! >= lineHeight * 0.5
 
   return {
     position: 'absolute',
     left: `${node.left}px`,
-    top: `${hasBox ? node.top : node.top - lineHeight / 2}px`,
+    top: `${hasBox || !sized ? node.top : node.top - lineHeight / 2}px`,
     ...(node.w === undefined ? {} : { width: `${node.w}px` }),
-    height: `${hasBox ? node.h : lineHeight}px`,
+    ...(sized ? { height: `${hasBox ? node.h : lineHeight}px` } : {}),
     fontSize: `${font}px`,
     display: 'flex',
     alignItems: 'center',

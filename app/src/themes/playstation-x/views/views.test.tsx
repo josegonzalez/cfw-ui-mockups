@@ -23,7 +23,18 @@ const L = resolve('rg35xx', STATE)
  * regression tests in the strict sense: each asserts the thing that was wrong on screen.
  */
 describe('text placement', () => {
-  it('centres a line on its y when the box has no height', () => {
+  it('leaves an unsized element on its top edge', () => {
+    // No authored height is not the same as a height authored ~0, and conflating the two lifts
+    // the element by half a line. `systemFolder` authors no size.
+    const node = resolve('rg35xx', { ...STATE, view: 'system' }).system.systemFolder
+    expect(node.h).toBeUndefined()
+
+    const style = textLine(node)
+    expect(style.top).toBe(`${node.top}px`)
+    expect(style.height).toBeUndefined()
+  })
+
+  it('centres a line on its y when the box is authored ~0 tall', () => {
     // `system_name` is authored `size 0.6 0.001`, which is 0.48px tall on a 480px panel.
     const node = resolve('rg35xx', { ...STATE, view: 'system' }).system.systemName
     expect(node.h).toBeLessThan(1)
@@ -147,11 +158,18 @@ describe('the hint bar', () => {
     expect(L.help.left + width).toBeLessThanOrEqual(L.battery.left)
   })
 
-  it('has a height to be clipped to', () => {
-    // `help` authors no size, so a literal box is zero tall - and `overflow: hidden` on a
-    // zero-tall box hides the prompts completely.
+  it('is not clipped to a zero height', () => {
+    // `help` authors no size. Taking that as a literal box gives a zero-tall element, and
+    // `overflow: hidden` on it hides the prompts completely - so it sizes to its content.
     const help = renderView('ps4Style').querySelector<HTMLElement>('.psx-help')!
-    expect(Number.parseFloat(help.style.height)).toBeGreaterThan(0)
+    expect(help.style.height).toBe('')
+  })
+
+  it('sits on its authored top edge rather than half a line above it', () => {
+    // The ~0-height rule centres a line on its y. An element with no authored height at all is
+    // not that case, and applying it anyway lifts the whole prompt row by half a line.
+    const help = renderView('ps4Style').querySelector<HTMLElement>('.psx-help')!
+    expect(help.style.top).toBe(`${L.help.top}px`)
   })
 })
 

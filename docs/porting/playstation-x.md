@@ -120,6 +120,16 @@ line centres inside it, and where the height is authored as ~0 - `system_name` i
 that 0.001 literally gave a half-pixel-tall element. `textLine()` in `views/Chrome.tsx` is the
 rule.
 
+**Then the same rule was applied to elements with no authored height at all,** which lifted the
+hint bar and the folder chip by half a line each. A height authored as ~0 and no height are not
+the same case: an unsized element keeps its top edge and sizes to its own content. The original
+never hit this, because it called its `textLine` on six elements - five with real boxes and one
+authored `0.001`. Both now match the legacy page to the pixel on all four devices.
+
+The hint bar's *height* still differs from the legacy on three of the four, because it is content
+sized and the font is no longer the same: honouring `SPEC.help`'s `{view: 'gamelist'}` rows drops
+it from `0.03` to `0.026`. `rg35xx` is unaffected - it is `tinyScreen`, where the two coincide.
+
 **`boxOf` dropped the z-index.** Every call site re-applied it by hand, which is a rule that only
 has to be missed once - and was, on the icon row, which then had no z-index and painted under the
 background. `boxOf` carries `z` now.
