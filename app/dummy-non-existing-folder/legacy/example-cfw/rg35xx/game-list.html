@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<!--
+PORTING NOTES
+CFW: Example OS (fictional launcher, used as the scaffold reference)
+Device: rg35xx (640x480)
+Source: n/a - template, not a reproduction of a real firmware
+Mode: design-new
+
+Layout:
+  - Header 44px: back chevron + system name left, game count right.
+  - Body: two panes. Left list 300px of game rows (48px each, scrolls). Right detail
+    pane fills the rest: box-art tile 160x160 + title, system, last played.
+  - Footer 40px: button hint strip.
+Colors:
+  - Same theme as main-menu.html. Selected row: accent fill, dark text.
+Typography:
+  - System sans placeholder; embed the real firmware font in a real port.
+Focus & selection:
+  - Vertical wrap over the left list. Moving selection updates the right detail pane
+    live (listens for the cfw-button event and reads the focused row's data-* fields).
+Buttons:
+  - A: launch focused game (inert here). B: back to main-menu.html (data-back).
+    D-pad up/down: move selection.
+Transitions:
+  - Detail updates instantly on selection. Back navigates with a full page load.
+Notes:
+  - Box art is a generated gradient placeholder; swap for real art when provided.
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Example OS - Games (RG35XX)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="../../shared/device-frame.css" />
+  <style>
+    body { background: #0c0d12; }
+    .os-bg     { background: #12141c; }
+    .os-panel  { background: #1b1e2b; }
+    .os-accent { color: #4cc9f0; }
+    .os-text   { color: #e7e9f0; }
+    .os-muted  { color: #8b90a3; }
+    .accent-line { background: #4cc9f0; }
+
+    .game-row { transition: transform 0.05s ease; }
+    .game-row.is-focused {
+      background: #4cc9f0;
+      transform: translateX(4px);
+      outline: none;
+    }
+    .game-row.is-focused .g-title { color: #0b0d13; font-weight: 700; }
+    .game-row.is-focused .g-sub   { color: #0b3b47; }
+
+    .art { image-rendering: auto; }
+    /* thin scrollbar for the list */
+    .list::-webkit-scrollbar { width: 4px; }
+    .list::-webkit-scrollbar-thumb { background: #2a2e40; border-radius: 4px; }
+  </style>
+</head>
+<body class="min-h-screen grid place-items-center p-10">
+  <div class="device-viewport" style="--screen-w:640; --screen-h:480; --scale:1.3;">
+    <div class="device">
+      <div class="device__screen">
+        <div class="screen os-bg os-text" style="image-rendering:auto; font-family: ui-sans-serif, system-ui, sans-serif;">
+
+          <!-- header -->
+          <div class="flex items-center justify-between px-5" style="height:44px;">
+            <div class="flex items-center gap-2 text-[18px] font-bold">
+              <span class="os-accent">&#8249;</span> Super Nintendo
+            </div>
+            <div class="text-[13px] os-muted">7 games</div>
+          </div>
+          <div class="accent-line mx-5" style="height:1px;"></div>
+
+          <!-- body: list + detail -->
+          <div class="flex" style="height:356px;">
+            <div data-nav-group data-nav-dir="vertical" data-nav-wrap
+                 data-back="main-menu.html"
+                 class="list overflow-y-auto py-2 pl-3 pr-2 flex flex-col gap-1"
+                 style="width:300px;">
+
+              <div class="nav-item game-row rounded-md px-3 flex items-center" style="height:48px;"
+                   data-title="Chrono Drifter" data-year="1995" data-c1="#7b5cff" data-c2="#31d0ff">
+                <div><div class="g-title text-[16px]">Chrono Drifter</div><div class="g-sub text-[12px] os-muted">Last played 2d ago</div></div>
+              </div>
+              <div class="nav-item game-row rounded-md px-3 flex items-center" style="height:48px;"
+                   data-title="Pixel Knights" data-year="1993" data-c1="#ff6b6b" data-c2="#ffb03a">
+                <div><div class="g-title text-[16px]">Pixel Knights</div><div class="g-sub text-[12px] os-muted">Last played 5d ago</div></div>
+              </div>
+              <div class="nav-item game-row rounded-md px-3 flex items-center" style="height:48px;"
+                   data-title="Moon Circuit" data-year="1996" data-c1="#3ad29f" data-c2="#4cc9f0">
+                <div><div class="g-title text-[16px]">Moon Circuit</div><div class="g-sub text-[12px] os-muted">Never played</div></div>
+              </div>
+              <div class="nav-item game-row rounded-md px-3 flex items-center" style="height:48px;"
+                   data-title="Neon Samurai" data-year="1994" data-c1="#ff4d9d" data-c2="#7b5cff">
+                <div><div class="g-title text-[16px]">Neon Samurai</div><div class="g-sub text-[12px] os-muted">Last played 1w ago</div></div>
+              </div>
+              <div class="nav-item game-row rounded-md px-3 flex items-center" style="height:48px;"
+                   data-title="Turbo Grove" data-year="1992" data-c1="#ffd166" data-c2="#ff6b6b">
+                <div><div class="g-title text-[16px]">Turbo Grove</div><div class="g-sub text-[12px] os-muted">Never played</div></div>
+              </div>
+              <div class="nav-item game-row rounded-md px-3 flex items-center" style="height:48px;"
+                   data-title="Crystal Vault" data-year="1997" data-c1="#4cc9f0" data-c2="#3ad29f">
+                <div><div class="g-title text-[16px]">Crystal Vault</div><div class="g-sub text-[12px] os-muted">Last played 3w ago</div></div>
+              </div>
+              <div class="nav-item game-row rounded-md px-3 flex items-center" style="height:48px;"
+                   data-title="Star Relay" data-year="1995" data-c1="#7b5cff" data-c2="#ff4d9d">
+                <div><div class="g-title text-[16px]">Star Relay</div><div class="g-sub text-[12px] os-muted">Never played</div></div>
+              </div>
+            </div>
+
+            <!-- detail -->
+            <div class="flex-1 os-panel flex flex-col items-center justify-center gap-4 px-4">
+              <div id="art" class="art rounded-lg" style="width:160px;height:160px;box-shadow:0 8px 24px rgba(0,0,0,0.5);"></div>
+              <div class="text-center">
+                <div id="d-title" class="text-[19px] font-bold">Chrono Drifter</div>
+                <div class="text-[13px] os-muted">Super Nintendo &middot; <span id="d-year">1995</span></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- footer -->
+          <div class="absolute bottom-0 left-0 right-0 flex items-center gap-5 px-5 os-panel os-muted text-[13px]"
+               style="height:40px;">
+            <span><b class="os-accent">A</b> Launch</span>
+            <span><b class="os-accent">B</b> Back</span>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- physical controls -->
+      <div class="device__controls">
+        <div class="device__shoulders">
+          <div class="shoulder" data-btn="l">L</div>
+          <div class="shoulder" data-btn="r">R</div>
+        </div>
+        <div class="dpad">
+          <div class="dpad__btn" data-btn="up"></div>
+          <div class="dpad__btn" data-btn="down"></div>
+          <div class="dpad__btn" data-btn="left"></div>
+          <div class="dpad__btn" data-btn="right"></div>
+          <div class="dpad__center"></div>
+        </div>
+        <div class="device__meta">
+          <div class="pill" data-btn="select">SELECT</div>
+          <div class="pill" data-btn="start">START</div>
+        </div>
+        <div class="faces">
+          <div class="face" data-btn="x">X</div>
+          <div class="face" data-btn="y">Y</div>
+          <div class="face" data-btn="a">A</div>
+          <div class="face" data-btn="b">B</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="../../shared/nav.js"></script>
+  <script>
+    // Live detail pane: update from the focused row's data-* fields.
+    function updateDetail(item) {
+      if (!item) return;
+      document.getElementById('d-title').textContent = item.getAttribute('data-title') || '';
+      document.getElementById('d-year').textContent = item.getAttribute('data-year') || '';
+      var c1 = item.getAttribute('data-c1') || '#4cc9f0';
+      var c2 = item.getAttribute('data-c2') || '#7b5cff';
+      document.getElementById('art').style.background =
+        'linear-gradient(150deg, ' + c1 + ' 0%, ' + c2 + ' 100%)';
+    }
+    document.addEventListener('cfw-button', function (e) { updateDetail(e.detail.item); });
+    var first = document.querySelector('.nav-item.is-focused') || document.querySelector('.nav-item');
+    if (first) { first.classList.add('is-focused'); updateDetail(first); }
+  </script>
+</body>
+</html>

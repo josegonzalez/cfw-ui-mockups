@@ -1,6 +1,10 @@
 import { defineConfig } from 'vitest/config'
+import type { Plugin, PreviewServer, ViteDevServer } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
+import sirv from 'sirv'
+import { cp } from 'node:fs/promises'
+import { resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 /*
@@ -10,8 +14,57 @@ import { fileURLToPath } from 'node:url'
  */
 const repoRoot = fileURLToPath(new URL('..', import.meta.url))
 
+/** Repo directories the site links into: the documentation and the pre-React archive. */
+const SHARED_DIRS = ['docs', 'legacy']
+
+/**
+ * Serve `docs/` and `legacy/` alongside the app.
+ *
+ * Both sit outside the Vite root, so without this the landing page's "Read the notes" and
+ * "Open the original" links resolve to nothing. Mounted in dev and preview, and copied into the
+ * build so a built site is self-contained rather than quietly losing half its links.
+ */
+function serveRepoDirs(): Plugin {
+  let outDir = 'dist'
+
+  const mount = (server: ViteDevServer | PreviewServer) => {
+    for (const dir of SHARED_DIRS) {
+      server.middlewares.use(
+        `/${dir}`,
+        sirv(resolve(repoRoot, dir), {
+          dev: true,
+          etag: true,
+          setHeaders(res, pathname) {
+            // Browsers download `text/markdown` rather than showing it. The notes are meant to
+            // be read, so serve them as plain text and let them open in a tab.
+            if (pathname.endsWith('.md')) {
+              res.setHeader('Content-Type', 'text/plain; charset=utf-8')
+            }
+          },
+        }),
+      )
+    }
+  }
+
+  return {
+    name: 'cfw:serve-repo-dirs',
+    configResolved(config) {
+      outDir = config.build.outDir
+    },
+    configureServer: mount,
+    configurePreviewServer: mount,
+    async closeBundle() {
+      for (const dir of SHARED_DIRS) {
+        await cp(resolve(repoRoot, dir), resolve(repoRoot, 'app', outDir, dir), {
+          recursive: true,
+        })
+      }
+    },
+  }
+}
+
 export default defineConfig({
-  plugins: [react(), tailwindcss()],
+  plugins: [react(), tailwindcss(), serveRepoDirs()],
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),

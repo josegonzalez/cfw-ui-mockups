@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<!--
+PORTING NOTES
+CFW: Elementerial (EmulationStation theme)   Device: rg552 (1920x1152)
+Source: github.com/mluizvitor/es-theme-elementerial @ e710525 -
+  settings/display/view-general.xml (view name="basic"), settings/display/aspect/5-3.xml
+Mode: reproduce (static snapshot)
+
+Static snapshot of the basic gamelist at lime + dark, aspect 5:3.
+Built from the same builders as theme.html with interactive:false, so it carries no key
+handlers, no intervals and no entry animations.
+
+For the full layout, colour, typography, input and transition spec see theme.html's notes
+block and ../reference/source-notes.md.
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Elementerial - Basic gamelist (rg552 1920x1152)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="../../shared/device-frame.css" />
+  <link rel="stylesheet" href="../elementerial.css" />
+  <link rel="stylesheet" href="../masks.css" />
+  <style> body { background: #0c0d12; } </style>
+</head>
+<body class="min-h-screen grid place-items-center p-10">
+  <div class="device-viewport" style="--screen-w:1920; --screen-h:1152; --scale:0.46;">
+    <div class="device">
+      <div class="device__screen">
+        <div class="screen">
+          <div class="el-root"></div>
+        </div>
+      </div>
+        <div class="device__controls">
+          <div class="device__shoulders">
+            <div class="shoulder" data-btn="l">L</div>
+            <div class="shoulder" data-btn="r">R</div>
+          </div>
+          <div class="dpad">
+            <div class="dpad__btn" data-btn="up"></div>
+            <div class="dpad__btn" data-btn="down"></div>
+            <div class="dpad__btn" data-btn="left"></div>
+            <div class="dpad__btn" data-btn="right"></div>
+            <div class="dpad__center"></div>
+          </div>
+          <div class="device__meta">
+            <div class="pill" data-btn="select">SELECT</div>
+            <div class="pill" data-btn="start">START</div>
+          </div>
+          <div class="faces">
+            <div class="face" data-btn="x">X</div>
+            <div class="face" data-btn="y">Y</div>
+            <div class="face" data-btn="a">A</div>
+            <div class="face" data-btn="b">B</div>
+          </div>
+        </div>
+    </div>
+  </div>
+
+  <script src="../palette.js"></script>
+  <script src="../layout.js"></script>
+  <script src="../views.js"></script>
+  <script src="../elementerial.js"></script>
+  <script>
+    Elementerial.boot(document.querySelector('.el-root'), {
+      device: 'rg552', view: 'basic', scheme: 'lime', style: 'dark',
+      fontSize: 'medium', system: 'nes', interactive: false
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,203 @@
+/* --- boot screen (inside the device panel) ------------------------------- */
+
+/*
+ * Sizes here are device pixels. This renders inside `.screen`, which lays out at the panel's
+ * real resolution, so 14px is 14px on a 640x480 panel rather than 14 CSS pixels on the page.
+ */
+.showcase {
+  position: absolute;
+  inset: 0;
+}
+
+.showcase__boot {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  opacity: 1;
+}
+
+.showcase__boot--out {
+  opacity: 0;
+  transition: opacity var(--handoff-ms, 340ms) ease-out;
+}
+
+.bootscreen {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 22px 26px;
+  background: #05060a;
+  color: #a8b0c4;
+  font-family: ui-monospace, 'SF Mono', 'Cascadia Mono', Menlo, monospace;
+  font-size: 15px;
+  line-height: 1.5;
+  image-rendering: auto;
+}
+
+.bootscreen__head {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #1b2030;
+  color: #6d7590;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.bootscreen__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #3ad29f;
+  box-shadow: 0 0 8px #3ad29f;
+}
+
+.bootscreen__ver {
+  margin-left: auto;
+  color: #3f4658;
+}
+
+.bootscreen__log {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  padding-top: 16px;
+}
+
+.bootscreen__line {
+  display: flex;
+  align-items: baseline;
+  gap: 9px;
+  white-space: nowrap;
+  /* Each line waits its turn, so the log reads as something happening. */
+  animation: bootscreen-in 0.001s linear both;
+  animation-delay: var(--delay, 0ms);
+}
+
+@keyframes bootscreen-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.bootscreen__prompt {
+  color: #4cc9f0;
+}
+
+.bootscreen__label {
+  flex: 0 0 auto;
+}
+
+.bootscreen__dots {
+  flex: 1 1 auto;
+  min-width: 20px;
+  height: 1px;
+  align-self: center;
+  background-image: radial-gradient(circle, #2f3648 1px, transparent 1px);
+  background-size: 6px 1px;
+  background-repeat: repeat-x;
+}
+
+.bootscreen__val {
+  color: #eef1f8;
+}
+
+.bootscreen__ok {
+  color: #3ad29f;
+}
+
+.bootscreen__caret {
+  display: inline-block;
+  width: 9px;
+  height: 15px;
+  background: #4cc9f0;
+  box-shadow: 0 0 10px #4cc9f0;
+  animation: gal-blink 1.1s steps(1) infinite;
+}
+
+.bootscreen__progress {
+  height: 4px;
+  border-radius: 2px;
+  background: #12161f;
+  overflow: hidden;
+}
+
+.bootscreen__fill {
+  display: block;
+  width: 0;
+  height: 100%;
+  background: linear-gradient(90deg, #4cc9f0, #3ad29f);
+  animation: bootscreen-fill var(--fill-ms, 1250ms) linear both;
+}
+
+@keyframes bootscreen-fill {
+  to {
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bootscreen__caret {
+    animation: none;
+  }
+
+  .showcase__boot--out {
+    transition: none;
+  }
+}
+
+/*
+ * The hero.
+ *
+ * Shared pieces - the eyebrow, the title scale, the stat row - live in `gallery.css`; only what
+ * is specific to the hero is here.
+ */
+
+/* --- device -------------------------------------------------------------- */
+
+.hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 48px;
+}
+
+/* Smaller than the other treatments: the copy column is narrow because the frame is wide. */
+.hero__title {
+  font-size: clamp(32px, 3.6vw, 46px);
+}
+
+.hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 28px;
+}
+
+.hero__stage {
+  justify-self: end;
+  /* The frame is decorative here; the gallery below is where screens are actually opened. */
+  pointer-events: none;
+  filter: drop-shadow(0 30px 60px rgb(0 0 0 / 55%));
+}
+
+.hero__stats {
+  grid-column: 1 / -1;
+}
+
+@media (max-width: 900px) {
+  .hero {
+    grid-template-columns: 1fr;
+    gap: 36px;
+  }
+
+  .hero__stage {
+    justify-self: center;
+  }
+}

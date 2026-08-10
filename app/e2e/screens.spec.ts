@@ -104,3 +104,24 @@ test('every theme is represented with preview art that actually loads', async ({
   )
   expect(broken).toEqual([])
 })
+
+test('every link off the landing page resolves', async ({ page, request }) => {
+  /*
+   * The "Read the notes" and "Open the original" buttons point at `docs/` and `legacy/`, which
+   * live outside the Vite root and are mounted by a plugin. Nothing about a dead link is
+   * visible on the page - it renders perfectly and then does nothing when clicked - so the
+   * targets are fetched rather than assumed.
+   */
+  await page.goto('/')
+
+  const targets = await page.locator('a[href^="/"]').evaluateAll((links) =>
+    [...new Set(links.map((a) => (a as HTMLAnchorElement).getAttribute('href')!))],
+  )
+
+  expect(targets.length).toBeGreaterThan(0)
+
+  for (const href of targets) {
+    const response = await request.get(href)
+    expect(response.status(), `${href} should not be a dead link`).toBe(200)
+  }
+})

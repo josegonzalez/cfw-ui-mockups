@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<!--
+PORTING NOTES
+CFW: PlayStation X (theme for the Batocera EmulationStation fork)   Device: rg34xx (720x480)
+Source: github.com/pajarorrojo/es-theme-PlayStation-X @ 26ce759 (v43.1)
+Mode: reproduce (interactive - every view and every live subset in one page)
+
+Layout:
+  - All 11 screens the theme defines, switchable from the chrome strip below the device.
+  - This device maps to the theme's own aspect-ratio subset "3-2" (3:2), so no
+    aspect is invented. Geometry is resolved by ../layout.js from the source's normalized 0-1
+    coordinates; nothing reads the viewport.
+  - height 480 <= 480 trips Batocera's tinyScreen flag (theme.xml:340), which forces
+    defaultView="carousel" via _theme_views/force-gridview.xml, hides the region tag and the
+    top-bar cover art, and bumps several font sizes.
+Colors:
+  - Both colorsets (blue, black) and all 9 secondary accents, live. Token names are the
+    theme's own - ../palette.js, ../reference/source-notes.md.
+Typography:
+  - SST Light / Roman / Bold / Bold Italic plus players.ttf, the theme's own faces.
+    Sizes are fractions of screen height, as ES authors them.
+Focus & selection:
+  - PS4 carousel uses marco-activo-iso.png; PS5 a rounded white plate; PS3 a desaturated icon
+    row with no neighbour dimming (minLogoOpacity 1 vs 0.7).
+Buttons (keys / on-screen frame):
+  - D-pad (arrows) moves the cursor; Z=A, X=B, A=X, S=Y, Enter=Start, Right Shift=Select,
+    Q/W=L/R, Esc=Menu - the repo-standard table.
+  - Mockup-only keys, deliberately outside the device map: [ ] view, / system, \ colorset,
+    ' accent, , . carousel type, - = carousel size, ; animations.
+Transitions:
+  - Ported as data rather than hand-written CSS: ../storyboards.js carries the source's
+    <animation> descriptors and ../storyboard.js compiles them to Web Animations. The
+    signature motion is marco-activo: scale 0.94->1 in 300ms `bump` plus a 150ms yo-yo jolt,
+    settling into a forever opacity 1<->0.3 pulse. Ambient tracks run on their own clocks -
+    the 5350ms top-bar ticker, the 30s background Ken Burns, the 22.222s overlay-art drift,
+    the 400ms badge pulses.
+  - The runtime never writes `transform`: up to three transform channels animate at once, so
+    each drives its own registered custom property and CSS recomposes them. See the @property
+    block in ../playstation-x.css.
+  - Toggling Animations off calls the same settle() the static snapshots use, so the two
+    provably agree.
+Notes:
+  - Per-game art is generated SVG; the theme ships none (it is scraped per install). The
+    reference screenshots show real scraped art and will differ.
+  - Video, the 78 avatars and the per-language hotkey cards are pinned off - see the
+    pinned-subset table in ../reference/source-notes.md.
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>PlayStation X - rg34xx (720x480)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="../../shared/device-frame.css" />
+  <link rel="stylesheet" href="../playstation-x.css" />
+  <style> body { background: #0c0d12; } </style>
+</head>
+<body class="min-h-screen grid place-items-center p-10">
+  <div class="device-viewport" style="--screen-w:720; --screen-h:480; --scale:1.15;">
+    <div class="device">
+      <div class="device__screen">
+        <div class="screen">
+          <div class="psx-root"></div>
+        </div>
+      </div>
+      <div class="device__controls">
+        <div class="device__shoulders">
+          <div class="shoulder" data-btn="l">L</div>
+          <div class="shoulder" data-btn="r">R</div>
+        </div>
+        <div class="dpad">
+          <div class="dpad__btn" data-btn="up"></div>
+          <div class="dpad__btn" data-btn="down"></div>
+          <div class="dpad__btn" data-btn="left"></div>
+          <div class="dpad__btn" data-btn="right"></div>
+          <div class="dpad__center"></div>
+        </div>
+        <div class="device__meta">
+          <div class="pill" data-btn="select">SELECT</div>
+          <div class="pill" data-btn="start">START</div>
+        </div>
+        <div class="faces">
+          <div class="face" data-btn="x">X</div>
+          <div class="face" data-btn="y">Y</div>
+          <div class="face" data-btn="a">A</div>
+          <div class="face" data-btn="b">B</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="../storyboard.js"></script>
+  <script src="../storyboards.js"></script>
+  <script src="../palette.js"></script>
+  <script src="../layout.js"></script>
+  <script src="../views.js"></script>
+  <script src="../playstation-x.js"></script>
+  <script>
+    PlayStationX.boot(document.querySelector('.psx-root'), {
+      device: 'rg34xx', view: 'carousel', colorset: 'blue', secondary: 'default',
+      carouselType: 'PS4', carouselSize: 'medium', topInfo: 'default', system: 'psx',
+      interactive: true, chrome: true
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<!--
+PORTING NOTES
+CFW: Example OS (fictional launcher, used as the scaffold reference)
+Device: rg35xx (640x480)
+Source: n/a - this is a template, not a reproduction of a real firmware
+Mode: design-new
+
+Layout:
+  - Header 44px: title left, clock + battery right, 1px accent underline.
+  - Body: single vertical menu list, 5 rows at 68px each, 20px side padding.
+  - Footer 40px: button hint strip.
+Colors:
+  - background #12141c, panel #1b1e2b, accent #4cc9f0
+  - text #e7e9f0, muted #8b90a3, selected text #0b0d13
+Typography:
+  - System sans placeholder. In a real CFW, embed the firmware font via @font-face
+    from its asset dir and match sizes: title 18px, rows 20px, footer 13px.
+Focus & selection:
+  - Selected row fills with the accent color and shifts 6px right; icon tile turns dark.
+  - Vertical wrap. Default focus on the first row (Recents).
+Buttons:
+  - A: open focused item (Games -> game-list.html). B: no-op on the root menu.
+    START: menu (unmapped here). D-pad up/down: move selection.
+Transitions:
+  - Selection change is instant. Activating navigates with a full page load.
+Notes:
+  - Only "Games" is wired to a destination; other rows are inert placeholders.
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Example OS - Main menu (RG35XX)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="../../shared/device-frame.css" />
+  <style>
+    body { background: #0c0d12; }
+    /* theme */
+    .os-bg      { background: #12141c; }
+    .os-panel   { background: #1b1e2b; }
+    .os-accent  { color: #4cc9f0; }
+    .os-text    { color: #e7e9f0; }
+    .os-muted   { color: #8b90a3; }
+    .accent-line { background: #4cc9f0; }
+
+    /* menu rows */
+    .menu-row { transition: transform 0.05s ease; }
+    .menu-row .tile { background: #2a2e40; color: #cfd3e0; }
+    .menu-row.is-focused {
+      background: #4cc9f0;
+      transform: translateX(6px);
+      outline: none;
+    }
+    .menu-row.is-focused .label { color: #0b0d13; font-weight: 700; }
+    .menu-row.is-focused .tile  { background: #0b0d13; color: #4cc9f0; }
+    .menu-row.is-focused .sub   { color: #0b3b47; }
+  </style>
+</head>
+<body class="min-h-screen grid place-items-center p-10">
+  <div class="device-viewport" style="--screen-w:640; --screen-h:480; --scale:1.3;">
+    <div class="device">
+      <div class="device__screen">
+        <div class="screen os-bg os-text" style="image-rendering:auto; font-family: ui-sans-serif, system-ui, sans-serif;">
+
+          <!-- header -->
+          <div class="flex items-center justify-between px-5" style="height:44px;">
+            <div class="text-[18px] font-bold tracking-wide">Example<span class="os-accent">OS</span></div>
+            <div class="flex items-center gap-3 text-[14px] os-muted">
+              <span>12:34</span>
+              <span class="os-accent">85%</span>
+            </div>
+          </div>
+          <div class="accent-line mx-5" style="height:1px;"></div>
+
+          <!-- menu -->
+          <div data-nav-group data-nav-dir="vertical" data-nav-wrap
+               class="px-5 pt-3 flex flex-col gap-1">
+
+            <div class="nav-item menu-row flex items-center gap-4 rounded-lg px-3"
+                 style="height:68px;">
+              <div class="tile grid place-items-center rounded-md text-[20px]" style="width:44px;height:44px;">R</div>
+              <div>
+                <div class="label text-[20px]">Recents</div>
+                <div class="sub text-[13px] os-muted">Jump back in</div>
+              </div>
+            </div>
+
+            <div class="nav-item menu-row flex items-center gap-4 rounded-lg px-3"
+                 style="height:68px;">
+              <div class="tile grid place-items-center rounded-md text-[20px]" style="width:44px;height:44px;">F</div>
+              <div>
+                <div class="label text-[20px]">Favorites</div>
+                <div class="sub text-[13px] os-muted">Your pinned games</div>
+              </div>
+            </div>
+
+            <div class="nav-item menu-row flex items-center gap-4 rounded-lg px-3"
+                 style="height:68px;" data-href="game-list.html">
+              <div class="tile grid place-items-center rounded-md text-[20px]" style="width:44px;height:44px;">G</div>
+              <div>
+                <div class="label text-[20px]">Games</div>
+                <div class="sub text-[13px] os-muted">Browse by system</div>
+              </div>
+            </div>
+
+            <div class="nav-item menu-row flex items-center gap-4 rounded-lg px-3"
+                 style="height:68px;">
+              <div class="tile grid place-items-center rounded-md text-[20px]" style="width:44px;height:44px;">A</div>
+              <div>
+                <div class="label text-[20px]">Apps</div>
+                <div class="sub text-[13px] os-muted">Tools and extras</div>
+              </div>
+            </div>
+
+            <div class="nav-item menu-row flex items-center gap-4 rounded-lg px-3"
+                 style="height:68px;">
+              <div class="tile grid place-items-center rounded-md text-[20px]" style="width:44px;height:44px;">S</div>
+              <div>
+                <div class="label text-[20px]">Settings</div>
+                <div class="sub text-[13px] os-muted">System configuration</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- footer -->
+          <div class="absolute bottom-0 left-0 right-0 flex items-center gap-5 px-5 os-panel os-muted text-[13px]"
+               style="height:40px;">
+            <span><b class="os-accent">A</b> Open</span>
+            <span><b class="os-accent">B</b> Back</span>
+            <span><b class="os-accent">START</b> Menu</span>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- physical controls -->
+      <div class="device__controls">
+        <div class="device__shoulders">
+          <div class="shoulder" data-btn="l">L</div>
+          <div class="shoulder" data-btn="r">R</div>
+        </div>
+        <div class="dpad">
+          <div class="dpad__btn" data-btn="up"></div>
+          <div class="dpad__btn" data-btn="down"></div>
+          <div class="dpad__btn" data-btn="left"></div>
+          <div class="dpad__btn" data-btn="right"></div>
+          <div class="dpad__center"></div>
+        </div>
+        <div class="device__meta">
+          <div class="pill" data-btn="select">SELECT</div>
+          <div class="pill" data-btn="start">START</div>
+        </div>
+        <div class="faces">
+          <div class="face" data-btn="x">X</div>
+          <div class="face" data-btn="y">Y</div>
+          <div class="face" data-btn="a">A</div>
+          <div class="face" data-btn="b">B</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="../../shared/nav.js"></script>
+</body>
+</html>

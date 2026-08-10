@@ -1,0 +1,546 @@
+/*
+ * playstation-x.css - fonts, the animation transform contract, and element base styles.
+ *
+ * Layout numbers are NOT here. Every position and size is computed by layout.js from the
+ * theme's own normalized coordinates and written as inline px, so this file only carries what
+ * is genuinely presentational.
+ *
+ * Source: github.com/pajarorrojo/es-theme-PlayStation-X @ 26ce759 (v43.1).
+ * Values cited as file:line refer to that repo. See reference/source-notes.md.
+ */
+
+/* ---- fonts -------------------------------------------------------- *
+ * SST is Sony's corporate typeface and ships with the theme. Copied from
+ * _theme_inc/fonts/ with spaces renamed to hyphens: spaces inside url() over file:// are a
+ * needless hazard. url() is relative to THIS file.
+ */
+@font-face {
+  font-family: 'SST';
+  src: url('assets/fonts/SST-Roman.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'SST';
+  src: url('assets/fonts/SST-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'SST';
+  src: url('assets/fonts/SST-Bold-Italic.ttf') format('truetype');
+  font-weight: 700;
+  font-style: italic;
+}
+@font-face {
+  font-family: 'SST Light';
+  src: url('assets/fonts/SST-Light.ttf') format('truetype');
+  font-weight: 300;
+  font-style: normal;
+}
+/* Icon font: renders {game:playerCount} as a controller glyph. 3 refs upstream. */
+@font-face {
+  font-family: 'players';
+  src: url('assets/fonts/players.ttf') format('truetype');
+}
+
+/* ---- the animation transform contract ----------------------------- *
+ * The storyboard runtime never writes `transform`. Up to three transform channels animate at
+ * once - animated-list.xml:124-126 runs scale + offsetX + offsetY together - and two CSS
+ * animations cannot both write transform. So each channel drives its own registered custom
+ * property and the browser recomposes them every frame. See storyboard.js.
+ *
+ * Requires Chrome 85+ / Safari 16.4+ / Firefox 128+. These run on the main thread rather than
+ * the compositor, which is fine at ~20 concurrently animating nodes.
+ */
+@property --px-ox { syntax: '<length>'; inherits: false; initial-value: 0px; }
+@property --px-oy { syntax: '<length>'; inherits: false; initial-value: 0px; }
+@property --px-x  { syntax: '<length>'; inherits: false; initial-value: 0px; }
+@property --px-y  { syntax: '<length>'; inherits: false; initial-value: 0px; }
+@property --px-sc { syntax: '<number>'; inherits: false; initial-value: 1; }
+
+.px-anim {
+  /* Order is fixed here so the channels never interact: absolute position, then offset,
+   * then scale about the element's authored origin. */
+  transform: translate(var(--px-x), var(--px-y))
+             translate(var(--px-ox), var(--px-oy))
+             scale(var(--px-sc));
+  will-change: transform, opacity;
+}
+
+/* ---- screen ------------------------------------------------------- *
+ * shared/device-frame.css:69 sets image-rendering: pixelated on .screen, which suits pixel-art
+ * firmware. This is not that: PlayStation X is an HD theme built on photographic backgrounds,
+ * soft gradient scrims and SVG logos, and nearest-neighbour scaling visibly wrecks all three.
+ */
+.psx {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  image-rendering: auto;
+  font-family: 'SST', system-ui, sans-serif;
+  color: #ffffff;
+  background: #000;
+
+  /* Colorset tokens. Names are the theme's own, from
+   * _theme_options/colorsets/{blue,black}.xml - palette.js writes these. */
+  --genreColor: #3CAEFB;
+  --releaseColor: #F3C300;
+  --developerColor: #00AC97;
+  --starFill: #DF0024;
+  --starUnfill: rgba(255, 255, 255, 0.412);
+  --dimColor: #808080;
+  --gamelistSelectorColor: #F3C300;
+  --gamelistSelectedColor: #3CAEFB;
+  --sistemaLineaInferior: #0070d1;
+  --sistemaPie: #030a18;
+  --helpFontColor: #DFDCDC;
+  --cheevosOnColor: #F3C300;
+  --backgroundgridSelect: #F3C300;
+}
+
+.psx * {
+  box-sizing: border-box;
+}
+
+/* The universal text glow: glowColor 00000035, glowSize 1, glowOffset 3 2.
+ * Present on nearly every text element in the theme. */
+.psx-glow {
+  text-shadow: 3px 2px 1px rgba(0, 0, 0, 0.208);
+}
+
+/* ---- layers ------------------------------------------------------- */
+.psx-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.psx-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform-origin: 50% 50%;
+}
+
+/* Full-screen scrim PNGs (overlay-single, overlay-systemview, ...). These are the theme's
+ * vignette layer and sit above the background art. */
+.psx-overlay {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+  pointer-events: none;
+}
+
+/* ---- absolutely-positioned element base --------------------------- *
+ * Everything the theme draws is placed by layout.js as inline left/top/width/height.
+ */
+.psx-el {
+  position: absolute;
+  margin: 0;
+}
+
+.psx-img {
+  position: absolute;
+  object-fit: contain;
+}
+
+/* ---- ps4Style tile strip ------------------------------------------ */
+.psx-tile {
+  position: absolute;
+  overflow: hidden;
+  background: #0b0f18;
+  /* gridtile default: backgroundEdgeColor / backgroundCenterColor ffffff99
+   * (_theme_views/ps4-style.xml:67-68) */
+  outline: 1px solid rgba(255, 255, 255, 0.6);
+  outline-offset: -1px;
+}
+
+/* Scoped to the tile art specifically - the favorite and cheevos badges are also imgs inside
+ * the tile, and a bare `.psx-tile img` rule outranks their own class and blows them up. */
+.psx-tile > img.art {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /* gridtile:selected imageColor ffffff vs default's dimmed value (:76) */
+  filter: brightness(0.78);
+  transition: filter 200ms linear;
+}
+
+.psx-tile.is-selected > img.art {
+  filter: brightness(1);
+}
+
+/* Favorite heart, top-left inside the tile. ps4-style.xml:111-118 */
+.psx-tile-fav {
+  position: absolute;
+  left: 5%;
+  top: 5%;
+  width: 10%;
+  height: 10%;
+  object-fit: contain;
+}
+
+/* Cheevos trophy. ps4-style.xml:120-132, color F2BC00dd */
+.psx-tile-cheevos {
+  position: absolute;
+  right: 5%;
+  bottom: 5%;
+  width: 9%;
+  height: 9%;
+  object-fit: contain;
+}
+
+/* The PS4 selection frame. marco-activo-iso.png at zIndex 89, origin 0 0 - so it scales from
+ * its top-left corner, which is why the bump reads as a "grow into place". */
+.psx-marco {
+  position: absolute;
+  transform-origin: 0 0;
+  pointer-events: none;
+}
+
+/* The "Start" pill. backgroundColor 00000069, centered SST Light. ps4-style.xml:149-167 */
+.psx-start {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.412);
+  font-family: 'SST Light', 'SST', sans-serif;
+  font-weight: 300;
+  color: #ffffff;
+}
+
+/* ---- the big game title ------------------------------------------- */
+.psx-gamename {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  gap: 0;
+  white-space: nowrap;
+}
+
+.psx-gamename .name {
+  font-family: 'SST Light', 'SST', sans-serif;
+  font-weight: 300;
+  color: #ffffff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* The collection chip: black italic text with a white halo, so it reads on any background.
+ * glowColor ffffffe3, glowSize 2. ps4-style.xml:216-230 */
+.psx-gamename .chip {
+  font-family: 'SST', sans-serif;
+  font-weight: 700;
+  font-style: italic;
+  color: #000000;
+  text-shadow:
+     0 0 2px rgba(255, 255, 255, 0.89),  0 0 4px rgba(255, 255, 255, 0.89),
+     1px 1px 2px rgba(255, 255, 255, 0.89), -1px -1px 2px rgba(255, 255, 255, 0.89);
+}
+
+/* ---- metadata rows ------------------------------------------------ */
+/* stackpanel separator 0.015 of screen width between children (grid.xml contenedor-gamedata).
+ * Set as a px gap by the controller; this is the fallback. */
+.psx-row {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  gap: 0.45em;
+  white-space: nowrap;
+  font-family: 'SST', sans-serif;
+  font-weight: 700;
+}
+
+.psx-row .sep {
+  color: #ffffff;
+}
+.psx-row .release { color: var(--releaseColor); }
+.psx-row .genre { color: var(--genreColor); }
+.psx-row .dim { color: var(--dimColor); }
+
+/* multi-disc chip: yellow on a dark plate, and it pulses. grid.xml:607 */
+.psx-row .multidisc {
+  color: #F3C300;
+  background: rgba(0, 0, 0, 0.4);
+  padding: 0 0.4em;
+}
+
+.psx-stars {
+  color: var(--starFill);
+  letter-spacing: 0.05em;
+}
+
+.psx-desc {
+  position: absolute;
+  font-family: 'SST Light', 'SST', sans-serif;
+  font-weight: 300;
+  color: #ffffff;
+  overflow: hidden;
+  line-height: 1.11;
+}
+
+/* ---- character cutout --------------------------------------------- *
+ * Full-height, right-and-bottom anchored, drifting 2.8% of screen width over 22.2s.
+ * gamelist-overlay.xml:266-315
+ */
+.psx-overlay-art {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  height: 100%;
+  width: auto;
+  object-fit: contain;
+  object-position: bottom right;
+  pointer-events: none;
+}
+
+/* ---- bottom chrome ------------------------------------------------ */
+.psx-linea {
+  position: absolute;
+  /* Per-system gradient from _theme_inc/infos/<theme>.xml; psx.xml is F2001A -> 00AD9E. */
+  background: linear-gradient(90deg, var(--lineaFrom, #0070d1), var(--lineaTo, #0070d1));
+}
+
+.psx-pie {
+  position: absolute;
+  background: var(--sistemaPie);
+  opacity: 0.4;
+}
+
+.psx-help {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  gap: 0.6em;
+  font-family: 'SST', sans-serif;
+  color: var(--helpFontColor);
+  white-space: nowrap;
+}
+
+.psx-help .glyph {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.35em;
+  height: 1.35em;
+  border-radius: 50%;
+  border: 0.09em solid var(--helpFontColor);
+  font-size: 0.8em;
+  margin-right: 0.25em;
+}
+
+/* ---- top bar ------------------------------------------------------ */
+.psx-top {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.psx-top .txt {
+  position: absolute;
+  font-family: 'SST Light', 'SST', sans-serif;
+  font-weight: 300;
+  color: #ffffff;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+}
+
+/* The ticker's two stacked blocks occupy the same box and cross-fade forever.
+ * top-info.xml:115-130 */
+.psx-ticker {
+  position: absolute;
+  display: grid;
+}
+.psx-ticker > * {
+  grid-area: 1 / 1;
+}
+
+/* ---- system carousel ---------------------------------------------- *
+ * Square cover tiles. The selected one scales by logoScale (1.48-2.0 depending on carousel
+ * type and size) and neighbours dim to minLogoOpacity - 0.7 for PS4/PS5, 1.0 for PS3.
+ */
+.psx-systile {
+  position: absolute;
+  top: 0;
+  overflow: hidden;
+  transform-origin: center center;
+  transition: transform 600ms cubic-bezier(0, 0, 0.58, 1),
+              opacity 600ms cubic-bezier(0, 0, 0.58, 1);
+  background: #0b0f18;
+}
+
+.psx-systile img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* PS5 draws its selection as a rounded white plate rather than shipping a frame PNG.
+ * carousel-ps5.xml uses a stretched pixel-blanco.png with roundCorners 0.15. */
+.psx-marco--ps5 {
+  background: #ffffff;
+  opacity: 0.9;
+}
+
+/* ---- lists (detailed, media tester) -------------------------------- */
+.psx-list {
+  position: absolute;
+  overflow: hidden;
+  font-family: 'SST Light', 'SST', sans-serif;
+  font-weight: 300;
+  z-index: 52;
+}
+
+.psx-list-row {
+  padding: 0 0.4em;
+  color: #ffffff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* selectorImagePath is a tiled translucent-white strip; selectedColor is the accent.
+ * detailed.xml */
+.psx-list-row.is-selected {
+  background: rgba(255, 255, 255, 0.16);
+  color: var(--gamelistSelectedColor);
+}
+
+/* The thin rule above the description in detailed view. detailed.xml - color 555555 */
+.psx-linea-infos {
+  position: absolute;
+  background: #555555;
+}
+
+/* ---- carousel view ------------------------------------------------- *
+ * gridtile carries <reflexion>0.2 0</reflexion>, a mirrored fade under each tile.
+ */
+.psx-strip--reflect {
+  overflow: hidden;
+}
+
+.psx-tile--reflect {
+  outline: none;
+  background: transparent;
+  transform-origin: center center;
+  transition: transform 300ms cubic-bezier(0.33, 1, 0.68, 1);
+}
+
+.psx-tile--reflect > img.art {
+  object-fit: contain;
+  filter: brightness(0.7);
+  -webkit-box-reflect: below 2px linear-gradient(transparent 62%, rgba(255, 255, 255, 0.22));
+}
+
+.psx-tile--reflect.is-selected > img.art {
+  filter: brightness(1);
+}
+
+/* ---- media tester -------------------------------------------------- *
+ * Captions are literal closing tags - test-media.xml renders `</VIDEO>` and friends.
+ */
+.psx-tag {
+  position: absolute;
+  font-family: 'SST', sans-serif;
+  font-weight: 700;
+  color: #ffffff;
+  background: rgba(0, 0, 0, 0.667);
+  padding: 0.1em 0.6em;
+  white-space: nowrap;
+}
+
+/* ---- splash -------------------------------------------------------- */
+.psx-progress {
+  position: absolute;
+  background: var(--splashProgressbar);
+  overflow: hidden;
+}
+
+.psx-progress .fill {
+  height: 100%;
+  background: linear-gradient(180deg,
+    var(--splashProgressbarActive), var(--splashProgressbarActiveEnd));
+}
+
+/* The single view's Start pill is a solid accent plate rather than the translucent one.
+ * single.xml - backgroundColor ${sistema.lineainferior}ef */
+.psx-start--pill {
+  background: var(--sistemaLineaInferior);
+}
+
+/* ---- chrome strip (mockup only, never part of the theme) ------------ */
+.psx-chrome {
+  width: min(1180px, 92vw);
+  margin: 18px auto 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px 22px;
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  color: #cbd5e1;
+}
+
+.psx-chrome-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.psx-chrome-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  color: #64748b;
+}
+
+.psx-chrome-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.psx-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 9px;
+  border-radius: 6px;
+  border: 1px solid #1e293b;
+  background: #0f172a;
+  color: #94a3b8;
+  font-size: 11px;
+  cursor: pointer;
+  transition: background 0.12s ease, color 0.12s ease, border-color 0.12s ease;
+}
+
+.psx-chip:hover {
+  background: #1e293b;
+  color: #e2e8f0;
+}
+
+.psx-chip.is-on {
+  background: #0070d1;
+  border-color: #3CAEFB;
+  color: #ffffff;
+}
+
+.psx-chip .sw {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.psx-chrome-hint {
+  flex-basis: 100%;
+  font-size: 10.5px;
+  line-height: 1.6;
+  color: #475569;
+}

@@ -2,20 +2,9 @@ import type { CSSProperties } from 'react'
 import { DEVICES } from '../device/devices'
 import { SCREEN_MANIFEST, screenId } from '../themes/manifest'
 import { THEMES, catalogueTotals, type ThemeEntry } from '../themes/catalogue'
-import { DeviceHero } from './heroes/DeviceHero'
-import { HeroSwitcher } from './heroes/HeroSwitcher'
-import { MarqueeHero } from './heroes/MarqueeHero'
-import { NeonHero } from './heroes/NeonHero'
-import { useHeroVariant } from './heroes/useHeroVariant'
-import type { HeroVariant } from './heroes/types'
+import { Hero } from './hero/Hero'
 import './gallery.css'
-import './heroes/heroes.css'
-
-const HEROES: Record<HeroVariant, () => React.ReactElement> = {
-  neon: NeonHero,
-  device: DeviceHero,
-  marquee: MarqueeHero,
-}
+import './hero/hero.css'
 
 function ThemeCard({ theme }: { theme: ThemeEntry }) {
   const screens = SCREEN_MANIFEST.filter((s) => s.theme === theme.slug && !s.interactive)
@@ -110,11 +99,9 @@ function ThemeCard({ theme }: { theme: ThemeEntry }) {
 
 export function Landing() {
   const totals = catalogueTotals()
-  const { variant, setVariant } = useHeroVariant()
-  const Hero = HEROES[variant]
 
   return (
-    <div className="gal" data-hero={variant}>
+    <div className="gal">
       <div className="gal__inner">
         <Hero />
 
@@ -208,8 +195,6 @@ export function Landing() {
           <a href="/legacy/index.html">legacy/</a> and still render.
         </footer>
       </div>
-
-      <HeroSwitcher variant={variant} onChange={setVariant} />
     </div>
   )
 }
