@@ -1,5 +1,5 @@
 import { useInput } from '../input/InputProvider'
-import type { DeviceShell } from './devices'
+import type { ChinShell, FlankingShell } from './devices'
 import type { Button } from '../input/keymap'
 
 /**
@@ -45,16 +45,86 @@ function ClusterButton({
  * Decorative: the input layer has no axis events, and no mockup set reads one. It is here
  * because sticks and their absence are the clearest way to tell these devices apart - an RG552
  * drawn without them looks like an RG35XX.
+ *
+ * `ring` draws the lit collar some devices make a feature of, and it is the single most
+ * recognisable thing on the CubeXX's face.
  */
-function Stick() {
+function Stick({ ring }: { ring?: 'rgb' | undefined }) {
   return (
-    <div className="stick" aria-hidden="true">
+    <div className={ring ? `stick stick--ring-${ring}` : 'stick'} aria-hidden="true">
       <div className="stick__cap" />
     </div>
   )
 }
 
-export function ButtonCluster({ shell }: { shell: DeviceShell }) {
+/** The four-way pad. `disc` seats the cross in a round plate, which is how the CubeXX draws it. */
+function Dpad({ disc = false }: { disc?: boolean }) {
+  return (
+    <div className={disc ? 'dpad dpad--disc' : 'dpad'}>
+      <ClusterButton button="up" className="dpad__btn" />
+      <ClusterButton button="down" className="dpad__btn" />
+      <ClusterButton button="left" className="dpad__btn" />
+      <ClusterButton button="right" className="dpad__btn" />
+      <div className="dpad__center" />
+    </div>
+  )
+}
+
+/** The face diamond: X top, Y left, A right, B bottom. */
+function Faces() {
+  return (
+    <div className="faces">
+      <ClusterButton button="x" className="face" label="X" />
+      <ClusterButton button="y" className="face" label="Y" />
+      <ClusterButton button="a" className="face" label="A" />
+      <ClusterButton button="b" className="face" label="B" />
+    </div>
+  )
+}
+
+/**
+ * One side of a landscape body.
+ *
+ * Controls are stacked down the grip and sized from its width, so the whole side stays in
+ * proportion on any panel - which is what the chin layout needs `controlScale` for. A grip has
+ * its own width to measure against; a chin only has the panel's.
+ */
+export function Grip({ side, shell }: { side: 'left' | 'right'; shell: FlankingShell }) {
+  const left = side === 'left'
+
+  return (
+    <div className={`grip grip--${side}`}>
+      <ClusterButton
+        button={left ? 'l' : 'r'}
+        className="shoulder shoulder--grip"
+        label={left ? 'L' : 'R'}
+      />
+
+      <div className="grip__primary">{left ? <Dpad disc /> : <Faces />}</div>
+
+      {shell.sticks === 2 ? (
+        <div className="grip__stick">
+          <Stick ring={shell.stickRing} />
+        </div>
+      ) : null}
+
+      <div className="grip__aux">
+        {left ? (
+          shell.functionButton ? (
+            <ClusterButton button="menu" className="fn-button" label="" />
+          ) : null
+        ) : (
+          <div className="device__meta">
+            <ClusterButton button="select" className="pill pill--grip" label="" />
+            <ClusterButton button="start" className="pill pill--grip" label="" />
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
+export function ButtonCluster({ shell }: { shell: ChinShell }) {
   return (
     /*
      * Two elements, for the same reason the device frame itself needs two: `transform` does not
@@ -76,30 +146,19 @@ export function ButtonCluster({ shell }: { shell: DeviceShell }) {
           <ClusterButton button="r" className="shoulder" label="R" />
         </div>
 
-        <div className="dpad">
-          <ClusterButton button="up" className="dpad__btn" />
-          <ClusterButton button="down" className="dpad__btn" />
-          <ClusterButton button="left" className="dpad__btn" />
-          <ClusterButton button="right" className="dpad__btn" />
-          <div className="dpad__center" />
-        </div>
+        <Dpad />
 
         <div className="device__meta">
           <ClusterButton button="select" className="pill" label="SELECT" />
           <ClusterButton button="start" className="pill" label="START" />
         </div>
 
-        <div className="faces">
-          <ClusterButton button="x" className="face" label="X" />
-          <ClusterButton button="y" className="face" label="Y" />
-          <ClusterButton button="a" className="face" label="A" />
-          <ClusterButton button="b" className="face" label="B" />
-        </div>
+        <Faces />
 
         {shell.sticks === 2 ? (
           <div className="device__sticks">
-            <Stick />
-            <Stick />
+            <Stick ring={shell.stickRing} />
+            <Stick ring={shell.stickRing} />
           </div>
         ) : null}
       </div>

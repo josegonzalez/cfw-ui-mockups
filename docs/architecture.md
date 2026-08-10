@@ -56,13 +56,21 @@ The scaling splits across two elements:
 Both are needed, because `transform: scale()` does not affect layout. With only the inner
 element, a scaled-up shell would overlap whatever follows it on the page.
 
-The button cluster splits the same way and for the same reason. Each device's shell states a
-`controlScale`, because buttons are physical objects roughly a thumb wide on every device and so
-do *not* scale with the panel - `.device__chin` reserves the scaled height while
+On a device with a chin, the button cluster splits the same way and for the same reason. The
+shell states a `controlScale`, because buttons are physical objects roughly a thumb wide on every
+device and so do *not* scale with the panel - `.device__chin` reserves the scaled height while
 `.device__controls` draws unscaled inside it. Collapsing that to one element makes a cluster
 scaled below 1 lay out taller than its chin and squeeze the screen above it, and one scaled above
-1 spill out of the body. The shell itself is data on the device registry rather than a stylesheet
-per device; see [devices.md](devices.md#shells).
+1 spill out of the body.
+
+A device with a landscape body needs none of that. Its controls run down a grip either side of
+the panel and are sized as fractions of the grip's width, so the side stays in proportion with no
+scaling at all - a grip has a width of its own to measure against, and a chin only has the
+panel's. The two are a discriminated union rather than one shape with optional fields, because a
+`gripWidth` means nothing to a chin and a `controlScale` means nothing to a grip.
+
+The shell is data on the device registry rather than a stylesheet per device; see
+[devices.md](devices.md#shells).
 
 The viewing scale is a per-device preference, not a device property - the same 1920x1152 panel
 appeared at two different scales in two different original mockup sets, because each chose what

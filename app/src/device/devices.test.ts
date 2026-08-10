@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
-import { DEVICES, DEVICE_SLUGS, getDevice, isDeviceSlug } from './devices'
+import { DEVICES, DEVICE_SLUGS, getDevice, gripWidth, isDeviceSlug } from './devices'
 
 /**
  * The registry and `docs/devices.md` describe the same hardware. Documentation that can drift
@@ -70,14 +70,24 @@ describe('device registry', () => {
     expect(isDeviceSlug('not-a-device')).toBe(false)
   })
 
-  it('scales the largest and smallest panels to a comparable viewing size', () => {
-    // The scale is a viewing preference, but a panel that renders enormous or postage-stamp
-    // sized on a desktop makes the gallery unusable.
+  it('scales the largest and smallest devices to a comparable viewing size', () => {
+    /*
+     * The scale is a viewing preference, but a device that renders enormous or postage-stamp
+     * sized on a desktop makes the gallery unusable.
+     *
+     * Measured on the whole body rather than the panel. A landscape body puts a grip either
+     * side, so the same panel width is a much smaller share of the frame, and holding the panel
+     * to a fixed range would push the body off the edge of the page.
+     */
     for (const slug of DEVICE_SLUGS) {
       const d = getDevice(slug)
-      const shownWidth = d.w * d.viewScale
-      expect(shownWidth, `${slug} shown width`).toBeGreaterThan(500)
-      expect(shownWidth, `${slug} shown width`).toBeLessThan(1400)
+      const grips = gripWidth(d.shell, d.w) * 2
+      const bodyWidth = (d.w + grips + d.shell.bezel.side * 2) * d.viewScale
+
+      expect(bodyWidth, `${slug} body width`).toBeGreaterThan(500)
+      expect(bodyWidth, `${slug} body width`).toBeLessThan(1400)
+      // The panel still has to be legible in its own right.
+      expect(d.w * d.viewScale, `${slug} panel width`).toBeGreaterThan(400)
     }
   })
 })

@@ -2,7 +2,14 @@ import { act, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
 import { DeviceFrame } from './DeviceFrame'
-import { chinHeight, clusterHeight, DEVICE_SLUGS, getDevice, type DeviceSlug } from './devices'
+import {
+  chinHeight,
+  clusterHeight,
+  DEVICE_SLUGS,
+  getDevice,
+  gripWidth,
+  type DeviceSlug,
+} from './devices'
 import { useScreen } from './ScreenContext'
 import { useButtonPress, useInput } from '../input/InputProvider'
 import { useRenderMode } from '../render/RenderModeProvider'
@@ -161,12 +168,11 @@ describe('device shells', () => {
   })
 
   it('publishes the shell to CSS rather than styling per device', () => {
-    const viewport = frameFor('rg-cubexx').querySelector('.device-viewport') as HTMLElement
-    const shell = getDevice('rg-cubexx').shell
+    const viewport = frameFor('rg35xx').querySelector('.device-viewport') as HTMLElement
+    const shell = getDevice('rg35xx').shell
 
     expect(viewport.style.getPropertyValue('--bezel-side')).toBe(`${shell.bezel.side}px`)
     expect(viewport.style.getPropertyValue('--body-radius')).toBe(`${shell.radius}px`)
-    expect(viewport.style.getPropertyValue('--control-scale')).toBe(String(shell.controlScale))
   })
 
   it('reserves a chin that matches the cluster it holds', () => {
@@ -174,24 +180,82 @@ describe('device shells', () => {
     // neither is visible to any other assertion here.
     for (const slug of DEVICE_SLUGS) {
       const shell = getDevice(slug).shell
+      if (shell.layout !== 'chin') continue
       const viewport = frameFor(slug).querySelector('.device-viewport') as HTMLElement
 
       expect(viewport.style.getPropertyValue('--controls-h'), slug).toBe(`${chinHeight(shell)}px`)
-      expect(chinHeight(shell), slug).toBe(
-        Math.round(clusterHeight(shell) * shell.controlScale),
-      )
+      expect(chinHeight(shell), slug).toBe(Math.round(clusterHeight(shell) * shell.controlScale))
     }
   })
 
   it('gives every device a usable shell', () => {
     for (const slug of DEVICE_SLUGS) {
       const shell = getDevice(slug).shell
-      expect(shell.controlScale, slug).toBeGreaterThan(0.5)
-      expect(shell.controlScale, slug).toBeLessThan(3)
       expect(shell.radius, slug).toBeGreaterThanOrEqual(0)
       expect(shell.bezel.side, slug).toBeGreaterThan(0)
       expect(shell.body, slug).toHaveLength(2)
+
+      if (shell.layout === 'chin') {
+        expect(shell.controlScale, slug).toBeGreaterThan(0.5)
+        expect(shell.controlScale, slug).toBeLessThan(3)
+      } else {
+        // A grip narrower than a fifth of the panel has nowhere to put a stick.
+        expect(shell.gripWidth, slug).toBeGreaterThan(0.2)
+        expect(shell.gripWidth, slug).toBeLessThan(1)
+      }
     }
+  })
+})
+
+describe('flanking bodies', () => {
+  function frameFor(slug: DeviceSlug) {
+    const { container } = render(
+      <DeviceFrame device={slug} interactive={false}>
+        <Probe />
+      </DeviceFrame>,
+    )
+    return container
+  }
+
+  it('puts a grip either side of the panel instead of a chin below it', () => {
+    // The CubeXX is a landscape controller with a square screen in the middle, not an upright
+    // handheld. Drawn with a chin it reads as a tall rectangle with a square hole in it.
+    const container = frameFor('rg-cubexx')
+
+    expect(container.querySelector('.device')).toHaveAttribute('data-layout', 'flanking')
+    expect(container.querySelectorAll('.grip')).toHaveLength(2)
+    expect(container.querySelector('.device__chin')).toBeNull()
+  })
+
+  it('sizes the grips from the panel so the body stays in proportion', () => {
+    const container = frameFor('rg-cubexx')
+    const device = getDevice('rg-cubexx')
+    const viewport = container.querySelector('.device-viewport') as HTMLElement
+
+    expect(viewport.style.getPropertyValue('--grip-w')).toBe(
+      `${gripWidth(device.shell, device.w)}px`,
+    )
+    expect(viewport.style.getPropertyValue('--controls-h')).toBe('0px')
+  })
+
+  it('splits the controls across the two grips', () => {
+    const container = frameFor('rg-cubexx')
+    const left = container.querySelector('.grip--left') as HTMLElement
+    const right = container.querySelector('.grip--right') as HTMLElement
+
+    expect(left.querySelector('.dpad')).not.toBeNull()
+    expect(left.querySelector('[data-btn="l"]')).not.toBeNull()
+    expect(right.querySelector('.faces')).not.toBeNull()
+    expect(right.querySelector('[data-btn="r"]')).not.toBeNull()
+
+    // One stick per grip, not two on one side.
+    expect(left.querySelectorAll('.stick')).toHaveLength(1)
+    expect(right.querySelectorAll('.stick')).toHaveLength(1)
+  })
+
+  it('reaches the menu button, which the chin layout has no place for', () => {
+    expect(frameFor('rg-cubexx').querySelector('[data-btn="menu"]')).not.toBeNull()
+    expect(frameFor('rg35xx').querySelector('[data-btn="menu"]')).toBeNull()
   })
 })
 

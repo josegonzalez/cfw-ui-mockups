@@ -33,15 +33,36 @@ export type ResolutionClass = '640x480' | '1280x720' | '720x720' | 'other'
  * bezel and real buttons, so none of this translates to a firmware renderer. The portable
  * boundary is the contents of `.screen`, and nothing here may reach inside it.
  */
-export interface DeviceShell {
+interface ShellCommon {
   /** Bezel around the panel, in CSS pixels. Asymmetric where the silhouette calls for it. */
   readonly bezel: { readonly top: number; readonly side: number; readonly bottom: number }
   /** Body corner radius. A tight radius reads as a brick, a generous one as a rounded slab. */
   readonly radius: number
-  /** Analog sticks, drawn in a row under the D-pad and face buttons. */
+  /** Analog sticks. */
   readonly sticks: 0 | 2
-  /** Whether a second shoulder row is drawn for L2 and R2. */
+  /** Whether L2 and R2 are drawn as well as L and R. */
   readonly triggers: boolean
+  /** A lit ring around each stick, which some devices make a feature of. */
+  readonly stickRing?: 'rgb' | undefined
+  /** Body gradient, dark to darker. */
+  readonly body: readonly [string, string]
+}
+
+/**
+ * The two body layouts.
+ *
+ * `chin` is the upright Game Boy arrangement: panel on top, controls in a strip below it.
+ * `flanking` is the landscape controller arrangement: the panel in the middle with a grip either
+ * side, controls stacked down each grip.
+ *
+ * These are genuinely different bodies rather than one body with different spacing, which is why
+ * they are a discriminated union - a `gripWidth` means nothing to a chin and a `controlScale`
+ * means nothing to a grip, and an open shape invites both being set and one being ignored.
+ */
+export type ShellLayout = 'chin' | 'flanking'
+
+export interface ChinShell extends ShellCommon {
+  readonly layout: 'chin'
   /**
    * Control size relative to the reference handheld.
    *
@@ -50,26 +71,46 @@ export interface DeviceShell {
    * 1920x1152 body, controls at RG35XX size look like they came off a keyring.
    */
   readonly controlScale: number
-  /** Body gradient, dark to darker. */
-  readonly body: readonly [string, string]
 }
 
+export interface FlankingShell extends ShellCommon {
+  readonly layout: 'flanking'
+  /**
+   * Width of each grip as a fraction of the panel width.
+   *
+   * A fraction rather than pixels, because the grip has to stay in proportion to the panel it
+   * sits beside - the controls on it are sized from this in turn, so one number sets the lot.
+   */
+  readonly gripWidth: number
+  /** A small round button on the left grip, below the stick. */
+  readonly functionButton: boolean
+}
+
+export type DeviceShell = ChinShell | FlankingShell
+
 /**
- * How tall the cluster is before scaling.
+ * How tall the chin cluster is before scaling.
  *
  * Derived rather than stored beside `controlScale`, because a chin that disagrees with the
  * controls in it either crops them or leaves a gap, and two numbers that must agree eventually
  * will not.
  */
-export function clusterHeight(shell: DeviceShell): number {
+export function clusterHeight(shell: ChinShell): number {
   // Measured from the rendered cluster rather than guessed; `DeviceFrame.test.tsx` re-checks it.
   const base = 134
   return base + (shell.triggers ? 20 : 0) + (shell.sticks ? 58 : 0)
 }
 
-/** The chin the body reserves for the controls. */
+/** The chin the body reserves for the controls. Zero on a flanking body, which has none. */
 export function chinHeight(shell: DeviceShell): number {
+  if (shell.layout === 'flanking') return 0
   return Math.round(clusterHeight(shell) * shell.controlScale)
+}
+
+/** Grip width in pixels, for a flanking body. Zero for a chin body, which has no grips. */
+export function gripWidth(shell: DeviceShell, panelWidth: number): number {
+  if (shell.layout === 'chin') return 0
+  return Math.round(shell.gripWidth * panelWidth)
 }
 
 export interface Device {
@@ -103,7 +144,8 @@ const BODY = {
  * The starting point for a new device. Change only what makes it recognisable; a device with no
  * distinguishing features should use this outright rather than a near-copy of it.
  */
-export const HANDHELD: DeviceShell = {
+export const HANDHELD: ChinShell = {
+  layout: 'chin',
   bezel: { top: 26, side: 26, bottom: 26 },
   radius: 44,
   sticks: 0,
@@ -143,6 +185,7 @@ export const DEVICES: Record<DeviceSlug, Device> = {
     viewScale: 1.3,
     // The smallest body here: thin bezel, short chin, and no sticks at all.
     shell: {
+      layout: 'chin',
       bezel: { top: 18, side: 18, bottom: 16 },
       radius: 24,
       sticks: 0,
@@ -161,6 +204,7 @@ export const DEVICES: Record<DeviceSlug, Device> = {
     viewScale: 1.3,
     note: 'The 640x480 panel rotated to a 480x640 portrait orientation.',
     shell: {
+      layout: 'chin',
       bezel: { top: 22, side: 22, bottom: 20 },
       radius: 34,
       sticks: 0,
@@ -179,6 +223,7 @@ export const DEVICES: Record<DeviceSlug, Device> = {
     viewScale: 0.95,
     // A wide slab: sticks and a second shoulder row under a 16:9 panel.
     shell: {
+      layout: 'chin',
       bezel: { top: 24, side: 26, bottom: 18 },
       radius: 30,
       sticks: 2,
@@ -194,20 +239,26 @@ export const DEVICES: Record<DeviceSlug, Device> = {
     h: 720,
     aspect: '1:1',
     resolutionClass: '720x720',
-    viewScale: 1.1,
+    viewScale: 0.68,
     /*
-     * The square one. A generic handheld shell around a square panel reads as a tall rectangle
-     * with a square hole in it, which is the opposite of what this device looks like. Wide side
-     * bezels and a heavy corner radius give it the chunky squared-off body the name refers to,
-     * and it carries two sticks.
+     * Matched to Anbernic's product photograph rather than inferred.
+     *
+     * The name is about the panel, not the body: this is a landscape controller with a square
+     * screen in the middle and a rounded grip either side, not an upright handheld. Each grip
+     * carries a shoulder at the top, then a circular D-pad or the face diamond, then a
+     * ring-lit stick, then a small button at the bottom - the function button on the left, and
+     * Select and Start as a pair of pills on the right.
      */
     shell: {
-      bezel: { top: 34, side: 44, bottom: 22 },
-      radius: 68,
+      layout: 'flanking',
+      bezel: { top: 53, side: 14, bottom: 69 },
+      radius: 160,
       sticks: 2,
       triggers: false,
-      controlScale: 1.15,
-      body: BODY.slate,
+      stickRing: 'rgb',
+      gripWidth: 0.45,
+      functionButton: true,
+      body: BODY.charcoal,
     },
   },
   rg34xx: {
@@ -229,6 +280,7 @@ export const DEVICES: Record<DeviceSlug, Device> = {
     resolutionClass: 'other',
     viewScale: 1.8,
     shell: {
+      layout: 'chin',
       bezel: { top: 24, side: 24, bottom: 20 },
       radius: 34,
       sticks: 2,
@@ -248,6 +300,7 @@ export const DEVICES: Record<DeviceSlug, Device> = {
     // The largest body in the registry, and the only clamshell-sized one: a deep chin with
     // sticks below the buttons, and a full set of shoulders.
     shell: {
+      layout: 'chin',
       bezel: { top: 32, side: 32, bottom: 26 },
       radius: 36,
       sticks: 2,
@@ -266,6 +319,7 @@ export const DEVICES: Record<DeviceSlug, Device> = {
     viewScale: 1.0,
     // Named for its silhouette, so the corners stay tight.
     shell: {
+      layout: 'chin',
       bezel: { top: 20, side: 20, bottom: 18 },
       radius: 16,
       sticks: 0,

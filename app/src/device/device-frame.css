@@ -28,10 +28,15 @@
   --bezel-side: 26px;
   --bezel-bottom: 26px;
   --controls-h: 132px;
+  --grip-w: 0px;
   --body-radius: 44px;
   --body-a: #2b2d31;
   --body-b: #1b1c1f;
-  --frame-w: calc(var(--screen-w) * 1px + var(--bezel-side) * 2);
+  /*
+   * One formula for both layouts. A chin body has no grips and a flanking body has no chin, so
+   * whichever term does not apply resolves to zero rather than needing its own rule.
+   */
+  --frame-w: calc(var(--screen-w) * 1px + var(--bezel-side) * 2 + var(--grip-w) * 2);
   --frame-h: calc(var(--screen-h) * 1px + var(--bezel-top) + var(--bezel-bottom) + var(--controls-h));
   width: calc(var(--frame-w) * var(--scale));
   height: calc(var(--frame-h) * var(--scale));
@@ -152,18 +157,35 @@
   font-size: 11px;
 }
 
-/* D-pad: a plus made of four clickable arms. */
+/*
+ * D-pad: a plus made of four clickable arms.
+ *
+ * Sized from `--dpad-size` and laid out in percentages, so the same markup serves a fixed-size
+ * chin cluster and a grip whose controls are a fraction of its width.
+ */
 .dpad {
   position: relative;
-  width: 90px;
-  height: 90px;
+  width: var(--dpad-size, 90px);
+  height: var(--dpad-size, 90px);
   justify-self: center;
+}
+
+/* Seated in a round plate, as the landscape bodies draw it. */
+.dpad--disc::before {
+  content: '';
+  position: absolute;
+  inset: -14%;
+  border-radius: 50%;
+  background: linear-gradient(160deg, #303239, #212328);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.07),
+    0 3px 6px rgba(0, 0, 0, 0.5);
 }
 
 .dpad__btn {
   position: absolute;
-  width: 30px;
-  height: 30px;
+  width: 33.34%;
+  height: 33.34%;
   background: #35373b;
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.06),
@@ -172,31 +194,31 @@
 
 .dpad__btn[data-btn='up'] {
   top: 0;
-  left: 30px;
+  left: 33.33%;
   border-radius: 6px 6px 0 0;
 }
 .dpad__btn[data-btn='down'] {
-  top: 60px;
-  left: 30px;
+  top: 66.66%;
+  left: 33.33%;
   border-radius: 0 0 6px 6px;
 }
 .dpad__btn[data-btn='left'] {
-  top: 30px;
+  top: 33.33%;
   left: 0;
   border-radius: 6px 0 0 6px;
 }
 .dpad__btn[data-btn='right'] {
-  top: 30px;
-  left: 60px;
+  top: 33.33%;
+  left: 66.66%;
   border-radius: 0 6px 6px 0;
 }
 
 .dpad__center {
   position: absolute;
-  top: 30px;
-  left: 30px;
-  width: 30px;
-  height: 30px;
+  top: 33.33%;
+  left: 33.33%;
+  width: 33.34%;
+  height: 33.34%;
   background: #35373b;
 }
 
@@ -221,18 +243,25 @@
     0 2px 3px rgba(0, 0, 0, 0.4);
 }
 
-/* Face buttons in the Nintendo diamond these devices use: X top, Y left, A right, B bottom. */
+/*
+ * Face buttons in the Nintendo diamond these devices use: X top, Y left, A right, B bottom.
+ *
+ * The buttons stay colour-coded even where the hardware moulds them all in black. They are the
+ * mockup's own affordance for reading a control map at a glance, and the shell is documented as
+ * stylised rather than photographic.
+ */
 .faces {
   position: relative;
-  width: 100px;
-  height: 90px;
+  width: var(--faces-size, 100px);
+  height: var(--faces-size, 100px);
   justify-self: center;
+  font-size: calc(var(--faces-size, 100px) * 0.13);
 }
 
 .face {
   position: absolute;
-  width: 34px;
-  height: 34px;
+  width: 34%;
+  height: 34%;
   border-radius: 999px;
   display: grid;
   place-items: center;
@@ -245,22 +274,22 @@
 
 .face[data-btn='x'] {
   top: 0;
-  left: 33px;
+  left: 33%;
   background: #6ea8ff;
 }
 .face[data-btn='y'] {
-  top: 28px;
+  top: 33%;
   left: 0;
   background: #7ad19a;
 }
 .face[data-btn='a'] {
-  top: 28px;
-  left: 66px;
+  top: 33%;
+  left: 66%;
   background: #ff7a7a;
 }
 .face[data-btn='b'] {
-  top: 56px;
-  left: 33px;
+  top: 66%;
+  left: 33%;
   background: #ffd166;
 }
 
@@ -291,9 +320,10 @@
 }
 
 .stick {
+  position: relative;
   justify-self: center;
-  width: 46px;
-  height: 46px;
+  width: var(--stick-size, 46px);
+  height: var(--stick-size, 46px);
   border-radius: 999px;
   display: grid;
   place-items: center;
@@ -305,13 +335,36 @@
 }
 
 .stick__cap {
-  width: 30px;
-  height: 30px;
+  width: 62%;
+  height: 62%;
   border-radius: 999px;
   background: radial-gradient(circle at 42% 32%, #55585f, #2b2d32 70%);
   box-shadow:
     inset 0 -2px 3px rgba(0, 0, 0, 0.6),
     0 2px 4px rgba(0, 0, 0, 0.55);
+}
+
+/*
+ * The lit collar. Drawn as a conic ring behind the well rather than as a border, so the well
+ * keeps its recess and the ring reads as a separate lit part rather than as an outline.
+ */
+.stick--ring-rgb::before {
+  content: '';
+  position: absolute;
+  inset: -18%;
+  border-radius: 999px;
+  background: conic-gradient(
+    #f7d154,
+    #6ddc7a,
+    #4fc9e8,
+    #6ea8ff,
+    #c07bf0,
+    #f56ba8,
+    #f7844f,
+    #f7d154
+  );
+  mask: radial-gradient(circle, transparent 0 58%, #000 60%);
+  -webkit-mask: radial-gradient(circle, transparent 0 58%, #000 60%);
 }
 
 /*
@@ -326,4 +379,100 @@
 [data-btn]:active,
 [data-btn].is-pressed {
   filter: brightness(1.35);
+}
+
+/* --- flanking body ------------------------------------------------------- */
+
+/*
+ * The landscape arrangement: panel in the middle, a grip either side.
+ *
+ * Not a chin body turned sideways. The controls run *down* each grip and are sized from the
+ * grip's own width, so the whole side stays in proportion at any panel size without the chin
+ * layout's `controlScale` - a grip has a width of its own to measure against, and a chin only
+ * has the panel's.
+ */
+.device[data-layout='flanking'] {
+  flex-direction: row;
+  align-items: stretch;
+}
+
+.grip {
+  position: relative;
+  flex: none;
+  width: var(--grip-w);
+  /* Every control on a grip is a fraction of its width, so one number sets the whole side. */
+  --dpad-size: calc(var(--grip-w) * 0.6);
+  --faces-size: calc(var(--grip-w) * 0.66);
+  --stick-size: calc(var(--grip-w) * 0.46);
+}
+
+/*
+ * Placed by fraction of the grip's height, read off the reference photograph: the pad or face
+ * cluster sits high, the stick a little below centre, and the small buttons near the bottom.
+ */
+.grip > * {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.grip__primary {
+  top: 12%;
+}
+
+.grip__stick {
+  top: 52%;
+}
+
+.grip__aux {
+  top: 80%;
+}
+
+/* The shoulders wrap over the top outer corner rather than sitting in a row. */
+.grip .shoulder--grip {
+  top: -2%;
+  left: auto;
+  transform: none;
+  min-width: calc(var(--grip-w) * 0.42);
+  padding: calc(var(--grip-w) * 0.03) 0;
+  text-align: center;
+  font-size: calc(var(--grip-w) * 0.09);
+  border-radius: 999px 999px calc(var(--grip-w) * 0.06) calc(var(--grip-w) * 0.06);
+}
+
+.grip--left .shoulder--grip {
+  right: 22%;
+}
+
+.grip--right .shoulder--grip {
+  left: 22%;
+}
+
+/* A round system button, the one control the chin layout has no place for. */
+.fn-button {
+  width: calc(var(--grip-w) * 0.25);
+  height: calc(var(--grip-w) * 0.25);
+  border-radius: 999px;
+  background: radial-gradient(circle at 42% 34%, #34363c, #212327);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+/* Select and Start as a moulded pair on a raised pad, rather than as labelled pills. */
+.grip .device__meta {
+  gap: calc(var(--grip-w) * 0.05);
+  padding: calc(var(--grip-w) * 0.045);
+  border-radius: calc(var(--grip-w) * 0.09);
+  background: linear-gradient(160deg, #303239, #232529);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.pill--grip {
+  width: calc(var(--grip-w) * 0.22);
+  height: calc(var(--grip-w) * 0.1);
+  padding: 0;
+  border-radius: 999px;
+  background: #17181b;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.7);
 }

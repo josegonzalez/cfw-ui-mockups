@@ -1,9 +1,9 @@
 import type { CSSProperties, ReactNode } from 'react'
 import { InputProvider } from '../input/InputProvider'
 import { RenderModeProvider, type RenderMode } from '../render/RenderModeProvider'
-import { ButtonCluster } from './ButtonCluster'
+import { ButtonCluster, Grip } from './ButtonCluster'
 import { ScreenProvider } from './ScreenContext'
-import { chinHeight, getDevice, type DeviceSlug } from './devices'
+import { chinHeight, getDevice, gripWidth, type DeviceSlug } from './devices'
 import './device-frame.css'
 import '../anim/anim.css'
 
@@ -53,7 +53,8 @@ export function DeviceFrame({
     '--bezel-side': `${shell.bezel.side}px`,
     '--bezel-bottom': `${shell.bezel.bottom}px`,
     '--controls-h': `${chinHeight(shell)}px`,
-    '--control-scale': shell.controlScale,
+    '--control-scale': shell.layout === 'chin' ? shell.controlScale : 1,
+    '--grip-w': `${gripWidth(shell, info.w)}px`,
     '--body-radius': `${shell.radius}px`,
     '--body-a': shell.body[0],
     '--body-b': shell.body[1],
@@ -75,9 +76,19 @@ export function DeviceFrame({
             screen
           ) : (
             <div className="device-viewport" style={viewportStyle} data-device={device}>
-              <div className="device">
-                {screen}
-                <ButtonCluster shell={shell} />
+              <div className="device" data-layout={shell.layout}>
+                {shell.layout === 'flanking' ? (
+                  <>
+                    <Grip side="left" shell={shell} />
+                    {screen}
+                    <Grip side="right" shell={shell} />
+                  </>
+                ) : (
+                  <>
+                    {screen}
+                    <ButtonCluster shell={shell} />
+                  </>
+                )}
               </div>
             </div>
           )}
