@@ -56,18 +56,20 @@ The scaling splits across two elements:
 Both are needed, because `transform: scale()` does not affect layout. With only the inner
 element, a scaled-up shell would overlap whatever follows it on the page.
 
-On a device with a chin, the button cluster splits the same way and for the same reason. The
-shell states a `controlScale`, because buttons are physical objects roughly a thumb wide on every
-device and so do *not* scale with the panel - `.device__chin` reserves the scaled height while
-`.device__controls` draws unscaled inside it. Collapsing that to one element makes a cluster
-scaled below 1 lay out taller than its chin and squeeze the screen above it, and one scaled above
-1 spill out of the body.
+The button cluster does **not** work this way, and trying to make it was a mistake worth
+recording. Buttons are physical objects roughly a thumb wide on every device, so they do not
+scale with the panel, and a chin body states a `controlScale` to size them against the body. The
+first version applied that with `transform: scale()` on the whole cluster - which only works near
+1, because the box has to be narrowed by the same factor to come back out at full width, and past
+about 1.5 the controls no longer fit inside the narrowed box. The grid then refuses to shrink
+below its min-content and the face buttons walk off the edge of the plastic. `controlScale` now
+scales the control *sizes*, which has no such ceiling.
 
-A device with a landscape body needs none of that. Its controls run down a grip either side of
-the panel and are sized as fractions of the grip's width, so the side stays in proportion with no
-scaling at all - a grip has a width of its own to measure against, and a chin only has the
-panel's. The two are a discriminated union rather than one shape with optional fields, because a
-`gripWidth` means nothing to a chin and a `controlScale` means nothing to a grip.
+A landscape body needs no scale at all. Its controls run down a grip either side of the panel and
+are sized as fractions of the grip's width, so the side stays in proportion by construction - a
+grip has a width of its own to measure against, and a chin only has the panel's. The two are a
+discriminated union rather than one shape with optional fields, because a `gripWidth` means
+nothing to a chin and a `controlScale` means nothing to a grip.
 
 The shell is data on the device registry rather than a stylesheet per device; see
 [devices.md](devices.md#shells).

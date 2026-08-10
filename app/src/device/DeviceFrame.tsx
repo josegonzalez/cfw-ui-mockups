@@ -3,7 +3,7 @@ import { InputProvider } from '../input/InputProvider'
 import { RenderModeProvider, type RenderMode } from '../render/RenderModeProvider'
 import { ButtonCluster, Grip } from './ButtonCluster'
 import { ScreenProvider } from './ScreenContext'
-import { chinHeight, getDevice, gripWidth, type DeviceSlug } from './devices'
+import { chinHeight, getDevice, gripWidth, radiusCss, type DeviceSlug } from './devices'
 import './device-frame.css'
 import '../anim/anim.css'
 
@@ -55,7 +55,7 @@ export function DeviceFrame({
     '--controls-h': `${chinHeight(shell)}px`,
     '--control-scale': shell.layout === 'chin' ? shell.controlScale : 1,
     '--grip-w': `${gripWidth(shell, info.w)}px`,
-    '--body-radius': `${shell.radius}px`,
+    '--body-radius': radiusCss(shell),
     '--body-a': shell.body[0],
     '--body-b': shell.body[1],
   } as CSSProperties

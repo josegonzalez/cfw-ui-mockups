@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react'
 import { useInput } from '../input/InputProvider'
 import type { ChinShell, FlankingShell } from './devices'
 import type { Button } from '../input/keymap'
@@ -49,11 +50,23 @@ function ClusterButton({
  * `ring` draws the lit collar some devices make a feature of, and it is the single most
  * recognisable thing on the CubeXX's face.
  */
-function Stick({ ring }: { ring?: 'rgb' | undefined }) {
+function Stick({ ring }: { ring?: 'rgb' | 'light' | undefined }) {
   return (
     <div className={ring ? `stick stick--ring-${ring}` : 'stick'} aria-hidden="true">
       <div className="stick__cap" />
     </div>
+  )
+}
+
+/** A control with its name printed on the body beneath it. */
+function Labelled({ label, children }: { label: string; children: ReactNode }) {
+  return (
+    <span className="labelled">
+      {children}
+      <span className="labelled__text" aria-hidden="true">
+        {label}
+      </span>
+    </span>
   )
 }
 
@@ -91,16 +104,39 @@ function Faces() {
  */
 export function Grip({ side, shell }: { side: 'left' | 'right'; shell: FlankingShell }) {
   const left = side === 'left'
+  const auxTop = shell.auxPosition === 'top'
+
+  /*
+   * With the small buttons at the top they are one round button per side, sitting above the pad;
+   * at the bottom they are a moulded Select and Start pair on the right and a system button on
+   * the left. Same two controls, and they look nothing alike.
+   */
+  const aux = auxTop ? (
+    <ClusterButton
+      button={left ? 'select' : 'start'}
+      className="aux-button"
+      label={left ? 'SELECT' : 'START'}
+    />
+  ) : left ? (
+    shell.functionButton ? (
+      <ClusterButton button="menu" className="fn-button" label="" />
+    ) : null
+  ) : (
+    <div className="device__meta">
+      <ClusterButton button="select" className="pill pill--grip" label="" />
+      <ClusterButton button="start" className="pill pill--grip" label="" />
+    </div>
+  )
 
   return (
-    <div className={`grip grip--${side}`}>
+    <div className={`grip grip--${side}`} data-aux={shell.auxPosition}>
       <ClusterButton
         button={left ? 'l' : 'r'}
         className="shoulder shoulder--grip"
         label={left ? 'L' : 'R'}
       />
 
-      <div className="grip__primary">{left ? <Dpad disc /> : <Faces />}</div>
+      <div className="grip__primary">{left ? <Dpad disc={!auxTop} /> : <Faces />}</div>
 
       {shell.sticks === 2 ? (
         <div className="grip__stick">
@@ -108,18 +144,7 @@ export function Grip({ side, shell }: { side: 'left' | 'right'; shell: FlankingS
         </div>
       ) : null}
 
-      <div className="grip__aux">
-        {left ? (
-          shell.functionButton ? (
-            <ClusterButton button="menu" className="fn-button" label="" />
-          ) : null
-        ) : (
-          <div className="device__meta">
-            <ClusterButton button="select" className="pill pill--grip" label="" />
-            <ClusterButton button="start" className="pill pill--grip" label="" />
-          </div>
-        )}
-      </div>
+      <div className="grip__aux">{aux}</div>
     </div>
   )
 }
@@ -134,13 +159,6 @@ export function ButtonCluster({ shell }: { shell: ChinShell }) {
      */
     <div className="device__chin">
       <div className="device__controls" data-sticks={shell.sticks || undefined}>
-        {shell.triggers ? (
-          <div className="device__shoulders device__shoulders--upper">
-            <ClusterButton button="l" className="shoulder shoulder--trigger" label="L2" />
-            <ClusterButton button="r" className="shoulder shoulder--trigger" label="R2" />
-          </div>
-        ) : null}
-
         <div className="device__shoulders">
           <ClusterButton button="l" className="shoulder" label="L" />
           <ClusterButton button="r" className="shoulder" label="R" />
@@ -148,9 +166,26 @@ export function ButtonCluster({ shell }: { shell: ChinShell }) {
 
         <Dpad />
 
-        <div className="device__meta">
-          <ClusterButton button="select" className="pill" label="SELECT" />
-          <ClusterButton button="start" className="pill" label="START" />
+        {/*
+          Labels are printed on the body beneath each button rather than set inside it, which is
+          what the hardware does - and what keeps the cluster narrow enough to fit the body once
+          the controls are scaled up. Text inside the pills is what pushed the face buttons off
+          the edge of the RG35XX.
+        */}
+        <div className="device__centre">
+          {shell.menuButton ? (
+            <Labelled label="MENU">
+              <ClusterButton button="menu" className="menu-button" label="Menu" />
+            </Labelled>
+          ) : null}
+          <div className="device__meta">
+            <Labelled label="SELECT">
+              <ClusterButton button="select" className="pill" label="Select" />
+            </Labelled>
+            <Labelled label="START">
+              <ClusterButton button="start" className="pill" label="Start" />
+            </Labelled>
+          </div>
         </div>
 
         <Faces />
@@ -162,6 +197,12 @@ export function ButtonCluster({ shell }: { shell: ChinShell }) {
           </div>
         ) : null}
       </div>
+
+      {/*
+        Moulded into the body rather than a control, so it takes no button - and a sibling of
+        the cluster rather than a child, because it belongs to the empty plastic below it.
+      */}
+      {shell.speakerGrille ? <div className="speaker" aria-hidden="true" /> : null}
     </div>
   )
 }

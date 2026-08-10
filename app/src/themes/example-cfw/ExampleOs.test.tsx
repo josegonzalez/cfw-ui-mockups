@@ -47,13 +47,16 @@ describe('ExampleOs main menu', () => {
   })
 
   it('shows the header, clock, battery and hints', () => {
-    mount({}, false)
+    const { container } = mount({}, false)
+    // Scoped to the panel: the device shell has a Menu button of its own, and an unscoped query
+    // would match the plastic as well as the screen.
+    const panel = within(container.querySelector('.screen') as HTMLElement)
 
-    expect(screen.getByText('Example')).toBeInTheDocument()
-    expect(screen.getByText('OS')).toBeInTheDocument()
-    expect(screen.getByText('85%')).toBeInTheDocument()
-    expect(screen.getByText('Open')).toBeInTheDocument()
-    expect(screen.getByText('Menu')).toBeInTheDocument()
+    expect(panel.getByText('Example')).toBeInTheDocument()
+    expect(panel.getByText('OS')).toBeInTheDocument()
+    expect(panel.getByText('85%')).toBeInTheDocument()
+    expect(panel.getByText('Open')).toBeInTheDocument()
+    expect(panel.getByText('Menu')).toBeInTheDocument()
   })
 })
 

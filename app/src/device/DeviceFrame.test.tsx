@@ -8,6 +8,7 @@ import {
   DEVICE_SLUGS,
   getDevice,
   gripWidth,
+  radiusCss,
   type DeviceSlug,
 } from './devices'
 import { useScreen } from './ScreenContext'
@@ -119,14 +120,14 @@ describe('DeviceFrame', () => {
       el.getAttribute('data-btn'),
     )
 
-    // Twelve physical buttons. `menu` is in the key map but has no button on the shell - the
-    // devices reach it through a chord or a dedicated hardware key that is not modelled here.
+    // The twelve every device has. `menu` is extra and only where the hardware has one.
     expect(buttons.sort()).toEqual([
       'a',
       'b',
       'down',
       'l',
       'left',
+      'menu',
       'r',
       'right',
       'select',
@@ -154,25 +155,18 @@ describe('device shells', () => {
     expect(frameFor('rg35xx').querySelectorAll('.stick')).toHaveLength(0)
   })
 
-  it('draws a second shoulder row only where the profile has triggers', () => {
-    expect(frameFor('rg552').querySelectorAll('.device__shoulders')).toHaveLength(2)
-    expect(frameFor('rg35xx').querySelectorAll('.device__shoulders')).toHaveLength(1)
-  })
-
-  it('keeps L2 and R2 on the same buttons as L and R', () => {
-    // The key map has no separate triggers, and inventing one for a decorative row would mean
-    // two buttons that look different and do the same thing without saying so.
-    const container = frameFor('rg552')
-    expect(container.querySelectorAll('[data-btn="l"]')).toHaveLength(2)
-    expect(container.querySelectorAll('[data-btn="r"]')).toHaveLength(2)
-  })
-
   it('publishes the shell to CSS rather than styling per device', () => {
     const viewport = frameFor('rg35xx').querySelector('.device-viewport') as HTMLElement
     const shell = getDevice('rg35xx').shell
 
     expect(viewport.style.getPropertyValue('--bezel-side')).toBe(`${shell.bezel.side}px`)
-    expect(viewport.style.getPropertyValue('--body-radius')).toBe(`${shell.radius}px`)
+    expect(viewport.style.getPropertyValue('--body-radius')).toBe(radiusCss(shell))
+  })
+
+  it('carries four corner radii through when a body sweeps one corner away', () => {
+    // The RG35XX's swept bottom-right corner is most of what makes its outline recognisable.
+    expect(radiusCss(getDevice('rg35xx').shell)).toBe('30px 30px 150px 30px')
+    expect(radiusCss(getDevice('rg40xx').shell)).toBe('44px')
   })
 
   it('reserves a chin that matches the cluster it holds', () => {
@@ -184,14 +178,15 @@ describe('device shells', () => {
       const viewport = frameFor(slug).querySelector('.device-viewport') as HTMLElement
 
       expect(viewport.style.getPropertyValue('--controls-h'), slug).toBe(`${chinHeight(shell)}px`)
-      expect(chinHeight(shell), slug).toBe(Math.round(clusterHeight(shell) * shell.controlScale))
+      expect(chinHeight(shell), slug).toBe(
+        Math.round(clusterHeight(shell) * shell.controlScale) + (shell.chinExtra ?? 0),
+      )
     }
   })
 
   it('gives every device a usable shell', () => {
     for (const slug of DEVICE_SLUGS) {
       const shell = getDevice(slug).shell
-      expect(shell.radius, slug).toBeGreaterThanOrEqual(0)
       expect(shell.bezel.side, slug).toBeGreaterThan(0)
       expect(shell.body, slug).toHaveLength(2)
 
@@ -253,9 +248,63 @@ describe('flanking bodies', () => {
     expect(right.querySelectorAll('.stick')).toHaveLength(1)
   })
 
-  it('reaches the menu button, which the chin layout has no place for', () => {
-    expect(frameFor('rg-cubexx').querySelector('[data-btn="menu"]')).not.toBeNull()
-    expect(frameFor('rg35xx').querySelector('[data-btn="menu"]')).toBeNull()
+  it('reorders the whole grip when the small buttons sit at the top', () => {
+    /*
+     * Two arrangements, both taken from reference photographs. With Select and Start at the top
+     * of each grip the pad drops to the middle and the sticks to the bottom; with them at the
+     * bottom the pad sits high. Drawing one device with the other's order is not a small
+     * difference - it is the wrong controller.
+     */
+    const top = frameFor('rg351m')
+    expect(top.querySelector('.grip')).toHaveAttribute('data-aux', 'top')
+    expect(top.querySelectorAll('.aux-button')).toHaveLength(2)
+
+    const bottom = frameFor('rg-cubexx')
+    expect(bottom.querySelector('.grip')).toHaveAttribute('data-aux', 'bottom')
+    expect(bottom.querySelectorAll('.aux-button')).toHaveLength(0)
+    expect(bottom.querySelectorAll('.pill--grip')).toHaveLength(2)
+  })
+
+  it('draws a system button only where the hardware has one', () => {
+    expect(frameFor('rg-cubexx').querySelector('.fn-button')).not.toBeNull()
+    // The slimmer bodies put Select and Start at the top instead and have no system button.
+    expect(frameFor('rg351m').querySelector('.fn-button')).toBeNull()
+  })
+})
+
+describe('shell details taken from references', () => {
+  function frameFor(slug: DeviceSlug) {
+    const { container } = render(
+      <DeviceFrame device={slug} interactive={false}>
+        <Probe />
+      </DeviceFrame>,
+    )
+    return container
+  }
+
+  it('draws a Menu button and a speaker grille only where the profile has them', () => {
+    const rg35xx = frameFor('rg35xx')
+    expect(rg35xx.querySelector('[data-btn="menu"]')).not.toBeNull()
+    expect(rg35xx.querySelector('.speaker')).not.toBeNull()
+
+    const rg40xx = frameFor('rg40xx')
+    expect(rg40xx.querySelector('[data-btn="menu"]')).toBeNull()
+    expect(rg40xx.querySelector('.speaker')).toBeNull()
+  })
+
+  it('prints control names on the body rather than inside the buttons', () => {
+    // Text set inside the pills is what pushed the RG35XX's face buttons off the plastic once
+    // its controls were scaled to match the reference.
+    const container = frameFor('rg35xx')
+    const pill = container.querySelector('.device__meta .pill') as HTMLElement
+
+    expect(pill.closest('.labelled')?.querySelector('.labelled__text')).toHaveTextContent('SELECT')
+  })
+
+  it('gives a stick collar only to the devices that make a feature of it', () => {
+    expect(frameFor('rg-cubexx').querySelector('.stick--ring-rgb')).not.toBeNull()
+    expect(frameFor('trimui-smart-pro').querySelector('.stick--ring-light')).not.toBeNull()
+    expect(frameFor('rg552').querySelector('[class*="stick--ring"]')).toBeNull()
   })
 })
 

@@ -36,16 +36,24 @@ export type ResolutionClass = '640x480' | '1280x720' | '720x720' | 'other'
 interface ShellCommon {
   /** Bezel around the panel, in CSS pixels. Asymmetric where the silhouette calls for it. */
   readonly bezel: { readonly top: number; readonly side: number; readonly bottom: number }
-  /** Body corner radius. A tight radius reads as a brick, a generous one as a rounded slab. */
-  readonly radius: number
+  /**
+   * Body corner radius: one value, or four in CSS order (top-left, top-right, bottom-right,
+   * bottom-left). Four exists because at least one of these devices sweeps a single corner away
+   * far harder than the other three, and that asymmetry is most of its silhouette.
+   */
+  readonly radius: number | readonly [number, number, number, number]
   /** Analog sticks. */
   readonly sticks: 0 | 2
-  /** Whether L2 and R2 are drawn as well as L and R. */
-  readonly triggers: boolean
-  /** A lit ring around each stick, which some devices make a feature of. */
-  readonly stickRing?: 'rgb' | undefined
+  /** A collar around each stick, which some devices make a feature of. */
+  readonly stickRing?: 'rgb' | 'light' | undefined
   /** Body gradient, dark to darker. */
   readonly body: readonly [string, string]
+}
+
+/** CSS `border-radius` for a shell, whether it carries one radius or four. */
+export function radiusCss(shell: DeviceShell): string {
+  const r = shell.radius
+  return typeof r === 'number' ? `${r}px` : r.map((n) => `${n}px`).join(' ')
 }
 
 /**
@@ -71,6 +79,18 @@ export interface ChinShell extends ShellCommon {
    * 1920x1152 body, controls at RG35XX size look like they came off a keyring.
    */
   readonly controlScale: number
+  /**
+   * Extra body below the cluster, in CSS pixels.
+   *
+   * Some lower bodies are much taller than the controls on them need, and the empty plastic is
+   * part of the silhouette - it is where a speaker grille or a model name goes. Deriving the
+   * chin purely from the cluster would crop that away.
+   */
+  readonly chinExtra?: number | undefined
+  /** A round Menu button in the middle of the strip. */
+  readonly menuButton?: boolean | undefined
+  /** A speaker grille in the bottom-right corner. */
+  readonly speakerGrille?: boolean | undefined
 }
 
 export interface FlankingShell extends ShellCommon {
@@ -82,7 +102,15 @@ export interface FlankingShell extends ShellCommon {
    * sits beside - the controls on it are sized from this in turn, so one number sets the lot.
    */
   readonly gripWidth: number
-  /** A small round button on the left grip, below the stick. */
+  /**
+   * Where the small buttons sit, which reorders the whole grip.
+   *
+   * `top` puts Select and Start above the pad and drops the stick to the bottom; `bottom` runs
+   * pad, stick, small buttons down the grip. Both arrangements are in use and they look nothing
+   * alike, so this is not a detail that can be defaulted.
+   */
+  readonly auxPosition: 'top' | 'bottom'
+  /** A round system button on the left grip, opposite Select and Start. */
   readonly functionButton: boolean
 }
 
@@ -98,13 +126,13 @@ export type DeviceShell = ChinShell | FlankingShell
 export function clusterHeight(shell: ChinShell): number {
   // Measured from the rendered cluster rather than guessed; `DeviceFrame.test.tsx` re-checks it.
   const base = 134
-  return base + (shell.triggers ? 20 : 0) + (shell.sticks ? 58 : 0)
+  return base + (shell.sticks ? 58 : 0)
 }
 
-/** The chin the body reserves for the controls. Zero on a flanking body, which has none. */
+/** The chin the body reserves. Zero on a flanking body, which has none. */
 export function chinHeight(shell: DeviceShell): number {
   if (shell.layout === 'flanking') return 0
-  return Math.round(clusterHeight(shell) * shell.controlScale)
+  return Math.round(clusterHeight(shell) * shell.controlScale) + (shell.chinExtra ?? 0)
 }
 
 /** Grip width in pixels, for a flanking body. Zero for a chin body, which has no grips. */
@@ -136,6 +164,8 @@ const BODY = {
   slate: ['#343740', '#20222a'],
   charcoal: ['#26282c', '#141517'],
   ivory: ['#d9d6cf', '#b3afa6'],
+  /** The warm light grey Anbernic call "grey", which is the colourway the reference shot uses. */
+  stone: ['#cfc9bd', '#aaa49a'],
 } as const satisfies Record<string, readonly [string, string]>
 
 /**
@@ -149,7 +179,6 @@ export const HANDHELD: ChinShell = {
   bezel: { top: 26, side: 26, bottom: 26 },
   radius: 44,
   sticks: 0,
-  triggers: false,
   controlScale: 1,
   body: BODY.graphite,
 }
@@ -163,7 +192,25 @@ export const DEVICES: Record<DeviceSlug, Device> = {
     aspect: '4:3',
     resolutionClass: '640x480',
     viewScale: 1.3,
-    shell: HANDHELD,
+    /*
+     * Matched to the reference photograph of the grey colourway.
+     *
+     * An upright body, and the one thing that stops it reading as a generic rectangle is the
+     * bottom-right corner, which sweeps away far harder than the other three. The speaker
+     * grille sits in that corner and the Menu button above Select and Start.
+     */
+    shell: {
+      layout: 'chin',
+      bezel: { top: 24, side: 24, bottom: 20 },
+      radius: [30, 30, 150, 30],
+      sticks: 0,
+      // Large controls on a lower body taller than they need, which is most of its character.
+      controlScale: 1.8,
+      chinExtra: 130,
+      menuButton: true,
+      speakerGrille: true,
+      body: BODY.stone,
+    },
   },
   rg40xx: {
     slug: 'rg40xx',
@@ -189,7 +236,6 @@ export const DEVICES: Record<DeviceSlug, Device> = {
       bezel: { top: 18, side: 18, bottom: 16 },
       radius: 24,
       sticks: 0,
-      triggers: false,
       controlScale: 0.85,
       body: BODY.ivory,
     },
@@ -208,7 +254,6 @@ export const DEVICES: Record<DeviceSlug, Device> = {
       bezel: { top: 22, side: 22, bottom: 20 },
       radius: 34,
       sticks: 0,
-      triggers: false,
       controlScale: 0.9,
       body: BODY.charcoal,
     },
@@ -220,15 +265,23 @@ export const DEVICES: Record<DeviceSlug, Device> = {
     h: 720,
     aspect: '16:9',
     resolutionClass: '1280x720',
-    viewScale: 0.95,
-    // A wide slab: sticks and a second shoulder row under a 16:9 panel.
+    viewScale: 0.62,
+    /*
+     * Matched to Trimui's product photograph.
+     *
+     * A wide landscape body with pronounced grips. Pad and faces sit high, the ring-lit sticks
+     * below them, and the small buttons at the bottom - Menu on the left, Select and Start on
+     * the right. The collars are plain light rather than lit colour.
+     */
     shell: {
-      layout: 'chin',
-      bezel: { top: 24, side: 26, bottom: 18 },
-      radius: 30,
+      layout: 'flanking',
+      bezel: { top: 62, side: 16, bottom: 74 },
+      radius: 120,
       sticks: 2,
-      triggers: true,
-      controlScale: 1.3,
+      stickRing: 'light',
+      gripWidth: 0.243,
+      auxPosition: 'bottom',
+      functionButton: true,
       body: BODY.charcoal,
     },
   },
@@ -254,9 +307,9 @@ export const DEVICES: Record<DeviceSlug, Device> = {
       bezel: { top: 53, side: 14, bottom: 69 },
       radius: 160,
       sticks: 2,
-      triggers: false,
       stickRing: 'rgb',
       gripWidth: 0.45,
+      auxPosition: 'bottom',
       functionButton: true,
       body: BODY.charcoal,
     },
@@ -278,15 +331,23 @@ export const DEVICES: Record<DeviceSlug, Device> = {
     h: 320,
     aspect: '3:2',
     resolutionClass: 'other',
-    viewScale: 1.8,
+    viewScale: 1.1,
+    /*
+     * Matched to Anbernic's product photograph.
+     *
+     * A slim landscape slab with rounded ends rather than bulging grips. Select and Start are
+     * small round buttons at the *top* of each grip, which pushes the pad to the middle and the
+     * sticks to the bottom - the opposite order to the CubeXX.
+     */
     shell: {
-      layout: 'chin',
-      bezel: { top: 24, side: 24, bottom: 20 },
-      radius: 34,
+      layout: 'flanking',
+      bezel: { top: 47, side: 8, bottom: 47 },
+      radius: 56,
       sticks: 2,
-      triggers: true,
-      controlScale: 0.78,
-      body: BODY.slate,
+      gripWidth: 0.32,
+      auxPosition: 'top',
+      functionButton: false,
+      body: BODY.charcoal,
     },
   },
   rg552: {
@@ -296,17 +357,23 @@ export const DEVICES: Record<DeviceSlug, Device> = {
     h: 1152,
     aspect: '5:3',
     resolutionClass: 'other',
-    viewScale: 0.62,
-    // The largest body in the registry, and the only clamshell-sized one: a deep chin with
-    // sticks below the buttons, and a full set of shoulders.
+    viewScale: 0.36,
+    /*
+     * Matched to Anbernic's product photograph.
+     *
+     * The largest body in the registry and the widest silhouette: a landscape slab whose panel
+     * takes nearly the whole face. Same arrangement as the RG351M - Select and Start at the top
+     * of each grip, pad in the middle, sticks at the bottom.
+     */
     shell: {
-      layout: 'chin',
-      bezel: { top: 32, side: 32, bottom: 26 },
-      radius: 36,
+      layout: 'flanking',
+      bezel: { top: 118, side: 20, bottom: 70 },
+      radius: 120,
       sticks: 2,
-      triggers: true,
-      controlScale: 2.1,
-      body: BODY.graphite,
+      gripWidth: 0.35,
+      auxPosition: 'top',
+      functionButton: false,
+      body: BODY.charcoal,
     },
   },
   'trimui-brick': {
@@ -323,7 +390,6 @@ export const DEVICES: Record<DeviceSlug, Device> = {
       bezel: { top: 20, side: 20, bottom: 18 },
       radius: 16,
       sticks: 0,
-      triggers: false,
       controlScale: 1.15,
       body: BODY.charcoal,
     },

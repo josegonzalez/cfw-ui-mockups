@@ -34,6 +34,37 @@ for (const route of ROUTES) {
     expect(painted).toBeGreaterThan(5)
   })
 
+  test(`${id} keeps every control inside the body`, async ({ page }) => {
+    /*
+     * Shells size their controls against the body, and a scale that is too large for the panel
+     * pushes the face buttons off the edge of the plastic. Nothing in the unit suite can see
+     * that - jsdom has no layout - and it is not a small visual difference but a device with
+     * buttons floating beside it.
+     */
+    await page.goto(`/#${id}`)
+    await expect(page.locator('.screen')).toBeVisible()
+
+    const escaped = await page.locator('.device').evaluate((device) => {
+      const body = device.getBoundingClientRect()
+      const out: string[] = []
+
+      for (const el of device.querySelectorAll<HTMLElement>('[data-btn], .stick, .speaker')) {
+        const r = el.getBoundingClientRect()
+        // A pixel of slack for sub-pixel rounding on a scaled body.
+        if (r.left < body.left - 1 || r.right > body.right + 1) {
+          out.push(`${el.className || el.tagName} escapes horizontally`)
+        }
+        if (r.top < body.top - 1 || r.bottom > body.bottom + 1) {
+          out.push(`${el.className || el.tagName} escapes vertically`)
+        }
+      }
+
+      return out
+    })
+
+    expect(escaped).toEqual([])
+  })
+
   test(`${id} has nothing opaque covering the content`, async ({ page }) => {
     /*
      * The guard for a fault that every numeric check misses.

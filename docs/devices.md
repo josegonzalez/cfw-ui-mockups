@@ -42,17 +42,17 @@ different spacing:
 - **`flanking`** - the landscape controller arrangement: panel in the middle, a rounded grip
   either side, controls stacked down each grip.
 
-| Slug | Layout | Sticks | L2/R2 | Silhouette |
+| Slug | Layout | Sticks | Reference | Silhouette |
 | --- | --- | --- | --- | --- |
-| `rg35xx` | chin | - | - | The reference handheld |
-| `rg40xx` | chin | - | - | As above, lighter body |
+| `rg35xx` | chin | - | yes | Warm grey, large controls, one corner swept away, speaker grille |
+| `rg40xx` | chin | - | - | The reference handheld, lighter body |
 | `miyoo-mini` | chin | - | - | Smallest body, thin bezel, tight corners, cream shell |
 | `rg28xx` | chin | - | - | Portrait, tall and narrow |
-| `trimui-smart-pro` | chin | 2 | yes | Wide slab under a 16:9 panel |
-| `rg-cubexx` | flanking | 2 | - | Landscape, square panel between two grips, ring-lit sticks |
+| `trimui-smart-pro` | flanking | 2 | yes | Wide landscape body, pronounced grips, light stick collars |
+| `rg-cubexx` | flanking | 2 | yes | Square panel between two grips, ring-lit sticks |
 | `rg34xx` | chin | - | - | Wide handheld |
-| `rg351m` | chin | 2 | yes | Small body, full controls |
-| `rg552` | chin | 2 | yes | Largest body, deep chin |
+| `rg351m` | flanking | 2 | yes | Slim landscape slab, Select and Start at the top of each grip |
+| `rg552` | flanking | 2 | yes | Widest body, panel across nearly the whole face |
 | `trimui-brick` | chin | - | - | Boxy, near-square corners |
 
 **These are stylised silhouettes, not technical drawings.** They exist so the devices are
@@ -60,27 +60,43 @@ distinguishable at a glance. Where a slug covers a family, the shell follows the
 slug is named for. The shell is mockup chrome and sits outside the portable widget vocabulary:
 real hardware has a real bezel and real buttons, so none of it translates to a firmware renderer.
 
-Only **`rg-cubexx`** is matched against a reference photograph. Its grip positions, control order
-and body proportions are read off Anbernic's product shot; the rest are inferred from the device's
-general form factor and are the weaker claim. Several of the `chin` entries above are landscape
-devices that probably want `flanking` too - they are marked chin because nothing has been checked
-against a reference yet, not because a chin is known to be right.
+The **Reference** column is the important one. A row marked `yes` has its layout, proportions and
+control positions read off a product photograph; the rest are inferred from the device's general
+form factor and are the weaker claim. That distinction has already cost something: the CubeXX was
+first drawn as an upright handheld because the name suggested a square body, and it is a landscape
+controller. Three more devices were then drawn with chins on the same reasoning and turned out to
+be landscape as well. **Find a photograph before adding or changing a shell.**
+
+Two arrangements exist within `flanking`, set by `auxPosition`, and they look nothing alike:
+Select and Start as small round buttons at the *top* of each grip pushes the pad to the middle and
+the sticks to the bottom, while putting them at the *bottom* runs pad, stick, small buttons down
+the grip.
 
 Even where a shell is reference-matched, two things stay deliberately unfaithful. Face buttons
 keep their colour coding, which is the mockup's own affordance for reading a control map at a
 glance, and the body is drawn in the registry's palette rather than the device's real finish.
 
-Three things about the shell are load-bearing rather than decorative:
+Four things about the shell are load-bearing rather than decorative:
 
 - **Controls do not scale with the panel.** A button is about a thumb wide on every device, so
   a chin body's `controlScale` sizes the cluster against the body rather than against the
   resolution. Drawn at a fixed pixel size, the same cluster looks like jewellery on a 1920x1152
   body and like slabs on a 480x320 one.
+- **`controlScale` scales sizes, not a transform.** Scaling the whole cluster with
+  `transform: scale()` only works near 1: the box has to be narrowed by the same factor to come
+  back out at full width, and past about 1.5 the controls stop fitting inside the narrowed box, so
+  the grid refuses to shrink and the face buttons walk off the edge of the plastic.
 - **A grip needs no `controlScale`.** Its controls are fractions of `gripWidth`, which is itself
   a fraction of the panel width, so one number keeps the whole side in proportion.
 - **The chin is derived, not stored.** `chinHeight()` multiplies the cluster's measured height by
-  `controlScale`. A chin recorded separately would eventually disagree with the controls in it,
-  and that shows up as clipped buttons or a gap rather than as a failing assertion.
+  `controlScale` and adds `chinExtra` for bodies with more plastic than their controls need. A
+  chin recorded separately would eventually disagree with the controls in it, and that shows up as
+  clipped buttons or a gap rather than as a failing assertion.
+
+Control names are printed on the body beneath each button rather than set inside it, which is what
+the hardware does - and what keeps a scaled-up cluster narrow enough to fit. `e2e/screens.spec.ts`
+asserts no control escapes its body on any route, because nothing in the unit suite can see it:
+jsdom has no layout.
 
 ## Adding a device
 
