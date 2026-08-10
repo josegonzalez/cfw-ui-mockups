@@ -12,6 +12,24 @@ This is the largest set in the repo: eleven views, 22 storyboards carrying 97 an
 across 49 events, eight live subsets, and a layout that resolves through variant arrays where a
 later matching row wins.
 
+## Which source is authoritative
+
+The legacy mockup is **not** the theme. It is one transcription of the theme's XML, made by
+hand, and the golden fixtures below only ever proved that the port agrees with *that*.
+
+Checking the top bar against the upstream file directly found rows the transcription never
+carried, several of them load-bearing on the two 480-tall devices. So `topInfo` is now verified
+against the XML, by `topInfo.test.ts`, which cites a line number for each value, and
+`layout.test.ts` excludes it from the legacy gate. The other ten view blocks still use the legacy
+gate and have not had the same treatment - **they should be assumed to carry similar gaps.**
+
+To re-fetch a view file for checking, in a container rather than on the host:
+
+```
+docker run --rm curlimages/curl:latest -sL \
+  https://raw.githubusercontent.com/pajarorrojo/es-theme-PlayStation-X/26ce759/_theme_views/top-info.xml
+```
+
 ## How the port is checked against the original
 
 Three places where a transcription error is invisible and total, all checked by running the
@@ -107,6 +125,40 @@ screenshot of a 4:3 panel exists to check it against, so it is left as the numbe
 **`transform-origin` was set by a CSS class rather than the resolved `origin`,** contradicting
 `source-notes.md:319`. The resolved origin drives it. Verified against the reference screenshots
 and the legacy pages across all four devices before keeping the change.
+
+## Top bar: what checking against the XML found
+
+All of these were in the legacy transcription too, so the port inherited them. Line numbers are
+against `_theme_views/top-info.xml` at `26ce759`.
+
+**The release year was drawn on the two 480-tall devices.** `:529` hides it on `4-3|3-2|5-4`,
+and that row was missing. Because the trophy shifts right on those aspects (`:148`, `:150`) it
+landed on top of the year, and the clash read as a z-order bug.
+
+**The frontend logo and its plus pictogram were drawn on every view.** Both are authored under
+`<view name="system">` (`:53`), so they belong to the system view alone; `:84-91` then hides them
+on tinyScreen and on `4-3|5-4`. The port had them unscoped and always visible, which put the
+yellow plus over the ticker on every gamelist.
+
+**The blinking achievements pulse was bound to the wrong element.** `trophy-picto` (`:145`) is
+static, always drawn, and has no storyboard. `cheevos-picto` (`:187`) is a *separate* image at
+the same coordinates one z above, shown only for a game with achievements, and it is the one
+carrying the `opacity 0 -> 1` blink. Conflating them is what made the trophy disappear.
+
+**The blue dots were derived rather than placed.** Both are their own elements with their own
+coordinates - `punto-azul` at `:404`, before the version tag, and `puntoazul-2` at `:434`, beside
+the avatar. The port computed the first from the version tag's left edge and omitted the second
+entirely. The derivation landed within a pixel or two, which is why it went unnoticed.
+
+**Per-aspect rows were missing throughout**: the star's position on `5-3` (`:502`), the year's on
+`16-10` and `5-3` (`:515-517`), the version tag's on `4-3|5-4` (`:420`), the clock's tinyScreen
+font size (`:17`), the username's size and font size on `3-2` and `4-3` (`:481-487`), the
+ticker's size on `4-3|5-4|3-2|5-3` (`:387`), and the cover art's `maxSize` on `3-2` (`:241`).
+
+The visible result on the RG35XX and RG34XX is that the top-left corner is now empty - the logo,
+the plus pictogram and the system cover art are all hidden there - and the ticker starts at the
+screen edge instead (`:385` puts it at `0.065` rather than `0.162`). That is what the theme
+says; the corner is deliberately reclaimed for the ticker on a small panel.
 
 ## Fidelity faults found by looking at the screen
 

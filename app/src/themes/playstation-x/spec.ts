@@ -113,85 +113,167 @@ export const SPEC = {
     ],
   },
 
-  /* ---- top info bar. `_theme_views/top-info.xml` ---- */
+  /*
+   * ---- top info bar. `_theme_views/top-info.xml` ----
+   *
+   * Line numbers are against the upstream file at `26ce759`. Three of its `<view>` blocks feed
+   * this one node: `system` (:53) carries the frontend logo and its plus pictogram, `detailed,
+   * grid` (:173) carries the system cover art, and `detailed, grid, system` (:362) carries
+   * everything shared. `viewScope` records which, because an element authored under one view
+   * must not be drawn under another - the plus pictogram is a system-view element and was
+   * appearing over every gamelist.
+   *
+   * `tinyScreen` and `aspect-ratio` are separate predicates and both are load-bearing here: our
+   * two 480-tall devices are 4-3 and 3-2, so a rule written only for `4-3` misses the RG34XX.
+   */
   topInfo: {
-    /* :66-68 frontend logo */
+    /* :54-69 frontend logo. System view only; :84-91 hides it on tinyScreen and 4-3|5-4. */
     frontendLogo: {
       pos: [[null, [0.009, 0.012]]],
       maxSize: [[null, 0.096]],
       zIndex: [[null, 99]],
-    },
-    /* :253-255 system cover art, gamelist views only. Hidden on 4:3 and tinyScreen. */
-    caratulaTop: {
-      pos: [[null, [0.015, 0.02]]],
-      maxSize: [[null, 0.096]],
-      origin: [[null, [0, 0]]],
-      zIndex: [[null, 99]],
+      viewScope: [[null, 'system']],
       visible: [
         [null, true],
-        [{ 'aspect-ratio': '4-3' }, false],
         [{ tinyScreen: 'true' }, false],
+        [{ 'aspect-ratio': '4-3|5-4' }, false],
       ],
     },
+    /* :72-82 the plus pictogram, and :84-91 hides it alongside the logo. System view only. */
     plusPicto: {
       pos: [[null, [0.086, 0.045]]],
       maxSize: [[null, 0.05]],
+      viewScope: [[null, 'system']],
       visible: [
         [null, true],
+        [{ tinyScreen: 'true' }, false],
+        [{ 'aspect-ratio': '4-3|5-4' }, false],
         [{ 'top-info': 'clean|no-numbers' }, false],
       ],
     },
+    /* :235-265 system cover art. Gamelist views only, hidden on 4-3|5-4 and on tinyScreen. */
+    caratulaTop: {
+      pos: [[null, [0.015, 0.02]]],
+      maxSize: [
+        [null, 0.096],
+        [{ 'aspect-ratio': '3-2' }, 0.085],
+      ],
+      origin: [[null, [0, 0]]],
+      zIndex: [[null, 99]],
+      viewScope: [[null, 'gamelist']],
+      visible: [
+        [null, true],
+        [{ 'aspect-ratio': '4-3|5-4' }, false],
+        [{ tinyScreen: 'true' }, false],
+      ],
+    },
+    /* :364-379 info pictogram. tinyScreen moves it to the same place 4-3 does. */
     infoPicto: {
       pos: [
         [null, [0.125, 0.047]],
-        [{ 'aspect-ratio': '4-3' }, [0.02, 0.047]],
+        [{ 'aspect-ratio': '4-3|5-4' }, [0.02, 0.047]],
+        [{ tinyScreen: 'true' }, [0.02, 0.047]],
       ],
       maxSize: [[null, 0.045]],
     },
-    /* :115-130 the rotating ticker - two stacked blocks on a 5350ms loop */
+    /* :381-401 the rotating ticker - two stacked blocks on a 5350ms loop. */
     infoText: {
       pos: [
         [null, [0.162, 0.045]],
-        [{ 'aspect-ratio': '4-3' }, [0.065, 0.042]],
+        [{ 'aspect-ratio': '4-3|5-4' }, [0.065, 0.042]],
+        [{ tinyScreen: 'true' }, [0.065, 0.045]],
       ],
       size: [
         [null, [0.387, 0.05]],
+        [{ 'aspect-ratio': '4-3|5-4|3-2|5-3' }, [0.46, 0.055]],
         [{ 'top-info': 'clean' }, [0.487, 0.05]],
       ],
-      fontSize: [[null, 0.029]],
+      fontSize: [
+        [null, 0.029],
+        [{ 'aspect-ratio': '4-3|5-4', tinyScreen: 'true' }, 0.04],
+      ],
       zIndex: [[null, 99]],
     },
+    /* :417-432 the version tag, and :404-415 the blue dot that sits before it. */
     version: {
-      pos: [[null, [0.563, 0.012]]],
+      pos: [
+        [null, [0.563, 0.012]],
+        [{ 'aspect-ratio': '4-3|5-4' }, [0.547, 0.012]],
+      ],
       size: [[null, [0.064, 0.035]]],
-      fontSize: [[null, 0.023]],
+      fontSize: [
+        [null, 0.023],
+        [{ 'aspect-ratio': '4-3|5-4', tinyScreen: 'true' }, 0.02],
+      ],
       visible: [
         [null, true],
         [{ 'top-info': 'clean|no-numbers' }, false],
       ],
     },
+    /*
+     * :404-415. Its own element with its own coordinates - the port used to derive them from
+     * the version tag's left edge, which is an invention that happened to land close.
+     */
+    versionDot: {
+      pos: [
+        [null, [0.551, 0.024]],
+        [{ 'aspect-ratio': '4-3|5-4' }, [0.532, 0.024]],
+      ],
+      maxSize: [[null, 0.016]],
+      zIndex: [[null, 99]],
+      visible: [
+        [null, true],
+        [{ 'top-info': 'clean|no-numbers' }, false],
+      ],
+    },
+    /* :434-447 the second blue dot, beside the avatar. */
+    avatarDot: {
+      pos: [
+        [null, [0.604, 0.063]],
+        [{ 'aspect-ratio': '4-3|5-4' }, [0.605, 0.063]],
+      ],
+      maxSize: [[null, 0.016]],
+      zIndex: [[null, 99]],
+    },
+    /* :449-458 */
     avatar: {
       pos: [
         [null, [0.618, 0.039]],
-        [{ 'aspect-ratio': '4-3|3-2' }, [0.625, 0.039]],
+        [{ 'aspect-ratio': '4-3|5-4|3-2' }, [0.625, 0.039]],
         [{ 'top-info': 'clean' }, [0.718, 0.039]],
       ],
       maxSize: [[null, [0.063, 0.063]]],
       zIndex: [[null, 99]],
     },
+    /* :470-493 */
     username: {
       pos: [
         [null, [0.66, 0.05]],
-        [{ 'aspect-ratio': '4-3|3-2' }, [0.68, 0.05]],
+        [{ 'aspect-ratio': '16-10' }, [0.662, 0.05]],
+        [{ 'aspect-ratio': '4-3|5-4|3-2' }, [0.68, 0.05]],
+        [{ 'aspect-ratio': '4-3', tinyScreen: 'true' }, [0.685, 0.045]],
         [{ 'top-info': 'clean' }, [0.76, 0.05]],
       ],
-      size: [[null, [0.165, 0.04]]],
-      fontSize: [[null, 0.028]],
+      size: [
+        [null, [0.165, 0.04]],
+        [{ 'aspect-ratio': '4-3|5-4' }, [0.185, 0.04]],
+        [{ 'aspect-ratio': '3-2' }, [0.205, 0.04]],
+      ],
+      fontSize: [
+        [null, 0.028],
+        [{ 'aspect-ratio': '3-2' }, 0.03],
+        [{ 'aspect-ratio': '4-3|5-4', tinyScreen: 'true' }, 0.04],
+      ],
     },
+    /*
+     * :145-158 the achievements trophy. Static, and always drawn - it has no storyboard. The
+     * blink belongs to `cheevosPicto` below, which is a separate element stacked over it.
+     */
     trophy: {
       pos: [
         [null, [0.827, 0.045]],
         [{ 'aspect-ratio': '4-3' }, [0.885, 0.05]],
+        [{ 'aspect-ratio': '5-4' }, [0.875, 0.045]],
         [{ 'aspect-ratio': '3-2' }, [0.895, 0.055]],
         [{ 'top-info': 'clean' }, [0.681, 0.059]],
       ],
@@ -200,32 +282,74 @@ export const SPEC = {
         [{ 'aspect-ratio': '4-3|3-2' }, 0.034],
         [{ 'top-info': 'clean' }, 0.025],
       ],
+      zIndex: [[null, 98]],
     },
+    /*
+     * :187-195. The gold pulse that sits over the static trophy at the same coordinates, shown
+     * only for a game that has achievements. This is what carries the 0 -> 1 blink; binding it
+     * to the trophy itself made the trophy vanish from every static screen.
+     */
+    cheevosPicto: {
+      pos: [
+        [null, [0.827, 0.045]],
+        [{ 'aspect-ratio': '4-3' }, [0.885, 0.05]],
+        [{ 'aspect-ratio': '5-4' }, [0.875, 0.045]],
+        [{ 'aspect-ratio': '3-2' }, [0.895, 0.055]],
+        [{ 'top-info': 'clean' }, [0.681, 0.059]],
+      ],
+      maxSize: [
+        [null, 0.044],
+        [{ 'aspect-ratio': '4-3|3-2' }, 0.034],
+        [{ 'top-info': 'clean' }, 0.025],
+      ],
+      origin: [[null, [0, 0]]],
+      zIndex: [[null, 99]],
+      viewScope: [[null, 'gamelist']],
+    },
+    /* :499-510 */
     starPicto: {
-      pos: [[null, [0.856, 0.054]]],
+      pos: [
+        [null, [0.856, 0.054]],
+        [{ 'aspect-ratio': '16-10|5-3' }, [0.86, 0.054]],
+      ],
       maxSize: [[null, 0.03]],
       visible: [
         [null, true],
-        [{ 'aspect-ratio': '4-3|3-2' }, false],
+        [{ 'aspect-ratio': '4-3|3-2|5-4' }, false],
         [{ 'top-info': 'clean|no-numbers' }, false],
       ],
     },
+    /* :512-530. Hidden on the same three aspects as the star - :529. */
     year: {
-      pos: [[null, [0.875, 0.052]]],
+      pos: [
+        [null, [0.875, 0.052]],
+        [{ 'aspect-ratio': '16-10' }, [0.88, 0.052]],
+        [{ 'aspect-ratio': '4-3|5-4' }, [0.87, 0.052]],
+        [{ 'aspect-ratio': '5-3' }, [0.88, 0.052]],
+      ],
       size: [[null, [0.048, 0.035]]],
-      fontSize: [[null, 0.025]],
+      fontSize: [
+        [null, 0.025],
+        [{ 'aspect-ratio': '4-3', tinyScreen: 'true' }, 0.02],
+      ],
       visible: [
         [null, true],
+        [{ 'aspect-ratio': '4-3|3-2|5-4' }, false],
         [{ 'top-info': 'clean|no-numbers' }, false],
       ],
     },
+    /* :12-27. The `x` rows are authored separately from `y`; 0.920 is the unmatched base. */
     clock: {
       pos: [
-        [null, [0.91, 0.047]],
-        [{ 'aspect-ratio': '4-3' }, [0.912, 0.047]],
+        [null, [0.92, 0.047]],
+        [{ 'aspect-ratio': '3-2|16-10|5-3|16-9' }, [0.91, 0.047]],
+        [{ 'aspect-ratio': '4-3|5-4' }, [0.912, 0.047]],
       ],
       size: [[null, [0.075, 0.038]]],
-      fontSize: [[null, 0.029]],
+      fontSize: [
+        [null, 0.029],
+        [{ tinyScreen: 'true' }, 0.027],
+      ],
     },
   },
 

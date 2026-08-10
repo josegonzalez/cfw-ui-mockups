@@ -172,6 +172,12 @@ function resolveTree(node: unknown, state: MatcherState, W: number, H: number): 
     if (r.margin !== undefined) box.margin = r.margin
     if (r.separator !== undefined) box.separator = r.separator
     if (r.scale !== undefined) box.scaleFactor = r.scale
+    /*
+     * Which `<view>` block an element was authored under. Several top-bar elements belong to
+     * the system view alone or to the gamelists alone, and drawing one under the other put the
+     * frontend logo's plus pictogram over every game list.
+     */
+    if (r.viewScope !== undefined) box.viewScope = r.viewScope
 
     /* An explicit `<y>` on top of a `<pos>` - ps4-style.xml:175 does this. */
     if (r.y !== undefined && r.pos !== undefined) {

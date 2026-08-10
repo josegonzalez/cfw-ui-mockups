@@ -10,7 +10,28 @@ import golden from './__fixtures__/layout.golden.json'
  * is captured by `scripts/gen-psx-golden.mjs`, which runs `legacy/playstation-x/layout.js`
  * under `node:vm`. A snapshot of the port would only prove nobody had changed it lately; this
  * proves it still agrees with the thing it reproduces.
+ *
+ * `topInfo` is excluded, and that exclusion is the whole reason this comment is long.
+ *
+ * The legacy mockup is not the theme - it is one transcription of the theme's XML, and this
+ * fixture only ever proved the port agrees with *that*. Checking the top bar against the
+ * upstream file directly found rows the transcription never carried: the release year is hidden
+ * on `4-3|3-2|5-4` and was being drawn on two devices, the frontend logo and its plus pictogram
+ * belong to the system view alone and were painting over every gamelist, and the blinking
+ * achievements pulse is a separate element stacked over a static trophy rather than the trophy
+ * itself. Pinning the port to the transcription would have frozen every one of those in place.
+ *
+ * So `topInfo` is verified against the XML instead, by `topInfo.test.ts`, which cites a line
+ * number for each value. The other ten view blocks keep the legacy gate until they get the same
+ * treatment - see `docs/porting/playstation-x.md`.
  */
+const EXCLUDED = ['topInfo'] as const
+
+function comparable(resolved: unknown): Record<string, unknown> {
+  const out = JSON.parse(JSON.stringify(resolved)) as Record<string, unknown>
+  for (const key of EXCLUDED) delete out[key]
+  return out
+}
 const CAROUSEL = ['big', 'medium', 'small'] as const
 const CAROUSEL_TYPE = ['PS5', 'PS4', 'PS3'] as const
 const TOP_INFO = ['default', 'no-numbers', 'clean'] as const
@@ -32,8 +53,8 @@ describe('resolve against the original', () => {
               'carousel-type': type,
               'top-info': topInfo,
             }
-            expect(JSON.parse(JSON.stringify(resolve(device, state)))).toEqual(
-              (golden as Record<string, unknown>)[key],
+            expect(comparable(resolve(device, state))).toEqual(
+              comparable((golden as Record<string, unknown>)[key]),
             )
           })
         }

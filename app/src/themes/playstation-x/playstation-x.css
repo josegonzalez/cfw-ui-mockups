@@ -363,6 +363,14 @@
   -webkit-mask-position: center;
 }
 
+/*
+ * The pulse overlay, `top-info.xml:187-195`, authored `e8c820cc` - translucent gold stacked one
+ * z above the static trophy. Only a game with achievements gets one.
+ */
+.psx-trophy--pulse {
+  background: #e8c820cc;
+}
+
 /* ---- system carousel ------------------------------------------------- */
 
 /*

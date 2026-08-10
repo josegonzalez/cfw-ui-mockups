@@ -338,7 +338,13 @@ export function TopInfo(props: ChromeProps) {
 
   return (
     <div className="psx-top" style={{ zIndex: 99 }}>
-      {isSystem && logo ? (
+      {/*
+        The logo and its plus pictogram are authored under `<view name="system">` and the cover
+        art under `<view name="detailed, grid">`, so each belongs to one side of the theme. All
+        three are then hidden on tinyScreen and on 4-3, which is why the top-left corner of both
+        480-tall devices is empty and the ticker starts at the screen edge instead.
+      */}
+      {isSystem && T.frontendLogo.visible !== false && logo ? (
         <img
           ref={logoRef}
           className={`psx-img ${logoClass}`}
@@ -367,7 +373,7 @@ export function TopInfo(props: ChromeProps) {
         />
       ) : null}
 
-      {T.plusPicto.visible !== false ? (
+      {isSystem && T.plusPicto.visible !== false ? (
         <Picto box={T.plusPicto} src={image('plus-picto-bato.svg')} />
       ) : null}
       <Picto box={T.infoPicto} src={image('info-picto.svg')} />
@@ -401,20 +407,38 @@ export function TopInfo(props: ChromeProps) {
       </div>
 
       {/*
-        The trophy is gold because `cheevosOnColor` says so. The original reached that colour
-        with a filter stack over a white icon, which meant it could not follow the accent.
+        Two elements, not one. `trophy-picto` is static and always drawn; `cheevos-picto` is a
+        separate image at the same coordinates, one z above, shown only for a game that has
+        achievements - and it is the one carrying the 0 -> 1 blink. Binding the blink to the
+        trophy made the trophy itself disappear from every static screen.
+
+        Both are gold from `cheevosOnColor`. The original reached that colour with a filter
+        stack over a white icon, which meant it could not follow the accent.
       */}
       {trophy ? (
         <div
-          ref={trophyRef}
-          className={`psx-trophy ${trophyClass}`}
+          className="psx-trophy"
           style={{
             ...place(squareBox(T.trophy)),
-            ...trophyStyle,
+            zIndex: T.trophy.z,
             maskImage: `url(${trophy})`,
             WebkitMaskImage: `url(${trophy})`,
           }}
           aria-label="achievements"
+        />
+      ) : null}
+
+      {!isSystem && trophy && game?.cheevos ? (
+        <div
+          ref={trophyRef}
+          className={`psx-trophy psx-trophy--pulse ${trophyClass}`}
+          style={{
+            ...place(squareBox(T.cheevosPicto)),
+            ...trophyStyle,
+            maskImage: `url(${trophy})`,
+            WebkitMaskImage: `url(${trophy})`,
+          }}
+          aria-hidden
         />
       ) : null}
 
@@ -435,26 +459,35 @@ export function TopInfo(props: ChromeProps) {
   )
 }
 
+/**
+ * The version tag and the two blue dots.
+ *
+ * Both dots are their own elements in the source with their own coordinates - `punto-azul` at
+ * `top-info.xml:404` before the version, and `puntoazul-2` at `:434` beside the avatar. The port
+ * used to derive the first from the version tag's left edge and omit the second entirely; the
+ * derivation happened to land within a pixel or two, which is exactly why it went unnoticed.
+ */
 function Version({ layout }: { layout: PsxLayout }) {
   const T = layout.topInfo
   const dot = image('punto-azul.png')
-  const dotSize = 0.011 * layout.w
 
   return (
     <>
       <div className="txt" style={textLine(T.version)}>
         v.43
       </div>
-      {/* The separator dot sits immediately left of the version and centred on it. */}
+      {dot && T.versionDot.visible !== false ? (
+        <img
+          className="psx-img"
+          style={{ ...place(squareBox(T.versionDot)), zIndex: T.versionDot.z }}
+          src={dot}
+          alt=""
+        />
+      ) : null}
       {dot ? (
         <img
           className="psx-img"
-          style={{
-            left: `${T.version.left - dotSize * 1.35}px`,
-            top: `${T.version.top + (T.version.h - dotSize) / 2}px`,
-            width: `${dotSize}px`,
-            height: `${dotSize}px`,
-          }}
+          style={{ ...place(squareBox(T.avatarDot)), zIndex: T.avatarDot.z }}
           src={dot}
           alt=""
         />
