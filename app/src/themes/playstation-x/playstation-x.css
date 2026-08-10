@@ -1,0 +1,429 @@
+/*
+ * PlayStation X - fonts and the presentational styling the widgets do not own.
+ *
+ * No layout numbers. Every position and size is resolved from the theme's own normalised
+ * coordinates and written as inline pixels, so this file carries only what is genuinely
+ * presentational.
+ *
+ * The `--px-*` transform channels this theme animates through are declared in `anim/anim.css`,
+ * because the animation system owns them and all three themes now compile to it.
+ */
+
+/* ---- fonts ----------------------------------------------------------
+ * SST is Sony's corporate typeface and ships with the theme. Spaces in the filenames are
+ * renamed to hyphens - a space inside `url()` is a needless hazard.
+ */
+@font-face {
+  font-family: 'SST';
+  src: url('assets/fonts/SST-Roman.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: block;
+}
+@font-face {
+  font-family: 'SST';
+  src: url('assets/fonts/SST-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: block;
+}
+@font-face {
+  font-family: 'SST';
+  src: url('assets/fonts/SST-Bold-Italic.ttf') format('truetype');
+  font-weight: 700;
+  font-style: italic;
+  font-display: block;
+}
+@font-face {
+  font-family: 'SST Light';
+  src: url('assets/fonts/SST-Light.ttf') format('truetype');
+  font-weight: 300;
+  font-style: normal;
+  font-display: block;
+}
+/* Icon font: renders the player count as a controller glyph. */
+@font-face {
+  font-family: 'players';
+  src: url('assets/fonts/players.ttf') format('truetype');
+  font-display: block;
+}
+
+.psx {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  /*
+   * The device frame defaults the screen to pixelated. This theme is photographic backgrounds
+   * and vector logos, so that default is actively wrong here.
+   */
+  image-rendering: auto;
+  font-family: 'SST', system-ui, sans-serif;
+  color: #ffffff;
+  background: #000;
+  /*
+   * Load-bearing, for the same reason Elementerial needs it. The theme's z-order runs from 5 to
+   * 199 and this root paints an opaque fill; without a stacking context any layer below zero
+   * escapes to the nearest ancestor that has one and paints behind that fill.
+   */
+  isolation: isolate;
+  user-select: none;
+}
+
+.psx * {
+  box-sizing: border-box;
+}
+
+/*
+ * The universal text glow: glowColor 00000035, glowSize 1, glowOffset 3 2. Present on nearly
+ * every text element in the theme, which is why it is one class rather than a per-element rule.
+ */
+.psx-glow {
+  text-shadow: 3px 2px 1px rgba(0, 0, 0, 0.208);
+}
+
+/* ---- layers ---------------------------------------------------------- */
+
+.psx-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform-origin: 50% 50%;
+}
+
+/* The theme's vignette layer, above the background art. */
+.psx-overlay {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+  pointer-events: none;
+}
+
+/*
+ * The character cutout: full height, anchored right and bottom, drifting 2.8% of screen width
+ * over 22.2 seconds.
+ */
+.psx-overlay-art {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  height: 100%;
+  width: auto;
+  object-fit: contain;
+  object-position: bottom right;
+  pointer-events: none;
+}
+
+/* ---- absolutely-positioned element base ------------------------------ */
+
+.psx-el {
+  position: absolute;
+  margin: 0;
+}
+
+.psx-img {
+  position: absolute;
+  object-fit: contain;
+}
+
+/* ---- tiles ----------------------------------------------------------- */
+
+.psx-tile {
+  position: absolute;
+  overflow: hidden;
+  background: #0b0f18;
+  /* gridtile backgroundEdgeColor / backgroundCenterColor ffffff99 */
+  outline: 1px solid rgba(255, 255, 255, 0.6);
+  outline-offset: -1px;
+}
+
+/*
+ * Scoped to the tile art specifically. The favourite and cheevos badges are also images inside
+ * the tile, and a bare `.psx-tile img` rule outranks their own class and blows them up.
+ */
+.psx-tile > img.art {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /* gridtile:selected imageColor ffffff against the default's dimmed value */
+  filter: brightness(0.78);
+  transition: filter 200ms linear;
+}
+
+.psx-tile[data-selected] > img.art {
+  filter: brightness(1);
+}
+
+.psx-tile-fav {
+  position: absolute;
+  left: 5%;
+  top: 5%;
+  width: 10%;
+  height: 10%;
+  object-fit: contain;
+}
+
+.psx-tile-cheevos {
+  position: absolute;
+  right: 5%;
+  bottom: 5%;
+  width: 9%;
+  height: 9%;
+  object-fit: contain;
+}
+
+/*
+ * The selection frame. Authored at origin 0 0, so it scales from its top-left corner - which is
+ * why the bump reads as growing into place rather than pulsing around a centre.
+ */
+.psx-marco {
+  position: absolute;
+  transform-origin: 0 0;
+  pointer-events: none;
+}
+
+/* The "Start" pill. backgroundColor 00000069, centred SST Light. */
+.psx-start {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.412);
+  font-family: 'SST Light', 'SST', sans-serif;
+  font-weight: 300;
+  color: #ffffff;
+}
+
+/* ---- the big game title ---------------------------------------------- */
+
+.psx-gamename {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+}
+
+.psx-gamename .name {
+  font-family: 'SST Light', 'SST', sans-serif;
+  font-weight: 300;
+  color: #ffffff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/*
+ * The collection chip: black italic with a white halo, so it reads on any background.
+ * glowColor ffffffe3, glowSize 2.
+ */
+.psx-gamename .chip {
+  font-family: 'SST', sans-serif;
+  font-weight: 700;
+  font-style: italic;
+  color: #000000;
+  text-shadow:
+    0 0 2px rgba(255, 255, 255, 0.89),
+    0 0 4px rgba(255, 255, 255, 0.89),
+    1px 1px 2px rgba(255, 255, 255, 0.89),
+    -1px -1px 2px rgba(255, 255, 255, 0.89);
+}
+
+/* ---- metadata rows --------------------------------------------------- */
+
+.psx-row {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  gap: 0.45em;
+  white-space: nowrap;
+  font-family: 'SST', sans-serif;
+  font-weight: 700;
+}
+
+.psx-row .sep {
+  color: #ffffff;
+}
+.psx-row .release {
+  color: var(--psx-releaseColor);
+}
+.psx-row .genre {
+  color: var(--psx-genreColor);
+}
+.psx-row .developer {
+  color: var(--psx-developerColor);
+}
+.psx-row .dim {
+  color: var(--psx-dimColor);
+}
+
+/*
+ * The multi-disc chip. The original hardcoded this gold; it is a token, so it follows the
+ * accent like everything else. See docs/porting/playstation-x.md.
+ */
+.psx-row .multidisc {
+  color: var(--psx-releaseColor);
+  background: rgba(0, 0, 0, 0.4);
+  padding: 0 0.4em;
+}
+
+.psx-stars {
+  letter-spacing: 0.05em;
+}
+
+.psx-desc {
+  position: absolute;
+  font-family: 'SST Light', 'SST', sans-serif;
+  font-weight: 300;
+  color: #ffffff;
+  overflow: hidden;
+  line-height: 1.11;
+}
+
+/* ---- bottom chrome --------------------------------------------------- */
+
+.psx-linea {
+  position: absolute;
+  /* Per-system gradient from `_theme_inc/infos/<theme>.xml`. */
+  background: linear-gradient(90deg, var(--psx-lineaFrom, #0070d1), var(--psx-lineaTo, #0070d1));
+}
+
+.psx-pie {
+  position: absolute;
+  background: var(--psx-sistema-pie);
+  opacity: 0.4;
+}
+
+.psx-help {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  gap: 0.6em;
+  font-family: 'SST', sans-serif;
+  color: var(--psx-helpFontColor);
+  white-space: nowrap;
+}
+
+.psx-help .glyph {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.35em;
+  height: 1.35em;
+  border-radius: 50%;
+  border: 0.09em solid var(--psx-helpFontColor);
+  font-size: 0.8em;
+  margin-right: 0.25em;
+}
+
+/* A word rather than a symbol: SELECT and START are pills, not circles. */
+.psx-help .glyph[data-word] {
+  width: auto;
+  border-radius: 0.5em;
+  padding: 0 0.4em;
+  font-size: 0.62em;
+}
+
+/* ---- top bar --------------------------------------------------------- */
+
+.psx-top {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.psx-top .txt {
+  position: absolute;
+  font-family: 'SST Light', 'SST', sans-serif;
+  font-weight: 300;
+  color: #ffffff;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+}
+
+/*
+ * The trophy is gold when achievements are on. The original did this with
+ * `filter: invert(70%) sepia(90%) …` over a white icon, which meant the colour could not follow
+ * the accent and was not a token at all. It is a mask over the real token now.
+ */
+.psx-trophy {
+  position: absolute;
+  background: var(--psx-cheevosOnColor);
+  mask-size: contain;
+  mask-repeat: no-repeat;
+  mask-position: center;
+  -webkit-mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+}
+
+/* ---- system carousel ------------------------------------------------- */
+
+/*
+ * Square cover tiles. The selected one scales by logoScale - 1.48 to 2.0 depending on carousel
+ * type and size - and its neighbours dim to minLogoOpacity, which is 0.7 for PS4 and PS5 and
+ * 1.0 for PS3.
+ */
+.psx-systile {
+  position: absolute;
+  top: 0;
+  overflow: hidden;
+  transform-origin: center center;
+  background: #0b0f18;
+}
+
+.psx-systile img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ---- lists ----------------------------------------------------------- */
+
+.psx-list-row {
+  display: flex;
+  align-items: center;
+  font-family: 'SST', sans-serif;
+  color: #ffffff;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.psx-list-row[data-selected] {
+  color: var(--psx-gamelistSelectedColor);
+}
+
+/* ---- boot and launch screens ----------------------------------------- */
+
+.psx-splash-label {
+  position: absolute;
+  text-align: center;
+  font-family: 'SST Light', 'SST', sans-serif;
+  font-weight: 300;
+  color: var(--psx-splash-labelColor);
+}
+
+.psx-media-slot {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  outline: 1px solid rgba(255, 255, 255, 0.25);
+  outline-offset: -1px;
+}
+
+.psx-media-slot img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.psx-media-tag {
+  position: absolute;
+  font-family: 'SST', monospace;
+  color: var(--psx-genreColor);
+  white-space: nowrap;
+}
