@@ -88,8 +88,11 @@ export const Bare: Story = {
 }
 
 /**
- * Every registered device at its own viewing scale, which is what keeps a 480x320 panel and a
- * 1920x1152 one comparable on a desktop while both stay pixel-exact internally.
+ * Every registered device, each with its own shell and viewing scale.
+ *
+ * This is where the shell profiles are reviewed: bezel, chin, corner radius, body tone, sticks
+ * and triggers all come from the device registry, and the only way to tell whether a silhouette
+ * reads as the device it names is to look at it beside the others.
  */
 export const AllDevices: Story = {
   args: { device: 'rg35xx' },

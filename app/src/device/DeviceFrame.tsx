@@ -3,7 +3,7 @@ import { InputProvider } from '../input/InputProvider'
 import { RenderModeProvider, type RenderMode } from '../render/RenderModeProvider'
 import { ButtonCluster } from './ButtonCluster'
 import { ScreenProvider } from './ScreenContext'
-import { getDevice, type DeviceSlug } from './devices'
+import { chinHeight, getDevice, type DeviceSlug } from './devices'
 import './device-frame.css'
 import '../anim/anim.css'
 
@@ -41,11 +41,22 @@ export function DeviceFrame({
   children,
 }: DeviceFrameProps) {
   const info = getDevice(device)
+  const shell = info.shell
 
+  // The shell is data, not a per-device stylesheet: ten devices would otherwise be ten blocks
+  // of nearly identical CSS, and adding an eleventh would mean writing another one.
   const viewportStyle = {
     '--screen-w': info.w,
     '--screen-h': info.h,
     '--scale': scale ?? info.viewScale,
+    '--bezel-top': `${shell.bezel.top}px`,
+    '--bezel-side': `${shell.bezel.side}px`,
+    '--bezel-bottom': `${shell.bezel.bottom}px`,
+    '--controls-h': `${chinHeight(shell)}px`,
+    '--control-scale': shell.controlScale,
+    '--body-radius': `${shell.radius}px`,
+    '--body-a': shell.body[0],
+    '--body-b': shell.body[1],
   } as CSSProperties
 
   const screen = (
@@ -63,10 +74,10 @@ export function DeviceFrame({
           {bare ? (
             screen
           ) : (
-            <div className="device-viewport" style={viewportStyle}>
+            <div className="device-viewport" style={viewportStyle} data-device={device}>
               <div className="device">
                 {screen}
-                <ButtonCluster />
+                <ButtonCluster shell={shell} />
               </div>
             </div>
           )}

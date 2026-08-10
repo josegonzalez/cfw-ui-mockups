@@ -56,6 +56,14 @@ The scaling splits across two elements:
 Both are needed, because `transform: scale()` does not affect layout. With only the inner
 element, a scaled-up shell would overlap whatever follows it on the page.
 
+The button cluster splits the same way and for the same reason. Each device's shell states a
+`controlScale`, because buttons are physical objects roughly a thumb wide on every device and so
+do *not* scale with the panel - `.device__chin` reserves the scaled height while
+`.device__controls` draws unscaled inside it. Collapsing that to one element makes a cluster
+scaled below 1 lay out taller than its chin and squeeze the screen above it, and one scaled above
+1 spill out of the body. The shell itself is data on the device registry rather than a stylesheet
+per device; see [devices.md](devices.md#shells).
+
 The viewing scale is a per-device preference, not a device property - the same 1920x1152 panel
 appeared at two different scales in two different original mockup sets, because each chose what
 read best.

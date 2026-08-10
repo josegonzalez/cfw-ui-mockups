@@ -2,6 +2,7 @@ import { act, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
 import { DeviceFrame } from './DeviceFrame'
+import { chinHeight, clusterHeight, DEVICE_SLUGS, getDevice, type DeviceSlug } from './devices'
 import { useScreen } from './ScreenContext'
 import { useButtonPress, useInput } from '../input/InputProvider'
 import { useRenderMode } from '../render/RenderModeProvider'
@@ -127,6 +128,70 @@ describe('DeviceFrame', () => {
       'x',
       'y',
     ])
+  })
+})
+
+describe('device shells', () => {
+  function frameFor(slug: DeviceSlug) {
+    const { container } = render(
+      <DeviceFrame device={slug} interactive={false}>
+        <Probe />
+      </DeviceFrame>,
+    )
+    return container
+  }
+
+  it('draws sticks only where the profile has them', () => {
+    // The single clearest silhouette difference between these devices.
+    expect(frameFor('rg-cubexx').querySelectorAll('.stick')).toHaveLength(2)
+    expect(frameFor('rg35xx').querySelectorAll('.stick')).toHaveLength(0)
+  })
+
+  it('draws a second shoulder row only where the profile has triggers', () => {
+    expect(frameFor('rg552').querySelectorAll('.device__shoulders')).toHaveLength(2)
+    expect(frameFor('rg35xx').querySelectorAll('.device__shoulders')).toHaveLength(1)
+  })
+
+  it('keeps L2 and R2 on the same buttons as L and R', () => {
+    // The key map has no separate triggers, and inventing one for a decorative row would mean
+    // two buttons that look different and do the same thing without saying so.
+    const container = frameFor('rg552')
+    expect(container.querySelectorAll('[data-btn="l"]')).toHaveLength(2)
+    expect(container.querySelectorAll('[data-btn="r"]')).toHaveLength(2)
+  })
+
+  it('publishes the shell to CSS rather than styling per device', () => {
+    const viewport = frameFor('rg-cubexx').querySelector('.device-viewport') as HTMLElement
+    const shell = getDevice('rg-cubexx').shell
+
+    expect(viewport.style.getPropertyValue('--bezel-side')).toBe(`${shell.bezel.side}px`)
+    expect(viewport.style.getPropertyValue('--body-radius')).toBe(`${shell.radius}px`)
+    expect(viewport.style.getPropertyValue('--control-scale')).toBe(String(shell.controlScale))
+  })
+
+  it('reserves a chin that matches the cluster it holds', () => {
+    // A chin that disagrees with its contents either crops the buttons or leaves a gap, and
+    // neither is visible to any other assertion here.
+    for (const slug of DEVICE_SLUGS) {
+      const shell = getDevice(slug).shell
+      const viewport = frameFor(slug).querySelector('.device-viewport') as HTMLElement
+
+      expect(viewport.style.getPropertyValue('--controls-h'), slug).toBe(`${chinHeight(shell)}px`)
+      expect(chinHeight(shell), slug).toBe(
+        Math.round(clusterHeight(shell) * shell.controlScale),
+      )
+    }
+  })
+
+  it('gives every device a usable shell', () => {
+    for (const slug of DEVICE_SLUGS) {
+      const shell = getDevice(slug).shell
+      expect(shell.controlScale, slug).toBeGreaterThan(0.5)
+      expect(shell.controlScale, slug).toBeLessThan(3)
+      expect(shell.radius, slug).toBeGreaterThanOrEqual(0)
+      expect(shell.bezel.side, slug).toBeGreaterThan(0)
+      expect(shell.body, slug).toHaveLength(2)
+    }
   })
 })
 
