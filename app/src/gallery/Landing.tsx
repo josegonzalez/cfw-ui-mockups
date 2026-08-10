@@ -2,7 +2,6 @@ import type { CSSProperties } from 'react'
 import { DEVICES } from '../device/devices'
 import { SCREEN_MANIFEST, screenId } from '../themes/manifest'
 import { THEMES, catalogueTotals, type ThemeEntry } from '../themes/catalogue'
-import { BootHero } from './heroes/BootHero'
 import { DeviceHero } from './heroes/DeviceHero'
 import { HeroSwitcher } from './heroes/HeroSwitcher'
 import { MarqueeHero } from './heroes/MarqueeHero'
@@ -14,7 +13,6 @@ import './heroes/heroes.css'
 
 const HEROES: Record<HeroVariant, () => React.ReactElement> = {
   neon: NeonHero,
-  boot: BootHero,
   device: DeviceHero,
   marquee: MarqueeHero,
 }

@@ -1,14 +1,14 @@
 import { DeviceFrame } from '../../device/DeviceFrame'
-import { ExampleOs } from '../../themes/example-cfw'
+import { DeviceShowcase } from './DeviceShowcase'
 import { HERO } from './content'
 import { StatRow } from './StatRow'
 
 /**
- * Leads with a real screen in a real bezel.
+ * Leads with a real device, booting.
  *
- * The most product-like of the four, and the only one that shows the actual thing rather than a
- * picture of it - the frame on the right is the same component the gallery mounts, rendering
- * the same theme.
+ * The frame on the right is the same component the gallery mounts, running the same theme - so
+ * the hero shows the actual thing rather than a picture of it. It plays the sequence the
+ * hardware does: a console on the panel, then the launcher.
  *
  * Deliberately not interactive. An interactive frame would attach a global key listener that
  * swallows the arrow keys, so the page would stop scrolling with the keyboard.
@@ -42,7 +42,7 @@ export function DeviceHero() {
 
       <div className="hero-device__stage" aria-hidden="true">
         <DeviceFrame device="rg35xx" animate={false} interactive={false} scale={0.76}>
-          <ExampleOs view="main-menu" />
+          <DeviceShowcase />
         </DeviceFrame>
       </div>
 

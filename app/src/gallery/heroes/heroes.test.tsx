@@ -6,6 +6,8 @@ import { HeroSwitcher } from './HeroSwitcher'
 import { useHeroVariant } from './useHeroVariant'
 import { HERO_LABEL, HERO_VARIANTS, isHeroVariant } from './types'
 import { HERO } from './content'
+import { BOOT_MS, DeviceShowcase, HANDOFF_MS } from './DeviceShowcase'
+import { DeviceFrame } from '../../device/DeviceFrame'
 
 function setUrl(search: string) {
   globalThis.history.replaceState(null, '', `/${search}`)
@@ -51,9 +53,9 @@ describe('isHeroVariant', () => {
 })
 
 describe('useHeroVariant', () => {
-  it('defaults to neon', () => {
+  it('defaults to the device treatment', () => {
     const { result } = renderHook(() => useHeroVariant())
-    expect(result.current.variant).toBe('neon')
+    expect(result.current.variant).toBe('device')
   })
 
   it('takes the variant from the URL', () => {
@@ -63,33 +65,33 @@ describe('useHeroVariant', () => {
   })
 
   it('falls back to the stored preference', () => {
-    window.localStorage.setItem('cfw:hero', 'boot')
+    window.localStorage.setItem('cfw:hero', 'marquee')
     const { result } = renderHook(() => useHeroVariant())
-    expect(result.current.variant).toBe('boot')
+    expect(result.current.variant).toBe('marquee')
   })
 
   it('lets the URL win over the stored preference, so a shared link shows what was sent', () => {
-    window.localStorage.setItem('cfw:hero', 'boot')
-    setUrl('?hero=device')
+    window.localStorage.setItem('cfw:hero', 'marquee')
+    setUrl('?hero=neon')
 
     const { result } = renderHook(() => useHeroVariant())
-    expect(result.current.variant).toBe('device')
+    expect(result.current.variant).toBe('neon')
   })
 
   it('ignores an unknown value rather than rendering nothing', () => {
     setUrl('?hero=banana')
     const { result } = renderHook(() => useHeroVariant())
-    expect(result.current.variant).toBe('neon')
+    expect(result.current.variant).toBe('device')
   })
 
   it('remembers a change and reflects it in the URL', () => {
     const { result } = renderHook(() => useHeroVariant())
 
-    act(() => result.current.setVariant('device'))
+    act(() => result.current.setVariant('marquee'))
 
-    expect(result.current.variant).toBe('device')
-    expect(window.localStorage.getItem('cfw:hero')).toBe('device')
-    expect(new URLSearchParams(globalThis.location.search).get('hero')).toBe('device')
+    expect(result.current.variant).toBe('marquee')
+    expect(window.localStorage.getItem('cfw:hero')).toBe('marquee')
+    expect(new URLSearchParams(globalThis.location.search).get('hero')).toBe('marquee')
   })
 
   it('cycles through every treatment and wraps', () => {
@@ -108,7 +110,7 @@ describe('useHeroVariant', () => {
       globalThis.dispatchEvent(new KeyboardEvent('keydown', { key: 'h' }))
     })
 
-    expect(window.localStorage.getItem('cfw:hero')).toBe('boot')
+    expect(window.localStorage.getItem('cfw:hero')).toBe('neon')
   })
 
   it('leaves H alone while typing, and when it is part of a shortcut', () => {
@@ -134,8 +136,8 @@ describe('useHeroVariant', () => {
       })
 
     const { result } = renderHook(() => useHeroVariant())
-    expect(() => act(() => result.current.setVariant('boot'))).not.toThrow()
-    expect(result.current.variant).toBe('boot')
+    expect(() => act(() => result.current.setVariant('neon'))).not.toThrow()
+    expect(result.current.variant).toBe('neon')
 
     setItem.mockRestore()
   })
@@ -143,17 +145,17 @@ describe('useHeroVariant', () => {
 
 describe('HeroSwitcher', () => {
   it('offers every treatment and marks the current one', () => {
-    render(<HeroSwitcher variant="boot" onChange={() => {}} />)
+    render(<HeroSwitcher variant="neon" onChange={() => {}} />)
 
     for (const variant of HERO_VARIANTS) {
       expect(screen.getByRole('radio', { name: HERO_LABEL[variant] })).toBeInTheDocument()
     }
-    expect(screen.getByRole('radio', { name: 'Boot log' })).toBeChecked()
+    expect(screen.getByRole('radio', { name: 'Neon' })).toBeChecked()
   })
 
   it('reports a choice', async () => {
     const onChange = vi.fn()
-    render(<HeroSwitcher variant="neon" onChange={onChange} />)
+    render(<HeroSwitcher variant="device" onChange={onChange} />)
 
     await userEvent.click(screen.getByRole('radio', { name: 'Marquee' }))
     expect(onChange).toHaveBeenCalledWith('marquee')
@@ -205,12 +207,70 @@ describe('hero treatments', () => {
     expect(globalThis.location.href).toBe(before)
   })
 
-  it('builds the boot log from the catalogue rather than writing the numbers in', () => {
-    setUrl('?hero=boot')
-    render(<Landing />)
+  it('plays the boot log inside the device panel, from catalogue counts', () => {
+    // The counts in the log and in the stat row come from the same source, so a log that
+    // contradicts the page below it is not possible.
+    setUrl('?hero=device')
+    const { container } = render(<Landing />)
 
-    // The counts in the log and the counts in the stat row are the same source.
+    expect(container.querySelector('.hero-device__stage .bootscreen')).not.toBeNull()
     expect(screen.getByText('4 found')).toBeInTheDocument()
     expect(screen.getByText('24 views')).toBeInTheDocument()
+  })
+})
+
+describe('DeviceShowcase boot sequence', () => {
+  it('hands off from the boot log to the launcher', async () => {
+    vi.useFakeTimers()
+    try {
+      const { container } = render(
+        <DeviceFrame device="rg35xx" animate={false} interactive={false}>
+          <DeviceShowcase />
+        </DeviceFrame>,
+      )
+
+      // The launcher is mounted from the start, so the handoff is a fade between two live
+      // things rather than a swap that waits for the second to appear.
+      expect(container.querySelector('[data-theme="example-cfw"]')).not.toBeNull()
+      expect(container.querySelector('.bootscreen')).not.toBeNull()
+      expect(container.querySelector('.showcase')).toHaveAttribute('data-phase', 'boot')
+
+      await act(async () => {
+        vi.advanceTimersByTime(BOOT_MS + 1)
+      })
+      expect(container.querySelector('.showcase')).toHaveAttribute('data-phase', 'handoff')
+
+      await act(async () => {
+        vi.advanceTimersByTime(HANDOFF_MS + 1)
+      })
+      expect(container.querySelector('.showcase')).toHaveAttribute('data-phase', 'ready')
+      expect(container.querySelector('.bootscreen')).toBeNull()
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  it('skips straight to the launcher when motion is reduced', () => {
+    // The log is decorative and its whole effect is timing, so there is nothing to show
+    // someone who has asked for less motion.
+    // jsdom implements no `matchMedia` at all, which is also why the implementation guards
+    // for its absence rather than assuming it.
+    Object.defineProperty(window, 'matchMedia', {
+      value: () => ({ matches: true }) as MediaQueryList,
+      configurable: true,
+      writable: true,
+    })
+
+    const { container } = render(
+      <DeviceFrame device="rg35xx" animate={false} interactive={false}>
+        <DeviceShowcase />
+      </DeviceFrame>,
+    )
+
+    expect(container.querySelector('.showcase')).toHaveAttribute('data-phase', 'ready')
+    expect(container.querySelector('.bootscreen')).toBeNull()
+    expect(container.querySelector('[data-theme="example-cfw"]')).not.toBeNull()
+
+    Reflect.deleteProperty(window, 'matchMedia')
   })
 })

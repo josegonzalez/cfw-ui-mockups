@@ -65,12 +65,23 @@ test('capture viewer', async ({ page }) => {
 })
 
 /** Each hero treatment, with the preview switcher hidden so it does not sit over the stat row. */
-for (const hero of ['neon', 'boot', 'device', 'marquee']) {
+for (const hero of ['device', 'neon', 'marquee']) {
   test(`capture hero ${hero}`, async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 860 })
     await page.goto(`/?hero=${hero}`)
     await page.addStyleTag({ content: '.hero-switch{display:none}' })
-    await page.waitForTimeout(900)
+    // The device treatment boots before it settles; wait for the launcher rather than guessing.
+    await page.waitForSelector('.bootscreen', { state: 'detached' }).catch(() => {})
+    await page.waitForTimeout(600)
     await page.screenshot({ path: resolve(OUT, `hero-${hero}.png`) })
   })
 }
+
+test('capture hero device booting', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 860 })
+  await page.goto('/?hero=device')
+  await page.addStyleTag({ content: '.hero-switch{display:none}' })
+  await page.waitForSelector('.bootscreen')
+  await page.waitForTimeout(700)
+  await page.screenshot({ path: resolve(OUT, 'hero-device-booting.png') })
+})
