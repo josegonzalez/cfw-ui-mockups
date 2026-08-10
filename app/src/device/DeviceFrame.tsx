@@ -58,6 +58,7 @@ export function DeviceFrame({
     '--body-radius': radiusCss(shell),
     '--body-a': shell.body[0],
     '--body-b': shell.body[1],
+    '--body-ink': shell.ink ?? '#8b8d93',
   } as CSSProperties
 
   const screen = (

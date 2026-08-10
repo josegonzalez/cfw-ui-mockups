@@ -166,7 +166,7 @@ describe('device shells', () => {
   it('carries four corner radii through when a body sweeps one corner away', () => {
     // The RG35XX's swept bottom-right corner is most of what makes its outline recognisable.
     expect(radiusCss(getDevice('rg35xx').shell)).toBe('30px 30px 150px 30px')
-    expect(radiusCss(getDevice('rg40xx').shell)).toBe('44px')
+    expect(radiusCss(getDevice('trimui-brick').shell)).toBe('26px')
   })
 
   it('reserves a chin that matches the cluster it holds', () => {
@@ -187,7 +187,8 @@ describe('device shells', () => {
   it('gives every device a usable shell', () => {
     for (const slug of DEVICE_SLUGS) {
       const shell = getDevice(slug).shell
-      expect(shell.bezel.side, slug).toBeGreaterThan(0)
+      // Zero is legitimate: one panel runs edge to edge across its body.
+      expect(shell.bezel.side, slug).toBeGreaterThanOrEqual(0)
       expect(shell.body, slug).toHaveLength(2)
 
       if (shell.layout === 'chin') {
@@ -287,9 +288,9 @@ describe('shell details taken from references', () => {
     expect(rg35xx.querySelector('[data-btn="menu"]')).not.toBeNull()
     expect(rg35xx.querySelector('.speaker')).not.toBeNull()
 
-    const rg40xx = frameFor('rg40xx')
-    expect(rg40xx.querySelector('[data-btn="menu"]')).toBeNull()
-    expect(rg40xx.querySelector('.speaker')).toBeNull()
+    const rg351m = frameFor('rg351m')
+    expect(rg351m.querySelector('[data-btn="menu"]')).toBeNull()
+    expect(rg351m.querySelector('.speaker')).toBeNull()
   })
 
   it('prints control names on the body rather than inside the buttons', () => {

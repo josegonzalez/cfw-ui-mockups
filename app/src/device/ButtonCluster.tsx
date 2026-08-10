@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
 import { useInput } from '../input/InputProvider'
-import type { ChinShell, FlankingShell } from './devices'
+import type { AuxKind, ChinShell, FlankingShell } from './devices'
 import type { Button } from '../input/keymap'
 
 /**
@@ -95,6 +95,26 @@ function Faces() {
   )
 }
 
+/** One grip's small buttons. Each landscape body arranges these differently. */
+function Aux({ kind }: { kind: AuxKind }) {
+  switch (kind) {
+    case 'none':
+      return null
+    case 'function':
+      return <ClusterButton button="menu" className="fn-button" label="Menu" />
+    case 'select':
+    case 'start':
+      return <ClusterButton button={kind} className="aux-button" label={kind} />
+    case 'pair':
+      return (
+        <div className="device__meta">
+          <ClusterButton button="select" className="pill pill--grip" label="Select" />
+          <ClusterButton button="start" className="pill pill--grip" label="Start" />
+        </div>
+      )
+  }
+}
+
 /**
  * One side of a landscape body.
  *
@@ -104,38 +124,18 @@ function Faces() {
  */
 export function Grip({ side, shell }: { side: 'left' | 'right'; shell: FlankingShell }) {
   const left = side === 'left'
-  const auxTop = shell.auxPosition === 'top'
-
-  /*
-   * With the small buttons at the top they are one round button per side, sitting above the pad;
-   * at the bottom they are a moulded Select and Start pair on the right and a system button on
-   * the left. Same two controls, and they look nothing alike.
-   */
-  const aux = auxTop ? (
-    <ClusterButton
-      button={left ? 'select' : 'start'}
-      className="aux-button"
-      label={left ? 'SELECT' : 'START'}
-    />
-  ) : left ? (
-    shell.functionButton ? (
-      <ClusterButton button="menu" className="fn-button" label="" />
-    ) : null
-  ) : (
-    <div className="device__meta">
-      <ClusterButton button="select" className="pill pill--grip" label="" />
-      <ClusterButton button="start" className="pill pill--grip" label="" />
-    </div>
-  )
+  const auxTop = shell.aux.position === 'top'
+  const kind = left ? shell.aux.left : shell.aux.right
 
   return (
-    <div className={`grip grip--${side}`} data-aux={shell.auxPosition}>
+    <div className={`grip grip--${side}`} data-aux={shell.aux.position}>
       <ClusterButton
         button={left ? 'l' : 'r'}
         className="shoulder shoulder--grip"
         label={left ? 'L' : 'R'}
       />
 
+      {/* The pad is seated in a round plate only on the bodies whose photographs show one. */}
       <div className="grip__primary">{left ? <Dpad disc={!auxTop} /> : <Faces />}</div>
 
       {shell.sticks === 2 ? (
@@ -144,7 +144,11 @@ export function Grip({ side, shell }: { side: 'left' | 'right'; shell: FlankingS
         </div>
       ) : null}
 
-      <div className="grip__aux">{aux}</div>
+      {kind === 'none' ? null : (
+        <div className="grip__aux" data-kind={kind}>
+          <Aux kind={kind} />
+        </div>
+      )}
     </div>
   )
 }

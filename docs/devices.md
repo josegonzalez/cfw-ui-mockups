@@ -10,7 +10,7 @@ for it.
 | `rg35xx`            | Anbernic RG35XX / Plus / H    | 640x480    | 4:3    | 640x480   |
 | `rg40xx`            | Anbernic RG40XX H / V         | 640x480    | 4:3    | 640x480   |
 | `miyoo-mini`        | Miyoo Mini / Mini Plus        | 640x480    | 4:3    | 640x480   |
-| `rg28xx`            | Anbernic RG28XX               | 480x640    | 3:4    | 640x480 * |
+| `rg28xx`            | Anbernic RG28XX               | 640x480    | 4:3    | 640x480   |
 | `trimui-smart-pro`  | Trimui Smart Pro              | 1280x720   | 16:9   | 1280x720  |
 | `rg-cubexx`         | Anbernic RG CubeXX            | 720x720    | 1:1    | 720x720   |
 | `rg34xx`            | Anbernic RG34XX               | 720x480    | 3:2    | other     |
@@ -18,7 +18,10 @@ for it.
 | `rg552`             | Anbernic RG552                | 1920x1152  | 5:3    | other     |
 | `trimui-brick`      | Trimui Brick                  | 1024x768   | 4:3    | other     |
 
-\* The RG28XX uses the 640x480 panel rotated to a 480x640 portrait orientation.
+The RG28XX was previously recorded here as a 640x480 panel rotated into a 480x640 portrait. A
+reference photograph shows a landscape device with the panel the right way up, so the entry is
+corrected. Anything that rendered an RG28XX screen was rendering it at the wrong size and in the
+wrong orientation.
 
 ## Resolution classes
 
@@ -45,36 +48,44 @@ different spacing:
 | Slug | Layout | Sticks | Reference | Silhouette |
 | --- | --- | --- | --- | --- |
 | `rg35xx` | chin | - | yes | Warm grey, large controls, one corner swept away, speaker grille |
-| `rg40xx` | chin | - | - | The reference handheld, lighter body |
-| `miyoo-mini` | chin | - | - | Smallest body, thin bezel, tight corners, cream shell |
-| `rg28xx` | chin | - | - | Portrait, tall and narrow |
+| `rg40xx` | flanking | 2 | yes | The CubeXX body around a 4:3 panel, ring-lit sticks |
+| `miyoo-mini` | chin | - | yes | Khaki, panel edge to edge across the top, swept corner |
+| `rg28xx` | flanking | - | yes | Wide grips, no sticks, both small buttons on the left |
 | `trimui-smart-pro` | flanking | 2 | yes | Wide landscape body, pronounced grips, light stick collars |
 | `rg-cubexx` | flanking | 2 | yes | Square panel between two grips, ring-lit sticks |
-| `rg34xx` | chin | - | - | Wide handheld |
+| `rg34xx` | flanking | - | yes | Game Boy Advance homage, indigo, no sticks |
 | `rg351m` | flanking | 2 | yes | Slim landscape slab, Select and Start at the top of each grip |
 | `rg552` | flanking | 2 | yes | Widest body, panel across nearly the whole face |
-| `trimui-brick` | chin | - | - | Boxy, near-square corners |
+| `trimui-brick` | chin | - | yes | Boxy, tight corners, lower body as deep as the panel |
 
 **These are stylised silhouettes, not technical drawings.** They exist so the devices are
 distinguishable at a glance. Where a slug covers a family, the shell follows the base model the
 slug is named for. The shell is mockup chrome and sits outside the portable widget vocabulary:
 real hardware has a real bezel and real buttons, so none of it translates to a firmware renderer.
 
-The **Reference** column is the important one. A row marked `yes` has its layout, proportions and
-control positions read off a product photograph; the rest are inferred from the device's general
-form factor and are the weaker claim. That distinction has already cost something: the CubeXX was
-first drawn as an upright handheld because the name suggested a square body, and it is a landscape
-controller. Three more devices were then drawn with chins on the same reasoning and turned out to
-be landscape as well. **Find a photograph before adding or changing a shell.**
+The **Reference** column matters. A row marked `yes` has its layout, proportions and control
+positions read off a product photograph. Every row is marked `yes` today, and getting there took
+three rounds of correction: the CubeXX was first drawn as an upright handheld because the name
+suggested a square body; six more devices were then drawn with chins on the same reasoning and
+five of them turned out to be landscape. The inference was wrong more often than it was right.
+**Find a photograph before adding or changing a shell.**
 
-Two arrangements exist within `flanking`, set by `auxPosition`, and they look nothing alike:
-Select and Start as small round buttons at the *top* of each grip pushes the pad to the middle and
-the sticks to the bottom, while putting them at the *bottom* runs pad, stick, small buttons down
-the grip.
+The RG28XX correction went further than the shell. It was recorded as a 640x480 panel rotated into
+a 480x640 portrait, and the photograph shows a landscape device with the panel the right way up -
+so the panel entry in the table above is corrected too, not just the plastic around it.
 
-Even where a shell is reference-matched, two things stay deliberately unfaithful. Face buttons
+The small buttons on a landscape body are described by `aux`, because no two of these devices
+arrange them the same way: the RG351M and RG552 split Select and Start across the two grips at the
+top, which pushes the pad to the middle and the sticks to the bottom; the CubeXX, RG40XX and
+Trimui Smart Pro pair them low on the right opposite a system button; the RG28XX and RG34XX stack
+both on the left and leave the right grip bare.
+
+Even where a shell is reference-matched, some things stay deliberately unfaithful. Face buttons
 keep their colour coding, which is the mockup's own affordance for reading a control map at a
-glance, and the body is drawn in the registry's palette rather than the device's real finish.
+glance, where several of these devices mould them all in black. The Trimui Brick puts Select and
+Start above the pad row rather than between the pad and the faces, and the port keeps them in the
+centre column. Body tones come from a small shared palette rather than matching each finish
+exactly, though pale bodies carry their own `ink` so the printed names stay legible on them.
 
 Four things about the shell are load-bearing rather than decorative:
 

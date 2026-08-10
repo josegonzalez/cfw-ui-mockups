@@ -48,6 +48,13 @@ interface ShellCommon {
   readonly stickRing?: 'rgb' | 'light' | undefined
   /** Body gradient, dark to darker. */
   readonly body: readonly [string, string]
+  /**
+   * Colour for the names printed on the body.
+   *
+   * Stated rather than fixed, because three of these shells are pale plastic and the default
+   * grey is close to invisible on them.
+   */
+  readonly ink?: string | undefined
 }
 
 /** CSS `border-radius` for a shell, whether it carries one radius or four. */
@@ -68,6 +75,14 @@ export function radiusCss(shell: DeviceShell): string {
  * means nothing to a grip, and an open shape invites both being set and one being ignored.
  */
 export type ShellLayout = 'chin' | 'flanking'
+
+/**
+ * What occupies a grip's small-button slot.
+ *
+ * `pair` is Select and Start side by side on one moulded pad; `select` and `start` are one round
+ * button each, split across the two grips; `function` is a lone system button.
+ */
+export type AuxKind = 'none' | 'pair' | 'select' | 'start' | 'function'
 
 export interface ChinShell extends ShellCommon {
   readonly layout: 'chin'
@@ -103,15 +118,19 @@ export interface FlankingShell extends ShellCommon {
    */
   readonly gripWidth: number
   /**
-   * Where the small buttons sit, which reorders the whole grip.
+   * The small buttons on each grip.
    *
-   * `top` puts Select and Start above the pad and drops the stick to the bottom; `bottom` runs
-   * pad, stick, small buttons down the grip. Both arrangements are in use and they look nothing
-   * alike, so this is not a detail that can be defaulted.
+   * Every landscape body puts them somewhere different, and there is no default that is right
+   * more than half the time: one splits Select and Start across the two grips at the top,
+   * another stacks both on the left, another pairs them on the right opposite a system button.
+   * `position` reorders the whole grip - small buttons at the top push the pad to the middle and
+   * the stick to the bottom.
    */
-  readonly auxPosition: 'top' | 'bottom'
-  /** A round system button on the left grip, opposite Select and Start. */
-  readonly functionButton: boolean
+  readonly aux: {
+    readonly position: 'top' | 'bottom'
+    readonly left: AuxKind
+    readonly right: AuxKind
+  }
 }
 
 export type DeviceShell = ChinShell | FlankingShell
@@ -166,7 +185,14 @@ const BODY = {
   ivory: ['#d9d6cf', '#b3afa6'],
   /** The warm light grey Anbernic call "grey", which is the colourway the reference shot uses. */
   stone: ['#cfc9bd', '#aaa49a'],
+  /** Miyoo's "gray", which is a warm khaki rather than a grey. */
+  khaki: ['#b9b199', '#948c78'],
+  /** The Game Boy Advance indigo the RG34XX is a homage to. */
+  indigo: ['#6b62aa', '#4c4483'],
 } as const satisfies Record<string, readonly [string, string]>
+
+/** Printed-name colours. Pale bodies need dark ink; the default grey vanishes on them. */
+const INK = { light: '#8b8d93', dark: '#4a463d' } as const
 
 /**
  * The reference handheld: even bezel, generously rounded, no sticks.
@@ -210,17 +236,33 @@ export const DEVICES: Record<DeviceSlug, Device> = {
       menuButton: true,
       speakerGrille: true,
       body: BODY.stone,
+      ink: INK.dark,
     },
   },
   rg40xx: {
     slug: 'rg40xx',
-    label: 'Anbernic RG40XX H / V',
+    label: 'Anbernic RG40XX H',
     w: 640,
     h: 480,
     aspect: '4:3',
     resolutionClass: '640x480',
-    viewScale: 1.3,
-    shell: { ...HANDHELD, body: BODY.slate },
+    viewScale: 0.78,
+    /*
+     * Matched to a reference photograph of the horizontal model.
+     *
+     * Nearly the CubeXX's body with a 4:3 panel in it: rounded grips, ring-lit sticks, a system
+     * button low on the left and Select and Start paired low on the right.
+     */
+    shell: {
+      layout: 'flanking',
+      bezel: { top: 50, side: 8, bottom: 50 },
+      radius: 130,
+      sticks: 2,
+      stickRing: 'rgb',
+      gripWidth: 0.37,
+      aux: { position: 'bottom', left: 'function', right: 'pair' },
+      body: BODY.charcoal,
+    },
   },
   'miyoo-mini': {
     slug: 'miyoo-mini',
@@ -229,33 +271,51 @@ export const DEVICES: Record<DeviceSlug, Device> = {
     h: 480,
     aspect: '4:3',
     resolutionClass: '640x480',
-    viewScale: 1.3,
-    // The smallest body here: thin bezel, short chin, and no sticks at all.
+    viewScale: 1.15,
+    /*
+     * Matched to a reference photograph of the grey colourway, which is a warm khaki.
+     *
+     * The panel runs edge to edge across the top with no side bezel at all, and the lower body
+     * carries the same furniture as the RG35XX: Menu above Select and Start, faces right,
+     * speaker grille in a swept bottom-right corner.
+     */
     shell: {
       layout: 'chin',
-      bezel: { top: 18, side: 18, bottom: 16 },
-      radius: 24,
+      bezel: { top: 27, side: 0, bottom: 0 },
+      radius: [26, 26, 120, 26],
       sticks: 0,
-      controlScale: 0.85,
-      body: BODY.ivory,
+      controlScale: 1.35,
+      chinExtra: 120,
+      menuButton: true,
+      speakerGrille: true,
+      body: BODY.khaki,
+      ink: INK.dark,
     },
   },
   rg28xx: {
     slug: 'rg28xx',
     label: 'Anbernic RG28XX',
-    w: 480,
-    h: 640,
-    aspect: '3:4',
+    w: 640,
+    h: 480,
+    aspect: '4:3',
     resolutionClass: '640x480',
-    viewScale: 1.3,
-    note: 'The 640x480 panel rotated to a 480x640 portrait orientation.',
+    viewScale: 0.86,
+    /*
+     * Matched to a reference photograph, which corrected the panel as well as the shell: this
+     * was recorded as a 640x480 panel rotated into a 480x640 portrait, and it is neither. The
+     * device is landscape with the panel the right way up.
+     *
+     * Wide grips, no sticks, and both small buttons stacked on the left below the pad.
+     */
     shell: {
-      layout: 'chin',
-      bezel: { top: 22, side: 22, bottom: 20 },
-      radius: 34,
+      layout: 'flanking',
+      bezel: { top: 45, side: 10, bottom: 34 },
+      radius: 90,
       sticks: 0,
-      controlScale: 0.9,
-      body: BODY.charcoal,
+      gripWidth: 0.52,
+      aux: { position: 'bottom', left: 'pair', right: 'none' },
+      body: BODY.ivory,
+      ink: INK.dark,
     },
   },
   'trimui-smart-pro': {
@@ -280,8 +340,7 @@ export const DEVICES: Record<DeviceSlug, Device> = {
       sticks: 2,
       stickRing: 'light',
       gripWidth: 0.243,
-      auxPosition: 'bottom',
-      functionButton: true,
+      aux: { position: 'bottom', left: 'function', right: 'pair' },
       body: BODY.charcoal,
     },
   },
@@ -309,8 +368,7 @@ export const DEVICES: Record<DeviceSlug, Device> = {
       sticks: 2,
       stickRing: 'rgb',
       gripWidth: 0.45,
-      auxPosition: 'bottom',
-      functionButton: true,
+      aux: { position: 'bottom', left: 'function', right: 'pair' },
       body: BODY.charcoal,
     },
   },
@@ -321,8 +379,21 @@ export const DEVICES: Record<DeviceSlug, Device> = {
     h: 480,
     aspect: '3:2',
     resolutionClass: 'other',
-    viewScale: 1.15,
-    shell: { ...HANDHELD, bezel: { top: 24, side: 24, bottom: 22 }, radius: 40 },
+    viewScale: 0.72,
+    /*
+     * Matched to Anbernic's product photograph, which is an explicit Game Boy Advance homage
+     * down to the indigo shell. A landscape body with the panel offset toward the left, no
+     * sticks, and Select and Start stacked on the left grip below the pad.
+     */
+    shell: {
+      layout: 'flanking',
+      bezel: { top: 66, side: 10, bottom: 66 },
+      radius: 110,
+      sticks: 0,
+      gripWidth: 0.41,
+      aux: { position: 'bottom', left: 'pair', right: 'none' },
+      body: BODY.indigo,
+    },
   },
   rg351m: {
     slug: 'rg351m',
@@ -345,8 +416,7 @@ export const DEVICES: Record<DeviceSlug, Device> = {
       radius: 56,
       sticks: 2,
       gripWidth: 0.32,
-      auxPosition: 'top',
-      functionButton: false,
+      aux: { position: 'top', left: 'select', right: 'start' },
       body: BODY.charcoal,
     },
   },
@@ -371,8 +441,7 @@ export const DEVICES: Record<DeviceSlug, Device> = {
       radius: 120,
       sticks: 2,
       gripWidth: 0.35,
-      auxPosition: 'top',
-      functionButton: false,
+      aux: { position: 'top', left: 'select', right: 'start' },
       body: BODY.charcoal,
     },
   },
@@ -383,14 +452,24 @@ export const DEVICES: Record<DeviceSlug, Device> = {
     h: 768,
     aspect: '4:3',
     resolutionClass: 'other',
-    viewScale: 1.0,
-    // Named for its silhouette, so the corners stay tight.
+    viewScale: 0.8,
+    /*
+     * Matched to a reference photograph.
+     *
+     * Named for its silhouette, so the corners stay tight, and the lower body is deep - roughly
+     * as tall as the panel. Select and Start sit above the pad row on the real device rather
+     * than between the pad and the faces; the port keeps them in the centre column, which is
+     * the one arrangement detail here not taken from the photograph.
+     */
     shell: {
       layout: 'chin',
-      bezel: { top: 20, side: 20, bottom: 18 },
-      radius: 16,
+      bezel: { top: 23, side: 40, bottom: 0 },
+      radius: 26,
       sticks: 0,
-      controlScale: 1.15,
+      controlScale: 1.7,
+      chinExtra: 210,
+      menuButton: true,
+      speakerGrille: true,
       body: BODY.charcoal,
     },
   },

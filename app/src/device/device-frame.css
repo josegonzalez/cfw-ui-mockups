@@ -119,7 +119,7 @@
   align-content: start;
   align-items: center;
   padding: var(--ctl-pad) calc(var(--ctl-pad) * 1.3) 0;
-  color: #8b8d93;
+  color: var(--body-ink, #8b8d93);
   font: 600 calc(12px * var(--control-scale, 1)) / 1 ui-sans-serif, system-ui, sans-serif;
   user-select: none;
 }
@@ -402,10 +402,14 @@
   --stick-size: calc(var(--grip-w) * 0.46);
 }
 
+/*
+ * Positioned by their centres, because that is what a control's position on a photograph
+ * actually is - measuring a top edge off a product shot is guesswork.
+ */
 .grip > * {
   position: absolute;
   left: 50%;
-  transform: translateX(-50%);
+  transform: translate(-50%, -50%);
 }
 
 /*
@@ -414,13 +418,13 @@
  * sits high and the sticks take the middle.
  */
 .grip[data-aux='bottom'] .grip__primary {
-  top: 31%;
+  top: 30%;
 }
 .grip[data-aux='bottom'] .grip__stick {
-  top: 64%;
+  top: 65%;
 }
 .grip[data-aux='bottom'] .grip__aux {
-  top: 84%;
+  top: 85%;
 }
 
 .grip[data-aux='top'] .grip__aux {
@@ -433,7 +437,20 @@
   top: 72%;
 }
 
-/* A lone round button with its label set beside it, as the slimmer bodies mould them. */
+/*
+ * A moulded pair sits inboard, toward the screen, rather than on the grip's centre line - which
+ * is where a thumb resting on the stick above it can actually reach.
+ */
+.grip--left .grip__aux[data-kind='function'],
+.grip--left .grip__aux[data-kind='pair'] {
+  left: 62%;
+}
+
+.grip--right .grip__aux[data-kind='pair'] {
+  left: 42%;
+}
+
+/* A lone round button, as the slimmer bodies mould them. */
 .aux-button {
   width: calc(var(--grip-w) * 0.14);
   height: calc(var(--grip-w) * 0.14);
@@ -447,7 +464,7 @@
 
 /* The shoulders wrap over the top outer corner rather than sitting in a row. */
 .grip .shoulder--grip {
-  /* Inside the body's rounded corner, not straddling it. */
+  /* Inside the body's rounded corner, not straddling it. Placed by its top edge, not centred. */
   top: 3%;
   left: auto;
   transform: none;
@@ -468,7 +485,8 @@
 
 /* A round system button, the one control the chin layout has no place for. */
 .fn-button {
-  width: calc(var(--grip-w) * 0.25);
+  font-size: 0;
+  width: calc(var(--grip-w) * 0.22);
   height: calc(var(--grip-w) * 0.25);
   border-radius: 999px;
   background: radial-gradient(circle at 42% 34%, #34363c, #212327);
@@ -484,6 +502,12 @@
   border-radius: calc(var(--grip-w) * 0.09);
   background: linear-gradient(160deg, #303239, #232529);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.grip .device__meta {
+  flex-wrap: wrap;
+  justify-content: center;
+  max-width: calc(var(--grip-w) * 0.62);
 }
 
 .pill--grip {
@@ -526,7 +550,8 @@
 .labelled__text {
   font-size: calc(8px * var(--control-scale, 1));
   letter-spacing: 0.08em;
-  opacity: 0.75;
+  opacity: 0.85;
+  white-space: nowrap;
 }
 
 .menu-button {
