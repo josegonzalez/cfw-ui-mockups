@@ -1,0 +1,147 @@
+import type { DeviceSlug } from '../device/devices'
+import type { ThemeSlug } from '../widgets/types'
+
+import elementerialPreview from '../assets/previews/elementerial.png'
+import playstationXPreview from '../assets/previews/playstation-x.png'
+import vitrolauncherPreview from '../assets/previews/vitrolauncher.png'
+import exampleCfwPreview from '../assets/previews/example-cfw.png'
+
+/**
+ * What each mockup set is, for the landing page.
+ *
+ * Descriptive rather than structural - the screens themselves come from `manifest.ts`. Every
+ * figure here is read from the set's own source: palettes from its palette module, view counts
+ * from its view list, devices from the directories it shipped.
+ *
+ * Preview art is captured from the mockups by `e2e/previews.spec.ts` rather than drawn, so a
+ * preview cannot flatter a screen that no longer looks like that.
+ */
+export interface ThemeEntry {
+  readonly slug: ThemeSlug
+  readonly name: string
+  /** Who made the firmware theme this reproduces. Absent for the fictional scaffold. */
+  readonly author?: string
+  readonly kind: string
+  readonly summary: string
+  /** The two or three things that make this set distinctive. */
+  readonly highlights: readonly string[]
+  readonly preview: string
+  readonly previewAlt: string
+  readonly accent: string
+  /** Representative colours from the set's own palette. */
+  readonly swatches: readonly string[]
+  readonly views: number
+  readonly devices: readonly DeviceSlug[]
+  readonly fonts: readonly string[]
+  /** True once the set is rendered by the React app rather than only archived. */
+  readonly ported: boolean
+  /** Where to look if it is not ported yet. */
+  readonly legacyPath: string
+  readonly docPath: string
+}
+
+export const THEMES: readonly ThemeEntry[] = [
+  {
+    slug: 'elementerial',
+    name: 'Elementerial',
+    author: 'mluizvitor',
+    kind: 'EmulationStation theme',
+    summary:
+      'Built around Android TV, with Material Design principles and the elementary OS palette. Eight ways to look at the same library, from a plain text list to a full-bleed cover carousel.',
+    highlights: [
+      '14 colour schemes, each in light and dark',
+      'Eight views: carousel, three list styles, three grid styles, and a settings menu',
+      'Layout resolves per aspect ratio, from 480x320 up to 1920x1152',
+    ],
+    preview: elementerialPreview,
+    previewAlt: 'Elementerial main screen: a Game Boy Advance backdrop above a row of system logos',
+    accent: '#ED5353',
+    swatches: ['#ED5353', '#F37329', '#F9C440', '#68B723', '#28BCA3', '#3689E6', '#A56DE2'],
+    views: 8,
+    devices: ['rg35xx', 'rg351m', 'rg552', 'rg-cubexx'],
+    fonts: ['Inter', 'Roboto Condensed'],
+    ported: false,
+    legacyPath: 'legacy/elementerial/rg35xx/theme.html',
+    docPath: 'docs/themes/elementerial.md',
+  },
+  {
+    slug: 'playstation-x',
+    name: 'PlayStation X',
+    author: 'pajarorrojo',
+    kind: 'Batocera EmulationStation theme',
+    summary:
+      'A reproduction of the PS3, PS4 and PS5 interfaces on a handheld, down to the character cutouts and the drifting background. The most animated set in the repo by a wide margin.',
+    highlights: [
+      '385 animation tracks across 211 storyboards, carried as data and compiled at runtime',
+      'Eleven views, including a boot splash, a game launch and a media diagnostic screen',
+      'Two colour sets and nine accent overrides',
+    ],
+    preview: playstationXPreview,
+    previewAlt: 'PlayStation X game list: a tile row over a character cutout and game metadata',
+    accent: '#0070d1',
+    swatches: ['#0070d1', '#003791', '#F3C300', '#00AD9E', '#F2001A', '#666666'],
+    views: 11,
+    devices: ['rg34xx', 'rg35xx', 'rg552', 'trimui-smart-pro'],
+    fonts: ['SST'],
+    ported: false,
+    legacyPath: 'legacy/playstation-x/rg35xx/theme.html',
+    docPath: 'docs/themes/playstation-x.md',
+  },
+  {
+    slug: 'vitrolauncher',
+    name: 'Vitro Launcher',
+    author: 'KevDoy',
+    kind: 'Love2D launcher for muOS',
+    summary:
+      'A home screen rather than a game browser. Three screens float on a live animated background, switched with the shoulder buttons through a frosted glass nav pill.',
+    highlights: [
+      'Four animated backgrounds, one of them a WebGL port of the original GLSL wave shader',
+      'Frosted glass chrome that genuinely samples the moving background beneath it',
+      'Eleven colour schemes, switchable from the launcher’s own settings screen',
+    ],
+    preview: vitrolauncherPreview,
+    previewAlt: 'Vitro Launcher last-played carousel: three cover tiles over an animated wave background',
+    accent: '#1a9fff',
+    swatches: ['#2245cc', '#7a3fd4', '#c0264b', '#d97b1f', '#1f9e46', '#12939c', '#d4569b'],
+    views: 3,
+    devices: ['rg34xx', 'rg35xx'],
+    fonts: ['Roboto Condensed'],
+    ported: false,
+    legacyPath: 'legacy/vitrolauncher/rg35xx/launcher.html',
+    docPath: 'docs/themes/vitrolauncher.md',
+  },
+  {
+    slug: 'example-cfw',
+    name: 'Example OS',
+    kind: 'Scaffold reference',
+    summary:
+      'A fictional launcher, and the template for adding a real one. The smallest complete theme: two screens, one palette, no assets, and the only set that navigates between screens rather than swapping views in place.',
+    highlights: [
+      'The starting point for a new firmware theme',
+      'Built entirely from the shared widget vocabulary, with no widget of its own',
+      'Layout resolves from fractions, so it renders on any device in the registry',
+    ],
+    preview: exampleCfwPreview,
+    previewAlt: 'Example OS main menu: five icon rows with the first selected in cyan',
+    accent: '#4cc9f0',
+    // Light to dark, so the row reads as a ramp rather than as three broken boxes.
+    swatches: ['#4cc9f0', '#e7e9f0', '#8b90a3', '#2a2e40', '#1b1e2b', '#12141c'],
+    views: 2,
+    devices: ['rg35xx', 'rg-cubexx'],
+    fonts: ['System sans'],
+    ported: true,
+    legacyPath: 'legacy/example-cfw/rg35xx/main-menu.html',
+    docPath: 'docs/themes/example-cfw.md',
+  },
+]
+
+/** Totals for the landing page, derived so they cannot drift from the catalogue. */
+export function catalogueTotals() {
+  const devices = new Set(THEMES.flatMap((t) => t.devices))
+  return {
+    themes: THEMES.length,
+    views: THEMES.reduce((sum, t) => sum + t.views, 0),
+    devices: devices.size,
+    ported: THEMES.filter((t) => t.ported).length,
+  }
+}

@@ -82,10 +82,25 @@ for (const route of ROUTES) {
   })
 }
 
-test('the gallery lists every route', async ({ page }) => {
+test('the landing page reaches every route', async ({ page }) => {
   await page.goto('/')
 
   for (const route of ROUTES) {
-    await expect(page.locator(`a[href="#${routeId(route)}"]`)).toHaveCount(1)
+    // At least one link, not exactly one: a theme card also links its own live build, so a
+    // route can legitimately be reachable from two places.
+    await expect(page.locator(`a[href="#${routeId(route)}"]`).first()).toBeAttached()
   }
+})
+
+test('every theme is represented with preview art that actually loads', async ({ page }) => {
+  await page.goto('/')
+
+  const cards = page.locator('.gal-card')
+  await expect(cards).toHaveCount(4)
+
+  // A broken preview still renders an <img> box, so check the decoded dimensions.
+  const broken = await page.locator('.gal-card__img').evaluateAll((imgs) =>
+    imgs.filter((img) => !(img as HTMLImageElement).naturalWidth).map((img) => img.getAttribute('src')),
+  )
+  expect(broken).toEqual([])
 })

@@ -18,6 +18,20 @@ const LEGACY: Record<string, string> = {
   'example-cfw/rg35xx/game-list': 'legacy/example-cfw/rg35xx/game-list.html',
 }
 
+test('capture landing', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 900 })
+  await page.goto('/')
+  await page.waitForTimeout(600)
+  await page.screenshot({ path: resolve(OUT, 'landing.png'), fullPage: true })
+})
+
+test('capture landing narrow', async ({ page }) => {
+  await page.setViewportSize({ width: 430, height: 900 })
+  await page.goto('/')
+  await page.waitForTimeout(600)
+  await page.screenshot({ path: resolve(OUT, 'landing-narrow.png'), fullPage: true })
+})
+
 for (const entry of SCREEN_MANIFEST) {
   const id = screenId(entry)
 
@@ -42,3 +56,10 @@ for (const [id, file] of Object.entries(LEGACY)) {
     await screen.screenshot({ path: resolve(OUT, `legacy--${id.replaceAll('/', '__')}.png`) })
   })
 }
+
+test('capture viewer', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 900 })
+  await page.goto('/#example-cfw/rg35xx/interactive')
+  await page.waitForTimeout(600)
+  await page.screenshot({ path: resolve(OUT, 'viewer.png') })
+})

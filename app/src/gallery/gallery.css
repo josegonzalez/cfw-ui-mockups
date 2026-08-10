@@ -1,0 +1,540 @@
+/*
+ * Landing page styling.
+ *
+ * The aesthetic is borrowed from the hardware: a dark panel, a phosphor glow, and the faint
+ * scanline of a small backlit screen. It is kept deliberately restrained - the mockups are the
+ * subject, and a page that shouts over its own screenshots is working against itself.
+ *
+ * Every decorative layer here is `prefers-reduced-motion` aware and sits behind
+ * `pointer-events: none`, so nothing decorative can intercept a click.
+ */
+
+/*
+ * Declared on the root, not on `.gal`. The screen viewer is a sibling of the landing page
+ * rather than a child, and scoping these to `.gal` left it referencing variables that resolve
+ * to nothing.
+ */
+:root {
+  --gal-bg: #07080c;
+  --gal-surface: #0e1017;
+  --gal-surface-2: #141824;
+  --gal-line: #232838;
+  --gal-ink: #eef1f8;
+  --gal-ink-2: #a8b0c4;
+  --gal-ink-3: #6d7590;
+  --gal-neon: #4cc9f0;
+  --gal-neon-2: #f45d9e;
+}
+
+.gal {
+  position: relative;
+  min-height: 100vh;
+  background: var(--gal-bg);
+  color: var(--gal-ink);
+  font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  overflow-x: hidden;
+}
+
+/* Ambient phosphor bloom behind the hero. */
+.gal::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 720px;
+  background:
+    radial-gradient(60% 50% at 18% 0%, rgb(76 201 240 / 18%), transparent 70%),
+    radial-gradient(50% 45% at 82% 8%, rgb(244 93 158 / 12%), transparent 70%);
+  pointer-events: none;
+}
+
+/* Scanlines. Faint enough to read as texture rather than as stripes. */
+.gal::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgb(255 255 255 / 2.5%) 0 1px,
+    transparent 1px 3px
+  );
+  mix-blend-mode: overlay;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.gal__inner {
+  position: relative;
+  z-index: 2;
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 0 24px 96px;
+}
+
+/* --- hero ---------------------------------------------------------------- */
+
+.gal__hero {
+  padding: 96px 0 56px;
+}
+
+.gal__eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 14px;
+  border: 1px solid var(--gal-line);
+  border-radius: 999px;
+  background: rgb(20 24 36 / 70%);
+  color: var(--gal-ink-2);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+/* A blinking cursor block, the one overtly arcade flourish. */
+.gal__blip {
+  width: 8px;
+  height: 8px;
+  background: var(--gal-neon);
+  box-shadow: 0 0 10px var(--gal-neon);
+  animation: gal-blink 1.6s steps(1) infinite;
+}
+
+@keyframes gal-blink {
+  0%,
+  60% {
+    opacity: 1;
+  }
+  61%,
+  100% {
+    opacity: 0.15;
+  }
+}
+
+.gal__title {
+  margin: 22px 0 0;
+  font-size: clamp(40px, 7vw, 76px);
+  font-weight: 800;
+  line-height: 1.02;
+  letter-spacing: -0.03em;
+  text-wrap: balance;
+}
+
+.gal__title em {
+  font-style: normal;
+  color: var(--gal-neon);
+  text-shadow:
+    0 0 24px rgb(76 201 240 / 45%),
+    0 0 60px rgb(76 201 240 / 20%);
+}
+
+.gal__lede {
+  max-width: 62ch;
+  margin: 22px 0 0;
+  color: var(--gal-ink-2);
+  font-size: clamp(16px, 1.6vw, 19px);
+  line-height: 1.6;
+  text-wrap: pretty;
+}
+
+/* --- stat row ------------------------------------------------------------ */
+
+.gal__stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1px;
+  margin-top: 44px;
+  border: 1px solid var(--gal-line);
+  border-radius: 14px;
+  background: var(--gal-line);
+  overflow: hidden;
+}
+
+.gal__stat {
+  padding: 20px 22px;
+  background: var(--gal-surface);
+}
+
+.gal__stat-value {
+  font-size: 34px;
+  font-weight: 650;
+  line-height: 1.1;
+  /* Proportional figures: these are standalone values, not a column to align. */
+  color: var(--gal-ink);
+}
+
+.gal__stat-label {
+  margin-top: 6px;
+  color: var(--gal-ink-3);
+  font-size: 13px;
+}
+
+/* --- section ------------------------------------------------------------- */
+
+.gal__section {
+  margin-top: 88px;
+}
+
+.gal__section-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--gal-line);
+}
+
+.gal__section-title {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--gal-ink-2);
+}
+
+.gal__section-note {
+  color: var(--gal-ink-3);
+  font-size: 13px;
+}
+
+/* --- theme cards --------------------------------------------------------- */
+
+.gal__themes {
+  display: grid;
+  gap: 28px;
+  margin-top: 28px;
+}
+
+.gal-card {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+  gap: 0;
+  border: 1px solid var(--gal-line);
+  border-radius: 18px;
+  background: var(--gal-surface);
+  overflow: hidden;
+}
+
+@media (max-width: 780px) {
+  .gal-card {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* A wash of the theme's own accent, so each card carries its subject's colour. */
+.gal-card__art {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-height: 240px;
+  padding: 28px;
+  background:
+    radial-gradient(120% 100% at 50% 0%, rgb(255 255 255 / 6%), transparent 60%),
+    var(--card-accent-wash);
+  border-right: 1px solid var(--gal-line);
+}
+
+@media (max-width: 780px) {
+  .gal-card__art {
+    border-right: none;
+    border-bottom: 1px solid var(--gal-line);
+  }
+}
+
+/* The screenshot in a slim bezel, echoing the device frame the screens render in. */
+.gal-card__screen {
+  width: 100%;
+  max-width: 340px;
+  aspect-ratio: 4 / 3;
+  padding: 6px;
+  border-radius: 10px;
+  background: linear-gradient(160deg, #2b2d31, #1b1c1f);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 6%),
+    0 18px 40px rgb(0 0 0 / 55%);
+}
+
+.gal-card__img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 5px;
+  background: #000;
+}
+
+.gal-card__body {
+  padding: 28px 30px 30px;
+  min-width: 0;
+}
+
+.gal-card__kicker {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--gal-ink-3);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.gal-card__name {
+  margin: 10px 0 0;
+  font-size: 27px;
+  font-weight: 750;
+  letter-spacing: -0.015em;
+}
+
+.gal-card__summary {
+  margin: 12px 0 0;
+  color: var(--gal-ink-2);
+  font-size: 15px;
+  line-height: 1.6;
+  text-wrap: pretty;
+}
+
+.gal-card__list {
+  margin: 18px 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 8px;
+}
+
+.gal-card__list li {
+  position: relative;
+  padding-left: 20px;
+  color: var(--gal-ink-2);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* A pixel, not a bullet. */
+.gal-card__list li::before {
+  content: '';
+  position: absolute;
+  left: 2px;
+  top: 8px;
+  width: 6px;
+  height: 6px;
+  background: var(--card-accent);
+}
+
+.gal-card__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 20px;
+}
+
+.gal-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  border: 1px solid var(--gal-line);
+  border-radius: 7px;
+  background: var(--gal-surface-2);
+  color: var(--gal-ink-2);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.gal-chip--status {
+  border-color: color-mix(in srgb, var(--card-accent) 45%, transparent);
+  color: var(--gal-ink);
+}
+
+.gal-swatches {
+  display: flex;
+  gap: 5px;
+  margin-top: 18px;
+}
+
+.gal-swatch {
+  width: 22px;
+  height: 22px;
+  border-radius: 5px;
+  border: 1px solid rgb(255 255 255 / 12%);
+}
+
+.gal-card__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 22px;
+}
+
+/* --- buttons ------------------------------------------------------------- */
+
+.gal-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 16px;
+  border: 1px solid var(--gal-line);
+  border-radius: 9px;
+  background: var(--gal-surface-2);
+  color: var(--gal-ink);
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  transition:
+    border-color 0.15s ease,
+    background 0.15s ease,
+    transform 0.15s ease;
+}
+
+.gal-btn:hover {
+  border-color: color-mix(in srgb, var(--gal-neon) 55%, transparent);
+  background: #1a1f2e;
+  transform: translateY(-1px);
+}
+
+.gal-btn--primary {
+  border-color: color-mix(in srgb, var(--card-accent, var(--gal-neon)) 55%, transparent);
+  background: color-mix(in srgb, var(--card-accent, var(--gal-neon)) 16%, var(--gal-surface-2));
+}
+
+.gal-btn:focus-visible,
+.gal-screen-link:focus-visible {
+  outline: 2px solid var(--gal-neon);
+  outline-offset: 2px;
+}
+
+/* --- screen index -------------------------------------------------------- */
+
+.gal__screens {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 10px;
+  margin-top: 24px;
+}
+
+.gal-screen-link {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 13px 16px;
+  border: 1px solid var(--gal-line);
+  border-radius: 10px;
+  background: var(--gal-surface);
+  color: var(--gal-ink);
+  font-size: 14px;
+  text-decoration: none;
+  transition:
+    border-color 0.15s ease,
+    background 0.15s ease;
+}
+
+.gal-screen-link:hover {
+  border-color: color-mix(in srgb, var(--gal-neon) 50%, transparent);
+  background: var(--gal-surface-2);
+}
+
+.gal-screen-link__meta {
+  color: var(--gal-ink-3);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+/* --- notes and footer ---------------------------------------------------- */
+
+/* Two across, so four notes make a square rather than a row of three and an orphan. */
+.gal__notes {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+  gap: 20px;
+  margin-top: 28px;
+}
+
+.gal__note {
+  padding: 22px 24px;
+  border: 1px solid var(--gal-line);
+  border-radius: 14px;
+  background: var(--gal-surface);
+}
+
+.gal__note h3 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.gal__note p {
+  margin: 10px 0 0;
+  color: var(--gal-ink-2);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.gal__footer {
+  margin-top: 80px;
+  padding-top: 24px;
+  border-top: 1px solid var(--gal-line);
+  color: var(--gal-ink-3);
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.gal__footer a {
+  color: var(--gal-ink-2);
+}
+
+/* --- viewer -------------------------------------------------------------- */
+
+.gal-viewer {
+  min-height: 100vh;
+  display: grid;
+  /*
+   * Centred horizontally, but packed to the top vertically. A centred grid whose content is
+   * taller than the viewport overflows in both directions, and the overflow above the
+   * container cannot be scrolled to - which would put the top of a 1920x1152 frame out of
+   * reach.
+   */
+  justify-items: center;
+  align-content: start;
+  gap: 22px;
+  padding: 40px 24px 64px;
+  background: var(--gal-bg);
+}
+
+.gal-viewer__bar {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  width: 100%;
+  max-width: 1120px;
+}
+
+.gal-viewer__title {
+  color: var(--gal-ink);
+  font-size: 15px;
+  font-weight: 650;
+}
+
+.gal-viewer__hint {
+  color: var(--gal-ink-3);
+  font-size: 13px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gal__blip {
+    animation: none;
+  }
+
+  .gal-btn,
+  .gal-screen-link {
+    transition: none;
+  }
+
+  .gal-btn:hover {
+    transform: none;
+  }
+}
