@@ -63,3 +63,14 @@ test('capture viewer', async ({ page }) => {
   await page.waitForTimeout(600)
   await page.screenshot({ path: resolve(OUT, 'viewer.png') })
 })
+
+/** Each hero treatment, with the preview switcher hidden so it does not sit over the stat row. */
+for (const hero of ['neon', 'boot', 'device', 'marquee']) {
+  test(`capture hero ${hero}`, async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 860 })
+    await page.goto(`/?hero=${hero}`)
+    await page.addStyleTag({ content: '.hero-switch{display:none}' })
+    await page.waitForTimeout(900)
+    await page.screenshot({ path: resolve(OUT, `hero-${hero}.png`) })
+  })
+}

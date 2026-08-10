@@ -2,15 +2,21 @@ import type { CSSProperties } from 'react'
 import { DEVICES } from '../device/devices'
 import { SCREEN_MANIFEST, screenId } from '../themes/manifest'
 import { THEMES, catalogueTotals, type ThemeEntry } from '../themes/catalogue'
+import { BootHero } from './heroes/BootHero'
+import { DeviceHero } from './heroes/DeviceHero'
+import { HeroSwitcher } from './heroes/HeroSwitcher'
+import { MarqueeHero } from './heroes/MarqueeHero'
+import { NeonHero } from './heroes/NeonHero'
+import { useHeroVariant } from './heroes/useHeroVariant'
+import type { HeroVariant } from './heroes/types'
 import './gallery.css'
+import './heroes/heroes.css'
 
-function Stat({ value, label }: { value: string; label: string }) {
-  return (
-    <div className="gal__stat">
-      <div className="gal__stat-value">{value}</div>
-      <div className="gal__stat-label">{label}</div>
-    </div>
-  )
+const HEROES: Record<HeroVariant, () => React.ReactElement> = {
+  neon: NeonHero,
+  boot: BootHero,
+  device: DeviceHero,
+  marquee: MarqueeHero,
 }
 
 function ThemeCard({ theme }: { theme: ThemeEntry }) {
@@ -106,34 +112,13 @@ function ThemeCard({ theme }: { theme: ThemeEntry }) {
 
 export function Landing() {
   const totals = catalogueTotals()
+  const { variant, setVariant } = useHeroVariant()
+  const Hero = HEROES[variant]
 
   return (
-    <div className="gal">
+    <div className="gal" data-hero={variant}>
       <div className="gal__inner">
-        <header className="gal__hero">
-          <span className="gal__eyebrow">
-            <span className="gal__blip" aria-hidden="true" />
-            Handheld firmware UI
-          </span>
-
-          <h1 className="gal__title">
-            The screens on your <em>handheld</em>, rebuilt pixel for pixel.
-          </h1>
-
-          <p className="gal__lede">
-            Mockups of the on-screen UI of custom firmware and launchers for SBC gaming handhelds -
-            muOS, Batocera, ArkOS, Knulli and the themes that run on them. Each screen renders at
-            its device's exact panel resolution inside a device frame, so what you see is the size
-            it really is.
-          </p>
-
-          <div className="gal__stats">
-            <Stat value={String(totals.themes)} label="Firmware UIs" />
-            <Stat value={String(totals.views)} label="Distinct screens" />
-            <Stat value={String(totals.devices)} label="Devices" />
-            <Stat value="640x480" label="Most common panel" />
-          </div>
-        </header>
+        <Hero />
 
         <section className="gal__section" aria-labelledby="themes-heading">
           <div className="gal__section-head">
@@ -225,6 +210,8 @@ export function Landing() {
           <a href="/legacy/index.html">legacy/</a> and still render.
         </footer>
       </div>
+
+      <HeroSwitcher variant={variant} onChange={setVariant} />
     </div>
   )
 }

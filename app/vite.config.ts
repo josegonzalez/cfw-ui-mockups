@@ -26,6 +26,12 @@ export default defineConfig({
   },
   test: {
     environment: 'jsdom',
+    /*
+     * A real origin, so the document gets a working `localStorage`. jsdom disables storage on an
+     * opaque origin, and Node's own experimental `localStorage` global is inert without a
+     * backing file - between them, anything reading storage silently sees nothing.
+     */
+    environmentOptions: { jsdom: { url: 'http://localhost:5173/' } },
     globals: true,
     setupFiles: ['./src/test/setup.ts'],
     include: ['src/**/*.{test,spec}.{ts,tsx}'],
