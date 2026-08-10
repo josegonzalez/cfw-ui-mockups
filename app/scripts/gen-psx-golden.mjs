@@ -19,10 +19,15 @@ import vm from 'node:vm'
 const repoRoot = resolve(import.meta.dirname, '../..')
 const outDir = resolve(import.meta.dirname, '../src/themes/playstation-x/__fixtures__')
 
-const sandbox = { window: {} }
+// `views.js` carries the sample data and the art factories, and touches the DOM only inside
+// its builders, so a stub is enough to reach them.
+const sandbox = {
+  window: {},
+  document: { createElement: () => ({ style: {}, appendChild() {}, classList: { add() {} } }) },
+}
 vm.createContext(sandbox)
 
-for (const file of ['palette.js', 'layout.js']) {
+for (const file of ['palette.js', 'layout.js', 'views.js']) {
   const source = readFileSync(resolve(repoRoot, 'legacy/playstation-x', file), 'utf8')
   vm.runInContext(source, sandbox, { filename: file })
 }
@@ -63,3 +68,19 @@ for (const colorset of ['blue', 'black']) {
 
 writeFileSync(resolve(outDir, 'palette.golden.json'), JSON.stringify(palette, null, 1))
 console.log(`palette: ${Object.keys(palette).length} combinations`)
+
+/*
+ * Generated artwork. Small, deterministic, and exactly the kind of string-building where a
+ * transposed coefficient produces a picture that looks plausible and is not the same picture.
+ */
+const art = {}
+for (const game of PSX.GAMES) {
+  art[game.name] = {
+    fanart: PSX.fanart(game, 320, 180),
+    boxart: PSX.boxart(game, 160, 220),
+    marquee: PSX.marquee(game, 240, 80),
+  }
+}
+
+writeFileSync(resolve(outDir, 'art.golden.json'), JSON.stringify(art, null, 1))
+console.log(`art: ${Object.keys(art).length} games`)
