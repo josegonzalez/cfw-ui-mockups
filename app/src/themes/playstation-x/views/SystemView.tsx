@@ -24,7 +24,7 @@
  */
 import { useStoryboard } from '../../../anim/useStoryboard'
 import { place } from '../../../layout/box'
-import { boxOf } from './Chrome'
+import { boxOf, textLine } from './Chrome'
 import { MarcoActivo, StartPill } from './parts'
 import { caratula, consoleArt, systemLogo } from '../assets'
 import { SYSTEMS } from '../library'
@@ -158,12 +158,15 @@ export function SystemView({
       <div
         ref={nameRef}
         className={`psx-el psx-glow ${nameClass}`}
+        /*
+          `system_name` is authored `size 0.6 0.001`, so it has no box to centre in and the line
+          is centred on its y instead. Placed as a literal box it is half a pixel tall.
+        */
         style={{
-          ...place({ ...boxOf(L.systemName), font: L.systemName.font }),
+          ...textLine(L.systemName),
           ...nameStyle,
           fontFamily: "'SST Light', 'SST', sans-serif",
           fontWeight: 300,
-          zIndex: L.systemName.z,
         }}
       >
         {system.fullName}

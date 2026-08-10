@@ -98,8 +98,10 @@ export function SplashView({ layout, colorset, progress = 0.86 }: SplashProps) {
       </div>
 
       {/* The label sits on top of the bar - the source puts both at y 0.703. */}
+      {/* Square ends: the source's bar is a plain rect, so the widget's default pill is wrong. */}
       <ProgressBar
         box={boxOf(L.progressbar)}
+        radius={0}
         value={progress}
         trackColor="var(--psx-splash-progressbar)"
         fillColor="var(--psx-splash-progressbarActive)"

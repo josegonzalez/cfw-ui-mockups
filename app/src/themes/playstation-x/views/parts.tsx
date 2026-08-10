@@ -53,6 +53,7 @@ export function Title({
   event,
   family = "'SST Light', 'SST', sans-serif",
   weight = 300,
+  align,
 }: {
   layout: PsxLayout
   view: PsxLayout
@@ -61,6 +62,8 @@ export function Title({
   event: StoryboardEventKey
   family?: string
   weight?: number
+  /** ps5Style right-aligns its title; every other view leaves it at the box's left edge. */
+  align?: 'right'
 }) {
   const { attach, style, className } = useStoryboard(STORYBOARDS.gamename, event)
   const font = view.gameName ? view.gameName.font : view.gamename.font
@@ -69,7 +72,12 @@ export function Title({
     <div
       ref={attach}
       className={`psx-gamename ${className}`}
-      style={{ ...place(boxOf(view.gamename)), ...style, zIndex: view.gamename.z }}
+      style={{
+        ...place(boxOf(view.gamename)),
+        ...style,
+        zIndex: view.gamename.z,
+        ...(align === 'right' ? { justifyContent: 'flex-end' } : {}),
+      }}
     >
       <span className="name psx-glow" style={{ fontFamily: family, fontWeight: weight, fontSize: `${font}px` }}>
         {game.name}
@@ -130,6 +138,7 @@ export function MetaRows({
 
   return (
     <>
+      {view.gamedata ? (
       <div
         ref={firstRef}
         className={`psx-row ${firstClass}`}
@@ -154,7 +163,9 @@ export function MetaRows({
           </span>
         )}
       </div>
+      ) : null}
 
+      {view.gamedata2 ? (
       <div
         ref={secondRef}
         className={`psx-row ${secondClass}`}
@@ -185,6 +196,21 @@ export function MetaRows({
           </span>
         ) : null}
       </div>
+      ) : null}
+
+      {view.iconos ? <Icons layout={layout} view={view} game={game} /> : null}
+
+      {view.gamedesc ? (
+        <div
+          className="psx-desc psx-glow"
+          style={{
+            ...place({ ...boxOf(view.gamedesc), font: view.gamedesc.font }),
+            zIndex: view.gamedesc.z,
+          }}
+        >
+          {game.desc}
+        </div>
+      ) : null}
     </>
   )
 }
@@ -289,9 +315,29 @@ export function Icons({
       </span>
 
       {badgesFor(game).map(({ kind, src }, i) =>
-        src ? (
+        !src ? null : kind === 'cheevos' ? (
+          /*
+           * The achievements trophy is gold. The original got there with
+           * `filter: invert(72%) sepia(85%) saturate(1200%) hue-rotate(2deg)` over a white
+           * pictogram, which meant the colour could not follow the accent and was not a token at
+           * all. Masking the same pictogram paints it from `cheevosOnColor` directly.
+           */
+          <span
+            key={`${kind}${i}`}
+            className="psx-trophy"
+            style={{
+              position: 'relative',
+              display: 'inline-block',
+              height: `${size}px`,
+              width: `${size}px`,
+              maskImage: `url(${src})`,
+              WebkitMaskImage: `url(${src})`,
+            }}
+            aria-hidden
+          />
+        ) : (
           <img key={`${kind}${i}`} src={src} alt="" style={{ height: `${size}px`, width: 'auto' }} />
-        ) : null,
+        ),
       )}
 
       {(game.tags ?? []).map((tag) => {
@@ -320,8 +366,23 @@ export function SideMedia({
 }) {
   const { attach, style, className } = useStoryboard(STORYBOARDS.marquee, event)
 
+  /*
+   * `featured || image` - one slot under two names. A view declares whichever it uses and the
+   * source draws the first that exists, so a view carrying both would still get one image.
+   */
+  const feature = view.featured ?? view.image
+
   return (
     <>
+      {feature ? (
+        <img
+          className="psx-img"
+          style={{ ...place(boxOf(feature)), zIndex: feature.z }}
+          src={fanart(game, 320, 180)}
+          alt=""
+        />
+      ) : null}
+
       {view.marquee ? (
         <img
           ref={attach}
@@ -341,18 +402,6 @@ export function SideMedia({
         />
       ) : null}
     </>
-  )
-}
-
-/** The description block. */
-export function Description({ view, game }: { view: PsxLayout; game: PsxGame }) {
-  return (
-    <div
-      className="psx-desc psx-glow"
-      style={{ ...place({ ...boxOf(view.gamedesc), font: view.gamedesc.font }), zIndex: view.gamedesc.z }}
-    >
-      {game.desc}
-    </div>
   )
 }
 
@@ -385,6 +434,20 @@ export function MarcoActivo({
   const box = { left: node.left, top: node.top, width: node.w, height: node.h }
   const frame = image('marco-activo-iso.png')
 
+  /*
+   * The scale origin comes from the element's authored `origin`, not from a stylesheet.
+   * `marco-activo` is `origin 0 0`, so the bump grows out of the frame's top-left corner rather
+   * than pulsing about its centre. ES positions by `origin`, so scaling about the same point is
+   * the consistent reading - see source-notes.md:319, which records it as an inference.
+   *
+   * It resolves to `0 0` in all 216 device and subset combinations, so this matches what the
+   * `.psx-marco` class used to hardcode. The point is that a renderer with no cascade can read
+   * it: the value is data now, not a rule in a stylesheet.
+   */
+  const transformOrigin = node.origin
+    ? `${node.origin[0] * 100}% ${node.origin[1] * 100}%`
+    : undefined
+
   if (ps5) {
     return (
       <div
@@ -394,6 +457,7 @@ export function MarcoActivo({
           ...place(box),
           ...style,
           zIndex: node.z,
+          transformOrigin,
           borderRadius: '15%',
           border: '2px solid #ffffff',
         }}
@@ -405,7 +469,7 @@ export function MarcoActivo({
     <img
       ref={attach}
       className={`psx-marco ${className}`}
-      style={{ ...place(box), ...style, zIndex: node.z }}
+      style={{ ...place(box), ...style, zIndex: node.z, transformOrigin }}
       src={frame}
       alt=""
     />

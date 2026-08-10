@@ -179,9 +179,12 @@
  * The selection frame. Authored at origin 0 0, so it scales from its top-left corner - which is
  * why the bump reads as growing into place rather than pulsing around a centre.
  */
+/*
+ * No `transform-origin` here: it comes from the element's authored `origin`, applied inline by
+ * `MarcoActivo`. A stylesheet rule cannot be read by a renderer with no cascade.
+ */
 .psx-marco {
   position: absolute;
-  transform-origin: 0 0;
   pointer-events: none;
 }
 
@@ -383,16 +386,23 @@
 
 /* ---- lists ----------------------------------------------------------- */
 
+/* Not a flex box: `text-overflow: ellipsis` does not apply to a flex container's own text. */
 .psx-list-row {
-  display: flex;
-  align-items: center;
+  padding: 0 0.4em;
   font-family: 'SST', sans-serif;
   color: #ffffff;
   white-space: nowrap;
   overflow: hidden;
+  text-overflow: ellipsis;
 }
 
+/*
+ * `selectorImagePath` is a tiled translucent-white strip and `selectedColor` is the accent -
+ * detailed.xml. The strip is a flat wash at this size, so it is a background rather than an
+ * image, and the accent stays a token.
+ */
 .psx-list-row[data-selected] {
+  background: rgba(255, 255, 255, 0.16);
   color: var(--psx-gamelistSelectedColor);
 }
 
@@ -406,13 +416,16 @@
   color: var(--psx-splash-labelColor);
 }
 
+/*
+ * A media slot draws its asset with no frame around it. An empty one is not an empty box - it
+ * draws `no-image-default.png`, the same placeholder the frontend uses, which is what makes a
+ * missing asset read as missing rather than as a slot that failed to load.
+ */
 .psx-media-slot {
   position: absolute;
   display: flex;
   align-items: center;
   justify-content: center;
-  outline: 1px solid rgba(255, 255, 255, 0.25);
-  outline-offset: -1px;
 }
 
 .psx-media-slot img {
@@ -423,7 +436,10 @@
 
 .psx-media-tag {
   position: absolute;
-  font-family: 'SST', monospace;
-  color: var(--psx-genreColor);
+  font-family: 'SST', sans-serif;
+  font-weight: 700;
+  color: #ffffff;
+  background: rgba(0, 0, 0, 0.667);
+  padding: 0.1em 0.6em;
   white-space: nowrap;
 }

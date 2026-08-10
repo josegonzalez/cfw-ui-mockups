@@ -27,8 +27,6 @@ import { TileGrid, type TileGridMetrics } from '../../../widgets/TileGrid'
 import { place } from '../../../layout/box'
 import { boxOf } from './Chrome'
 import {
-  Description,
-  Icons,
   MarcoActivo,
   MetaRows,
   SideMedia,
@@ -36,7 +34,6 @@ import {
   Tile,
   Title,
 } from './parts'
-import { boxart, fanart } from '../art'
 import { consoleArt, image } from '../assets'
 import { STORYBOARDS } from '../storyboards'
 import type { StoryboardEventKey } from '../../../anim/types'
@@ -52,26 +49,38 @@ export interface GamelistProps {
 }
 
 /**
- * A grid's metrics in the shape `TileGrid` wants.
+ * A grid's metrics in the shape `TileGrid` wants, and the inset each tile takes inside its cell.
  *
- * `margin` is zeroed deliberately. This theme's `cellW` is `size / cols` and already includes
- * the gap, where the widget's pitch is `tileW + margin` - passing the margin through would
- * count it twice and drift the whole row. The gap is applied inside the cell instead, which is
- * also what the source does.
+ * Both of the widget's spacing knobs are zeroed, for two different reasons.
+ *
+ * `margin` is the widget's gap, and the pitch it produces is `tileW + margin`. This theme's
+ * `cellW` is `size / cols` and already contains the gap, so passing one through would count it
+ * twice and drift the whole row.
+ *
+ * `padding` is the widget's inset from the grid box's edge, which is not what this theme means
+ * by the word. Here both `padding` and `margin` inset a tile *within its own cell* - the source
+ * writes `left = i * cellW + padX; width = cellW - padX * 2` - so the grid box keeps its full
+ * size and every cell shrinks. Handing it to the widget as a box inset shifted the grid by one
+ * pad and left the tiles at full cell size, which is how the PS4 row grew tall enough to cover
+ * the Start pill beneath it.
  */
-function metricsOf(gg: PsxLayout, inset: 'padding' | 'margin'): TileGridMetrics {
+function metricsOf(gg: PsxLayout, inset: 'padding' | 'margin'): [TileGridMetrics, number, number] {
   const insetX = inset === 'padding' ? gg.padX : gg.marginX
   const insetY = inset === 'padding' ? gg.padY : gg.marginY
 
-  return {
-    box: { left: gg.left, top: gg.top, width: gg.w, height: gg.h },
-    cols: gg.cols,
-    rows: gg.rows,
-    tileW: gg.cellW,
-    tileH: gg.cellH,
-    padding: [insetX, insetY],
-    margin: [0, 0],
-  }
+  return [
+    {
+      box: { left: gg.left, top: gg.top, width: gg.w, height: gg.h },
+      cols: gg.cols,
+      rows: gg.rows,
+      tileW: gg.cellW,
+      tileH: gg.cellH,
+      padding: [0, 0],
+      margin: [0, 0],
+    },
+    insetX,
+    insetY,
+  ]
 }
 
 /** The strip grid that both centre-selected views draw. */
@@ -95,7 +104,7 @@ function CenteredStrip({
   event: StoryboardEventKey
 }) {
   const { attach, style, className } = useStoryboard(STORYBOARDS['gamegrid-enter'], event)
-  const metrics = metricsOf(gg, inset)
+  const [metrics, insetX, insetY] = metricsOf(gg, inset)
 
   /*
    * `autoLayoutSelectedZoom` is the *selected* tile's size relative to its neighbours, and the
@@ -110,8 +119,19 @@ function CenteredStrip({
       }
     : null
 
+  /*
+   * The wrapper carries the grid's own z, not `auto`. It is animated, so it always has a
+   * transform, and a transformed element is a stacking context - which re-bases every z-index
+   * inside it against the wrapper's own. Leaving it at `auto` pins the whole grid to 0 and the
+   * z-45 background paints straight over it. Nothing about the tiles' geometry changes, which is
+   * why no computed-style check would have caught this.
+   */
   return (
-    <div ref={attach} className={className} style={{ ...style, position: 'absolute', inset: 0 }}>
+    <div
+      ref={attach}
+      className={className}
+      style={{ ...style, position: 'absolute', inset: 0, zIndex: gg.z }}
+    >
       <TileGrid
         metrics={metrics}
         items={games}
@@ -138,14 +158,19 @@ function CenteredStrip({
                     transformOrigin: 'center center',
                     zIndex: tile.selected ? 3 : 1,
                   }
-                : { position: 'absolute', inset: 0 }
+                : {
+                    left: `${insetX}px`,
+                    top: `${insetY}px`,
+                    width: `${tile.box.width - insetX * 2}px`,
+                    height: `${tile.box.height - insetY * 2}px`,
+                  }
             }
           >
             <Tile
               game={game}
               system={system}
-              width={base ? base.width : tile.box.width}
-              height={base ? base.height : tile.box.height}
+              width={base ? base.width : tile.box.width - insetX * 2}
+              height={base ? base.height : tile.box.height - insetY * 2}
             />
           </div>
         )}
@@ -169,11 +194,23 @@ function PagedGrid({
   event: StoryboardEventKey
 }) {
   const { attach, style, className } = useStoryboard(STORYBOARDS['gamegrid-enter'], event)
+  const [metrics, insetX, insetY] = metricsOf(gg, 'margin')
 
+  /*
+   * The wrapper carries the grid's own z, not `auto`. It is animated, so it always has a
+   * transform, and a transformed element is a stacking context - which re-bases every z-index
+   * inside it against the wrapper's own. Leaving it at `auto` pins the whole grid to 0 and the
+   * z-45 background paints straight over it. Nothing about the tiles' geometry changes, which is
+   * why no computed-style check would have caught this.
+   */
   return (
-    <div ref={attach} className={className} style={{ ...style, position: 'absolute', inset: 0 }}>
+    <div
+      ref={attach}
+      className={className}
+      style={{ ...style, position: 'absolute', inset: 0, zIndex: gg.z }}
+    >
       <TileGrid
-        metrics={metricsOf(gg, 'margin')}
+        metrics={metrics}
         items={games}
         selectedIndex={selectedIndex}
         keyOf={(g) => g.name}
@@ -183,9 +220,19 @@ function PagedGrid({
           <div
             className="psx-tile"
             data-selected={tile.selected || undefined}
-            style={{ position: 'absolute', inset: 0 }}
+            style={{
+              left: `${insetX}px`,
+              top: `${insetY}px`,
+              width: `${tile.box.width - insetX * 2}px`,
+              height: `${tile.box.height - insetY * 2}px`,
+            }}
           >
-            <Tile game={game} system={system} width={tile.box.width} height={tile.box.height} />
+            <Tile
+              game={game}
+              system={system}
+              width={tile.box.width - insetX * 2}
+              height={tile.box.height - insetY * 2}
+            />
           </div>
         )}
       />
@@ -212,9 +259,6 @@ export function Ps4Style({ layout, system, games, selectedIndex, event }: Gameli
       <StartPill view={L} />
       <Title layout={layout} view={L} game={game} system={system} event={event} />
       <MetaRows layout={layout} view={L} game={game} event={event} />
-      <Icons layout={layout} view={L} game={game} />
-      <Description view={L} game={game} />
-      <FeaturedArt view={L} game={game} />
       <SideMedia view={L} game={game} event={event} />
     </>
   )
@@ -242,6 +286,7 @@ export function Ps5Style({ layout, system, games, selectedIndex, event }: Gameli
         event={event}
         family="'SST', sans-serif"
         weight={400}
+        align="right"
       />
       {con ? (
         <img
@@ -252,7 +297,6 @@ export function Ps5Style({ layout, system, games, selectedIndex, event }: Gameli
         />
       ) : null}
       <MetaRows layout={layout} view={L} game={game} event={event} />
-      <Icons layout={layout} view={L} game={game} />
       <SideMedia view={L} game={game} event={event} />
     </>
   )
@@ -281,9 +325,7 @@ export function GridView({ layout, system, games, selectedIndex, event }: Gameli
         weight={700}
       />
       <MetaRows layout={layout} view={L} game={game} event={event} />
-      <Icons layout={layout} view={L} game={game} />
-      <Description view={L} game={game} />
-      <FeaturedArt view={L} game={game} />
+      <SideMedia view={L} game={game} event={event} />
     </>
   )
 }
@@ -317,10 +359,9 @@ export function CarouselView({ layout, system, games, selectedIndex, event }: Ga
         family="'SST', sans-serif"
         weight={700}
       />
+      {/* The carousel borrows the grid view's text nodes but keeps its own side media. */}
       <MetaRows layout={layout} view={G} game={game} event={event} />
-      <Icons layout={layout} view={G} game={game} />
-      <Description view={G} game={game} />
-      <FeaturedArt view={L} game={game} />
+      <SideMedia view={L} game={game} event={event} />
     </>
   )
 }
@@ -348,9 +389,7 @@ export function FullGrid({ layout, system, games, selectedIndex, event }: Gameli
         weight={700}
       />
       <MetaRows layout={layout} view={L} game={game} event={event} />
-      <Icons layout={layout} view={L} game={game} />
-      <Description view={L} game={game} />
-      <FeaturedArt view={L} game={game} />
+      <SideMedia view={L} game={game} event={event} />
 
       {/*
         The system name down the left column. Defined in the theme and never rendered by the
@@ -405,9 +444,6 @@ export function SingleView({ layout, system, games, selectedIndex, event }: Game
         weight={700}
       />
       <MetaRows layout={layout} view={L} game={game} event={event} />
-      <Icons layout={layout} view={L} game={game} />
-      <Description view={L} game={game} />
-      <FeaturedArt view={L} game={game} />
       <SideMedia view={L} game={game} event={event} />
 
       {arrow ? (
@@ -423,17 +459,3 @@ export function SingleView({ layout, system, games, selectedIndex, event }: Game
   )
 }
 
-/** The large featured image each gamelist view places differently. */
-function FeaturedArt({ view, game }: { view: PsxLayout; game: PsxGame }) {
-  const node = view.featured ?? view.image
-  if (!node) return null
-
-  return (
-    <img
-      className="psx-img"
-      style={{ ...place(boxOf(node)), zIndex: node.z }}
-      src={view.featured ? fanart(game, 320, 180) : boxart(game, 200, 280)}
-      alt=""
-    />
-  )
-}

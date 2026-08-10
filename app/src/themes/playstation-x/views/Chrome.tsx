@@ -18,6 +18,7 @@
  *   - Background drifts and scales over 15-30s; the ticker swaps its two blocks every 5350ms;
  *     the cutout drifts 2.8% of screen width over 22.2s, forever.
  */
+import type { CSSProperties } from 'react'
 import { useStoryboard } from '../../../anim/useStoryboard'
 import { Ticker } from '../../../widgets/Ticker'
 import { place } from '../../../layout/box'
@@ -179,9 +180,20 @@ export function BottomChrome({ layout, which, system }: ChromeProps) {
         }}
       />
 
+      {/*
+        The hint bar stops at the battery. Both are frontend elements the theme only positions,
+        and EmulationStation lays them out together - it shrinks the prompt row to whatever the
+        battery leaves. The mockup draws the prompts as fixed text, so without an explicit stop
+        the last prompt runs underneath the battery.
+      */}
       <div
         className="psx-help"
-        style={{ ...place({ ...boxOf(L.help), font: L.help.font }), zIndex: 99 }}
+        style={{
+          ...textLine(L.help),
+          zIndex: 99,
+          width: `${L.battery.left - L.help.left - L.help.font * 0.5}px`,
+          overflow: 'hidden',
+        }}
       >
         {HELP[which].map(([glyph, label]) => (
           <span key={label} style={{ display: 'inline-flex', alignItems: 'center' }}>
@@ -275,13 +287,7 @@ function FolderChip({ layout, system }: { layout: PsxLayout; system: PsxSystem }
       ) : null}
       <div
         className="psx-el psx-glow"
-        style={{
-          ...place({
-            ...boxOf(layout.system.systemFolder),
-            font: layout.system.systemFolder.font,
-          }),
-          zIndex: layout.system.systemFolder.z,
-        }}
+        style={textLine(layout.system.systemFolder)}
       >
         /{system.theme}
       </div>
@@ -389,7 +395,7 @@ export function TopInfo(props: ChromeProps) {
 
       <div
         className="txt psx-glow"
-        style={{ ...place({ ...boxOf(T.username), font: T.username.font }) }}
+        style={textLine(T.username)}
       >
         pajarorrojo
       </div>
@@ -417,18 +423,12 @@ export function TopInfo(props: ChromeProps) {
       ) : null}
 
       {T.year.visible !== false ? (
-        <div className="txt" style={{ ...place({ ...boxOf(T.year), font: T.year.font }) }}>
+        <div className="txt" style={textLine(T.year)}>
           2026
         </div>
       ) : null}
 
-      <div
-        className="txt"
-        style={{
-          ...place({ ...boxOf(T.clock), font: T.clock.font }),
-          justifyContent: 'flex-end',
-        }}
-      >
+      <div className="txt" style={textLine(T.clock, 'right')}>
         10:24
       </div>
     </div>
@@ -442,7 +442,7 @@ function Version({ layout }: { layout: PsxLayout }) {
 
   return (
     <>
-      <div className="txt" style={{ ...place({ ...boxOf(T.version), font: T.version.font }) }}>
+      <div className="txt" style={textLine(T.version)}>
         v.43
       </div>
       {/* The separator dot sits immediately left of the version and centred on it. */}
@@ -469,12 +469,54 @@ function Picto({ box, src }: { box: PsxLayout; src: string | null }) {
 }
 
 /** A resolved node's box, in the shape `place()` wants. */
+/**
+ * Place a single line of text the way EmulationStation does.
+ *
+ * ES centres a text element vertically inside its authored box, and the theme relies on it in
+ * two distinct ways.
+ *
+ * When the box has a real height - the top bar's `infoText` is `size 0.387 0.05`, `username`
+ * `0.165 0.04` - the line is centred inside it. Placing the text at the box's top edge instead
+ * lifts every string by half a line, which is enough to visibly break the alignment against the
+ * pictograms sitting beside them.
+ *
+ * When the height is authored as ~0 - `system_name` is `size 0.6 0.001` - there is no box to
+ * centre in, so the line is centred on the `y` coordinate itself. Taking that 0.001 literally
+ * gives a half-pixel-tall element, which is exactly what the system name collapsed to before
+ * this existed.
+ */
+export function textLine(node: PsxLayout, align?: 'left' | 'right' | 'center'): CSSProperties {
+  const font = node.font ?? 16
+  const lineHeight = Math.ceil(font * 1.25)
+  const hasBox = node.h !== undefined && node.h >= lineHeight * 0.5
+
+  return {
+    position: 'absolute',
+    left: `${node.left}px`,
+    top: `${hasBox ? node.top : node.top - lineHeight / 2}px`,
+    ...(node.w === undefined ? {} : { width: `${node.w}px` }),
+    height: `${hasBox ? node.h : lineHeight}px`,
+    fontSize: `${font}px`,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: align === 'right' ? 'flex-end' : align === 'center' ? 'center' : 'flex-start',
+    whiteSpace: 'nowrap',
+    ...(node.z === undefined ? {} : { zIndex: node.z }),
+  }
+}
+
 export function boxOf(node: PsxLayout) {
   return {
     left: node.left,
     top: node.top,
     width: node.w ?? 0,
     height: node.h ?? 0,
+    /*
+     * `z` travels with the box. It used to be re-applied by hand at every call site, which is a
+     * rule that only has to be forgotten once - and was, on the icon row, which then had no
+     * z-index at all and painted underneath the z-45 background.
+     */
+    ...(node.z === undefined ? {} : { z: node.z }),
   }
 }
 

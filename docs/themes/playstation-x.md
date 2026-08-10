@@ -1,44 +1,76 @@
 # PlayStation X
 
-> **Status:** this page still describes the original vanilla-JS mockup, whose code and
-> screens now live under [`legacy/playstation-x/`](../../legacy/playstation-x/). Any bare path here such
-> as `playstation-x/...` should be read with that prefix. It is rewritten for the React
-> implementation when this theme is ported.
-
-HTML mockups of the **PlayStation X** theme for the Batocera EmulationStation fork - a
+Mockups of the **PlayStation X** theme for the Batocera EmulationStation fork - a
 PlayStation-styled theme that reproduces the PS3, PS4 and PS5 interfaces across 7 gamelist
 view types and 3 system-carousel styles.
 
 - Source: [github.com/pajarorrojo/es-theme-PlayStation-X](https://github.com/pajarorrojo/es-theme-PlayStation-X) @ `26ce759` (v43.1)
 - Licence: CC BY-NC-SA 4.0
 - Authoritative extraction, with a `file:line` for every value: [`reference/source-notes.md`](playstation-x/reference/source-notes.md)
+- Reference screenshots from the theme author's own site: [`reference/`](playstation-x/reference/)
+- What changed in the React port: [`porting/playstation-x.md`](../porting/playstation-x.md)
+
+Implemented at `app/src/themes/playstation-x/`. The archived original is under
+[`legacy/playstation-x/`](../../legacy/playstation-x/).
 
 The theme targets Batocera 39+ / RetroBat 6+ and also runs on EmuElec. It is a Batocera-fork
 theme (`formatVersion 7`), not RetroPie ES or ES-DE.
 
+This is the repo's largest set, and the one that supplies the shared animation system: its
+`<storyboard>` format is the only motion format among the three themes that is a system rather
+than a handful of transitions, so the compiler was promoted to `app/src/anim/`.
+
 ## Screens
 
-Eleven screens per device. `theme.html` is the interactive build - every view plus live subset
-toggles in one page; the rest are static snapshots produced by the same code with
-`interactive: false`.
+Every view is published on every device the theme supports: four devices x (one interactive
+build carrying all eleven views and every subset + eleven static snapshots) = 48 routes. A
+static route is the same component with `animate={false}`, so motion settles to its resting
+values rather than playing - there is no second implementation to drift.
 
-| Screen | Source | 1280x720 | 640x480 | 720x480 | 1920x1152 |
-| --- | --- | --- | --- | --- | --- |
-| Interactive | all views | [theme](../../legacy/playstation-x/trimui-smart-pro/theme.html) | [theme](../../legacy/playstation-x/rg35xx/theme.html) | [theme](../../legacy/playstation-x/rg34xx/theme.html) | [theme](../../legacy/playstation-x/rg552/theme.html) |
-| System view | `_theme_views/front.xml` | [x](../../legacy/playstation-x/trimui-smart-pro/system.html) | [x](../../legacy/playstation-x/rg35xx/system.html) | [x](../../legacy/playstation-x/rg34xx/system.html) | [x](../../legacy/playstation-x/rg552/system.html) |
-| PS4 Style | `_theme_views/ps4-style.xml` | [x](../../legacy/playstation-x/trimui-smart-pro/ps4-style.html) | [x](../../legacy/playstation-x/rg35xx/ps4-style.html) | [x](../../legacy/playstation-x/rg34xx/ps4-style.html) | [x](../../legacy/playstation-x/rg552/ps4-style.html) |
-| PS5 Style | `_theme_views/ps5-style.xml` | [x](../../legacy/playstation-x/trimui-smart-pro/ps5-style.html) | [x](../../legacy/playstation-x/rg35xx/ps5-style.html) | [x](../../legacy/playstation-x/rg34xx/ps5-style.html) | [x](../../legacy/playstation-x/rg552/ps5-style.html) |
-| Detailed | `_theme_views/detailed.xml` | [x](../../legacy/playstation-x/trimui-smart-pro/detailed.html) | [x](../../legacy/playstation-x/rg35xx/detailed.html) | [x](../../legacy/playstation-x/rg34xx/detailed.html) | [x](../../legacy/playstation-x/rg552/detailed.html) |
-| Grid | `_theme_views/grid.xml` | [x](../../legacy/playstation-x/trimui-smart-pro/grid.html) | [x](../../legacy/playstation-x/rg35xx/grid.html) | [x](../../legacy/playstation-x/rg34xx/grid.html) | [x](../../legacy/playstation-x/rg552/grid.html) |
-| Horizontal Carousel | `_theme_views/carousel.xml` | [x](../../legacy/playstation-x/trimui-smart-pro/carousel.html) | [x](../../legacy/playstation-x/rg35xx/carousel.html) | [x](../../legacy/playstation-x/rg34xx/carousel.html) | [x](../../legacy/playstation-x/rg552/carousel.html) |
-| Full Grid | `_theme_views/full-grid.xml` | [x](../../legacy/playstation-x/trimui-smart-pro/full-grid.html) | [x](../../legacy/playstation-x/rg35xx/full-grid.html) | [x](../../legacy/playstation-x/rg34xx/full-grid.html) | [x](../../legacy/playstation-x/rg552/full-grid.html) |
-| Game by game | `_theme_views/single.xml` | [x](../../legacy/playstation-x/trimui-smart-pro/single.html) | [x](../../legacy/playstation-x/rg35xx/single.html) | [x](../../legacy/playstation-x/rg34xx/single.html) | [x](../../legacy/playstation-x/rg552/single.html) |
-| Media tester | `_theme_views/test-media.xml` | [x](../../legacy/playstation-x/trimui-smart-pro/media-tester.html) | [x](../../legacy/playstation-x/rg35xx/media-tester.html) | [x](../../legacy/playstation-x/rg34xx/media-tester.html) | [x](../../legacy/playstation-x/rg552/media-tester.html) |
-| Boot splash | `splash.xml` | [x](../../legacy/playstation-x/trimui-smart-pro/boot-splash.html) | [x](../../legacy/playstation-x/rg35xx/boot-splash.html) | [x](../../legacy/playstation-x/rg34xx/boot-splash.html) | [x](../../legacy/playstation-x/rg552/boot-splash.html) |
-| Game launch | `gamesplash.xml` | [x](../../legacy/playstation-x/trimui-smart-pro/game-launch.html) | [x](../../legacy/playstation-x/rg35xx/game-launch.html) | [x](../../legacy/playstation-x/rg34xx/game-launch.html) | [x](../../legacy/playstation-x/rg552/game-launch.html) |
+| Screen | Source | Route (same slug under each device) |
+| --- | --- | --- |
+| Interactive, all views and subsets | all views | `#playstation-x/<device>/interactive` |
+| System view | `_theme_views/front.xml` | `#playstation-x/<device>/system` |
+| PS4 Style | `_theme_views/ps4-style.xml` | `#playstation-x/<device>/ps4-style` |
+| PS5 Style | `_theme_views/ps5-style.xml` | `#playstation-x/<device>/ps5-style` |
+| Detailed | `_theme_views/detailed.xml` | `#playstation-x/<device>/detailed` |
+| Grid | `_theme_views/grid.xml` | `#playstation-x/<device>/grid` |
+| Horizontal Carousel | `_theme_views/carousel.xml` | `#playstation-x/<device>/carousel` |
+| Full Grid | `_theme_views/full-grid.xml` | `#playstation-x/<device>/full-grid` |
+| Game by game | `_theme_views/single.xml` | `#playstation-x/<device>/single` |
+| Media tester | `_theme_views/test-media.xml` | `#playstation-x/<device>/media-tester` |
+| Boot splash | `splash.xml` | `#playstation-x/<device>/boot-splash` |
+| Game launch | `gamesplash.xml` | `#playstation-x/<device>/game-launch` |
 
-`splash.xml` and `gamesplash.xml` are separate theme roots, not views of `theme.xml`. They are
-built as extra views of the same controller so they share the layout resolver and the runtime.
+The slugs match the legacy filenames, so the A/B capture in `e2e/capture.spec.ts` pairs each
+screen with its original by name.
+
+Unlike Elementerial, every static screen boots with the same subsets - blue, PS4, medium,
+default top info, on the PlayStation system. This theme's variation is in its eleven views, so
+varying the palette as well would only make the set harder to compare against itself.
+
+`splash.xml` and `gamesplash.xml` are separate theme roots, not views of `theme.xml`, which is
+why neither carries the top bar, the hint bar or any of the shared chrome. They are rendered by
+the same component so they share the layout resolver and the animation runtime.
+
+## Views
+
+Eight of the eleven are the same handful of elements at different coordinates, and they group
+into four shapes:
+
+| Shape | Views | What is distinctive |
+| --- | --- | --- |
+| Centre-selected strip | `ps4Style`, `carousel` | The cursor is pinned and the strip moves; the frame that marks the selection never moves |
+| Paged grid | `ps5Style`, `grid`, `fullGrid` | Turns a page rather than scrolling by a row |
+| Single card | `single` | One game at a time, with an arrow marking that there are more |
+| Text list | `detailed`, `mediaTester` | A list down the left, a panel or a diagnostic sheet down the right |
+
+`system` is the chooser, and the two boot screens stand alone.
+
+A view draws exactly the nodes it declares. `detailed`, for instance, declares `gamelist`,
+`image`, `gamedata`, `gamedata2`, `lineaInfos` and `gamedesc` - and no `iconos`, so it has no
+badge row. `MetaRows` and `SideMedia` mirror the source's own `buildMetaRows` and
+`buildSideMedia` and render per declared node, so a view cannot wire them wrongly.
 
 ## Devices
 
@@ -67,7 +99,7 @@ Batocera-ES XML. The parts that matter here:
   with the value chosen and why, is in `reference/source-notes.md`.
 - **`<storyboard>` / `<animation>`** - the animation format, ported as data. See below.
 - **Normalized coordinates** - every position, size and font size is a fraction of screen
-  width or height. `layout.js` keeps them in those units and resolves to px once per device.
+  width or height. `spec.ts` keeps them in those units and `resolve()` produces px once per device.
 - **Property variants** - an element may repeat a property with different predicates
   (`ifSubset=`, `aspect-ratio=`, `tinyScreen=`, `if=`). **Last match wins**, which the source
   depends on.
@@ -139,16 +171,30 @@ Derived from the theme's `helpsystem` prompts. The key table is the repo-standar
 | L / R | `Q` / `W` | page / jump |
 | Menu | `Esc` | quit menu |
 
-Mockup-only keys in `theme.html`, deliberately outside the device map so they can never be
-taken for device buttons: `[` `]` view, `/` system, `\` colorset, `'` accent, `,` `.` carousel
-type, `-` `=` carousel size, `;` animations.
+Mockup-only keys on the interactive route, deliberately outside the device map so they can
+never be taken for device buttons: `[` `]` view, `/` system, `\` colorset, `'` accent, `,` `.`
+carousel type, `-` `=` carousel size, `;` animations. Top info has no key - it never had one in
+the original either - and is cycled from the subset panel below the device.
+
+These drive the mockup harness, not the firmware. They live in `Interactive.tsx`, outside the
+theme, so `PlayStationX` takes the same props whether it is a static screen or the live build.
 
 ## Transitions
 
 The theme declares **385 `<animation>` tags in 211 `<storyboard>` blocks across 21 files** -
-a closed format of 7 properties, 8 easings and 5 events. Rather than hand-translate those into
-CSS, `storyboards.js` carries them as data in the source's own vocabulary and `storyboard.js`
-compiles them to Web Animations at runtime.
+a closed format of 7 properties, 8 easings and 5 events. Most are per-element repetitions of the
+same motion; transcribed, the corpus this mockup carries is **97 tracks across 49 events in 22
+storyboards**, in `storyboards.ts`.
+
+They are carried as data in the source's own vocabulary rather than hand-translated into CSS.
+`app/src/anim/compile.ts` turns them into a renderer-neutral timeline of segments and
+`waapi.ts` is the web adapter that turns that timeline into keyframes - so a future renderer
+implements a second adapter against the same timeline rather than inheriting a Web Animations
+dependency.
+
+`bindings.ts` pairs every storyboard with the element that carries it. Three of them were
+transcribed into the original mockup and never attached to anything, so their motion existed as
+data and never ran; the table makes an unbound storyboard a test failure.
 
 The signature motion is `marco-activo`, the selection frame: on every cursor move it runs
 `scale 0.94 -> 1` over 300 ms on `bump` easing, plus a 150 ms yo-yo jolt of
@@ -162,9 +208,11 @@ Two things make this work:
   (`animated-list.xml:124-126` runs `scale` + `offsetX` + `offsetY` together), and two CSS
   animations cannot both write `transform`. Each channel drives its own registered custom
   property and the browser recomposes them - see the `@property` block in `playstation-x.css`.
-- **`settle()` is the static path.** It walks the same descriptors and writes resting values
-  with zero Animations created. `interactive: false` and the chrome strip's animations-off
-  toggle both route through it, which is what proves the snapshots and the live build agree.
+- **Settling is the static path.** It walks the same descriptors and writes resting values with
+  zero Animations created. `animate={false}` and the subset panel's animations-off toggle both
+  route through it, which is what proves the snapshots and the live build agree. An autoreverse
+  track's resting value is its `from`, not its `to` - without that the selection frame ends
+  permanently displaced after the first cursor move.
 
 Full transitions table, the compiler rules and the easing map: `reference/source-notes.md`.
 
@@ -182,25 +230,44 @@ carousel list), `megadrive`, `gba`, `arcade`, and `auto-favorites` (a Collection
 `{system.name}` of `favorites` hides the per-tile heart and shows the italic system chip).
 
 **Per-game art is generated, not copied** - the theme ships none, since it is scraped per
-install. `views.js` builds box art, screenshots and marquees as SVG data URIs. The reference
+install. `art.ts` builds box art, screenshots and marquees as SVG data URIs. The reference
 screenshots in `reference/` show real scraped art and will differ.
 
 ## Files
 
 | File | Job |
 | --- | --- |
-| `playstation-x.css` | `@font-face`, the `@property` transform contract, element base styles, chrome strip |
-| `palette.js` | colorset and secondary-accent tables; `applyColors`, `caratula`, `colorsetBackground` |
-| `layout.js` | `DEVICES`, the normalized SPEC for all 11 views, `pick()` (last match wins), `resolve()` |
-| `storyboard.js` | the animation runtime: easing map, `compile`, `play`, `settle`, `settleAll` |
-| `storyboards.js` | the transcribed `<storyboard>` descriptors, one entry per theme element |
-| `views.js` | sample library, generated art, and the data predicates (`if=` / `<visible>`) |
-| `playstation-x.js` | the controller: `boot(root, opts)`, input, cursor, all 11 view builders, chrome strip |
+| `index.tsx` | the theme root: resolves the layout, owns the cursor, picks a view |
+| `Interactive.tsx` | the live build's eight subsets and their mockup-only keys |
+| `routes.tsx` / `manifest.ts` | the 48 routes, and the screen list as plain data |
+| `spec.ts` | the normalized spec for all eleven views, every value carrying a `file:line` |
+| `layout.ts` | `matches` / `pick` (last match wins), `resolveTree`, `resolve(device, state)` |
+| `palette.ts` | the colorset and accent tables; `tokens()` and `paletteVariables()` |
+| `storyboards.ts` | the transcribed `<storyboard>` descriptors |
+| `bindings.ts` | which storyboard drives which element, so none can go unbound |
+| `library.ts` / `library.data.ts` | the sample library and the data predicates (`if=` / `<visible>`) |
+| `art.ts` / `assets.ts` | generated per-game art, and bundler-resolved asset paths |
+| `playstation-x.css` | `@font-face`, the `@property` transform contract, element base styles |
+| `views/` | `Chrome`, `parts`, and the four view files |
 | `reference/source-notes.md` | the authoritative extraction; every value carries a `file:line` |
-| `reference/shot-*.jpg` | 25 screenshots fetched from the theme author's own site |
+| `reference/shot-*.jpg` | 25 screenshots from the theme author's own site |
 
-The storyboard work is split in two - `storyboard.js` is the engine, `storyboards.js` is the
-data - so the transcription can be diffed against the XML without reading the compiler.
+The storyboard work stays split - the engine is shared in `app/src/anim/`, the data is
+`storyboards.ts` - so the transcription can be diffed against the XML without reading the
+compiler.
 
-Load order is dependency order: `storyboard` → `storyboards` → `palette` → `layout` → `views`
-→ `playstation-x`, then one inline `PlayStationX.boot(...)`.
+## How it is checked
+
+Three golden-fixture suites run the **original** code under `node:vm` and compare value by
+value: `resolve()` across all 108 device and subset combinations, the palette across all 18
+colorset and accent pairs, and the art factories across all 25 games. A self-snapshot would
+only prove the port agrees with itself.
+
+Two invariants the compiler's simplifying assumptions depend on existed as prose and as two
+uncommitted Python scripts; both are executable assertions now.
+
+The fixtures prove the numbers and say nothing about what those numbers paint, so every screen
+was also rendered and compared against its legacy page on all four devices. That pass found
+ten faults that every numeric check had passed. They are listed, with the class of fault, in
+[`porting/playstation-x.md`](../porting/playstation-x.md), and `views/views.test.tsx` asserts
+each one.

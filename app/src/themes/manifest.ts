@@ -2,6 +2,7 @@ import type { DeviceSlug } from '../device/devices'
 import type { ThemeSlug } from '../widgets/types'
 import { ELEMENTERIAL_MANIFEST } from './elementerial/manifest'
 import { EXAMPLE_MANIFEST } from './example-cfw/manifest'
+import { PSX_MANIFEST } from './playstation-x/manifest'
 
 /**
  * What screens exist, as plain data.
@@ -22,6 +23,7 @@ export interface ScreenManifestEntry {
 
 export const SCREEN_MANIFEST: readonly ScreenManifestEntry[] = [
   ...ELEMENTERIAL_MANIFEST,
+  ...PSX_MANIFEST,
   ...EXAMPLE_MANIFEST,
 ]
 

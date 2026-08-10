@@ -72,9 +72,9 @@ export const THEMES: readonly ThemeEntry[] = [
     summary:
       'A reproduction of the PS3, PS4 and PS5 interfaces on a handheld, down to the character cutouts and the drifting background. The most animated set in the repo by a wide margin.',
     highlights: [
-      '385 animation tracks across 211 storyboards, carried as data and compiled at runtime',
+      '97 animation tracks across 22 storyboards, carried as data and compiled at runtime',
       'Eleven views, including a boot splash, a game launch and a media diagnostic screen',
-      'Two colour sets and nine accent overrides',
+      'Two colour sets and eight accent overrides',
     ],
     preview: playstationXPreview,
     previewAlt: 'PlayStation X game list: a tile row over a character cutout and game metadata',
@@ -83,7 +83,7 @@ export const THEMES: readonly ThemeEntry[] = [
     views: 11,
     devices: ['rg34xx', 'rg35xx', 'rg552', 'trimui-smart-pro'],
     fonts: ['SST'],
-    ported: false,
+    ported: true,
     legacyPath: 'legacy/playstation-x/rg35xx/theme.html',
     docPath: 'docs/themes/playstation-x.md',
   },

@@ -21,8 +21,9 @@
 import { useStoryboard } from '../../../anim/useStoryboard'
 import { place } from '../../../layout/box'
 import { boxOf } from './Chrome'
-import { Description, Icons, MetaRows, SideMedia } from './parts'
+import { MetaRows, SideMedia } from './parts'
 import { boxart, fanart, marquee } from '../art'
+import { image } from '../assets'
 import type { StoryboardEventKey } from '../../../anim/types'
 import { STORYBOARDS } from '../storyboards'
 import type { PsxGame, PsxSystem } from '../library'
@@ -98,19 +99,14 @@ export function DetailedView({ layout, games, selectedIndex, event }: ListViewPr
         className={panelClass}
         style={{ ...panelStyle, position: 'absolute', inset: 0, zIndex: 91 }}
       >
+        {/*
+          `detailed` declares gamelist, image, gamedata, gamedata2, lineaInfos and gamedesc -
+          and no `iconos`. Drawing a badge row here anyway is what put the flags where the star
+          rating belongs, so both rows now come from `MetaRows`, which draws exactly the nodes
+          the view declares.
+        */}
         <MetaRows layout={layout} view={L} game={game} event={event} />
-        <Icons layout={layout} view={{ ...L, iconos: L.gamedata2 }} game={game} />
-        <Description view={L} game={game} />
         <SideMedia view={L} game={game} event={event} />
-
-        {L.image ? (
-          <img
-            className="psx-img"
-            style={{ ...place(boxOf(L.image)), zIndex: L.image.z }}
-            src={fanart(game, 420, 560)}
-            alt=""
-          />
-        ) : null}
 
         <div
           className="psx-el"
@@ -180,14 +176,15 @@ export function MediaTester({ layout, games, selectedIndex }: ListViewProps) {
       {SLOTS.map((slot) => {
         const mw = (slot.ms ? slot.ms[0] : 0.19) * W
         const mh = (slot.ms ? slot.ms[1] : 0.25) * H
+        /* An unscraped slot draws the frontend's own placeholder, not an empty frame. */
         const src =
           slot.kind === 'fanart'
             ? fanart(game, 320, 180)
             : slot.kind === 'box'
               ? boxart(game, 200, 280)
               : slot.kind === 'marquee'
-                ? marquee(game, 240, 80)
-                : null
+                ? marquee(game, 260, 90)
+                : image('no-image-default.png')
 
         return (
           <div key={slot.tag}>
