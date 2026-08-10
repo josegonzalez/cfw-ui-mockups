@@ -13,6 +13,18 @@ function mockFetch(body: string, ok = true) {
 
 afterEach(() => vi.restoreAllMocks())
 
+/**
+ * Wait for the effect that rewrites links and paints swatches.
+ *
+ * The document is injected as HTML and then post-processed in an effect, so an element exists
+ * one commit before it carries its final `href` or class. A `findBy*` query resolves on the
+ * element appearing, which is the earlier of the two - assert inside this instead, or the test
+ * passes or fails depending on how the two land in the same tick.
+ */
+function eventually(assert: () => void) {
+  return waitFor(assert)
+}
+
 describe('notesPathFromHash', () => {
   it('accepts a documentation path', () => {
     expect(notesPathFromHash('notes/docs/themes/elementerial.md')).toBe('docs/themes/elementerial.md')
@@ -59,7 +71,7 @@ describe('NotesViewer', () => {
     render(<NotesViewer path="docs/themes/elementerial.md" />)
 
     const link = await screen.findByRole('link', { name: 'widgets' })
-    expect(link).toHaveAttribute('href', '#notes/docs/widgets/README.md')
+    await eventually(() => expect(link).toHaveAttribute('href', '#notes/docs/widgets/README.md'))
   })
 
   it('rewrites links to non-documents as site paths', async () => {
@@ -67,7 +79,9 @@ describe('NotesViewer', () => {
     render(<NotesViewer path="docs/themes/elementerial.md" />)
 
     const link = await screen.findByRole('link', { name: 'the archive' })
-    expect(link).toHaveAttribute('href', '/legacy/elementerial/rg35xx/theme.html')
+    await eventually(() =>
+      expect(link).toHaveAttribute('href', '/legacy/elementerial/rg35xx/theme.html'),
+    )
   })
 
   it('leaves absolute and anchor links alone', async () => {
@@ -105,7 +119,7 @@ describe('colour swatches', () => {
     render(<NotesViewer path="docs/themes/example-cfw.md" />)
 
     const swatch = await screen.findByText('#4cc9f0')
-    expect(swatch).toHaveClass('notes__swatch')
+    await eventually(() => expect(swatch).toHaveClass('notes__swatch'))
     expect(swatch).toHaveStyle({ background: 'rgb(76 201 240)', color: '#000000' })
   })
 
@@ -113,14 +127,16 @@ describe('colour swatches', () => {
     mockFetch('`#12141c`')
     render(<NotesViewer path="docs/themes/example-cfw.md" />)
 
-    expect(await screen.findByText('#12141c')).toHaveStyle({ color: '#ffffff' })
+    const swatch = await screen.findByText('#12141c')
+    await eventually(() => expect(swatch).toHaveStyle({ color: '#ffffff' }))
   })
 
   it('paints bare hex too, since the source palettes are stored that way', async () => {
     mockFetch('`ED5353`')
     render(<NotesViewer path="docs/themes/elementerial.md" />)
 
-    expect(await screen.findByText('ED5353')).toHaveClass('notes__swatch')
+    const swatch = await screen.findByText('ED5353')
+    await eventually(() => expect(swatch).toHaveClass('notes__swatch'))
   })
 
   it('leaves a commit hash alone', async () => {
@@ -128,14 +144,19 @@ describe('colour swatches', () => {
     mockFetch('at commit `e710525` and `#4cc9f0`')
     render(<NotesViewer path="docs/themes/elementerial.md" />)
 
-    await screen.findByText('#4cc9f0')
+    // Wait for the swatch pass to have run before asserting that it skipped this one, or the
+    // negative passes for the wrong reason.
+    const swatch = await screen.findByText('#4cc9f0')
+    await eventually(() => expect(swatch).toHaveClass('notes__swatch'))
     expect(screen.getByText('e710525')).not.toHaveClass('notes__swatch')
   })
 
   it('leaves ordinary code spans alone', async () => {
-    mockFetch('`layout.js` and `interactive: false`')
+    mockFetch('`layout.js` and `#4cc9f0`')
     render(<NotesViewer path="docs/themes/elementerial.md" />)
 
-    expect(await screen.findByText('layout.js')).not.toHaveClass('notes__swatch')
+    const swatch = await screen.findByText('#4cc9f0')
+    await eventually(() => expect(swatch).toHaveClass('notes__swatch'))
+    expect(screen.getByText('layout.js')).not.toHaveClass('notes__swatch')
   })
 })

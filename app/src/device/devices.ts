@@ -241,7 +241,7 @@ export const DEVICES: Record<DeviceSlug, Device> = {
   },
   rg40xx: {
     slug: 'rg40xx',
-    label: 'Anbernic RG40XX H',
+    label: 'Anbernic RG40XX H / V',
     w: 640,
     h: 480,
     aspect: '4:3',
@@ -252,6 +252,9 @@ export const DEVICES: Record<DeviceSlug, Device> = {
      *
      * Nearly the CubeXX's body with a 4:3 panel in it: rounded grips, ring-lit sticks, a system
      * button low on the left and Select and Start paired low on the right.
+     *
+     * This slug covers the H and the V, and the V is an upright body - the shell follows the H,
+     * which is the one there is a reference for.
      */
     shell: {
       layout: 'flanking',

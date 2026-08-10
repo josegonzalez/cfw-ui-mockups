@@ -18,10 +18,18 @@ for it.
 | `rg552`             | Anbernic RG552                | 1920x1152  | 5:3    | other     |
 | `trimui-brick`      | Trimui Brick                  | 1024x768   | 4:3    | other     |
 
-The RG28XX was previously recorded here as a 640x480 panel rotated into a 480x640 portrait. A
-reference photograph shows a landscape device with the panel the right way up, so the entry is
-corrected. Anything that rendered an RG28XX screen was rendering it at the wrong size and in the
+Every resolution above is confirmed. This is the load-bearing column - a screen renders at exactly
+these numbers, so a wrong one makes the whole mockup wrong in a way no assertion here can catch.
+
+The RG28XX was previously recorded as a 640x480 panel rotated into a 480x640 portrait. A reference
+photograph shows a landscape device with the panel the right way up, so the entry is corrected;
+anything that rendered an RG28XX screen before that was rendering it at the wrong size and in the
 wrong orientation.
+
+Four slugs cover a family whose members do not all share a body: `rg35xx` (the H is horizontal),
+`rg40xx` (the V is upright), `miyoo-mini` and `rg351m`. They stay as single slugs by choice. Each
+shell follows the member there is a reference photograph for - the upright base model for
+`rg35xx`, and the horizontal model for `rg40xx`.
 
 ## Resolution classes
 
@@ -59,9 +67,9 @@ different spacing:
 | `trimui-brick` | chin | - | yes | Boxy, tight corners, lower body as deep as the panel |
 
 **These are stylised silhouettes, not technical drawings.** They exist so the devices are
-distinguishable at a glance. Where a slug covers a family, the shell follows the base model the
-slug is named for. The shell is mockup chrome and sits outside the portable widget vocabulary:
-real hardware has a real bezel and real buttons, so none of it translates to a firmware renderer.
+distinguishable at a glance. The shell is mockup chrome and sits outside the portable widget
+vocabulary: real hardware has a real bezel and real buttons, so none of it translates to a
+firmware renderer.
 
 The **Reference** column matters. A row marked `yes` has its layout, proportions and control
 positions read off a product photograph. Every row is marked `yes` today, and getting there took
