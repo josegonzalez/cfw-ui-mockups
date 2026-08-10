@@ -16,13 +16,20 @@ away from the code.
 
 | Widget | What it is | Used by |
 | --- | --- | --- |
+| [AnchoredImage](AnchoredImage.md) | An image fitted to a slot, then shrunk to its fitted size | elementerial, playstation-x |
+| [Carousel](Carousel.md) | A strip where the strip moves and the selection stays put | all but example-cfw |
 | [Clock](Clock.md) | The status-bar clock | all |
+| [FullScreenFade](FullScreenFade.md) | A full-screen fade for launch and power-off | elementerial, vitrolauncher |
 | [GeneratedArt](GeneratedArt.md) | Deterministic placeholder artwork | all |
 | [HeaderBar](HeaderBar.md) | A screen header with an optional rule | example-cfw, elementerial |
 | [HelpBar](HelpBar.md) | The button-hint strip | example-cfw, elementerial, playstation-x |
 | [ListRow](ListRow.md) | One row of a selectable list | all |
+| [MenuPanel](MenuPanel.md) | A modal settings menu over a dimmed screen | elementerial, vitrolauncher |
+| [Scrim](Scrim.md) | A tint over the screen, softened by a mask | all but example-cfw |
+| [StarRating](StarRating.md) | A row of rating stars, tinted with the accent | elementerial, playstation-x |
 | [StatusIndicators](StatusIndicators.md) | Wifi, battery and other corner indicators | all |
 | [TextList](TextList.md) | A vertical list with one selected row | all |
+| [TileGrid](TileGrid.md) | A grid of tiles, paged or scrolled as a strip | all but example-cfw |
 
 ## Still to come
 
@@ -31,9 +38,12 @@ three themes before any of them exists is guesswork; one grown against real scre
 
 | Widget | Arrives with |
 | --- | --- |
-| `TileGrid`, `Tile`, `Carousel`, `Scrim`, `EdgeFade`, `Marquee`, `MenuPanel`, `MenuRow`, `ToggleSwitch`, `StarRating`, `FavoriteHeart`, `FullScreenFade` | Elementerial |
 | `Ticker`, `Badge`, `IconRow`, `ProgressBar` | PlayStation X |
 | `GlassPanel` | Vitro Launcher |
+
+Elementerial's additions have landed. Two things it did *not* need a widget for: the edge fades
+in its Elementflix view are a [Scrim](Scrim.md) with a fade mask, and its favourite heart is a
+positioned image. Neither earns a name of its own.
 
 ## Conventions
 

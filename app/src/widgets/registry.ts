@@ -1,12 +1,19 @@
 import type { WidgetMeta } from './types'
 
+import { meta as anchoredImage } from './AnchoredImage/meta'
+import { meta as carousel } from './Carousel/meta'
 import { meta as clock } from './Clock/meta'
+import { meta as fullScreenFade } from './FullScreenFade/meta'
 import { meta as generatedArt } from './GeneratedArt/meta'
 import { meta as headerBar } from './HeaderBar/meta'
 import { meta as helpBar } from './HelpBar/meta'
 import { meta as listRow } from './ListRow/meta'
+import { meta as menuPanel } from './MenuPanel/meta'
+import { meta as scrim } from './Scrim/meta'
+import { meta as starRating } from './StarRating/meta'
 import { meta as statusIndicators } from './StatusIndicators/meta'
 import { meta as textList } from './TextList/meta'
+import { meta as tileGrid } from './TileGrid/meta'
 
 /**
  * The widget vocabulary.
@@ -19,13 +26,20 @@ import { meta as textList } from './TextList/meta'
  * implement.
  */
 export const WIDGETS: readonly WidgetMeta[] = [
+  anchoredImage,
+  carousel,
   clock,
+  fullScreenFade,
   generatedArt,
   headerBar,
   helpBar,
   listRow,
+  menuPanel,
+  scrim,
+  starRating,
   statusIndicators,
   textList,
+  tileGrid,
 ]
 
 export const WIDGET_NAMES: readonly string[] = WIDGETS.map((w) => w.name)
