@@ -266,6 +266,12 @@ only prove the port agrees with itself.
 Two invariants the compiler's simplifying assumptions depend on existed as prose and as two
 uncommitted Python scripts; both are executable assertions now.
 
+All eleven views have also been replayed against the upstream XML and matched by resolved
+geometry. Six agree exactly; the top bar and the system chooser did not, and both are now verified
+against the source rather than against the legacy transcription. What that sweep found, and the
+handful of questions it left open, are in
+[`porting/playstation-x.md`](../porting/playstation-x.md).
+
 The fixtures prove the numbers and say nothing about what those numbers paint, so every screen
 was also rendered and compared against its legacy page on all four devices. That pass found
 eleven faults that every numeric check had passed. They are listed, with the class of fault, in

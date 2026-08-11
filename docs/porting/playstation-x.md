@@ -30,6 +30,36 @@ docker run --rm curlimages/curl:latest -sL \
   https://raw.githubusercontent.com/pajarorrojo/es-theme-PlayStation-X/26ce759/_theme_views/top-info.xml
 ```
 
+### The sweep
+
+All eleven views were then checked the same way. The method was to replay the XML for each of the
+four devices and match the result against the port's resolver **by resolved geometry rather than
+by element name** - the theme reuses names across option files, so a name map would be guesswork,
+but a box is self-verifying: if the port puts a node at the same pixels the source does, they are
+the same element.
+
+Four structural facts have to be honoured or the replay is meaningless, and each one produced a
+round of false positives before it was:
+
+- Views are `<customView name inherits="grid">`, so ps4Style, ps5Style, carousel, full-grid and
+  single all layer on top of `grid`, and test-medias on top of `detailed`.
+- A container, its element and its property may **each** carry `ifSubset`, and they compose. A
+  `<pos ifSubset="aspect-ratio:4-3">` inside a `carousel-type:PS4` block applies only when both
+  hold.
+- The carousel option files are selected by `theme.xml`'s include, not by any condition inside
+  them, so a row's *file* is part of its condition.
+- `origin` is the fraction of the element's own size that sits on `pos`, so it has to be applied
+  before comparing boxes.
+
+Two more quirks are worth recording: `carousel.xml` is not well-formed XML - it redefines an
+attribute, and EmulationStation's parser is lenient enough not to care - and several elements put
+a data expression where a number belongs, such as
+`<y>empty({game:desc}) ? 0.625 : 0.790</y>`.
+
+**Result.** `ps5Style`, `grid`, `carousel`, `detailed`, `splash` and `gamesplash` agree with the
+source exactly. `mediaTester`'s nine slots agree too, checked by hand because they live in the
+component rather than the spec. The rest is below.
+
 ## How the port is checked against the original
 
 Three places where a transcription error is invisible and total, all checked by running the
@@ -159,6 +189,53 @@ The visible result on the RG35XX and RG34XX is that the top-left corner is now e
 the plus pictogram and the system cover art are all hidden there - and the ticker starts at the
 screen edge instead (`:385` puts it at `0.065` rather than `0.162`). That is what the theme
 says; the corner is deliberately reclaimed for the ticker on a small panel.
+
+## The system view: what the sweep found
+
+**Every device but the 16:9 one drew the chooser at the 16:9 coordinates.** The system block is a
+three-axis matrix - carousel size by console style by aspect ratio - and the transcription carried
+only the first two. 93 rows were missing across the carousel strip, the selection frame, the Start
+pill, the system name, the console art, the logo, the folder chip and the character cutout.
+
+The effect on a 4:3 panel is not subtle: the frame belongs at `0.063` and was drawn at `0.162`,
+the strip origin at `-0.94` rather than `-0.595`, and the system name at `0.295` rather than
+`0.335`. The chooser now uses the width of a small panel the way the theme intended instead of
+leaving a gap down the left.
+
+The rows are generated from the option files rather than hand-copied - a hundred-odd decimals is
+a transcription error waiting to happen - and `systemView.test.ts` pins the result.
+
+**`single`'s title was missing its small-screen override.** `single.xml` lifts it with
+`<y if="${screen.height} <= '480'">0.278</y>`, the same idiom `ps4-style.xml` uses and which the
+port already honoured there.
+
+## Open questions the sweep raised
+
+None of these are changed, because in each case the evidence does not clearly favour the source
+over what the port and the legacy already agree on. They are recorded so the next person does not
+have to rediscover them.
+
+**The bottom rule's `<y>0.995</y>`.** `linea-inferior` carries both `<pos>0 0.934</pos>` and an
+unconditioned `<y>0.995</y>`, which would put the rule hard against the bottom edge, below the
+hint bar. The reference screenshot of the real firmware shows it above the hint bar at about
+`0.93`. The port draws `0.934` and matches the reference, so the `<y>` row appears to be inert
+for this element - but the theme uses the same idiom elsewhere and it *is* honoured there, so the
+rule that decides which wins is not known.
+
+**`full-grid`'s metadata row.** The theme writes `<pos>x 0.577</pos>` - malformed, with a stray
+`x`. The port reads `0.577` as the y, which is what the view's layout wants. A strict reading
+discards the row and inherits `0.22` from `grid`, which would put the row under the tile grid.
+
+**`single`'s one-cell grid.** `single` sets `autoLayout 1 1` and positions the grid mostly
+off-screen left. Neither the port nor the legacy draws it, and there is no reference screenshot of
+that view to settle what it should look like.
+
+**`single`'s absolutely positioned system name**, at `0.213 0.512`. The port draws the collection
+chip inline after the title instead. It only appears inside a Collection, so no static screen
+shows it.
+
+**A second element named `fullName`** in the carousel files, a large box at the carousel's own
+position. Unmodelled, and its purpose is unclear from the markup alone.
 
 ## Fidelity faults found by looking at the screen
 

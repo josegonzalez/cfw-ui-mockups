@@ -21,11 +21,15 @@ import golden from './__fixtures__/layout.golden.json'
  * achievements pulse is a separate element stacked over a static trophy rather than the trophy
  * itself. Pinning the port to the transcription would have frozen every one of those in place.
  *
- * So `topInfo` is verified against the XML instead, by `topInfo.test.ts`, which cites a line
- * number for each value. The other ten view blocks keep the legacy gate until they get the same
- * treatment - see `docs/porting/playstation-x.md`.
+ * The blocks listed below have since been verified against the XML directly and leave this gate;
+ * `topInfo.test.ts` and `systemView.test.ts` stand in its place, citing a line number per value.
+ *
+ * Everything else stays, and that is now a stronger claim than it looks: a geometry-level sweep of
+ * all eleven views against the upstream files (see `docs/porting/playstation-x.md`) found the
+ * remaining blocks already agree with the source, so the legacy fixture and the XML say the same
+ * thing for them. The fixture is kept as the regression net.
  */
-const EXCLUDED = ['topInfo'] as const
+const EXCLUDED = ['topInfo', 'system', 'single'] as const
 
 function comparable(resolved: unknown): Record<string, unknown> {
   const out = JSON.parse(JSON.stringify(resolved)) as Record<string, unknown>
