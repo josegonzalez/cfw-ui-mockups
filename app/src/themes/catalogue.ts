@@ -106,7 +106,7 @@ export const THEMES: readonly ThemeEntry[] = [
     views: 3,
     devices: ['rg34xx', 'rg35xx'],
     fonts: ['Roboto Condensed'],
-    ported: false,
+    ported: true,
     legacyPath: 'legacy/vitrolauncher/rg35xx/launcher.html',
     docPath: 'docs/themes/vitrolauncher.md',
   },

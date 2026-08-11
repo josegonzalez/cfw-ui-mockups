@@ -6,6 +6,7 @@ import { meta as carousel } from './Carousel/meta'
 import { meta as clock } from './Clock/meta'
 import { meta as fullScreenFade } from './FullScreenFade/meta'
 import { meta as generatedArt } from './GeneratedArt/meta'
+import { meta as glassPanel } from './GlassPanel/meta'
 import { meta as headerBar } from './HeaderBar/meta'
 import { meta as helpBar } from './HelpBar/meta'
 import { meta as iconRow } from './IconRow/meta'
@@ -36,6 +37,7 @@ export const WIDGETS: readonly WidgetMeta[] = [
   clock,
   fullScreenFade,
   generatedArt,
+  glassPanel,
   headerBar,
   helpBar,
   iconRow,

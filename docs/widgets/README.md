@@ -21,6 +21,7 @@ away from the code.
 | [Clock](Clock.md) | The status-bar clock | all |
 | [FullScreenFade](FullScreenFade.md) | A full-screen fade for launch and power-off | elementerial, vitrolauncher |
 | [GeneratedArt](GeneratedArt.md) | Deterministic placeholder artwork | all |
+| [GlassPanel](GlassPanel.md) | A frosted stadium that samples the background beneath it | vitrolauncher |
 | [HeaderBar](HeaderBar.md) | A screen header with an optional rule | example-cfw, elementerial |
 | [HelpBar](HelpBar.md) | The button-hint strip | example-cfw, elementerial, playstation-x |
 | [ListRow](ListRow.md) | One row of a selectable list | all |
@@ -31,19 +32,26 @@ away from the code.
 | [TextList](TextList.md) | A vertical list with one selected row | all |
 | [TileGrid](TileGrid.md) | A grid of tiles, paged or scrolled as a strip | all but example-cfw |
 
-## Still to come
+## How the kit grew
 
-The kit is grown by the theme that needs it, not designed up front. A vocabulary invented for
-three themes before any of them exists is guesswork; one grown against real screens is not.
+The vocabulary was grown by the theme that needed it rather than designed up front - a set
+invented for four themes before any of them exists is guesswork; one grown against real screens is
+not. All four sets have now landed, so this table is the settled vocabulary.
 
-| Widget | Arrives with |
+| Arrived with | Widgets |
 | --- | --- |
-| `Ticker`, `Badge`, `IconRow`, `ProgressBar` | PlayStation X |
-| `GlassPanel` | Vitro Launcher |
+| Example OS and Elementerial | the first cut - lists, grids, chrome, art |
+| PlayStation X | `Ticker`, `Badge`, `IconRow`, `ProgressBar` |
+| Vitro Launcher | `GlassPanel` |
 
-Elementerial's additions have landed. Two things it did *not* need a widget for: the edge fades
-in its Elementflix view are a [Scrim](Scrim.md) with a fade mask, and its favourite heart is a
-positioned image. Neither earns a name of its own.
+Three sets added between one and four widgets each, which is the useful signal: the first cut was
+close to right, and what the later themes needed were leaf components rather than changes to the
+shape of the vocabulary.
+
+Several things did *not* earn a widget. Elementerial's Elementflix edge fades are a
+[Scrim](Scrim.md) with a fade mask; its favourite heart is a positioned image. Vitro's four
+animated backgrounds are a continuous render loop rather than a timeline, so they live in the theme
+and stay outside both the widget kit and the animation system.
 
 ## Conventions
 

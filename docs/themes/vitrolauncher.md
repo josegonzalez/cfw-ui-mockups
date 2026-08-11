@@ -1,16 +1,19 @@
 # Vitro Launcher
 
-> **Status:** this page still describes the original vanilla-JS mockup, whose code and
-> screens now live under [`legacy/vitrolauncher/`](../../legacy/vitrolauncher/). Any bare path here such
-> as `vitrolauncher/...` should be read with that prefix. It is rewritten for the React
-> implementation when this theme is ported.
-
 Mockups of [Vitro Launcher](https://github.com/KevDoy/VitroLauncher-muOS), a Love2D
 home-screen game launcher for [muOS](https://muos.dev) handhelds. Three screens on an
 animated background, switched with L1/R1 via a bottom glass nav pill.
 
 - Source repository: `github.com/KevDoy/VitroLauncher-muOS`
 - Detailed spec extracted from source: [`reference/source-notes.md`](vitrolauncher/reference/source-notes.md)
+- What changed in the React port: [`porting/vitrolauncher.md`](../porting/vitrolauncher.md)
+
+Implemented at `app/src/themes/vitrolauncher/`. The archived original is under
+[`legacy/vitrolauncher/`](../../legacy/vitrolauncher/).
+
+This is the only *launcher* in the repo rather than a frontend theme, and the only set whose
+settings are a real feature of the app instead of a mockup affordance - so unlike the other three,
+its options live in the theme and are changed on its own Settings screen.
 
 ## Screens
 
@@ -95,7 +98,26 @@ pixel-crisp SVG placeholders since the source ships no artwork.
 
 ## Files
 
-- `vitro.css` - fonts, five theme palettes, glass, the three screen layouts, transitions
-- `backgrounds.js` - the four animated backgrounds
-- `screens.js` - sample library data, the settings schema, and the DOM builders
-- `vitro.js` - the controller (input, screen switching, live theming, all transitions)
+| File | Job |
+| --- | --- |
+| `index.tsx` | the theme root: owns the settings, the cursors and the input map |
+| `Interactive.tsx` | the live build's seeds, including the render-mode toggle |
+| `routes.tsx` / `manifest.ts` | the 20 routes, and the screen list as plain data |
+| `library.ts` | the sample library, the settings schema and its defaults |
+| `palette.ts` | the eleven colour schemes resolved to tokens |
+| `layout.ts` | cover metrics, carousel scroll and grid dimensions |
+| `art.ts` / `assets.ts` | generated covers, and bundler-resolved asset paths |
+| `backgrounds/` | the four renderers, the shader and its 2D fallback |
+| `views/` | the three screens and the persistent chrome |
+| `vitro.css` | fonts, the five palettes, the screen layouts and the transitions |
+
+The backgrounds sit outside the shared animation system on purpose: they are a continuous render
+loop, not a timeline, so there is no keyframe to settle to. A static screen renders exactly one
+frame at t=0.
+
+## How it is checked
+
+`vitrolauncher.test.ts` covers the parts that are pure functions - the grid's paging and wrapping,
+the settings windowing and value cycling, the palette's two different notions of "light", playtime
+formatting, and the background maths. Every screen was also rendered beside its legacy page on both
+devices; that pass found one fault, recorded in the porting notes.

@@ -39,8 +39,7 @@ inventory, alongside the reference material extracted from its upstream source.
 | Example OS | [themes/example-cfw.md](themes/example-cfw.md) | none - it is a scaffold, not a reproduction |
 
 Pages still carrying a status banner describe the original mockups; each is rewritten for the
-React implementation as its theme is ported. Elementerial, PlayStation X and Example OS are
-ported; Vitro Launcher is still archived.
+React implementation as its theme is ported. All four sets are ported.
 
 **[themes/example-cfw.md](themes/example-cfw.md) is the template for adding a theme.** It is
 ported, and it documents what a theme is made of and how to start a new one.
@@ -52,6 +51,7 @@ fixed, every deliberate deviation, and how each was verified.
 
 - [porting/elementerial.md](porting/elementerial.md)
 - [porting/playstation-x.md](porting/playstation-x.md)
+- [porting/vitrolauncher.md](porting/vitrolauncher.md)
 - [porting/example-cfw.md](porting/example-cfw.md)
 
 A page arrives here with each theme port.
