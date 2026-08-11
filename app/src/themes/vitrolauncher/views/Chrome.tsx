@@ -31,6 +31,13 @@ const NAV_ICON: Record<VitroScreen, string> = {
   settings: 'settings',
 }
 
+/** For the accessible name, since the icons carry no text. */
+const NAV_LABEL: Record<VitroScreen, string> = {
+  recent: 'Last Played',
+  all: 'All Titles',
+  settings: 'Settings',
+}
+
 export interface StatusPillProps {
   readonly time: string
   readonly percent: number
@@ -75,9 +82,16 @@ export interface NavPillProps {
   readonly settings: VitroSettings
   readonly tokens: VitroTokens
   readonly hidden: boolean
+  /**
+   * Switch screens by pointer. Mockup chrome, not launcher behaviour - a handheld has no pointer
+   * and the app would never handle a tap - but the pill reads as a tab bar on a desktop, and this
+   * repo's convention is that on-screen controls in a mockup are clickable so a screen is usable
+   * without knowing the key map. Omitted on a static screen, which has no controls at all.
+   */
+  readonly onSelect?: ((screen: VitroScreen) => void) | undefined
 }
 
-export function NavPill({ screen, settings, tokens, hidden }: NavPillProps) {
+export function NavPill({ screen, settings, tokens, hidden, onSelect }: NavPillProps) {
   const pos = SCREEN_ORDER.indexOf(screen)
   const l1 = button('button_L1')
   const r1 = button('button_R1')
@@ -89,9 +103,23 @@ export function NavPill({ screen, settings, tokens, hidden }: NavPillProps) {
       <div className="nav-slots">
         {SCREEN_ORDER.map((name, i) => {
           const src = navIcon(NAV_ICON[name])
-          return (
-            <div key={name} className={`nav-slot${i === pos ? ' active' : ''}`}>
-              {src ? <img className="invertible" src={src} alt={name} /> : null}
+          const icon = src ? <img className="invertible" src={src} alt="" /> : null
+          const className = `nav-slot${i === pos ? ' active' : ''}`
+
+          return onSelect ? (
+            <button
+              key={name}
+              type="button"
+              className={className}
+              onClick={() => onSelect(name)}
+              aria-label={NAV_LABEL[name]}
+              aria-current={i === pos || undefined}
+            >
+              {icon}
+            </button>
+          ) : (
+            <div key={name} className={className}>
+              {icon}
             </div>
           )
         })}

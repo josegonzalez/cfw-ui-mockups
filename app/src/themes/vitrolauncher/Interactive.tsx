@@ -26,6 +26,14 @@ export interface VitroSubsets {
   readonly transparency: boolean
   readonly renderMode: RenderMode
   readonly battery: number
+  /**
+   * Seconds of idle before the nav pill fades, or 0 to keep it. Surfaced here because it is the
+   * one shipped default that makes the mockup look broken: the navigation quietly vanishes after
+   * ten seconds and there is nothing on screen to say why. The value stays the launcher's own -
+   * misrepresenting the default would be worse than the surprise - but it is now switchable
+   * without having to find it on the Settings screen first.
+   */
+  readonly navAutohide: number
 }
 
 export const DEFAULT_SUBSETS: VitroSubsets = {
@@ -34,6 +42,7 @@ export const DEFAULT_SUBSETS: VitroSubsets = {
   transparency: true,
   renderMode: 'web',
   battery: 85,
+  navAutohide: defaults().nav_autohide,
 }
 
 /**
@@ -98,6 +107,7 @@ export function VitroLauncherInteractive({ device }: VitroLauncherInteractivePro
     theme: subsets.theme,
     color: subsets.color,
     transparency: subsets.transparency,
+    nav_autohide: subsets.navAutohide,
   }
 
   const groups: SubsetGroup[] = [
@@ -126,6 +136,17 @@ export function VitroLauncherInteractive({ device }: VitroLauncherInteractivePro
       onSelect: (value) => setSubsets((p) => ({ ...p, transparency: value === 'on' })),
     },
     {
+      title: 'Auto-hide nav',
+      current: String(subsets.navAutohide),
+      options: [
+        { value: '0', label: 'Never' },
+        { value: '3', label: '3s' },
+        { value: '5', label: '5s' },
+        { value: '10', label: '10s' },
+      ],
+      onSelect: (value) => setSubsets((p) => ({ ...p, navAutohide: Number(value) })),
+    },
+    {
       title: 'Battery',
       keys: '- =',
       current: String(subsets.battery),
@@ -145,7 +166,7 @@ export function VitroLauncherInteractive({ device }: VitroLauncherInteractivePro
   ]
 
   /* Remount on a seed change, so the launcher takes the new value rather than ignoring it. */
-  const seedKey = `${subsets.theme}|${subsets.color}|${subsets.transparency}`
+  const seedKey = `${subsets.theme}|${subsets.color}|${subsets.transparency}|${subsets.navAutohide}`
 
   return (
     <>

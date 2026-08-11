@@ -4,6 +4,7 @@ import { useButtonPress } from '../../input/InputProvider'
 import { Background } from './backgrounds'
 import { GAMES, SETTINGS, defaults, sortedGames, type VitroSettings } from './library'
 import { paletteVariables, tokens } from './palette'
+import { useTransitions } from './useTransitions'
 import { NavPill, Overlays, StatusPill, SCREEN_ORDER, type VitroScreen } from './views/Chrome'
 import { AllTitles, gridMove, skipPage } from './views/AllTitles'
 import { LastPlayed } from './views/LastPlayed'
@@ -18,7 +19,11 @@ export interface VitroLauncherProps {
   /** Battery level, so the low and charging states are reachable. */
   readonly battery?: number | undefined
   readonly charging?: boolean | undefined
-  /** Overlay poses, for the static screens that show a transition mid-flight. */
+  /**
+   * Overlay poses. A static screen sets these directly, which is how the exit banner gets a
+   * screenshot at 62% without anyone catching it mid-hold. The live build drives them from input
+   * and ignores these.
+   */
   readonly powerOff?: number | undefined
   readonly exitProgress?: number | null | undefined
   readonly loading?: number | undefined
@@ -60,6 +65,8 @@ export function VitroLauncher({
   const [bookmarks, setBookmarks] = useState<ReadonlySet<string>>(
     () => new Set(GAMES.filter((g) => g.bookmarked).map((g) => g.id)),
   )
+
+  const transitions = useTransitions({ animate, startupFade: settings.startup_fade })
 
   const t = useMemo(() => tokens(settings), [settings])
   const vars = useMemo(() => paletteVariables(settings), [settings])
@@ -155,15 +162,20 @@ export function VitroLauncher({
             }
             return
           case 'a':
-            if (screen === 'settings' && SETTINGS[settingsIndex]?.type === 'action') {
-              setSettings(defaults())
-              setBookmarks(new Set(GAMES.filter((g) => g.bookmarked).map((g) => g.id)))
+            if (screen === 'settings') {
+              if (SETTINGS[settingsIndex]?.type === 'action') {
+                setSettings(defaults())
+                setBookmarks(new Set(GAMES.filter((g) => g.bookmarked).map((g) => g.id)))
+              }
+            } else {
+              transitions.launch()
             }
             return
           /*
            * Menu and Start are the two the original's `press()` had no case for - both were
            * handled out of band, Menu by a keydown branch above the dispatch and Start only as
-           * part of the exit chord. They are named here so the switch is the whole input map.
+           * part of the exit chord. Both are hold gestures, so `useTransitions` owns them; they
+           * are named here so this switch is the whole input map rather than most of it.
            */
           case 'menu':
           case 'start':
@@ -172,7 +184,7 @@ export function VitroLauncher({
             return
         }
       },
-      [animate, move, screen, all, allIndex, settings, settingsIndex],
+      [animate, move, screen, all, allIndex, settings, settingsIndex, transitions],
     ),
   )
 
@@ -186,6 +198,9 @@ export function VitroLauncher({
         settings.transparency ? '' : 'no-transparency',
         settings.tooltips ? '' : 'no-tooltips',
         settings.show_titles ? 'show-titles' : '',
+        transitions.boot !== 'none' ? 'booting' : '',
+        transitions.boot === 'bg' || transitions.boot === 'ui' ? 'boot-bg' : '',
+        transitions.boot === 'ui' ? 'boot-ui' : '',
       ]
         .filter(Boolean)
         .join(' ')}
@@ -227,10 +242,31 @@ export function VitroLauncher({
           tokens={t}
           transparent={settings.transparency}
         />
-        <NavPill screen={screen} settings={settings} tokens={t} hidden={navHidden} />
+        <NavPill
+          screen={screen}
+          settings={settings}
+          tokens={t}
+          hidden={navHidden}
+          {...(animate
+            ? {
+                onSelect: (next: VitroScreen) => {
+                  setNavHidden(false)
+                  setActivity((n) => n + 1)
+                  setScreen(next)
+                },
+              }
+            : {})}
+        />
       </div>
 
-      <Overlays powerOff={powerOff} exit={exitProgress} loading={loading} />
+      <div className="startup-black" />
+
+      {/* Posed on a static screen, driven by input on the live one. */}
+      <Overlays
+        powerOff={animate ? transitions.powerOff : powerOff}
+        exit={animate ? transitions.exit : exitProgress}
+        loading={animate ? transitions.loading : loading}
+      />
     </div>
   )
 }

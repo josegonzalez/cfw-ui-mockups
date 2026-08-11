@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { fireEvent, render, screen } from '@testing-library/react'
 import { readFileSync } from 'node:fs'
 import { resolve as resolvePath } from 'node:path'
 import { gridMove, skipPage } from './views/AllTitles'
@@ -9,6 +10,9 @@ import { crest1, phases } from './backgrounds/waves'
 import { carouselScroll, coverMetrics, gridDims, SETTINGS_WINDOW } from './layout'
 import { COLORS, SETTINGS, defaults, formatPlaytime, sortedGames } from './library'
 import { tokens } from './palette'
+import { VitroLauncher } from '.'
+import { SCREEN_ORDER } from './views/Chrome'
+import { DeviceFrame } from '../../device/DeviceFrame'
 
 const base = defaults()
 
@@ -218,5 +222,79 @@ describe('the theme root', () => {
     )
     const rule = css.slice(css.indexOf('.vitro {'), css.indexOf('}', css.indexOf('.vitro {')))
     expect(rule).toContain('isolation: isolate')
+  })
+})
+
+describe('the transitions', () => {
+  it('names every screen the launcher has', () => {
+    // Three screens, and the four full-screen transitions that play over them.
+    expect(SCREEN_ORDER).toEqual(['recent', 'all', 'settings'])
+  })
+
+  it('poses each overlay from a number rather than a running clock', () => {
+    // A static screen sets these directly, which is how the exit banner has a capture at 62%.
+    const { container } = render(
+      <DeviceFrame device="rg35xx" animate={false} interactive={false}>
+        <VitroLauncher screen="recent" powerOff={0.4} exitProgress={0.62} loading={0} />
+      </DeviceFrame>,
+    )
+    const root = container.querySelector<HTMLElement>('.vitro')!
+    expect(root.querySelector<HTMLElement>('.poweroff-black')!.style.opacity).toBe('0.4')
+    expect(root.querySelector<HTMLElement>('.exit-bar-fill')!.style.width).toBe('62%')
+    expect(root.querySelector('.exit-banner.show')).not.toBeNull()
+  })
+
+  it('hides the exit banner entirely when it is not posed', () => {
+    const { container } = render(
+      <DeviceFrame device="rg35xx" animate={false} interactive={false}>
+        <VitroLauncher screen="recent" />
+      </DeviceFrame>,
+    )
+    expect(container.querySelector('.exit-banner')).toBeNull()
+  })
+
+  it('does not start the boot fade on a static screen', () => {
+    // Motion off means one settled frame; a screen caught mid-fade would not be a snapshot.
+    const { container } = render(
+      <DeviceFrame device="rg35xx" animate={false} interactive={false}>
+        <VitroLauncher screen="recent" settings={{ startup_fade: true }} />
+      </DeviceFrame>,
+    )
+    expect(container.querySelector('.vitro')!.className).not.toContain('booting')
+  })
+})
+
+describe('the nav pill', () => {
+  it('switches screens when a slot is clicked on the live build', async () => {
+    // Mockup chrome: a handheld has no pointer, but the pill reads as a tab bar on a desktop.
+    const { container } = render(
+      <DeviceFrame device="rg35xx">
+        <VitroLauncher screen="recent" />
+      </DeviceFrame>,
+    )
+    const root = container.querySelector<HTMLElement>('.vitro')!
+    expect(root.dataset.screen).toBe('recent')
+
+    fireEvent.click(screen.getByRole('button', { name: 'All Titles' }))
+    expect(root.dataset.screen).toBe('all')
+
+    fireEvent.click(screen.getByRole('button', { name: 'Settings' }))
+    expect(root.dataset.screen).toBe('settings')
+  })
+
+  it('has no controls at all on a static screen', () => {
+    const { container } = render(
+      <DeviceFrame device="rg35xx" animate={false} interactive={false}>
+        <VitroLauncher screen="recent" />
+      </DeviceFrame>,
+    )
+    expect(container.querySelectorAll('.nav-slot button')).toHaveLength(0)
+    expect(container.querySelector('.nav-slot')!.tagName).toBe('DIV')
+  })
+
+  it('stops taking clicks once it has faded', () => {
+    // Opacity alone would leave an invisible tab bar swallowing pointer events.
+    const css = readFileSync(resolvePath(process.cwd(), 'src/themes/vitrolauncher/vitro.css'), 'utf8')
+    expect(css).toMatch(/\.nav-pill\.hidden\s*\{\s*pointer-events:\s*none/)
   })
 })

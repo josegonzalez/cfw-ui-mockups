@@ -85,7 +85,18 @@ title 21 / info 15; status bar 16.
 | Menu (Esc, hold 2s) | Fade to black, power off; release early to cancel |
 | L1 + X + START (Q + A + Enter, hold 2s) | Exit-to-muOS progress bar |
 
-The on-screen buttons in the device frame dispatch the same actions.
+All four transitions - the startup fade, the launch fade and the two hold gestures - are wired on
+the interactive route and poseable as numbers on a static one.
+
+**The navigation pill disappears after ten seconds.** That is the launcher's own Auto-Hide
+Navigation setting at its shipped default, not a fault; any input brings it back. It is on the
+subset panel below the device so it can be turned off without hunting for it on the Settings
+screen, and on its own Settings row as in the app.
+
+The on-screen buttons in the device frame dispatch the same actions, and the three icons in the
+navigation pill switch screens when clicked. That last one is mockup chrome rather than launcher
+behaviour - a handheld has no pointer, so the app would never handle a tap - but the pill reads as
+a tab bar on a desktop and this repo's convention is that on-screen controls are clickable.
 
 ## Assets
 

@@ -30,6 +30,13 @@ makes that theme diffable at all.
 
 **The clock shows a fixed time**, as in every other set here.
 
+**The navigation pill is clickable.** Mockup chrome, not launcher behaviour: a handheld has no
+pointer and the app would never handle a tap, but the pill reads as a tab bar on a desktop and this
+repo's convention is that on-screen controls in a mockup are clickable. The slots are only buttons
+on the live build; a static screen renders plain elements and has no controls at all. The pill also
+takes `pointer-events: none` once auto-hide has faded it, so an invisible tab bar cannot swallow
+clicks.
+
 **Glass is a widget.** The original expressed the whole chrome through a `.glass` class and a
 `.no-transparency .glass` override. The port has a `GlassPanel`, which is what lets the user's
 Transparency setting and the renderer's lack of `backdrop-filter` be told apart - in the original
@@ -82,6 +89,30 @@ this mockup, but a scraped library is exactly where it would.
 
 **A doc comment described a field the code did not return** - `valueEl` where the builder returned
 `midEl`.
+
+**Nothing cleaned up a hold that lost focus.** Both hold gestures tracked their own keyup on
+`document`, so a window blurred mid-hold never got one and the power-off fade stayed at full black.
+The shared input layer clears its held-set on blur, so this is handled once for every theme.
+
+## The four transitions
+
+All four are wired, and all four are also *poseable*: each is a 0-1 number, so a static screen sets
+it directly rather than trying to catch a running clock. That is how the exit banner has a capture
+at 62% without anyone holding three buttons at the right moment.
+
+| Transition | Trigger | Length |
+| --- | --- | --- |
+| Startup fade | On load, when Startup Fade-In is on | 1100ms, in three stages |
+| Launch | A on either game screen | 1100ms in, held 250ms, 500ms out |
+| Power off | Hold Menu | 2000ms |
+| Exit to muOS | Hold L1 + X + Start | 2000ms |
+
+The two hold gestures are why the shared input layer has release events and a held-set at all. One
+subtlety cost a round of debugging: **a press handler runs while the provider's held-set update is
+still queued**, so the button that *completes* a chord is not in the set when its own handler runs.
+Testing the chord there left it permanently one button behind and it never fired. The chord is read
+as state instead, which has settled by the time it is observed - and picks up the on-screen buttons
+for free.
 
 ## Fidelity faults found by looking at the screen
 
