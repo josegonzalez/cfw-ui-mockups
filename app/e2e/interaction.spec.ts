@@ -62,6 +62,19 @@ const TRACES: readonly Trace[] = [
     name: 'vitro-settings',
     keys: ['w', 'w', 'ArrowDown', 'ArrowDown', 'ArrowDown'],
   },
+  {
+    // NextUI's file list: the pill is sized to each label, so every step changes its width.
+    // Stepping up from the first row also exercises the wrap the theme adopts from NextUI.
+    id: 'nextui/n64/interactive',
+    name: 'nextui-list',
+    keys: ['ArrowDown', 'ArrowDown', 'ArrowUp', 'ArrowUp', 'ArrowUp'],
+  },
+  {
+    // The settings list, whose selection is two stacked pills and whose footer follows the row.
+    id: 'nextui/n64/interactive',
+    name: 'nextui-settings',
+    keys: [']', ']', ']', 'ArrowDown', 'ArrowDown'],
+  },
 ]
 
 for (const trace of TRACES) {

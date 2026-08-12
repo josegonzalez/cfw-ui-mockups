@@ -8,6 +8,7 @@ for it.
 | Slug                | Device                        | Resolution | Aspect | Class     |
 | ------------------- | ----------------------------- | ---------- | ------ | --------- |
 | `rg35xx`            | Anbernic RG35XX / Plus / H    | 640x480    | 4:3    | 640x480   |
+| `n64`               | Nintendo 64 (video output)    | 640x480    | 4:3    | 640x480   |
 | `rg40xx`            | Anbernic RG40XX H / V         | 640x480    | 4:3    | 640x480   |
 | `miyoo-mini`        | Miyoo Mini / Mini Plus        | 640x480    | 4:3    | 640x480   |
 | `rg28xx`            | Anbernic RG28XX               | 640x480    | 4:3    | 640x480   |
@@ -56,6 +57,7 @@ different spacing:
 | Slug | Layout | Sticks | Reference | Silhouette |
 | --- | --- | --- | --- | --- |
 | `rg35xx` | chin | - | yes | Warm grey, large controls, one corner swept away, speaker grille |
+| `n64` | console | - | n/a | A CRT-ish surround and nothing else - see below |
 | `rg40xx` | flanking | 2 | yes | The CubeXX body around a 4:3 panel, ring-lit sticks |
 | `miyoo-mini` | chin | - | yes | Khaki, panel edge to edge across the top, swept corner |
 | `rg28xx` | flanking | - | yes | Wide grips, no sticks, both small buttons on the left |
@@ -77,6 +79,16 @@ three rounds of correction: the CubeXX was first drawn as an upright handheld be
 suggested a square body; six more devices were then drawn with chins on the same reasoning and
 five of them turned out to be landscape. The inference was wrong more often than it was right.
 **Find a photograph before adding or changing a shell.**
+
+`n64` is the one row that has no photograph to find, and marking it `n/a` rather than `yes` is
+the point. It is not a handheld: N64FlashcartMenu renders to a television, so what wraps the panel
+is a plain surround and nothing else - no body, no cluster, no grips. The buttons its hint pills
+name are on a controller that is not part of the picture, and drawing one would be inventing
+hardware rather than reproducing it. That is what the `console` shell layout is for.
+
+The panel is 640x480 with a 32x24 overscan margin the menu never draws into, so the theme's own
+visible area is 576x432 inset from the corner. A screen that fills the panel edge to edge is wrong
+for this device even though the numbers look right.
 
 The RG28XX correction went further than the shell. It was recorded as a 640x480 panel rotated into
 a 480x640 portrait, and the photograph shows a landscape device with the panel the right way up -

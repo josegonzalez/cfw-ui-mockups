@@ -1,0 +1,15 @@
+BPreplay Bold
+Copyright (c) 2004 by Magenta / 2008 by George Triantafyllakos.
+Released under the SIL Open Font License (OFL) 1.1.
+
+http://www.magenta.gr/
+http://www.backpacker.gr/
+
+This font is licensed under the SIL Open Font License, Version 1.1.
+The full license text is available at:
+https://openfontlicense.org/open-font-license-official-text/
+
+Summary of the SIL OFL 1.1: the font may be used, studied, modified and
+redistributed freely (including bundling in software), as long as it is
+not sold by itself, any derivative fonts use a different reserved name,
+and this copyright and license notice is preserved.

@@ -12,6 +12,7 @@ export type DeviceSlug =
   | 'miyoo-mini'
   | 'rg28xx'
   | 'trimui-smart-pro'
+  | 'n64'
   | 'rg-cubexx'
   | 'rg34xx'
   | 'rg351m'
@@ -74,7 +75,7 @@ export function radiusCss(shell: DeviceShell): string {
  * they are a discriminated union - a `gripWidth` means nothing to a chin and a `controlScale`
  * means nothing to a grip, and an open shape invites both being set and one being ignored.
  */
-export type ShellLayout = 'chin' | 'flanking'
+export type ShellLayout = 'chin' | 'flanking' | 'console'
 
 /**
  * What occupies a grip's small-button slot.
@@ -83,6 +84,17 @@ export type ShellLayout = 'chin' | 'flanking'
  * button each, split across the two grips; `function` is a lone system button.
  */
 export type AuxKind = 'none' | 'pair' | 'select' | 'start' | 'function'
+
+/**
+ * A console's video output rather than a handheld.
+ *
+ * The N64 flashcart menu draws to a TV, so there is no body and no cluster - the buttons it names
+ * in its hint pills belong to a controller sitting somewhere else entirely. Inventing a shell for
+ * it would be inventing hardware, so this layout is the bezel and nothing else.
+ */
+export interface ConsoleShell extends ShellCommon {
+  readonly layout: 'console'
+}
 
 export interface ChinShell extends ShellCommon {
   readonly layout: 'chin'
@@ -133,7 +145,7 @@ export interface FlankingShell extends ShellCommon {
   }
 }
 
-export type DeviceShell = ChinShell | FlankingShell
+export type DeviceShell = ChinShell | FlankingShell | ConsoleShell
 
 /**
  * How tall the chin cluster is before scaling.
@@ -148,15 +160,15 @@ export function clusterHeight(shell: ChinShell): number {
   return base + (shell.sticks ? 58 : 0)
 }
 
-/** The chin the body reserves. Zero on a flanking body, which has none. */
+/** The chin the body reserves. Zero on any body without one - flanking, or a bare console. */
 export function chinHeight(shell: DeviceShell): number {
-  if (shell.layout === 'flanking') return 0
+  if (shell.layout !== 'chin') return 0
   return Math.round(clusterHeight(shell) * shell.controlScale) + (shell.chinExtra ?? 0)
 }
 
-/** Grip width in pixels, for a flanking body. Zero for a chin body, which has no grips. */
+/** Grip width in pixels, for a flanking body. Zero for anything else, which has no grips. */
 export function gripWidth(shell: DeviceShell, panelWidth: number): number {
-  if (shell.layout === 'chin') return 0
+  if (shell.layout !== 'flanking') return 0
   return Math.round(shell.gripWidth * panelWidth)
 }
 
@@ -210,6 +222,31 @@ export const HANDHELD: ChinShell = {
 }
 
 export const DEVICES: Record<DeviceSlug, Device> = {
+  n64: {
+    slug: 'n64',
+    label: 'Nintendo 64 (video output)',
+    w: 640,
+    h: 480,
+    aspect: '4:3',
+    resolutionClass: '640x480',
+    viewScale: 1.3,
+    /*
+     * Not a handheld. The flashcart menu renders to a television, so this is a CRT-ish surround
+     * and nothing else - no body, no cluster, no grips. The menu's own hint pills name A, B, R
+     * and START, and those buttons are on a controller that is not part of this picture.
+     *
+     * The panel is 640x480 with a 32x24 overscan margin the menu never draws into, which is why
+     * the theme's own visible area is 576x432 inset from the corner.
+     */
+    shell: {
+      layout: 'console',
+      sticks: 0,
+      bezel: { top: 26, side: 26, bottom: 26 },
+      radius: [18, 18, 18, 18],
+      body: BODY.slate,
+      ink: INK.light,
+    },
+  },
   rg35xx: {
     slug: 'rg35xx',
     label: 'Anbernic RG35XX / Plus / H',

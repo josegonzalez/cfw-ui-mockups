@@ -194,11 +194,12 @@ describe('device shells', () => {
       if (shell.layout === 'chin') {
         expect(shell.controlScale, slug).toBeGreaterThan(0.5)
         expect(shell.controlScale, slug).toBeLessThan(3)
-      } else {
+      } else if (shell.layout === 'flanking') {
         // A grip narrower than a fifth of the panel has nowhere to put a stick.
         expect(shell.gripWidth, slug).toBeGreaterThan(0.2)
         expect(shell.gripWidth, slug).toBeLessThan(1)
       }
+      // A console has neither, which is the point of it.
     }
   })
 })

@@ -23,6 +23,7 @@ const PREVIEWS: Array<{ slug: string; route: string }> = [
   { slug: 'elementerial', route: 'elementerial/rg35xx/system' },
   { slug: 'playstation-x', route: 'playstation-x/rg35xx/ps4-style' },
   { slug: 'vitrolauncher', route: 'vitrolauncher/rg35xx/last-played' },
+  { slug: 'nextui', route: 'nextui/n64/browser' },
   { slug: 'example-cfw', route: 'example-cfw/rg35xx/main-menu' },
 ]
 

@@ -135,8 +135,11 @@ test('the landing page reaches every route', async ({ page }) => {
 test('every theme is represented with preview art that actually loads', async ({ page }) => {
   await page.goto('/')
 
+  // Derived from the manifest rather than written in, and rather than from the catalogue -
+  // which imports its preview art, and so cannot be loaded outside the bundler.
+  const themes = new Set(ROUTES.map((route) => route.theme))
   const cards = page.locator('.gal-card')
-  await expect(cards).toHaveCount(4)
+  await expect(cards).toHaveCount(themes.size)
 
   // A broken preview still renders an <img> box, so check the decoded dimensions. Polled
   // rather than sampled once: an image that has not finished decoding also reports zero, and

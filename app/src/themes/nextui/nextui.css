@@ -1,0 +1,153 @@
+/*
+ * NextUI theme for N64FlashcartMenu.
+ *
+ * Native N64 pixels throughout - the menu has no scale factor, because the console has exactly one
+ * output size. Colours come from the seven palette slots as custom properties on `.nx`, which is
+ * what the menu itself does: one lookup per slot, resolved once, so a palette change needs no
+ * reboot and no re-layout.
+ *
+ * Everything here is absolutely positioned from measured pixels. There is no flow layout in this
+ * file on purpose: the source draws by blitting to coordinates, and a stylesheet that reflowed
+ * would be describing a different program.
+ */
+
+@font-face {
+  font-family: 'BPreplay';
+  src: url('./assets/fonts/BPreplayBold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+}
+
+.nx {
+  /*
+   * A stacking context, for the same reason every theme root here has one: the background image
+   * and its overlay sit under the content, and without it a z-index inside can escape the root.
+   */
+  isolation: isolate;
+
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: var(--nx-bg);
+  color: var(--nx-list);
+  font-family: 'BPreplay', system-ui, sans-serif;
+  font-weight: 700;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* A background image, when one is set, under the menu's own dimming overlay. */
+.nx-bg-image {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* `NEXTUI_BACKGROUND_OVERLAY_COLOR`, alpha 0x60. The classic theme dims harder. */
+.nx-bg-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: rgba(0, 0, 0, 0.376);
+}
+
+.nx-stage {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+}
+
+/* ---- primitives -------------------------------------------------------- */
+
+.nx-pill {
+  position: absolute;
+  border-radius: 999px;
+}
+
+/* `panel_corner_16`: a fixed 16px radius, not a stadium. */
+.nx-panel {
+  position: absolute;
+  border-radius: 16px;
+}
+
+.nx-text {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+  line-height: 1;
+}
+
+/* A bounded text box truncates with an ellipsis, which is what `WRAP_ELLIPSES` does. */
+.nx-text__clip {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/*
+ * The marquee. Linear with a hard snap back, because the source moves a fixed 2px per frame and
+ * then assigns the offset straight back to zero - there is no easing anywhere in it. The slot
+ * clips, mirroring the scissor rectangle the source sets around the same box.
+ */
+.nx-marquee {
+  position: absolute;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+}
+
+.nx-marquee__text {
+  display: inline-block;
+  white-space: nowrap;
+  line-height: 1;
+  will-change: transform;
+}
+
+/*
+ * `ui_components_nextui_body_text_draw`: one word-wrapped block between the title and the hints.
+ * The only place in the theme where text flows rather than being positioned glyph-box by
+ * glyph-box, because it is the only place the source hands the whole paragraph to the wrapper.
+ */
+.nx-body {
+  position: absolute;
+  white-space: pre-wrap;
+  overflow: hidden;
+}
+
+/* ---- box art ----------------------------------------------------------- */
+
+.nx-art {
+  position: absolute;
+  object-fit: contain;
+}
+
+/* The bordered cartridge placeholder the load screen draws when a ROM has no art. */
+.nx-art-frame {
+  position: absolute;
+  box-sizing: border-box;
+}
+
+.nx-icon {
+  position: absolute;
+  /* Icon art is pure white and tinted by the palette, exactly as `tinted_sprite_draw` does it. */
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+}
+
+/* ---- progress ---------------------------------------------------------- */
+
+.nx-progress {
+  position: absolute;
+  border-radius: 999px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.nx-progress__fill {
+  height: 100%;
+}

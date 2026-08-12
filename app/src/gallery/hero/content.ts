@@ -8,8 +8,9 @@ export const HERO = {
     accent: 'handheld',
     tail: ', rebuilt pixel for pixel.',
   },
+  /* "mostly" rather than "for": four of the five sets are handhelds, and one is a console. */
   lede:
-    'Custom firmware and launcher UIs for SBC gaming handhelds, rendered at each device’s exact panel resolution.',
+    'Custom firmware and launcher UIs, mostly for SBC gaming handhelds, rendered at each device’s exact panel resolution.',
 } as const
 
 export interface BootLine {

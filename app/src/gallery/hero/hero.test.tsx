@@ -4,6 +4,7 @@ import { DeviceFrame } from '../../device/DeviceFrame'
 import { Landing } from '../Landing'
 import { BOOT_MS, DeviceShowcase, HANDOFF_MS } from './DeviceShowcase'
 import { HERO } from './content'
+import { catalogueTotals } from '../../themes/catalogue'
 
 function mountShowcase() {
   return render(
@@ -45,8 +46,9 @@ describe('hero', () => {
     const { container } = render(<Landing />)
 
     expect(container.querySelector('.hero__stage .bootscreen')).not.toBeNull()
-    expect(screen.getByText('4 found')).toBeInTheDocument()
-    expect(screen.getByText('24 views')).toBeInTheDocument()
+    const totals = catalogueTotals()
+    expect(screen.getByText(`${totals.themes} found`)).toBeInTheDocument()
+    expect(screen.getByText(`${totals.views} views`)).toBeInTheDocument()
   })
 })
 

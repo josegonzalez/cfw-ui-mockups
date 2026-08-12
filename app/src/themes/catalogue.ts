@@ -4,6 +4,7 @@ import type { ThemeSlug } from '../widgets/types'
 import elementerialPreview from '../assets/previews/elementerial.png'
 import playstationXPreview from '../assets/previews/playstation-x.png'
 import vitrolauncherPreview from '../assets/previews/vitrolauncher.png'
+import nextuiPreview from '../assets/previews/nextui.png'
 import exampleCfwPreview from '../assets/previews/example-cfw.png'
 
 /**
@@ -104,6 +105,30 @@ export const THEMES: readonly ThemeEntry[] = [
     fonts: ['Roboto Condensed'],
     ported: true,
     docPath: 'docs/themes/vitrolauncher.md',
+  },
+  {
+    slug: 'nextui',
+    name: 'NextUI',
+    author: 'the N64FlashcartMenu project',
+    kind: 'Nintendo 64 flashcart menu theme',
+    summary:
+      'A flashcart menu for the Nintendo 64, drawn to a television rather than a handheld screen. It borrows its look and its palette format from LoveRetro’s NextUI firmware, so palettes made for a handheld drop straight in.',
+    highlights: [
+      'Eighteen palettes of seven slots, switchable live with no reboot',
+      'Twenty-three views, from the file browser to a cheat editor and a Controller Pak manager',
+      'Every pill is measured to its own label, so no two selections are the same width',
+    ],
+    preview: nextuiPreview,
+    previewAlt: 'NextUI file browser: a white selection pill over a list of N64 games, box art right',
+    accent: '#9b2257',
+    // One Main colour per palette family, rather than the Default palette's seven slots -
+    // three of which are white, black and near-black, and would read as a broken row.
+    swatches: ['#9b2257', '#B5442E', '#F2A93B', '#B7DD5B', '#45CFC3', '#6C4BC9', '#D6559E'],
+    views: 23,
+    devices: ['n64'],
+    fonts: ['BPreplay Bold'],
+    ported: true,
+    docPath: 'docs/themes/nextui.md',
   },
   {
     slug: 'example-cfw',

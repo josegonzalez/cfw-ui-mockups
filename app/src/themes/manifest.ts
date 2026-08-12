@@ -2,6 +2,7 @@ import type { DeviceSlug } from '../device/devices'
 import type { ThemeSlug } from '../widgets/types'
 import { ELEMENTERIAL_MANIFEST } from './elementerial/manifest'
 import { EXAMPLE_MANIFEST } from './example-cfw/manifest'
+import { NEXTUI_MANIFEST } from './nextui/manifest'
 import { PSX_MANIFEST } from './playstation-x/manifest'
 import { VITRO_MANIFEST } from './vitrolauncher/manifest'
 
@@ -26,6 +27,7 @@ export const SCREEN_MANIFEST: readonly ScreenManifestEntry[] = [
   ...ELEMENTERIAL_MANIFEST,
   ...PSX_MANIFEST,
   ...VITRO_MANIFEST,
+  ...NEXTUI_MANIFEST,
   ...EXAMPLE_MANIFEST,
 ]
 

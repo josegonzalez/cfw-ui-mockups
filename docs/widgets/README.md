@@ -36,17 +36,30 @@ away from the code.
 
 The vocabulary was grown by the theme that needed it rather than designed up front - a set
 invented for four themes before any of them exists is guesswork; one grown against real screens is
-not. All four sets have now landed, so this table is the settled vocabulary.
+not.
 
 | Arrived with | Widgets |
 | --- | --- |
 | Example OS and Elementerial | the first cut - lists, grids, chrome, art |
 | PlayStation X | `Ticker`, `Badge`, `IconRow`, `ProgressBar` |
 | Vitro Launcher | `GlassPanel` |
+| NextUI | none, and it uses none |
 
 Three sets added between one and four widgets each, which is the useful signal: the first cut was
 close to right, and what the later themes needed were leaf components rather than changes to the
 shape of the vocabulary.
+
+**NextUI is the interesting case, because it adds nothing and takes nothing.** It is the only set
+here that is not a handheld frontend: a Nintendo 64 flashcart menu, drawn to a television, whose
+whole visual language is a stadium pill sized to the text inside it. Its list rows are pills that
+fit their own label, its hint bar is a measured group of individually-backed pills naming buttons
+no handheld has, and its titles are 32px text with a documented vertical fudge. `TextList` and
+`HelpBar` both assume a row-shaped box and a handheld glyph set, so reusing either would have meant
+widening them until they stopped saying anything.
+
+That is a result rather than a gap. It says the kit is a vocabulary for *this* class of screen -
+frontends and launchers on handhelds - and that a genuinely different device draws its own
+primitives. A C system should expect the same: a shared kit, plus themes that opt out of it.
 
 Several things did *not* earn a widget. Elementerial's Elementflix edge fades are a
 [Scrim](Scrim.md) with a fade mask; its favourite heart is a positioned image. Vitro's four
@@ -77,8 +90,9 @@ renders instead. A widget declaring one without the other fails the registry tes
 
 ## What a C system would have to provide
 
-The vocabulary is settled: four sets are ported, and the last three needed between one and four
-new leaf widgets each rather than any change to its shape. So this is the handoff - what a second
+The vocabulary is settled: five sets are ported, the last three handheld sets needed between one
+and four new leaf widgets each rather than any change to its shape, and the one non-handheld set
+needed none of it. So this is the handoff - what a second
 renderer, with no DOM and no cascade, would have to implement to draw every screen in this repo.
 
 **Nineteen widgets.** Each is a pure function of typed props onto a rectangle. None reads ambient

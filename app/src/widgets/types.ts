@@ -8,7 +8,12 @@
  */
 
 /** The mockup sets a widget can belong to. */
-export type ThemeSlug = 'example-cfw' | 'elementerial' | 'playstation-x' | 'vitrolauncher'
+export type ThemeSlug =
+  | 'example-cfw'
+  | 'elementerial'
+  | 'playstation-x'
+  | 'vitrolauncher'
+  | 'nextui'
 
 /**
  * A capability a simple renderer may not have.

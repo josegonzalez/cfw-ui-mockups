@@ -59,8 +59,11 @@ export function ViewerBar({ route }: ViewerBarProps) {
       ) : null}
 
       <span className="gal-viewer__hint">
+        {/* A console draws to a television and has no cluster to click, so it says so. */}
         {route.interactive
-          ? 'arrows to move, Z is A, X is B - or click the buttons'
+          ? DEVICES[route.device].shell.layout === 'console'
+            ? 'arrows to move, Z is A, X is B'
+            : 'arrows to move, Z is A, X is B - or click the buttons'
           : 'static snapshot'}
       </span>
     </div>

@@ -1,6 +1,7 @@
 import type { ScreenRoute } from '../routes'
 import { elementerialRoutes } from './elementerial/routes'
 import { exampleRoutes } from './example-cfw/routes'
+import { nextuiRoutes } from './nextui/routes'
 import { playstationXRoutes } from './playstation-x/routes'
 import { vitroRoutes } from './vitrolauncher/routes'
 
@@ -13,5 +14,6 @@ export const ROUTES: readonly ScreenRoute[] = [
   ...elementerialRoutes(),
   ...playstationXRoutes(),
   ...vitroRoutes(),
+  ...nextuiRoutes(),
   ...exampleRoutes(),
 ]

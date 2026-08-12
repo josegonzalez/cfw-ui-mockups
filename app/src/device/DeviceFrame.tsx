@@ -94,11 +94,18 @@ export function DeviceFrame({
                     {screen}
                     <Grip side="right" shell={shell} />
                   </>
-                ) : (
+                ) : shell.layout === 'chin' ? (
                   <>
                     {screen}
                     <ButtonCluster shell={shell} />
                   </>
+                ) : (
+                  /*
+                   * A console draws its output to a television, so there is nothing to attach a
+                   * cluster to. The buttons its hint pills name are on a controller somewhere off
+                   * screen, and drawing one here would be inventing hardware.
+                   */
+                  screen
                 )}
               </div>
             </div>

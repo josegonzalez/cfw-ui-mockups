@@ -18,6 +18,7 @@ const PAIRS: Record<string, string> = {
   elementerial: 'system',
   'playstation-x': 'ps4-style',
   vitrolauncher: 'last-played',
+  nextui: 'browser',
   'example-cfw': 'main-menu',
 }
 
