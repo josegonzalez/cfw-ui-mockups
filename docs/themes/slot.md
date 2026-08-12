@@ -111,9 +111,11 @@ Mockup-only keys below the device: `[` `]` phase, `,` `.` the HUD control, `\` w
 path data so the shell colour can be filled through them per cart - which is the same operation the
 source performs on a coverage mask. `assets/fonts/label.ttf` is its label font.
 
-The eight HUD glyphs are **drawn rather than set**: slot takes them from a 2.5 MB Nerd Font, which
-would be most of this theme's asset weight for eight shapes. That is the only place this set does
-not use the source's own asset.
+The eight HUD glyphs are set in `SymbolsNerdFontMono-Regular.ttf`, the source's own symbol font,
+at the source's own codepoints. The **Mono** variant specifically: its fixed advance width keeps the
+HUD row from reflowing when the glyph under it changes, which happens whenever volume reaches zero
+or fast-forward latches. It is 2.5 MB for eight glyphs, which is most of this theme's asset weight,
+and it is loaded only when a slot screen renders.
 
 Box art does not exist in slot - a cart face is a shell colour, a hashed paper and the title - so
 nothing here is a placeholder for scraped art. The save-state thumbnails are generated, because
@@ -132,7 +134,7 @@ slot's are real screenshots and there is nothing to screenshot.
 | `art.ts` | the cart face, its label, and the generated thumbnails |
 | `views/parts.tsx` | the slot chrome in two halves, text, hints |
 | `views/Screens.tsx` | the seven phases |
-| `views/Icon.tsx` | the eight HUD glyphs |
+| `views/Icon.tsx` | the eight HUD glyphs, as codepoints |
 | `slot.css` | the font face, the primitives, the panel passes |
 
 ## How it is checked
@@ -140,5 +142,7 @@ slot's are real screenshots and there is nothing to screenshot.
 `slot.test.tsx` covers the pure functions - the shell table's three-level lookup, name cleaning,
 the label's hash and ink flip, and both motions. The spring has a test for the property that makes
 it a spring: that it carries velocity across a target change, which is what a tween cannot do.
-Every screen was also rendered and compared; that pass found four faults, recorded in the porting
-notes.
+`e2e/slot-glyphs.spec.ts` rasterises all eight HUD glyphs and checks none is tofu, because the Mono
+font gives `.notdef` the same advance as a real glyph and only three of the eight are posed by a
+static. Every screen was also rendered and compared; that pass found four faults, recorded in the
+porting notes.

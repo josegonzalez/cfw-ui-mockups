@@ -17,6 +17,18 @@
   font-style: normal;
 }
 
+/*
+ * The source's own symbol font, for the eight HUD glyphs. The Mono variant specifically: its fixed
+ * advance width keeps the HUD row from reflowing when the glyph under it changes, which happens
+ * whenever volume hits zero or fast-forward latches.
+ */
+@font-face {
+  font-family: 'SlotSymbols';
+  src: url('./assets/fonts/SymbolsNerdFontMono-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+}
+
 .slot {
   /* A stacking context, so nothing inside can escape the root's paint order. */
   isolation: isolate;
@@ -174,6 +186,10 @@
 
 .slot-icon {
   position: absolute;
+  display: grid;
+  place-items: center;
+  font-family: 'SlotSymbols', monospace;
+  line-height: 1;
 }
 
 /* A key cap: a rounded square with the button letter in it. */

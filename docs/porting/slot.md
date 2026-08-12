@@ -31,10 +31,16 @@ still rather than running a clock to reach one.
 filled and clipped. Every colour derivation is the source's own arithmetic - the moulded detail at
 0.62, the recess walls at 0.55 and 1.45, the label's FNV-1a paper and its luminance-flipped ink.
 
-**The eight HUD glyphs are drawn rather than set.** slot takes them from
-`SymbolsNerdFontMono-Regular.ttf`, which is 2.5 MB to draw eight shapes - more than the rest of
-this theme's assets combined. They are paths in `views/Icon.tsx` instead. This is the only place
-the set does not use the source's own asset.
+**The eight HUD glyphs use the source's own font**, `SymbolsNerdFontMono-Regular.ttf`, at the
+source's own codepoints. They were first drawn as SVG paths to avoid embedding 2.5 MB for eight
+shapes; that was the wrong trade, because the glyphs are the reproduction. The font ships whole -
+no subsetter is available here - and it loads only when a slot screen renders.
+
+The Mono variant matters and is not incidental: its fixed advance width keeps the HUD row from
+reflowing when the glyph under it changes, which the source says outright and which happens
+whenever volume reaches zero or fast-forward latches. It also means a missing glyph cannot be
+caught by measuring text, since `.notdef` has the same advance - hence `e2e/slot-glyphs.spec.ts`,
+which rasterises all eight and compares each against a codepoint the font certainly lacks.
 
 **The lcd3x mask is much lighter than the source's.** slot applies a 3x3 subpixel texture at the
 panel's native pixels. Here the panel is drawn at device pixels and the whole frame is then scaled
