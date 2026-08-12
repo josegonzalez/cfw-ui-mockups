@@ -116,6 +116,8 @@ inference from the docs.
 | Gradients, blur, drop shadow, general nine-patch | none | none |
 | Rounded corners | yes | yes, via SDL2_gfx |
 | Text wrap and ellipsis | both | wrap yes, ellipsis is truncation plus marquee |
+| Physics-based motion (a spring carrying velocity across a target change) | absent - `spring` and `velocity` zero-hit | absent - same |
+| Composite a foreign framebuffer (a frame the UI does not produce, with a post pass over it) | absent - `emulator`, `libretro` and `frame_texture` zero-hit | absent - same |
 
 Two details worth recording:
 
@@ -344,6 +346,66 @@ Maps today, and more of it than for any other set:
   fallback baselines are byte-identical to its normal ones, so blur, shaders and masks - which
   block Vitro and Elementerial - are simply not in play.
 
+### slot
+
+Full spec: [`themes/slot/reference/source-notes.md`](themes/slot/reference/source-notes.md).
+
+> Assessed from the Rust source with no mockup set built, so unlike the other four sections nothing
+> here has been checked against a rendered screen, and no effect has been tested for a fallback.
+> Each individual claim carries a file reference and a zero-hit check; the *degraded versus
+> missing* judgement the other sections make has not been possible.
+
+The odd one out in two ways. It is a **single-system** frontend - GBA only, one console, no
+per-system anything - so the metadata and theming pressure that shapes the other four sets is
+absent: no palette, no theme format, no scraped art, seven colours hardcoded at their use sites.
+And it composes its chrome **around a live emulator frame**, which none of the other sets do.
+
+Missing from both frameworks:
+
+- **A spring.** The shelf is a critically damped integrator, `accel = -2w*v - w^2*(x - target)` with
+  w = 16, stepped against real `dt` every frame (`crates/slot-ui/src/shelf.rs:168-170`). It has no
+  duration and no curve - the same input from a moving row and a still one produces different
+  paths, which is the point ("a flick lands on a cart instead of bouncing past"). `spring` and
+  `velocity` are zero-hit in both, and the only `dt`-carrying call in either is Apostrophe's
+  `ap_text_scroll_update(..., uint32_t dt_ms)` (`include/apostrophe.h:594`), a hand-rolled scroll
+  rather than an integrator. Everything else in both is `t = (now - start) / DURATION`, which
+  cannot carry velocity across a target change.
+- **A piecewise travel over one progress.** The insert is ease, then a linear creep, then ease
+  again - `CATCH_IN` 0.42, `CATCH_OUT` 0.62, `CREEP` 0.03 - so the cart falls to the lip, rests on
+  it, and is pushed through (`crates/slot-ui/src/slot_chrome.rs:322-338`). The source records that
+  a single ease was tried and rejected because it "arrives seated without ever having met
+  anything". Neither framework has named curves at all, let alone a segmented one.
+- **Smootherstep** (`u^3(u(6u - 15) + 10)`), chosen for zero velocity at both ends so the halves
+  meet the catch without a step in speed. Zero-hit in both.
+- **One progress driving six things at once.** A single `seat` moves the cart, parts the
+  neighbours by 130 px, veils the layer behind, raises the panel, squeezes the game rect and fades
+  the alert (`slot_chrome.rs:120-140`). Both frameworks animate at most one property of one widget.
+- **A foreign frame inside the draw list.** `Draw::Game` is a marker carrying no geometry, because
+  the pass owns its own rect - the power-on squeezes it - and `Draw::Shot` puts a 240x160 still
+  through the same pass so it wears the same mask at the same scale
+  (`crates/slot-gfx/src/draw.rs:26-34`). `emulator`, `libretro` and `frame_texture` are zero-hit in
+  both; neither has any concept of compositing a framebuffer it does not own.
+- **A post-processing pass over that frame**: an `lcd3x` 3x3 subpixel mask, a blue-light grade
+  ramping toward `[1.0, 0.82, 0.62]` in nine steps, the power squeeze, and a compositor-level shake
+  for the refusal (6 px at 14 Hz). No shader path in either framework.
+- **Per-item alpha in the draw list.** `Draw::Tex` carries its own alpha, which is how the side
+  carts sit at 0.55 and the wallpaper scrim at 0.62. Apostrophe's only alpha is internal to
+  `ap_fade_draw`; gabagool has one `SetAlphaMod` site.
+- **SVG rasterised into the cart face.** It is `cart.svg` plus `cart_detail.svg` through `resvg`.
+  Apostrophe has no SVG; gabagool has `oksvg` but only inside `ProcessMessage`
+  (`pkg/gabagool/process_message.go:406`).
+- **An ordered draw list as the API.** slot's UI crates emit `Vec<Draw>` and the compositor
+  consumes it in order, so paint order is list order and nothing re-bases it. Both frameworks are
+  widget-call APIs where the widget owns the frame.
+
+Maps today, and more than the shape of the set suggests: its gesture layer is the one part both
+frameworks already cover well - chords are `ap_register_chord` (`include/apostrophe.h:548`) and
+`RegisterChord` (`pkg/gabagool/combo.go:60`), and slot leans on chords, double taps and
+hold-versus-tap throughout. The save-state switcher is a horizontal row of thumbnails with a fixed
+three-key legend, which is gabagool's `List` with images or Apostrophe's `ap_selection`; the clock
+picker is a five-field editor that `ap_options_list` / `OptionList` covers; and the HUD plate is a
+rounded rect with an icon and a bar, which both draw natively.
+
 ## What a port would have to add
 
 Common to both, and in rough dependency order:
@@ -351,8 +413,10 @@ Common to both, and in rough dependency order:
 1. A compositor or scene layer that lets widgets coexist on one screen, replacing the
    blocking-modal model.
 2. A time-based tween system with named easing curves - at minimum easeOutQuint, easeOut,
-   exponential ease-out, linear and smoothstep - supporting per-property durations, per-property
-   delays, concurrent tracks, and restart-on-event.
+   exponential ease-out, linear, smoothstep and smootherstep - supporting per-property durations,
+   per-property delays, concurrent tracks, and restart-on-event. Alongside it, a **velocity-carrying
+   integrator**: slot's shelf is a critically damped spring with no duration at all, and a tween
+   system cannot express one.
 3. Render-to-texture as a public facility, for screen transitions and blur.
 4. Image fit modes (contain with box-shrink-to-image, cover with centre crop, stretch,
    derive-one-axis-from-aspect) with public alpha and tint.

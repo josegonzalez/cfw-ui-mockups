@@ -39,7 +39,13 @@ inventory, alongside the reference material extracted from its upstream source.
 | Example OS | [themes/example-cfw.md](themes/example-cfw.md) | none - it is a scaffold, not a reproduction |
 
 Pages still carrying a status banner describe the original mockups; each is rewritten for the
-React implementation as its theme is ported. All five sets are ported.
+React implementation as its theme is ported. All five sets above are ported.
+
+**One set has a spec but no port yet.** `slot`, a GBA-only frontend for the Anbernic RG SP, has an
+extracted spec at [themes/slot/reference/source-notes.md](themes/slot/reference/source-notes.md)
+and an entry in [frameworks.md](frameworks.md), but no theme page, no implementation under
+`app/src/themes/` and no baselines. It is listed here so the spec is findable rather than orphaned;
+building the set would mean adding the RG SP to [devices.md](devices.md) first.
 
 **[themes/example-cfw.md](themes/example-cfw.md) is the template for adding a theme.** It is
 ported, and it documents what a theme is made of and how to start a new one.
