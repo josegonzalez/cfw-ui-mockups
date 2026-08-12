@@ -437,6 +437,7 @@ export const VIEWS: readonly ViewDef[] = [
     ],
     rightHints: [BACK, { button: 'A', label: 'BACKUP' }],
     footnote: 'Left / Right: change controller',
+    items: CPAK_NOTES.length,
     source: 'views/cpakfs_manager.c',
   },
   {

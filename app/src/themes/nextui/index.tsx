@@ -1,10 +1,12 @@
-import { useCallback, useState, type CSSProperties } from 'react'
+import { useCallback, useReducer, type CSSProperties } from 'react'
 import { useButtonPress } from '../../input/InputProvider'
 import { backgroundImage } from './art'
-import { VIEWS, viewBySlug } from './library'
+import { SLOT_LABELS, VIEWS, viewBySlug } from './library'
 import { VISIBLE } from './layout'
+import { hintsFor, initialState, reduce, type NavButton } from './nav'
 import { PALETTES, paletteById, paletteVariables, tokens } from './palette'
 import { useFontReady } from './text'
+import { Overlay } from './views/Overlay'
 import { HintGroup } from './views/parts'
 import { Screen } from './views/Screens'
 import './nextui.css'
@@ -22,6 +24,18 @@ export interface NextUiProps {
   readonly background?: boolean | undefined
 }
 
+/** The device buttons the menu binds. Everything else is ignored rather than swallowed. */
+const BOUND: Readonly<Record<string, NavButton>> = {
+  up: 'up',
+  down: 'down',
+  left: 'left',
+  right: 'right',
+  a: 'a',
+  b: 'b',
+  r: 'r',
+  start: 'start',
+}
+
 /**
  * The NextUI theme for N64FlashcartMenu.
  *
@@ -33,9 +47,10 @@ export interface NextUiProps {
  * does - one lookup per slot, resolved once - and why a palette change needs no reboot. Nothing a
  * widget owns reads them; every colour a screen draws with is passed to it as a value.
  *
- * The hint groups live here rather than in the screens because every view draws the same three:
- * one anchored top-right, one bottom-left, one bottom-right. Which pills they hold is per view,
- * and that is data.
+ * **The buttons the hint bar names all work.** `A` opens, `B` goes back, `R` opens the view's own
+ * options menu and `START` opens Settings, following the graph in `nav.ts` - which is transcribed
+ * from each view's own `menu->next_mode` rather than invented. The props below pose the opening
+ * screen; the menu owns its state from there, exactly as it owns its configuration on hardware.
  */
 export function NextUi({
   view = 'browser',
@@ -44,50 +59,51 @@ export function NextUi({
   selected = 0,
   background = false,
 }: NextUiProps) {
-  const def = viewBySlug(view)
-  const applied = paletteById(paletteId)
-
   /* Pill widths are measured, and the first paint measures against the fallback face. */
   useFontReady()
 
   /*
-   * The cursor starts where the caller posed it and moves from there.
-   *
    * Deliberately not gated on `animate`. Motion off settles the marquee, which is the theme's one
    * animation; it does not mean the screen stops responding. A static route never receives a press
-   * because it renders with `interactive={false}`, so it stays on the posed row on its own.
+   * because it renders with `interactive={false}`, so it stays on the posed screen on its own.
    */
-  const [cursor, setCursor] = useState(selected)
-  const index = cursor
-
-  /*
-   * The palette picker walks its eighteen palettes; every other view walks its own list. Clamping
-   * here rather than in each shape keeps the whole input map in one place.
-   */
-  const limit = def.kind === 'palette' ? PALETTES.length : (def.items ?? 1)
+  const [state, dispatch] = useReducer(
+    reduce,
+    initialState(view, selected, paletteId, titlePill, background),
+  )
 
   useButtonPress(
-    useCallback(
-      (button) => {
-        const step = button === 'up' ? -1 : button === 'down' ? 1 : 0
-        if (step === 0) return
-        /* NextUI wraps at both ends of a list, and the theme adopts that. */
-        setCursor((i) => (i + step + limit) % limit)
-      },
-      [limit],
-    ),
+    useCallback((button: string) => {
+      const bound = BOUND[button]
+      if (bound) dispatch(bound)
+    }, []),
   )
+
+  const def = viewBySlug(state.view)
+  const applied = paletteById(state.palette)
 
   /*
    * The picker previews live: the screen re-renders in whatever is highlighted rather than in
    * what is applied, which is why the background colour changes as the cursor moves.
    */
   const drawn =
-    def.kind === 'palette' ? (PALETTES[Math.min(index, PALETTES.length - 1)] ?? applied) : applied
+    def.kind === 'palette'
+      ? (PALETTES[Math.min(state.cursor, PALETTES.length - 1)] ?? applied)
+      : applied
   const t = tokens(drawn)
 
+  /* The colour editor titles itself with the slot it was opened on. */
+  const titled =
+    def.kind === 'editor' ? { ...def, title: SLOT_LABELS[state.slot] ?? def.title } : def
+
   /* The picker clears flat so the Background slot is always visible, never to an image. */
-  const showImage = background && def.kind !== 'palette'
+  const showImage = state.background && def.kind !== 'palette'
+
+  const groups = [
+    { key: 'top' as const, hints: hintsFor(state, 'top'), alignRight: true, y: VISIBLE.y0 },
+    { key: 'left' as const, hints: hintsFor(state, 'left'), alignRight: false, y: undefined },
+    { key: 'right' as const, hints: hintsFor(state, 'right'), alignRight: true, y: undefined },
+  ]
 
   return (
     <div
@@ -96,6 +112,7 @@ export function NextUi({
       data-theme="nextui"
       data-view={def.slug}
       data-palette={drawn.id}
+      data-overlay={state.overlay?.kind}
     >
       {showImage ? (
         <>
@@ -105,39 +122,31 @@ export function NextUi({
       ) : null}
 
       <div className="nx-stage">
-        <Screen view={def} selected={index} palette={drawn} titlePill={titlePill} />
-
-        {def.topHints ? (
-          <HintGroup
-            hints={def.topHints}
-            alignRight
-            y={VISIBLE.y0}
-            main={t.main}
-            accent={t.primaryAccent}
-            glyph={t.secondaryAccent}
-            hint={t.hintText}
-          />
-        ) : null}
-
-        {def.leftHints ? (
-          <HintGroup
-            hints={def.leftHints}
-            alignRight={false}
-            main={t.main}
-            accent={t.primaryAccent}
-            glyph={t.secondaryAccent}
-            hint={t.hintText}
-          />
-        ) : null}
-
-        <HintGroup
-          hints={def.rightHints}
-          alignRight
-          main={t.main}
-          accent={t.primaryAccent}
-          glyph={t.secondaryAccent}
-          hint={t.hintText}
+        <Screen
+          view={titled}
+          selected={state.cursor}
+          palette={drawn}
+          titlePill={state.titlePill}
+          toggles={state.toggles}
+          cheats={state.cheats}
         />
+
+        {groups.map((group) =>
+          group.hints.length ? (
+            <HintGroup
+              key={group.key}
+              hints={group.hints}
+              alignRight={group.alignRight}
+              y={group.y}
+              main={t.main}
+              accent={t.primaryAccent}
+              glyph={t.secondaryAccent}
+              hint={t.hintText}
+            />
+          ) : null,
+        )}
+
+        {state.overlay ? <Overlay overlay={state.overlay} t={t} /> : null}
       </div>
     </div>
   )

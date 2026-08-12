@@ -63,33 +63,75 @@ screen shows Mario Kart 64 with the description and byline from the reference ca
 
 **The clock is fixed**, as in every other set here: the RTC screen shows a constant timestamp.
 
+## Navigation
+
+Every button the hint bar names does what it says, and the graph is transcribed from each view's
+own `menu->next_mode` rather than invented. `nav.ts` holds it as a pure reducer, which is what
+makes it testable: `(state, button) -> state` with no React in it.
+
+**Back is a stack.** The source keeps an origin variable per screen - `nextui_origin_mode` in
+`settings_editor.c`, `origin_mode` in `nextui_colors.c`, `load_origin_mode` in `load_rom.c` - each
+recording the screen its owner was opened from so `B` returns there. Three variables that all say
+the same thing are one stack, and the stack gets the cases they exist to handle right for free:
+Settings opened from Favorites returns to Favorites, and the colour editor unwinds through the hub
+to Settings to wherever Settings came from.
+
+**A folder opens in place.** `push_directory` changes the listing without changing the mode, so
+opening a folder must not push a frame - otherwise `B` inside a folder would land on whatever
+screen preceded the browser instead of going up a directory.
+
+**Some rows do things rather than going somewhere**, and those are wired too, because their hint
+pill says `CHANGE`: the settings toggles flip, the Menu Colors title-pill row toggles, `R` on Menu
+Colors resets the palette and the pill to stock, applying a palette recolours the whole app, and
+the music player's pill swaps between `PAUSE` and `PLAY`.
+
+**Two labels are computed rather than fixed.** The browser names `OPEN` on a folder and `PLAY` on a
+ROM, from `draw_nextui`'s switch on the entry type; the music player's pill follows
+`mp3player_is_playing()`.
+
+### What a button cannot do here
+
+`A PLAY` on a ROM shows the staged loading bar and parks there. On hardware the next thing that
+happens is the console booting the game, and a mockup has no game to boot - so it draws the last
+frame the menu would draw and waits, rather than inventing a return. Any of A, B or R dismisses it.
+
+Context-menu rows that act on the SD card - deleting an entry, writing a collection, formatting a
+Controller Pak - open a message box saying they are not available rather than pretending to work.
+The rows that lead somewhere (`Show entry properties`, `Datel Code Editor`) navigate normally.
+
+The colour editor's R/G/B channels are not editable. `Left`/`Right` pick a channel and `Up`/`Down`
+adjust it in the source; here the screen poses the applied colour and `A` returns. Editing one
+channel at a time is the one interaction in the theme whose result is a colour nobody would choose
+on purpose, and the palette picker already covers changing the colours.
+
 ## Not reproduced
-
-**The context menus.** `ui_components_context_menu_draw` is themed - it draws a NextUI pill behind
-the selected row - and the browser, the load screen and several others open one on `R`. It is a
-component rather than a view, so it has no route of its own, and it is the largest single thing
-this port leaves out.
-
-**The message boxes.** `Reset settings?`, `Set as background image?` and the removal confirmations
-overlay their screens. Same reason.
 
 **The classic theme.** `theme_is_nextui()` guards every drawing site, and the other branch is the
 menu's original look. It is a different theme, not a variant of this one.
 
-**Fast-scroll, paging and the `N) ` ordering prefix.** These are input behaviours whose visible
-result is the cursor landing somewhere else, so a mockup that binds up and down shows what they
-show.
+**Fast-scroll and the `N) ` ordering prefix.** Both are input behaviours whose visible result is
+the cursor landing somewhere else, which the bound directions already show. `Left`/`Right` do page
+the list, since that is a visible jump rather than a speed.
+
+**Submenus inside a context menu.** `Set CIC Type` and its siblings open a nested list in the
+source. The rows are present and inert; the nesting is not.
 
 ## Faults found by looking
 
-Both were found by rendering the screen and comparing it against the reference captures, and
-neither would have been caught by checking numbers.
+All three were found by rendering the screen and pressing its own buttons, and none would have been
+caught by checking numbers.
 
 **The load screen's description overlapped its own title.** The body block is positioned at the
 load screen's own `hero_y` of 92, but the `.nx-body` rule that made it absolute had been dropped
 during a rewrite of the stylesheet - so the block laid out in flow at the top of the screen, on top
 of the title, while every coordinate involved was still correct. Fixed by restoring the rule; the
 capture now matches the reference.
+
+**`?still=1` froze the cursor, not just the motion.** The selection index was read through
+`animate`, so the harness control that settles the marquee also stopped the screen responding - and
+the interaction trace captured five identical frames. Motion and input are different things; the
+static routes stay put because they render with `interactive={false}`, which is the mechanism that
+was already there.
 
 **Menu Colors printed its palette name in capitals.** The seven slot rows show a stored hex, which
 `config.ini` keeps as `RRGGBB` without a hash, so the row values were being uppercased as a group -

@@ -67,8 +67,9 @@ export interface NextUiInteractiveProps {
 /**
  * The live menu.
  *
- * D-pad up and down move the cursor; the theme owns it, so the marquee starts and stops with the
- * selection exactly as it does on hardware. The three subsets below are mockup chrome.
+ * The menu navigates itself: `A` opens, `B` goes back, `R` opens a view's options menu and
+ * `START` opens Settings. The subsets below pose the opening screen and its configuration; the
+ * menu owns both from there.
  *
  * Keys: `[` `]` view, `,` `.` palette, `\` title pills.
  */
@@ -117,14 +118,22 @@ export function NextUiInteractive({ device }: NextUiInteractiveProps) {
     },
   ]
 
-  /* Remount on a view change, so the cursor starts at the top of the new list rather than
-     landing wherever it happened to be in the previous one. */
+  /*
+   * Remount on any seed change, so the menu takes the new value rather than ignoring it.
+   *
+   * The panel seeds and then stands back: once mounted, the menu owns its own view, palette,
+   * title pills and background, because `A` on the Menu Colors screen genuinely changes them.
+   * Change a palette in-app and the panel below is out of step, and that is correct - the app is
+   * the authority on its own configuration. Vitro's Settings screen has the same arrangement.
+   */
+  const seedKey = `${subsets.view}|${subsets.palette}|${subsets.titlePill}|${subsets.background}`
+
   return (
     <>
       <DeviceFrame device={device}>
         <ChromeKeys onAction={onAction} />
         <NextUi
-          key={subsets.view}
+          key={seedKey}
           view={subsets.view}
           palette={subsets.palette}
           titlePill={subsets.titlePill}

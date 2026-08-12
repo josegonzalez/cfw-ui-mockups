@@ -75,6 +75,19 @@ const TRACES: readonly Trace[] = [
     name: 'nextui-settings',
     keys: [']', ']', ']', 'ArrowDown', 'ArrowDown'],
   },
+  {
+    // The buttons the hint bar names, walked in order: START into Settings, A down to Menu
+    // Colors, A into the palette picker, A to apply, then B back out through the stack.
+    id: 'nextui/n64/interactive',
+    name: 'nextui-navigate',
+    keys: ['Enter', 'ArrowDown', 'ArrowDown', 'ArrowDown', 'ArrowDown', 'ArrowDown', 'z', 'z', 'ArrowDown', 'ArrowDown', 'z', 'x', 'x'],
+  },
+  {
+    // R opens the browser's own entry menu, which takes the input while it is up.
+    id: 'nextui/n64/interactive',
+    name: 'nextui-options',
+    keys: ['w', 'ArrowDown', 'ArrowDown', 'x'],
+  },
 ]
 
 for (const trace of TRACES) {

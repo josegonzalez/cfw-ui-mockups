@@ -139,6 +139,35 @@
   mask-repeat: no-repeat;
 }
 
+/* ---- overlays ---------------------------------------------------------- */
+
+/*
+ * `ui_components_dialog_draw` under this theme: a borderless rounded panel, sized to its content.
+ * Not a stadium - it takes the same 16px corner sprite the swatches do.
+ */
+.nx-dialog {
+  position: absolute;
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.nx-dialog__text {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  white-space: nowrap;
+}
+
+/* The message box wraps and stacks, where a menu row is one line. */
+.nx-dialog__text--block {
+  position: static;
+  display: block;
+  white-space: pre-line;
+  padding: 16px;
+}
+
 /* ---- progress ---------------------------------------------------------- */
 
 .nx-progress {

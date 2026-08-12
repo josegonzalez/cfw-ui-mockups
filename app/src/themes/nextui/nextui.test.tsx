@@ -18,6 +18,7 @@ import {
 import { marqueeKeyframes, marqueeTiming, MARQUEE_HOLD_MS } from './marquee'
 import { PALETTES, SLOT_ORDER, paletteById, paletteVariables, tokens } from './palette'
 import { BROWSER, SETTINGS_ROWS, VIEWS, viewBySlug } from './library'
+import { ENTRY_MENU, hintsFor, initialState, reduce, type NavButton, type NavState } from './nav'
 import { resetTextWidths, textWidth } from './text'
 
 describe('the visible area', () => {
@@ -311,6 +312,184 @@ describe('rendering', () => {
     expect(labels).toContain(BROWSER[8]!.name)
     // The tenth entry is past the ninth row and must not be drawn.
     expect(labels).not.toContain(BROWSER[9]!.name)
+  })
+})
+
+describe('navigation', () => {
+  const start = () => initialState('browser', 0, 'Default', false, false)
+  const walk = (state: NavState, ...buttons: NavButton[]) => buttons.reduce(reduce, state)
+
+  it('opens a ROM into the load screen and comes back to the row it left', () => {
+    // `browser.c`: ENTRY_TYPE_ROM -> MENU_MODE_LOAD_ROM.
+    const onRom = walk(start(), 'down', 'down', 'down', 'down', 'down')
+    expect(BROWSER[onRom.cursor]?.name).toBe('Wave Race 64')
+
+    const load = reduce(onRom, 'a')
+    expect(load.view).toBe('load-rom')
+
+    const back = reduce(load, 'b')
+    expect(back.view).toBe('browser')
+    expect(back.cursor).toBe(onRom.cursor)
+  })
+
+  it('opens a folder in place rather than pushing a screen', () => {
+    // A folder is still the browser, so B from inside it must not land on the load screen.
+    const opened = reduce(start(), 'a')
+    expect(opened.view).toBe('browser')
+    expect(opened.stack).toHaveLength(0)
+  })
+
+  it('opens the music player from the one music entry', () => {
+    const onMusic = walk(start(), 'down', 'down', 'down', 'down')
+    expect(BROWSER[onMusic.cursor]?.name).toBe('Menu Jingle')
+    expect(reduce(onMusic, 'a').view).toBe('music-player')
+  })
+
+  it('walks Settings to Menu Colors to the palette picker', () => {
+    const picker = walk(start(), 'start', 'down', 'down', 'down', 'down', 'down', 'a', 'a')
+    expect(picker.view).toBe('palette-picker')
+    expect(picker.stack.map((f) => f.view)).toEqual(['browser', 'settings-editor', 'menu-colors'])
+  })
+
+  it('applies the highlighted palette and returns to the hub', () => {
+    // `apply_selected` sets the palette and next_mode = MENU_MODE_NEXTUI_COLORS in one step.
+    const picker = walk(start(), 'start', 'down', 'down', 'down', 'down', 'down', 'a', 'a')
+    const applied = walk(picker, 'down', 'down', 'down', 'a')
+    expect(applied.view).toBe('menu-colors')
+    expect(applied.palette).toBe(PALETTES[3]!.id)
+  })
+
+  it('unwinds the whole stack one B at a time', () => {
+    const deep = walk(start(), 'start', 'down', 'down', 'down', 'down', 'down', 'a', 'a')
+    const out = walk(deep, 'b', 'b', 'b')
+    expect(out.view).toBe('browser')
+    expect(out.stack).toHaveLength(0)
+  })
+
+  it('does nothing on B at the root, rather than unwinding past it', () => {
+    expect(reduce(start(), 'b').view).toBe('browser')
+  })
+
+  it('opens Settings from the screens that advertise START, and no others', () => {
+    // `draw_nextui` only draws the START/SETTINGS pill on the browser and the two list screens.
+    expect(reduce(start(), 'start').view).toBe('settings-editor')
+    const credits = { ...start(), view: 'credits' }
+    expect(reduce(credits, 'start').view).toBe('credits')
+  })
+
+  it('opens the extended info view from a load screen’s START', () => {
+    const load = { ...start(), view: 'load-rom' }
+    expect(reduce(load, 'start').view).toBe('file-info')
+  })
+
+  it('flips a settings toggle in place and leaves chevron rows alone', () => {
+    const settings = reduce(start(), 'start')
+    const flipped = walk(settings, 'down', 'down', 'down', 'down', 'down', 'down', 'a')
+    expect(flipped.view).toBe('settings-editor')
+    expect(flipped.toggles['6']).toBe(true)
+  })
+
+  it('toggles the title pill from the Menu Colors row that names it', () => {
+    const colors = walk(start(), 'start', 'down', 'down', 'down', 'down', 'down', 'a')
+    const toggled = walk(
+      colors,
+      'down',
+      'down',
+      'down',
+      'down',
+      'down',
+      'down',
+      'down',
+      'down',
+      'a',
+    )
+    expect(toggled.titlePill).toBe(true)
+    expect(toggled.view).toBe('menu-colors')
+  })
+
+  it('resets the colours on R, which is what its hint pill says', () => {
+    const colors = walk(start(), 'start', 'down', 'down', 'down', 'down', 'down', 'a')
+    const changed = { ...colors, palette: 'MinUI', titlePill: true }
+    const reset = reduce(changed, 'r')
+    expect(reset.palette).toBe('Default')
+    expect(reset.titlePill).toBe(false)
+  })
+})
+
+describe('overlays', () => {
+  const start = () => initialState('browser', 0, 'Default', false, false)
+  const walk = (state: NavState, ...buttons: NavButton[]) => buttons.reduce(reduce, state)
+
+  it('opens the browser’s entry menu on R', () => {
+    const menu = reduce(start(), 'r')
+    expect(menu.overlay).toEqual({ kind: 'menu', items: ENTRY_MENU, selected: 0 })
+  })
+
+  it('takes the input while it is up, so the cursor behind it does not move', () => {
+    const menu = walk(start(), 'r', 'down', 'down')
+    expect(menu.cursor).toBe(0)
+    expect(menu.overlay?.kind === 'menu' && menu.overlay.selected).toBe(2)
+  })
+
+  it('wraps inside the menu', () => {
+    const menu = walk(start(), 'r', 'up')
+    expect(menu.overlay?.kind === 'menu' && menu.overlay.selected).toBe(ENTRY_MENU.length - 1)
+  })
+
+  it('opens the view a row names, and closes the menu doing it', () => {
+    const opened = walk(start(), 'r', 'a')
+    expect(opened.view).toBe('file-info')
+    expect(opened.overlay).toBeNull()
+  })
+
+  it('says so rather than pretending, for a row that needs an SD card', () => {
+    const chosen = walk(start(), 'r', 'down', 'a')
+    expect(chosen.overlay?.kind).toBe('message')
+    expect(chosen.view).toBe('browser')
+  })
+
+  it('closes on B without navigating', () => {
+    const closed = walk(start(), 'r', 'b')
+    expect(closed.overlay).toBeNull()
+    expect(closed.view).toBe('browser')
+    expect(closed.stack).toHaveLength(0)
+  })
+
+  it('shows the loading bar when a load screen is entered', () => {
+    const loading = walk(start(), 'down', 'down', 'down', 'down', 'down', 'a', 'a')
+    expect(loading.overlay?.kind).toBe('loading')
+  })
+
+  it('prompts before resetting settings, as the source does', () => {
+    const prompt = walk(start(), 'start', 'r')
+    expect(prompt.overlay?.kind).toBe('message')
+  })
+})
+
+describe('hint labels', () => {
+  const start = () => initialState('browser', 0, 'Default', false, false)
+
+  it('names OPEN on a folder and PLAY on a ROM', () => {
+    // `draw_nextui` picks the label from the highlighted entry's type.
+    expect(hintsFor(start(), 'right').at(-1)?.label).toBe('OPEN')
+    const onRom = [...Array(5)].reduce<NavState>((s) => reduce(s, 'down'), start())
+    expect(hintsFor(onRom, 'right').at(-1)?.label).toBe('PLAY')
+  })
+
+  it('swaps PAUSE for PLAY once the music player is paused', () => {
+    const playing = { ...start(), view: 'music-player' }
+    expect(hintsFor(playing, 'left')[0]?.label).toBe('PAUSE')
+    expect(hintsFor(reduce(playing, 'a'), 'left')[0]?.label).toBe('PLAY')
+  })
+
+  it('gives every view a B pill, because every view can be left', () => {
+    for (const v of VIEWS) {
+      const state = { ...start(), view: v.slug }
+      expect(
+        hintsFor(state, 'right').some((h) => h.button === 'B'),
+        v.slug,
+      ).toBe(true)
+    }
   })
 })
 

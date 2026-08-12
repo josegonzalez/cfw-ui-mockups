@@ -124,11 +124,19 @@ per size rather than scaling one face, so the sizes below are the complete set:
 | START (Enter) | Settings, from the browser and the list screens |
 | C buttons | Fast-scroll a list; big steps in the colour editor |
 
-The interactive route binds up and down, which is what the theme's own behaviour hangs on: the
-selection pill resizes to each label, and the marquee starts and stops with the selection.
+**Every button the hint bar names works.** `A` opens the highlighted thing, `B` returns to the
+screen it was opened from, `R` opens that view's own options menu, and `START` opens Settings from
+the three screens that draw the START pill. The graph is in `nav.ts`, transcribed from each view's
+own `menu->next_mode` rather than invented.
+
+`B` is a stack rather than a table. The source keeps an origin per screen -
+`nextui_origin_mode`, `origin_mode`, `load_origin_mode` - each recording where its owner was
+opened from; a stack says that once and gets the cases those three variables exist to handle right
+for free, so Settings opened from Favorites returns to Favorites.
 
 Mockup-only keys below the device: `[` `]` view, `,` `.` palette, `\` title pills, `'` background
-image.
+image. These pose the *opening* screen and its configuration; once mounted the menu owns both,
+because `A` on the Menu Colors rows genuinely changes them.
 
 ## Transitions
 
@@ -171,13 +179,16 @@ produces, because that is the most recognisable thing about how this menu looks 
 | `text.ts` | text measurement, which this theme's geometry is made of |
 | `marquee.ts` | the one animation, as timing data |
 | `art.ts` / `assets.ts` | generated box art, and bundler-resolved asset paths |
+| `nav.ts` | the navigation graph and every button's effect, as a pure reducer |
 | `views/parts.tsx` | pills, panels, text boxes, button glyphs, hint groups, titles |
+| `views/Overlay.tsx` | the context menu, the message box and the loading bar |
 | `views/Screens.tsx` | the twelve shapes the twenty-three views draw as |
 | `nextui.css` | the font face, the primitives, and nothing that reflows |
 
 ## How it is checked
 
 `nextui.test.tsx` covers the pure functions - both list windows, the marquee timing, the palette
-format, the view table and the subset cycling - and renders every view and every palette. Every
-screen was also rendered and compared against the four reference captures; that pass found two
-faults, recorded in the porting notes.
+format, the view table, the subset cycling and the whole navigation reducer - and renders every
+view and every palette. `e2e/interaction.spec.ts` walks the menu with the buttons its own hint bar
+names and captures each landing. Every screen was also rendered and compared against the four
+reference captures; that pass found two faults, recorded in the porting notes.

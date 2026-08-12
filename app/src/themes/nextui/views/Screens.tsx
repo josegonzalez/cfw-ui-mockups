@@ -88,6 +88,10 @@ export interface ScreenProps {
   readonly selected: number
   readonly palette: Palette
   readonly titlePill: boolean
+  /** Settings rows the live build has flipped, keyed by row index. */
+  readonly toggles?: Readonly<Record<string, boolean>> | undefined
+  readonly cheats?: readonly boolean[] | undefined
+  readonly paused?: boolean | undefined
 }
 
 /** A tinted sprite: white art masked to the palette colour, exactly as the source modulates it. */
@@ -373,7 +377,7 @@ function ValueRow({
 }
 
 /** The settings editor: the list, plus the selected row's description above the hint bar. */
-function SettingsScreen({ view, selected, palette, titlePill }: ScreenProps) {
+function SettingsScreen({ view, selected, palette, titlePill, toggles }: ScreenProps) {
   const t = tokens(palette)
   const rows = visibleRows(SETTINGS_ROW_HEIGHT, SETTINGS_ROW_HEIGHT)
   const first = listWindow(selected, SETTINGS_ROWS.length, rows)
@@ -387,7 +391,14 @@ function SettingsScreen({ view, selected, palette, titlePill }: ScreenProps) {
         <ValueRow
           key={row.label}
           label={row.label}
-          value={row.value}
+          /* A flipped toggle shows its new value; a chevron row is not a toggle. */
+          value={
+            toggles?.[String(first + i)] && row.value !== '>'
+              ? row.value === 'On'
+                ? 'Off'
+                : 'On'
+              : row.value
+          }
           selected={first + i === selected}
           y={TITLED_LIST_Y + i * SETTINGS_ROW_HEIGHT}
           height={SETTINGS_ROW_HEIGHT}
@@ -873,10 +884,11 @@ function BodyScreen({ view, palette, titlePill }: ScreenProps) {
 }
 
 /** The Datel editor: settings-shaped rows whose value is green when on and red when off. */
-function CheatsScreen({ view, selected, palette, titlePill }: ScreenProps) {
+function CheatsScreen({ view, selected, palette, titlePill, cheats }: ScreenProps) {
   const t = tokens(palette)
   const rows = visibleRows(SETTINGS_ROW_HEIGHT)
   const first = listWindow(selected, CHEAT_CODES.length, rows)
+  const enabled = (i: number) => cheats?.[i] ?? CHEAT_CODES[i]?.enabled ?? false
 
   return (
     <>
@@ -885,13 +897,13 @@ function CheatsScreen({ view, selected, palette, titlePill }: ScreenProps) {
         <ValueRow
           key={entry.code}
           label={entry.code}
-          value={entry.enabled ? 'On' : 'Off'}
+          value={enabled(first + i) ? 'On' : 'Off'}
           selected={first + i === selected}
           y={TITLED_LIST_Y + i * SETTINGS_ROW_HEIGHT}
           height={SETTINGS_ROW_HEIGHT}
           t={t}
           /* `STL_GREEN` and `STL_RED` are fixed styles, not palette slots. */
-          valueColor={entry.enabled ? '#00C000' : '#FF4040'}
+          valueColor={enabled(first + i) ? '#00C000' : '#FF4040'}
         />
       ))}
     </>
@@ -955,6 +967,11 @@ function CpakScreen({ view, selected, palette, titlePill }: ScreenProps) {
 }
 
 /** The music player: three rows and the seekbar, which is two stacked stadiums. */
+/*
+ * Pausing changes the hint pill from PAUSE to PLAY and nothing else on the screen: the seekbar
+ * holds where it stopped, and this mockup poses it rather than running a clock. `hintsFor` owns
+ * that label, which is why `paused` never reaches this component.
+ */
 function MusicScreen({ view, palette, titlePill }: ScreenProps) {
   const t = tokens(palette)
   const seek = { w: 524, h: 24, progress: 0.32 }
