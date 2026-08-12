@@ -74,3 +74,50 @@ as a props spread, which stays banned.
 
 **Web-only capabilities** are declared in the widget's registry entry alongside the fallback it
 renders instead. A widget declaring one without the other fails the registry test.
+
+## What a C system would have to provide
+
+The vocabulary is settled: four sets are ported, and the last three needed between one and four
+new leaf widgets each rather than any change to its shape. So this is the handoff - what a second
+renderer, with no DOM and no cascade, would have to implement to draw every screen in this repo.
+
+**Nineteen widgets.** Each is a pure function of typed props onto a rectangle. None reads ambient
+state, so each can be compiled independently.
+
+**One geometry primitive.** A `Box` of resolved device pixels - `left`, `top`, `width`, `height`,
+plus an optional font size, corner radius and depth. Every position in every theme resolves to one
+of these before a widget sees it, so the renderer never needs a layout engine. Two placement forms
+exist: a plain box, and an *anchored* box that sizes to its content and then shifts by a fraction
+of its own size. The second is not a special case of the first, and themes depend on it.
+
+**A depth model with real stacking.** Every fault this repo has had was a compositing fault, and
+all four came from the same place: an element that was numerically correct and painted in the
+wrong order. A renderer needs a total order over drawn elements that a caller can reason about
+locally - if a container can silently re-base the depths inside it, as a CSS stacking context
+does, the same class of bug is waiting.
+
+**Motion as a timeline of segments.** `channel, from, to, begin, duration, easing`, plus repeat
+and alternate. Seven channels - opacity, two offsets, two positions, scale, depth - and ten
+easings, which is every curve the four sets between them use. Two properties matter beyond the obvious: several channels animate on one element at
+once and must compose rather than overwrite, and every track has a defined *resting* value so a
+still can be drawn without running a clock. See [animation.md](../animation.md).
+
+**Text with declared metrics.** Family, size, weight, and an explicit wrap and truncation rule.
+No widget relies on the renderer measuring text for it, and where the source truncates, the rule
+is a prop rather than a CSS property.
+
+**Three image fit modes** - contain, cover, and the anchored fit above - each with a corner radius
+and an optional nearest-neighbour scale for pixel art.
+
+**One capability flag.** Whether the richer path is available. Four effects across the four sets
+need it: backdrop blur, an arbitrary mask, CSS ellipsis, and a fragment shader. The first three are
+declared by widgets alongside the fallback they render instead; the shader belongs to Vitro's wave
+background, which is a render loop rather than a widget and carries its own 2D approximation. A
+renderer implementing none of the four still draws every screen in this repo.
+
+(The capability list also names `boxReflect`, which no widget currently declares - PlayStation X's
+carousel reflection was dropped during the port. It is kept in the type because the effect is real
+in the source and a future screen may want it.)
+
+What it would *not* need: a cascade, a layout engine, document flow, or a way to express a
+selector. Nothing in the vocabulary uses any of them.

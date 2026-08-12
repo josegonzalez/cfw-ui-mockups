@@ -1,6 +1,6 @@
 # CFW UI Mockups
 
-HTML mockups of the on-screen UI of SBC gaming handheld custom firmware and launchers -
+Mockups of the on-screen UI of SBC gaming handheld custom firmware and launchers -
 projects like muOS, Knulli, ArkOS, AmberELEC, ROCKNIX and their launchers. Each screen is
 recreated at the device's exact resolution inside a device frame, as a visual and interaction
 reference. Nothing here ships to a device.

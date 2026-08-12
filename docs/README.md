@@ -54,4 +54,5 @@ fixed, every deliberate deviation, and how each was verified.
 - [porting/vitrolauncher.md](porting/vitrolauncher.md)
 - [porting/example-cfw.md](porting/example-cfw.md)
 
-A page arrives here with each theme port.
+All four sets are ported, so this list is complete. Each page records what changed against the
+original: every defect fixed, every deliberate deviation, and how each was verified.

@@ -119,5 +119,39 @@ narrowly.
 5. Write one view component per screen, each opening with a PORTING NOTES block.
 6. List the screens in `manifest.ts` and mount them in `routes.tsx`.
 7. Register the theme's routes in `app/src/themes/registry.ts`.
-8. Copy this page to `docs/themes/<slug>.md` and fill it in, and record every deviation from the
+8. Add it to `app/src/themes/manifest.ts` and to the catalogue in `app/src/themes/catalogue.ts`.
+9. Copy this page to `docs/themes/<slug>.md` and fill it in, and record every deviation from the
    source in `docs/porting/<slug>.md`.
+10. Run `npm run test:e2e:update` to write the new screens' baselines, then look at them.
+
+## What the three real ports taught
+
+This scaffold was written before any of them, and it has been brought back into line with what
+they settled on. The differences are worth knowing before copying it.
+
+**`Interactive.tsx` is optional, and this theme is the case where it is not needed.** A theme with
+mockup-only subsets - fourteen colour schemes, eleven views, five backgrounds - keeps that state in
+its own `Interactive.tsx` so the theme's own props stay exactly the set a static screen passes.
+That is what makes "a still is the live build with motion settled" true rather than aspirational.
+With nothing to switch, the live route is two lines in `routes.tsx` and the extra file would be a
+layer with nothing in it.
+
+**A theme root gets a stacking context.** Every set here paints a full-bleed background under its
+content, and every one of them at some point had that background swallow the screen. If the theme
+has a root element with a background fill, give it `isolation: isolate` so a depth inside it cannot
+escape. This scaffold has no such layer, which is why it has no such rule - and why it would not
+have taught you the lesson.
+
+**Geometry resolves once, up front.** `layout.ts` here resolves fractions to device pixels in a
+pure function of `(device, options)`. The two large sets do the same through a bigger `spec.ts`
+with per-condition variant rows. Either way the rule is the same: a view component receives
+numbers, never a formula, and never reads back from the DOM.
+
+**Motion is not the same as inertness.** `animate={false}` settles motion. What makes a screen
+inert is `interactive={false}`, which gives it no input provider. Do not gate a press handler on
+`animate` - it reads as harmless and makes the screen impossible to drive with a stable background,
+which is exactly what an interaction trace needs.
+
+**Look at the screen.** Every serious fault in this repo was a compositing fault that passed the
+entire test suite. Whatever else you do, render it and compare it against the source's own
+screenshots.
