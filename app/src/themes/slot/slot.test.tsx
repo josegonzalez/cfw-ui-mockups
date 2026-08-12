@@ -7,7 +7,18 @@ import { Slot } from '.'
 import { applyChromeAction, DEFAULT_SUBSETS } from './Interactive'
 import { SLOT_SCREENS } from './manifest'
 import { CART, LABEL, OUT, SHELF } from './layout'
-import { CARTS, DEFAULT_SHELL, VIEWS, cleanLabel, hudIcon, shellFor, viewBySlug } from './library'
+import {
+  CARTS,
+  DEFAULT_SHELL,
+  VIEWS,
+  afterTravel,
+  browseStep,
+  cleanLabel,
+  nextPhase,
+  hudIcon,
+  shellFor,
+  viewBySlug,
+} from './library'
 import {
   AT_REST,
   CATCH_AT,
@@ -180,6 +191,72 @@ describe('the timings', () => {
 
   it('takes the panel out quicker than it comes up', () => {
     expect(TIMING.powerOffS).toBeLessThan(TIMING.powerOnS)
+  })
+})
+
+describe('browsing the shelf', () => {
+  it('binds the shoulders, which is what slot binds', () => {
+    expect(browseStep('l')).toBe(-1)
+    expect(browseStep('r')).toBe(1)
+  })
+
+  it('binds the pad as well, as a mockup affordance', () => {
+    // Not slot's behaviour: it browses on the shoulders alone. A reader told the arrows are the
+    // d-pad tries them first, and a shelf that ignores them reads as broken.
+    expect(browseStep('left')).toBe(-1)
+    expect(browseStep('right')).toBe(1)
+  })
+
+  it('ignores every other button, so nothing else moves the row', () => {
+    for (const b of ['a', 'b', 'x', 'y', 'up', 'down', 'start', 'select', 'menu']) {
+      expect(browseStep(b), b).toBe(0)
+    }
+  })
+})
+
+describe('the phase machine', () => {
+  it('plays the highlighted cart, which is what the shelf footer promises', () => {
+    expect(nextPhase('shelf', 'a')).toBe('inserting')
+  })
+
+  it('comes back out on B, MENU or START', () => {
+    for (const b of ['b', 'menu', 'start']) {
+      expect(nextPhase('playing', b), b).toBe('ejecting')
+    }
+  })
+
+  it('leaves a travel uninterruptible, as the cart physically is', () => {
+    for (const phase of ['inserting', 'ejecting'] as const) {
+      for (const b of ['a', 'b', 'menu', 'start', 'left', 'right', 'l', 'r']) {
+        expect(nextPhase(phase, b), `${phase}/${b}`).toBeNull()
+      }
+    }
+  })
+
+  it('does nothing on the shelf for a button that is not A', () => {
+    for (const b of ['b', 'x', 'y', 'up', 'down', 'select']) {
+      expect(nextPhase('shelf', b), b).toBeNull()
+    }
+  })
+
+  it('hands over at the end of each travel, rather than stopping', () => {
+    expect(afterTravel('inserting')).toBe('playing')
+    expect(afterTravel('ejecting')).toBe('shelf')
+  })
+
+  it('has nothing to hand over to from a phase that is not moving', () => {
+    for (const phase of ['shelf', 'playing', 'polaroids', 'set-clock', 'doze'] as const) {
+      expect(afterTravel(phase), phase).toBeNull()
+    }
+  })
+
+  it('closes the loop: shelf to shelf through the game', () => {
+    let phase = nextPhase('shelf', 'a')!
+    phase = afterTravel(phase)!
+    expect(phase).toBe('playing')
+    phase = nextPhase(phase, 'b')!
+    phase = afterTravel(phase)!
+    expect(phase).toBe('shelf')
   })
 })
 

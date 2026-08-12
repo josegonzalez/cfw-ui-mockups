@@ -88,6 +88,13 @@ const TRACES: readonly Trace[] = [
     name: 'nextui-options',
     keys: ['w', 'ArrowDown', 'ArrowDown', 'x'],
   },
+  {
+    // slot's shelf, browsed on the shoulders and then on the pad. The spring means the second
+    // press of a pair lands differently from the first, which a captured position shows.
+    id: 'slot/rg-sp/interactive',
+    name: 'slot-shelf',
+    keys: ['w', 'w', 'ArrowLeft', 'q'],
+  },
 ]
 
 for (const trace of TRACES) {

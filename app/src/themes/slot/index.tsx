@@ -1,8 +1,16 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useScreen } from '../../device/ScreenContext'
 import { useButtonPress } from '../../input/InputProvider'
-import { CARTS, viewBySlug, type HudKind } from './library'
-import { AT_REST, settled, step, type Spring } from './motion'
+import {
+  CARTS,
+  afterTravel,
+  browseStep,
+  nextPhase,
+  viewBySlug,
+  type HudKind,
+  type Phase,
+} from './library'
+import { AT_REST, TIMING, settled, step, type Spring } from './motion'
 import { Screen } from './views/Screens'
 import './slot.css'
 
@@ -26,10 +34,14 @@ export interface SlotProps {
  * critically damped spring rather than a tween, and the cart going into the slot is a three-part
  * travel driving six things off one progress.
  *
- * **The spring runs as a loop, not a timeline.** That follows the precedent Vitro's backgrounds
- * set: a continuous integrator has no keyframe to settle to, so it lives in the theme rather than
- * in `anim/`. What keeps `animate={false}` honest is that its *resting* state is computable -
+ * **The shelf's spring runs as a loop, not a timeline.** That follows the precedent Vitro's
+ * backgrounds set: a continuous integrator has no keyframe to settle to, so it lives here rather
+ * than in `anim/`. What keeps `animate={false}` honest is that its *resting* state is computable -
  * `scroll === target`, `vel === 0` - so a still is drawn at rest rather than by running a clock.
+ *
+ * **A plays, and B comes back.** The shelf's footer says `A play`, so it has to: the phase machine
+ * below runs the insert, holds on the game, and plays the same travel backwards on the way out.
+ * The props seed the opening phase; the theme owns it from there.
  */
 export function Slot({
   view = 'shelf',
@@ -54,21 +66,37 @@ export function Slot({
   const frame = useRef<number | null>(null)
   const last = useRef<number>(0)
 
+  /*
+   * The phase machine. `t` is seconds into whichever travel is running, and it is the only clock
+   * in the theme - the shelf's spring integrates rather than counting.
+   */
+  const [phase, setPhase] = useState<Phase>(def.phase)
+  const [t, setT] = useState(0)
+  const travelFrame = useRef<number | null>(null)
+  const travelLast = useRef<number>(0)
+
   useButtonPress(
-    useCallback((button) => {
-      /* L and R browse the shelf. The source binds the shoulders, not the pad. */
-      const by = button === 'l' ? -1 : button === 'r' ? 1 : 0
-      if (by === 0) return
-      setIndex((i) => Math.max(0, Math.min(i + by, CARTS.length - 1)))
-    }, []),
+    useCallback(
+      (button) => {
+        if (phase === 'shelf') {
+          const by = browseStep(button)
+          if (by !== 0) {
+            setIndex((i) => Math.max(0, Math.min(i + by, CARTS.length - 1)))
+            return
+          }
+        }
+        /* `A play`. A tap resumes and a hold starts clean; both put the same cart in. */
+        const next = nextPhase(phase, button)
+        if (next) {
+          setPhase(next)
+          setT(0)
+        }
+      },
+      [phase],
+    ),
   )
 
-  /*
-   * Integrate toward the selection while there is anywhere to go.
-   *
-   * `dt` is real elapsed seconds, as in the source: a fixed step would make the motion depend on
-   * frame rate, and the whole point of the spring is that it carries velocity between frames.
-   */
+  /* The shelf spring: integrate toward the selection while there is anywhere to go. */
   useEffect(() => {
     /* Motion off holds the resting value, which is computable rather than integrated. */
     if (!animate) return
@@ -89,15 +117,56 @@ export function Slot({
     }
   }, [animate, index])
 
+  /*
+   * The travel clock. Runs only while a cart is moving, and hands over at the end rather than
+   * stopping: the insert becomes Playing, the eject becomes the shelf.
+   */
+  const moving = phase === 'inserting' || phase === 'ejecting'
+  const duration = phase === 'inserting' ? TIMING.insertS : TIMING.ejectS
+
+  useEffect(() => {
+    if (!animate || !moving) return
+
+    const tick = (now: number) => {
+      const dt = travelLast.current ? Math.min(0.05, (now - travelLast.current) / 1000) : 1 / 60
+      travelLast.current = now
+      setT((prev) => {
+        const next = prev + dt
+        if (next >= duration) {
+          const handover = afterTravel(phase)
+          if (handover) setPhase(handover)
+          return duration
+        }
+        return next
+      })
+      travelFrame.current = requestAnimationFrame(tick)
+    }
+    travelFrame.current = requestAnimationFrame(tick)
+
+    return () => {
+      if (travelFrame.current !== null) cancelAnimationFrame(travelFrame.current)
+      travelFrame.current = null
+      travelLast.current = 0
+    }
+  }, [animate, moving, duration, phase])
+
   const scroll = animate ? scrollState : index
 
+  /*
+   * `seat` is 0 at the shelf and 1 seated, so the eject is the insert's progress read backwards -
+   * which is why the source gives them the same length. A posed still overrides the clock.
+   */
+  const progress = Math.min(1, t / duration)
+  const live = phase === 'inserting' ? progress : phase === 'ejecting' ? 1 - progress : 0
+  const posed = seat ?? (def.phase === 'ejecting' ? 0.55 : def.phase === 'inserting' ? 0.78 : 0)
+
   return (
-    <div className="slot" data-theme="slot" data-view={def.slug}>
+    <div className="slot" data-theme="slot" data-view={def.slug} data-phase={phase}>
       <Screen
-        phase={def.phase}
+        phase={phase}
         scroll={scroll}
         selected={index}
-        seat={seat ?? (def.phase === 'ejecting' ? 0.55 : def.phase === 'inserting' ? 0.78 : 0)}
+        seat={animate && moving ? live : posed}
         hud={hud}
         hudValue={hudValue}
         switcherSlot={switcherSlot}

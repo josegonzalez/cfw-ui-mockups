@@ -60,6 +60,12 @@ numbers.
 
 **The clock picker shows a fixed date**, as every other set here shows a fixed clock.
 
+**The pad browses the shelf, which slot does not do.** slot binds the shoulders alone. The arrows
+are bound here as well because the viewer bar tells a reader the arrows are the d-pad, and a shelf
+that ignores the first thing they try reads as broken rather than as faithful. This is a mockup
+affordance in the same class as Vitro's clickable nav pill - `browseStep` names both bindings and
+says which is which.
+
 ## Not reproduced
 
 **The hinge.** The RG SP is a vertical clamshell. The device registry has no folding shell and
@@ -68,7 +74,11 @@ panel, which is where they are when the device is open.
 
 **The in-game input map.** Chords, double taps and hold-versus-tap are most of how slot is
 operated, and all of them are behaviours whose visible result is a HUD appearing or a phase
-changing. The live build binds the shoulders and the phase subset; the rest is in the theme page.
+changing. The live build binds browsing, play and eject; the rest is in the theme page.
+
+**A tap and a hold both start the same insert.** On the device a tap of `A` resumes the last save
+state and a 500ms hold starts the cart clean. Both put the same cart into the same slot with the
+same travel, and the difference is in what the core loads - which there is no core to do.
 
 **Rewind and fast-forward as motion.** Both are held states over a running game. There is no
 running game.

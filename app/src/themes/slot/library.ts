@@ -133,6 +133,42 @@ export function viewBySlug(slug: string): ViewDef {
   return VIEWS.find((v) => v.slug === slug) ?? VIEWS[0]!
 }
 
+/**
+ * Which way a button moves the shelf.
+ *
+ * slot binds the **shoulders** and nothing else: `L` and `R` browse, and the pad does not. The
+ * pad is bound here as well, which is a mockup affordance rather than firmware behaviour - a
+ * reader who has just been told the arrows are the d-pad will try them first, and a shelf that
+ * ignores them reads as broken rather than as faithful. Recorded in `docs/porting/slot.md`.
+ */
+export function browseStep(button: string): number {
+  if (button === 'l' || button === 'left') return -1
+  if (button === 'r' || button === 'right') return 1
+  return 0
+}
+
+/**
+ * What a button does to the phase, or `null` for nothing.
+ *
+ * A travel is uninterruptible: `Inserting` and `Ejecting` ignore every button, because on the
+ * device the cart is physically moving and there is nothing to interrupt it with.
+ */
+export function nextPhase(phase: Phase, button: string): Phase | null {
+  if (phase === 'shelf' && button === 'a') return 'inserting'
+  /* Hold MENU ejects on the device; any of B, MENU or START does it here. */
+  if (phase === 'playing' && (button === 'b' || button === 'menu' || button === 'start')) {
+    return 'ejecting'
+  }
+  return null
+}
+
+/** Where a travel hands over when its clock runs out. */
+export function afterTravel(phase: Phase): Phase | null {
+  if (phase === 'inserting') return 'playing'
+  if (phase === 'ejecting') return 'shelf'
+  return null
+}
+
 /** The shelf's one hint, and the switcher's three. */
 export const SHELF_HINT: readonly (readonly [string, string])[] = [['A', 'play']]
 export const CLOCK_HINT: readonly (readonly [string, string])[] = [['A', 'set the clock']]

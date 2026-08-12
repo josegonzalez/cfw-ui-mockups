@@ -93,15 +93,22 @@ between 10px and `LABEL_H / (3 * 1.36)`.
 | Input (key) | Action |
 | --- | --- |
 | L / R (Q / W) | browse the shelf |
-| A (Z) | play; a tap resumes the last state, a 500ms hold starts clean |
+| Left / Right (arrows) | browse the shelf - a mockup affordance; slot binds the shoulders alone |
+| A (Z) | play: runs the insert, and the game arrives when the cart seats |
+| B / MENU / START | eject: the same travel backwards, back to the shelf |
 | Hold MENU (Esc) | save, eject, back to the carousel |
 | Double tap MENU | the save-state switcher |
 | SELECT + R1 / L1 | save state / load the newest |
 | SELECT + up/down, left/right | brightness, blue light |
 | L2 / R2 | rewind, fast forward - held, and R2 latches on a double tap |
 
-The live build binds the shoulders, which is what the shelf uses. The spring is the reason to press
-them: one press eases in, and two quickly carry velocity into the second so the row keeps moving.
+The live build closes the loop: **A plays** - the cart falls to the lip, catches, seats, and the
+panel strikes - and **B brings it back out** on the same travel reversed, which is why the source
+gives the eject the same length. A travel is uninterruptible while it runs, as the cart physically
+is.
+
+The spring is the reason to press the shoulders rather than to pose a still: one press eases in,
+and two quickly carry velocity into the second so the row keeps moving.
 
 Mockup-only keys below the device: `[` `]` phase, `,` `.` the HUD control, `\` wallpaper.
 
