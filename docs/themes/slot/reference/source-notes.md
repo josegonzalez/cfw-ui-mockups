@@ -4,10 +4,8 @@ Exact values extracted from slot (`github.com/BrandonKowalski/slot` at `7cfa1ab`
 GBA-only frontend for the Anbernic RG SP, written in Rust. These are the authoritative spec for the
 mockups. File:line references point into the source repo, under `crates/`.
 
-**No mockup set has been built from these notes yet.** They exist so the framework assessment in
-[`frameworks.md`](../../../frameworks.md) has a spec to work from; there is no
-`app/src/themes/slot/`, no baselines and no porting notes, and nothing here has been checked
-against a rendered screen.
+The set built from these notes is at `app/src/themes/slot/`; what the port changed is in
+[`porting/slot.md`](../../../porting/slot.md).
 
 ## Global
 
@@ -195,7 +193,19 @@ Toast 220x22 at 16 px (min 12). Refusal is a shake: `SHAKE_PX` 6.0 at `SHAKE_HZ`
 
 ## Colour and theming
 
-There is **no palette and no theme format**. Colours are literals at their use sites:
+There is no palette. There **is** a small theme format, for the case around the slot and nothing
+else: `System/theme.txt` on the card, four colours, read once at boot and never re-read because
+"it cannot change while the device is on" (`slot-ui/src/slot_chrome.rs:52-54`). A missing file is
+the default rather than an error.
+
+| Key | Default | What it is (`slot-store/src/theme.rs:16-36`) |
+| --- | --- | --- |
+| `housing` | `#242429` | the outer plastic |
+| `recess` | `#1a1a1d` | the floor of the bay, stepped down from the shell |
+| `opening` | `#050508` | the opening itself, and the inside of the thumb scoop |
+| `edge` | `#4d4d57` | the lit edge: the top of the slot and the rim of the scoop |
+
+Everything else is a literal at its use site:
 
 | Where | Value |
 | --- | --- |

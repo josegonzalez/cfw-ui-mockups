@@ -19,6 +19,7 @@ const PAIRS: Record<string, string> = {
   'playstation-x': 'ps4-style',
   vitrolauncher: 'last-played',
   nextui: 'browser',
+  slot: 'shelf',
   'example-cfw': 'main-menu',
 }
 

@@ -14,6 +14,7 @@ for it.
 | `rg28xx`            | Anbernic RG28XX               | 640x480    | 4:3    | 640x480   |
 | `trimui-smart-pro`  | Trimui Smart Pro              | 1280x720   | 16:9   | 1280x720  |
 | `rg-cubexx`         | Anbernic RG CubeXX            | 720x720    | 1:1    | 720x720   |
+| `rg-sp`             | Anbernic RG SP                | 720x480    | 3:2    | other     |
 | `rg34xx`            | Anbernic RG34XX               | 720x480    | 3:2    | other     |
 | `rg351m`            | Anbernic RG351M / RG351MP     | 480x320    | 3:2    | other     |
 | `rg552`             | Anbernic RG552                | 1920x1152  | 5:3    | other     |
@@ -62,6 +63,7 @@ different spacing:
 | `miyoo-mini` | chin | - | yes | Khaki, panel edge to edge across the top, swept corner |
 | `rg28xx` | flanking | - | yes | Wide grips, no sticks, both small buttons on the left |
 | `trimui-smart-pro` | flanking | 2 | yes | Wide landscape body, pronounced grips, light stick collars |
+| `rg-sp` | chin | - | yes | Indigo clamshell in the GBA SP's shape; the hinge is not drawn - see below |
 | `rg-cubexx` | flanking | 2 | yes | Square panel between two grips, ring-lit sticks |
 | `rg34xx` | flanking | - | yes | Game Boy Advance homage, indigo, no sticks |
 | `rg351m` | flanking | 2 | yes | Slim landscape slab, Select and Start at the top of each grip |
@@ -89,6 +91,11 @@ hardware rather than reproducing it. That is what the `console` shell layout is 
 The panel is 640x480 with a 32x24 overscan margin the menu never draws into, so the theme's own
 visible area is 576x432 inset from the corner. A screen that fills the panel edge to edge is wrong
 for this device even though the numbers look right.
+
+`rg-sp` is a vertical clamshell - the Game Boy Advance SP's shape - and the shell here is a chin
+body, which is what the device is when it is open: panel above, controls below. The hinge and the
+upper half are not drawn. A folding shell would need a second body above the panel and a fold
+state to go with it, and nothing inside `.screen` depends on either.
 
 The RG28XX correction went further than the shell. It was recorded as a 640x480 panel rotated into
 a 480x640 portrait, and the photograph shows a landscape device with the panel the right way up -

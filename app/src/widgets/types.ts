@@ -14,6 +14,7 @@ export type ThemeSlug =
   | 'playstation-x'
   | 'vitrolauncher'
   | 'nextui'
+  | 'slot'
 
 /**
  * A capability a simple renderer may not have.

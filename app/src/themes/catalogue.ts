@@ -5,6 +5,7 @@ import elementerialPreview from '../assets/previews/elementerial.png'
 import playstationXPreview from '../assets/previews/playstation-x.png'
 import vitrolauncherPreview from '../assets/previews/vitrolauncher.png'
 import nextuiPreview from '../assets/previews/nextui.png'
+import slotPreview from '../assets/previews/slot.png'
 import exampleCfwPreview from '../assets/previews/example-cfw.png'
 
 /**
@@ -129,6 +130,29 @@ export const THEMES: readonly ThemeEntry[] = [
     fonts: ['BPreplay Bold'],
     ported: true,
     docPath: 'docs/themes/nextui.md',
+  },
+  {
+    slug: 'slot',
+    name: 'slot',
+    author: 'BrandonKowalski',
+    kind: 'Bespoke GBA frontend',
+    summary:
+      'A single-system frontend for the Anbernic RG SP. Games are a carousel of cartridges; pick one and it is inserted into the slot, falling to the lip before the mechanism takes it.',
+    highlights: [
+      'The only set whose motion is physics: the shelf is a critically damped spring',
+      'One progress drives six things at once as the cart goes in',
+      'No palette, no scraped art, one console - it is bespoke, not configurable',
+    ],
+    preview: slotPreview,
+    previewAlt: 'slot shelf: three GBA cartridges on a row, the middle one full size above an empty slot',
+    accent: '#249c60',
+    // The shell table's own colours, which are the only thing that varies between carts.
+    swatches: ['#c2332e', '#2f5cc0', '#249c60', '#d85224', '#63b044', '#c6c6c9', '#35353a'],
+    views: 7,
+    devices: ['rg-sp'],
+    fonts: ['Open Sans'],
+    ported: true,
+    docPath: 'docs/themes/slot.md',
   },
   {
     slug: 'example-cfw',

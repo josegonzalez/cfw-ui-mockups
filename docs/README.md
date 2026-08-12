@@ -36,16 +36,11 @@ inventory, alongside the reference material extracted from its upstream source.
 | PlayStation X | [themes/playstation-x.md](themes/playstation-x.md) | [themes/playstation-x/reference/](themes/playstation-x/reference/) |
 | Vitro Launcher | [themes/vitrolauncher.md](themes/vitrolauncher.md) | [themes/vitrolauncher/reference/](themes/vitrolauncher/reference/) |
 | NextUI | [themes/nextui.md](themes/nextui.md) | [themes/nextui/reference/](themes/nextui/reference/) |
+| slot | [themes/slot.md](themes/slot.md) | [themes/slot/reference/](themes/slot/reference/) |
 | Example OS | [themes/example-cfw.md](themes/example-cfw.md) | none - it is a scaffold, not a reproduction |
 
 Pages still carrying a status banner describe the original mockups; each is rewritten for the
-React implementation as its theme is ported. All five sets above are ported.
-
-**One set has a spec but no port yet.** `slot`, a GBA-only frontend for the Anbernic RG SP, has an
-extracted spec at [themes/slot/reference/source-notes.md](themes/slot/reference/source-notes.md)
-and an entry in [frameworks.md](frameworks.md), but no theme page, no implementation under
-`app/src/themes/` and no baselines. It is listed here so the spec is findable rather than orphaned;
-building the set would mean adding the RG SP to [devices.md](devices.md) first.
+React implementation as its theme is ported. All six sets above are ported.
 
 **[themes/example-cfw.md](themes/example-cfw.md) is the template for adding a theme.** It is
 ported, and it documents what a theme is made of and how to start a new one.
@@ -61,6 +56,7 @@ compares against that.
 - [porting/playstation-x.md](porting/playstation-x.md)
 - [porting/vitrolauncher.md](porting/vitrolauncher.md)
 - [porting/nextui.md](porting/nextui.md)
+- [porting/slot.md](porting/slot.md)
 - [porting/example-cfw.md](porting/example-cfw.md)
 
-All five sets are ported, so this list is complete.
+All six sets are ported, so this list is complete.

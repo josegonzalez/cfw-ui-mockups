@@ -1,0 +1,213 @@
+/*
+ * slot, a GBA-only frontend for the Anbernic RG SP.
+ *
+ * Native 720x480 throughout - slot has no scale factor, because it targets one device. Colours are
+ * literals rather than tokens because slot has no palette: there is nothing here a user can
+ * change, and inventing a token layer would describe a program that does not exist.
+ *
+ * Everything is absolutely positioned. The source emits an ordered `Vec<Draw>` that a compositor
+ * consumes in order, so paint order is list order and nothing re-bases it; a stylesheet that
+ * reflowed would be describing something else.
+ */
+
+@font-face {
+  font-family: 'SlotLabel';
+  src: url('./assets/fonts/label.ttf') format('truetype');
+  font-weight: 400 700;
+  font-style: normal;
+}
+
+.slot {
+  /* A stacking context, so nothing inside can escape the root's paint order. */
+  isolation: isolate;
+
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: #0f0f12;
+  color: #f6f4ef;
+  font-family: 'SlotLabel', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* A user PNG, cover-cropped, under the scrim that keeps the shelf predictable over it. */
+.slot-wallpaper {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.slot-scrim {
+  position: absolute;
+  inset: 0;
+  background: #0f0f12;
+}
+
+/* ---- carts -------------------------------------------------------------- */
+
+.slot-cart {
+  position: absolute;
+  /* The foot stays put as a cart shrinks away: carts stand on the row rather than float. */
+  transform-origin: 50% 100%;
+}
+
+.slot-cart__shadow {
+  position: absolute;
+  transform-origin: 50% 100%;
+}
+
+/* ---- the slot chrome ---------------------------------------------------- */
+
+.slot-band,
+.slot-piece {
+  position: absolute;
+}
+
+/* The veil over whatever is behind the slot: the shelf on the way in, the game on the way out. */
+.slot-dim {
+  position: absolute;
+  inset: 0;
+  background: #000000;
+}
+
+/* ---- the game layer ----------------------------------------------------- */
+
+/*
+ * The panel. `Draw::Game` carries no geometry in the source because the pass owns its own rect -
+ * the power-on squeezes it - so the height is set by the caller and the width follows.
+ */
+.slot-panel {
+  position: absolute;
+  overflow: hidden;
+  background: #000000;
+}
+
+.slot-panel__picture {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+  image-rendering: pixelated;
+}
+
+/*
+ * The lcd3x mask, as a repeating 3px cell rather than the source's 3x3 texture. Declared as a
+ * web-only effect with a flat fallback: without it the panel is the same picture, just cleaner.
+ */
+.slot-panel__mask {
+  position: absolute;
+  inset: 0;
+  /*
+   * Far lighter than the 3x3 texture reads at native size. The panel here is drawn at the
+   * device's own pixels and then the whole frame is scaled up for viewing, so a mask at the
+   * source's strength lands on a 3px cell that is several screen pixels wide and stops being a
+   * subpixel structure - it becomes a grid over the picture. This is the effect at the weight it
+   * reads correctly once scaled, which is a deviation and is recorded in the porting notes.
+   */
+  background-image:
+    repeating-linear-gradient(
+      90deg,
+      rgba(255, 0, 0, 0.05) 0 1px,
+      rgba(0, 255, 0, 0.05) 1px 2px,
+      rgba(0, 0, 255, 0.05) 2px 3px
+    ),
+    repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.08) 0 1px, transparent 1px 3px);
+  mix-blend-mode: multiply;
+}
+
+/* The blue-light grade: a warmth wash toward the source's own warmest point. */
+.slot-panel__grade {
+  position: absolute;
+  inset: 0;
+  background: rgb(255, 209, 158);
+  mix-blend-mode: multiply;
+}
+
+/* ---- text --------------------------------------------------------------- */
+
+.slot-text {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+  line-height: 1;
+}
+
+/*
+ * A one-pixel halo, so ink on a picture stays readable without a plate behind it. The source
+ * draws it as a coverage pass; four shadows is the same shape.
+ */
+.slot-text--halo {
+  text-shadow:
+    1px 0 0 #08080a,
+    -1px 0 0 #08080a,
+    0 1px 0 #08080a,
+    0 -1px 0 #08080a;
+}
+
+/* ---- plates, hints and the HUD ------------------------------------------ */
+
+/*
+ * The plate everything that sits over a picture is read against - the HUD, the refusal and the
+ * switcher's two. Shared so they read as one system, which is the source's stated reason.
+ */
+.slot-plate {
+  position: absolute;
+  border-radius: 6px;
+  background: rgba(10, 10, 12, 0.72);
+}
+
+.slot-bar {
+  position: absolute;
+  border-radius: 999px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.slot-bar__fill {
+  height: 100%;
+  background: #f5f2ef;
+}
+
+.slot-icon {
+  position: absolute;
+}
+
+/* A key cap: a rounded square with the button letter in it. */
+.slot-cap {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  border-radius: 5px;
+  background: #f6f4ef;
+  color: #1a1917;
+  font-weight: 700;
+}
+
+/* ---- the switcher ------------------------------------------------------- */
+
+.slot-photo {
+  position: absolute;
+  object-fit: cover;
+  image-rendering: pixelated;
+}
+
+.slot-photo--blank {
+  background: #3a3a3e;
+}
+
+.slot-dot {
+  position: absolute;
+  border-radius: 999px;
+  background: #f6f4ef;
+}
+
+/* ---- the clock picker --------------------------------------------------- */
+
+.slot-caret {
+  position: absolute;
+  background: #f6f4ef;
+}

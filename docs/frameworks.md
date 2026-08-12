@@ -350,14 +350,14 @@ Maps today, and more of it than for any other set:
 
 Full spec: [`themes/slot/reference/source-notes.md`](themes/slot/reference/source-notes.md).
 
-> Assessed from the Rust source with no mockup set built, so unlike the other four sections nothing
-> here has been checked against a rendered screen, and no effect has been tested for a fallback.
-> Each individual claim carries a file reference and a zero-hit check; the *degraded versus
-> missing* judgement the other sections make has not been possible.
+> Assessed from the Rust source before the mockup set existed. The set has since been built
+> (`app/src/themes/slot/`), and [`porting/slot.md`](porting/slot.md) records what it deviates on -
+> notably the lcd3x mask, which is a *degraded* effect here rather than a missing one.
 
 The odd one out in two ways. It is a **single-system** frontend - GBA only, one console, no
 per-system anything - so the metadata and theming pressure that shapes the other four sets is
-absent: no palette, no theme format, no scraped art, seven colours hardcoded at their use sites.
+absent: no palette, no scraped art, and a theme file (`System/theme.txt`) that addresses four
+colours of case and nothing else.
 And it composes its chrome **around a live emulator frame**, which none of the other sets do.
 
 Missing from both frameworks:

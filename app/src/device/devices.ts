@@ -13,6 +13,7 @@ export type DeviceSlug =
   | 'rg28xx'
   | 'trimui-smart-pro'
   | 'n64'
+  | 'rg-sp'
   | 'rg-cubexx'
   | 'rg34xx'
   | 'rg351m'
@@ -410,6 +411,34 @@ export const DEVICES: Record<DeviceSlug, Device> = {
       gripWidth: 0.45,
       aux: { position: 'bottom', left: 'function', right: 'pair' },
       body: BODY.charcoal,
+    },
+  },
+  'rg-sp': {
+    slug: 'rg-sp',
+    label: 'Anbernic RG SP',
+    w: 720,
+    h: 480,
+    aspect: '3:2',
+    resolutionClass: 'other',
+    viewScale: 0.72,
+    /*
+     * A vertical clamshell, in the Game Boy Advance SP's shape rather than the RG34XX's
+     * landscape one - so the controls sit under the panel rather than beside it, which is a
+     * chin body here even though the real hardware folds in half.
+     *
+     * The hinge is not drawn. A shell that folded would need a second body above the panel and
+     * a fold state to go with it, and nothing inside `.screen` depends on either.
+     */
+    shell: {
+      layout: 'chin',
+      bezel: { top: 22, side: 18, bottom: 14 },
+      radius: [26, 26, 40, 40],
+      sticks: 0,
+      controlScale: 0.92,
+      chinExtra: 18,
+      menuButton: true,
+      speakerGrille: true,
+      body: BODY.indigo,
     },
   },
   rg34xx: {
