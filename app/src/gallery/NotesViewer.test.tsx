@@ -37,7 +37,7 @@ describe('notesPathFromHash', () => {
 
   it('refuses to leave the documentation directory', () => {
     // The path comes from the URL, so it is user input however unlikely that is here.
-    expect(notesPathFromHash('notes/legacy/index.html')).toBeNull()
+    expect(notesPathFromHash('notes/../etc/passwd')).toBeNull()
     expect(notesPathFromHash('notes/docs/../../etc/passwd')).toBeNull()
   })
 
@@ -75,12 +75,12 @@ describe('NotesViewer', () => {
   })
 
   it('rewrites links to non-documents as site paths', async () => {
-    mockFetch('[the archive](../../legacy/elementerial/rg35xx/theme.html)')
+    mockFetch('[the widgets](../../app/src/widgets/registry.ts)')
     render(<NotesViewer path="docs/themes/elementerial.md" />)
 
-    const link = await screen.findByRole('link', { name: 'the archive' })
+    const link = await screen.findByRole('link', { name: 'the widgets' })
     await eventually(() =>
-      expect(link).toHaveAttribute('href', '/legacy/elementerial/rg35xx/theme.html'),
+      expect(link).toHaveAttribute('href', '/app/src/widgets/registry.ts'),
     )
   })
 

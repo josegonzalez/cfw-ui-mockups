@@ -77,11 +77,7 @@ function ThemeCard({ theme }: { theme: ThemeEntry }) {
             <a className="gal-btn gal-btn--primary" href={`#${screenId(live)}`}>
               Open the live build
             </a>
-          ) : (
-            <a className="gal-btn gal-btn--primary" href={`/${theme.legacyPath}`}>
-              Open the original
-            </a>
-          )}
+          ) : null}
 
           {screens.length > 0 ? (
             <a className="gal-btn" href={`#${screenId(screens[0]!)}`}>
@@ -193,7 +189,7 @@ export function Landing() {
           Every set reproduces someone else's work. Elementerial is by mluizvitor, PlayStation X by
           pajarorrojo, Vitro Launcher by KevDoy. Documentation lives in{' '}
           <a href={`#${NOTES_PREFIX}docs/README.md`}>docs/</a>; the original vanilla-JS mockups are archived under{' '}
-          <a href="/legacy/index.html">legacy/</a> and still render.
+
         </footer>
       </div>
     </div>

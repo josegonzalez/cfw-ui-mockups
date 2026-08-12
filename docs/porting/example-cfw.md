@@ -1,7 +1,10 @@
 # Porting notes: Example OS
 
-What changed between [`legacy/example-cfw/`](../../legacy/example-cfw/) and
-`app/src/themes/example-cfw/`.
+> The original vanilla-JS mockup this page compares against has since been removed - every
+> implementation here is the interactive application. The comparisons below are kept as the
+> record of what changed and why.
+
+What changed between the original vanilla-JS mockup and `app/src/themes/example-cfw/`.
 
 The original was two hand-written HTML files driven by `shared/nav.js`, the repo's shared focus
 helper. It was the only set that ever used it.

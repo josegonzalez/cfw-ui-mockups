@@ -131,7 +131,7 @@ describe('view composition', () => {
 
   it('draws one marquee in the single view, not two', () => {
     // `buildSingle` built a second marquee img that overwrote the first, orphaning it with no
-    // src - the empty bordered box in the legacy screenshot.
+    // src, so it drew as an empty bordered box.
     const node = L.single.marquee!
     const found = renderView('single').querySelectorAll(`img[style*="top: ${node.top}px"]`)
 
@@ -200,12 +200,12 @@ describe('the manifest', () => {
     expect(PSX_SCREENS.map((s) => s.view).sort()).toEqual([...VIEWS].sort())
   })
 
-  it('matches the legacy filenames, so the A/B gate can pair by name', () => {
-    const legacy = [
+  it('uses the theme’s own view names, hyphenated', () => {
+    const expected = [
       'boot-splash', 'carousel', 'detailed', 'full-grid', 'game-launch', 'grid',
       'media-tester', 'ps4-style', 'ps5-style', 'single', 'system',
     ]
-    expect(PSX_SCREENS.map((s) => s.slug).sort()).toEqual(legacy)
+    expect(PSX_SCREENS.map((s) => s.slug).sort()).toEqual(expected)
   })
 })
 

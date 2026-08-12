@@ -8,21 +8,18 @@ import { resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 /*
- * The dev server root is `app/`, but the Playwright fidelity gate needs to load the
- * pre-React screens out of `legacy/` from this same origin so the two can be diffed
- * without a second server. `fs.allow` opens the repo root for that, and nothing else.
+ * The dev server root is `app/`, but the gallery links into `docs/`, which sits outside it.
+ * `fs.allow` opens the repo root for that, and nothing else.
  */
 const repoRoot = fileURLToPath(new URL('..', import.meta.url))
 
 /** Repo directories the site links into: the documentation and the pre-React archive. */
-const SHARED_DIRS = ['docs', 'legacy']
+const SHARED_DIRS = ['docs']
 
 /**
- * Serve `docs/` and `legacy/` alongside the app.
+ * Serve `docs/` alongside the app.
  *
- * Both sit outside the Vite root, so without this the landing page's "Read the notes" and
- * "Open the original" links resolve to nothing. Mounted in dev and preview, and copied into the
- * build so a built site is self-contained rather than quietly losing half its links.
+ * It sits outside the Vite root, so without this the landing page's "Read the notes" link 404s.
  */
 function serveRepoDirs(): Plugin {
   const appDir = fileURLToPath(new URL('.', import.meta.url))

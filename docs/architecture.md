@@ -126,10 +126,6 @@ discovered later. See [portability.md](portability.md).
 Theme assets live under `app/src/themes/<theme>/assets/` and are resolved through Vite, so a
 missing file is a build error rather than a broken image discovered by eye.
 
-`legacy/<theme>/assets/` holds an independent copy. That duplication is deliberate: it keeps the
-archive from depending on a path inside the application it exists to validate. See
-[legacy.md](legacy.md).
-
 ## What a screen may not do
 
 Summarised from [portability.md](portability.md), because it shapes everything above: widgets

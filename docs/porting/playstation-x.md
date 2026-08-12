@@ -1,7 +1,10 @@
 # Porting notes: PlayStation X
 
-What changed between [`legacy/playstation-x/`](../../legacy/playstation-x/) and
-`app/src/themes/playstation-x/`.
+> The original vanilla-JS mockup this page compares against has since been removed - every
+> implementation here is the interactive application. The comparisons below are kept as the
+> record of what changed and why.
+
+What changed between the original vanilla-JS mockup and `app/src/themes/playstation-x/`.
 
 The original was six files - a resolver, a palette module, a storyboard compiler, a storyboard
 table, a view builder and a controller - driving 48 boot stubs. The port keeps the resolver, the
@@ -14,14 +17,14 @@ later matching row wins.
 
 ## Which source is authoritative
 
-The legacy mockup is **not** the theme. It is one transcription of the theme's XML, made by
+The original mockup was **not** the theme. It is one transcription of the theme's XML, made by
 hand, and the golden fixtures below only ever proved that the port agrees with *that*.
 
 Checking the top bar against the upstream file directly found rows the transcription never
 carried, several of them load-bearing on the two 480-tall devices. So `topInfo` is now verified
 against the XML, by `topInfo.test.ts`, which cites a line number for each value, and
-`layout.test.ts` excludes it from the legacy gate. The other ten view blocks still use the legacy
-gate and have not had the same treatment - **they should be assumed to carry similar gaps.**
+`layout.test.ts` excludes it from that fixture. The other ten view blocks still rest on that
+fixture and have not had the same treatment - **they should be assumed to carry similar gaps.**
 
 To re-fetch a view file for checking, in a container rather than on the host:
 
@@ -65,11 +68,10 @@ component rather than the spec. The rest is below.
 Three places where a transcription error is invisible and total, all checked by running the
 **original** code under `node:vm` and comparing value by value:
 
-- `scripts/gen-psx-golden.mjs` boots `legacy/playstation-x/layout.js` and captures `resolve()`
-  for all 108 combinations of device, carousel type, carousel size and top-info variant, and
-  `palette.js` for all 18 colorset and accent pairs.
-- `scripts/gen-psx-data.mjs` does the same for the library and the art factories, across all 25
-  games.
+- The fixtures were captured by running the original's own resolver and palette under `node:vm`,
+  across all 108 combinations of device, carousel type, carousel size and top-info variant, all
+  18 colorset and accent pairs, and all 25 games. They are frozen now - the code that produced
+  them went with the original - so treat a change to one as a deliberate decision.
 
 `layout.test.ts`, `palette.test.ts` and `art.test.ts` assert the port matches those fixtures. A
 self-snapshot would only prove the port agrees with itself.
@@ -115,7 +117,7 @@ panel that truncates `LAUNCH`.
 Each of these was found by reading the source; each now has a test.
 
 **`buildSingle` created a second marquee `<img>` that overwrote `this.marqueeEl`**, orphaning the
-first with no `src`. That orphan is the empty bordered box in the top-left of the legacy single
+first with no `src`. That orphan drew as an empty bordered box in the top-left of the single
 view. The port draws one.
 
 **`SPEC.battery` was fully specified and never rendered.** It is drawn, at its authored box. The
@@ -154,11 +156,11 @@ screenshot of a 4:3 panel exists to check it against, so it is left as the numbe
 
 **`transform-origin` was set by a CSS class rather than the resolved `origin`,** contradicting
 `source-notes.md:319`. The resolved origin drives it. Verified against the reference screenshots
-and the legacy pages across all four devices before keeping the change.
+and the original across all four devices before keeping the change.
 
 ## Top bar: what checking against the XML found
 
-All of these were in the legacy transcription too, so the port inherited them. Line numbers are
+All of these were in the original transcription too, so the port inherited them. Line numbers are
 against `_theme_views/top-info.xml` at `26ce759`.
 
 **The release year was drawn on the two 480-tall devices.** `:529` hides it on `4-3|3-2|5-4`,
@@ -212,7 +214,7 @@ port already honoured there.
 ## Open questions the sweep raised
 
 None of these are changed, because in each case the evidence does not clearly favour the source
-over what the port and the legacy already agree on. They are recorded so the next person does not
+over what the port and the original already agreed on. They are recorded so the next person does not
 have to rediscover them.
 
 **The bottom rule's `<y>0.995</y>`.** `linea-inferior` carries both `<pos>0 0.934</pos>` and an
@@ -227,7 +229,7 @@ rule that decides which wins is not known.
 discards the row and inherits `0.22` from `grid`, which would put the row under the tile grid.
 
 **`single`'s one-cell grid.** `single` sets `autoLayout 1 1` and positions the grid mostly
-off-screen left. Neither the port nor the legacy draws it, and there is no reference screenshot of
+off-screen left. Neither the port nor the original drew it, and there is no reference screenshot of
 that view to settle what it should look like.
 
 **`single`'s absolutely positioned system name**, at `0.213 0.512`. The port draws the collection
@@ -266,9 +268,9 @@ rule.
 hint bar and the folder chip by half a line each. A height authored as ~0 and no height are not
 the same case: an unsized element keeps its top edge and sizes to its own content. The original
 never hit this, because it called its `textLine` on six elements - five with real boxes and one
-authored `0.001`. Both now match the legacy page to the pixel on all four devices.
+authored `0.001`. Both matched the original to the pixel on all four devices.
 
-The hint bar's *height* still differs from the legacy on three of the four, because it is content
+The hint bar's *height* differs from the original on three of the four, because it is content
 sized and the font is no longer the same: honouring `SPEC.help`'s `{view: 'gamelist'}` rows drops
 it from `0.03` to `0.026`. `rg35xx` is unaffected - it is `tinyScreen`, where the two coincide.
 

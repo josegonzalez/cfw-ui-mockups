@@ -2,9 +2,10 @@ import { describe, expect, it } from 'vitest'
 import { resolve, type PsxState } from './layout'
 
 /**
- * The top bar against `_theme_views/top-info.xml` at `26ce759`, not against the legacy mockup.
+ * The top bar against `_theme_views/top-info.xml` at `26ce759`, not against the original mockup.
  *
- * The legacy is one transcription of that XML and this block is where it was found wanting, so
+ * The original mockup was one transcription of that XML, and this block is where it was found
+ * wanting - so
  * `layout.test.ts` excludes `topInfo` from the golden gate and these assertions stand in its
  * place. Each cites the line it comes from, so a disagreement can be settled by reading the
  * source rather than by arguing about which mockup is right.

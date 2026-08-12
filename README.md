@@ -29,7 +29,6 @@ Other commands, all from `app/`:
 ```
 app/      the React application - every screen is rendered from here
 docs/     architecture, widget catalogue, device and framework registries, per-theme notes
-legacy/   the original vanilla-JS mockups, kept as a fidelity reference
 ```
 
 Start with [docs/README.md](docs/README.md).

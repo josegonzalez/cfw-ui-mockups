@@ -8,8 +8,7 @@ animated background, switched with L1/R1 via a bottom glass nav pill.
 - Detailed spec extracted from source: [`reference/source-notes.md`](vitrolauncher/reference/source-notes.md)
 - What changed in the React port: [`porting/vitrolauncher.md`](../porting/vitrolauncher.md)
 
-Implemented at `app/src/themes/vitrolauncher/`. The archived original is under
-[`legacy/vitrolauncher/`](../../legacy/vitrolauncher/).
+Implemented at `app/src/themes/vitrolauncher/`.
 
 This is the only *launcher* in the repo rather than a frontend theme, and the only set whose
 settings are a real feature of the app instead of a mockup affordance - so unlike the other three,
@@ -130,5 +129,5 @@ frame at t=0.
 
 `vitrolauncher.test.ts` covers the parts that are pure functions - the grid's paging and wrapping,
 the settings windowing and value cycling, the palette's two different notions of "light", playtime
-formatting, and the background maths. Every screen was also rendered beside its legacy page on both
+formatting, and the background maths. Every screen was also rendered and compared on both
 devices; that pass found one fault, recorded in the porting notes.

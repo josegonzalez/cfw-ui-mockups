@@ -6,8 +6,8 @@ import { defineConfig, devices } from '@playwright/test'
  * `deviceScaleFactor: 1` keeps those screenshots at native resolution so a diff against the
  * reference art in docs/themes/<cfw>/reference/ compares like with like.
  *
- * One server serves both the React app and the pre-React screens under legacy/, which is what
- * makes the A/B fidelity gate a same-origin comparison rather than a second harness.
+ * Baselines are the regression gate: every route is captured at native resolution, so a change
+ * that leaves the numbers right and the screen wrong still fails.
  */
 export default defineConfig({
   testDir: './e2e',
@@ -19,8 +19,8 @@ export default defineConfig({
   reporter: process.env.CI ? [['github'], ['html', { open: 'never' }]] : [['list']],
   expect: {
     toHaveScreenshot: {
-      // Anti-aliasing on scaled bezels moves a few pixels between runs; real regressions
-      // in a 640x480 screen are far larger than this.
+      // Anti-aliasing moves a few pixels between runs; real regressions in a 640x480 screen
+      // are far larger than this.
       maxDiffPixelRatio: 0.002,
     },
   },

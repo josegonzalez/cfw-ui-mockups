@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { resolve, type PsxState } from './layout'
 
 /**
- * The system view against the upstream carousel option files, not against the legacy mockup.
+ * The system view against the upstream carousel option files, not against the original mockup.
  *
  * The block is a three-axis matrix - carousel size by console style by aspect ratio - and the
  * transcription only ever carried the first two. Every device but the 16:9 one therefore drew

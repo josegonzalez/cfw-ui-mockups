@@ -11,8 +11,8 @@ export const ELEMENTERIAL_DEVICES: readonly DeviceSlug[] = ['rg35xx', 'rg351m', 
  *
  * Each carries the scheme, style and system the original static page booted with. They differ
  * per screen on purpose: with fourteen schemes in two styles, showing every screen in the same
- * colours would hide the range the theme is actually built around. The slugs match the legacy
- * filenames so the A/B fidelity gate can pair them up by name.
+ * colours would hide the range the theme is actually built around. The slugs are the theme's own view
+ * names.
  */
 export interface ElementerialScreen {
   readonly slug: string

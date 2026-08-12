@@ -1,7 +1,10 @@
 # Porting notes: Vitro Launcher
 
-What changed between [`legacy/vitrolauncher/`](../../legacy/vitrolauncher/) and
-`app/src/themes/vitrolauncher/`.
+> The original vanilla-JS mockup this page compares against has since been removed - every
+> implementation here is the interactive application. The comparisons below are kept as the
+> record of what changed and why.
+
+What changed between the original vanilla-JS mockup and `app/src/themes/vitrolauncher/`.
 
 The original was four files - a data and DOM-builder module, a background renderer, a controller
 and a stylesheet - driving 8 boot stubs. The port keeps the data and the four background renderers

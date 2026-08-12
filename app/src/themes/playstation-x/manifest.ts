@@ -18,7 +18,7 @@ export const PSX_DEVICE_SLUGS: readonly DeviceSlug[] = [
  * right call here: this theme's variation is in its eleven views, so varying the palette as well
  * would only make the set harder to compare against itself.
  *
- * The slugs match the legacy filenames so the A/B fidelity gate can pair them up by name.
+ * The slugs are the theme's own view names, hyphenated.
  */
 export interface PsxScreen {
   readonly slug: string

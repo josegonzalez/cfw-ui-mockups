@@ -63,10 +63,9 @@ export async function settle(page: Page): Promise<void> {
       .gal-viewer > *:not(.device-viewport) { display: none !important; }
       /*
        * And capture at native resolution. The viewing zoom is a comfort setting that differs
-       * between the app and the legacy pages - and between devices - so leaving it in would mean
-       * comparing a 480x320 panel magnified 1.6x against the same panel magnified 1.3x. At scale
-       * 1 every capture is exactly the device's own pixels, which is the only size the two
-       * harnesses agree on.
+       * that differs between devices, so leaving it in would mean a 480x320 panel captured at
+       * 1.6x next to a 640x480 one at 1.3x. At scale 1 every capture is exactly the device's own
+       * pixels, which is the only size they all agree on.
        */
       .device-viewport { margin: 0 auto !important; --scale: 1 !important; }
     `,

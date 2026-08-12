@@ -33,10 +33,8 @@ export interface ThemeEntry {
   readonly views: number
   readonly devices: readonly DeviceSlug[]
   readonly fonts: readonly string[]
-  /** True once the set is rendered by the React app rather than only archived. */
+  /** Every set is implemented; the flag remains so a work-in-progress set can say so. */
   readonly ported: boolean
-  /** Where to look if it is not ported yet. */
-  readonly legacyPath: string
   readonly docPath: string
 }
 
@@ -61,7 +59,6 @@ export const THEMES: readonly ThemeEntry[] = [
     devices: ['rg35xx', 'rg351m', 'rg552', 'rg-cubexx'],
     fonts: ['Inter', 'Roboto Condensed'],
     ported: true,
-    legacyPath: 'legacy/elementerial/rg35xx/theme.html',
     docPath: 'docs/themes/elementerial.md',
   },
   {
@@ -84,7 +81,6 @@ export const THEMES: readonly ThemeEntry[] = [
     devices: ['rg34xx', 'rg35xx', 'rg552', 'trimui-smart-pro'],
     fonts: ['SST'],
     ported: true,
-    legacyPath: 'legacy/playstation-x/rg35xx/theme.html',
     docPath: 'docs/themes/playstation-x.md',
   },
   {
@@ -107,7 +103,6 @@ export const THEMES: readonly ThemeEntry[] = [
     devices: ['rg34xx', 'rg35xx'],
     fonts: ['Roboto Condensed'],
     ported: true,
-    legacyPath: 'legacy/vitrolauncher/rg35xx/launcher.html',
     docPath: 'docs/themes/vitrolauncher.md',
   },
   {
@@ -130,7 +125,6 @@ export const THEMES: readonly ThemeEntry[] = [
     devices: ['rg35xx', 'rg-cubexx'],
     fonts: ['System sans'],
     ported: true,
-    legacyPath: 'legacy/example-cfw/rg35xx/main-menu.html',
     docPath: 'docs/themes/example-cfw.md',
   },
 ]

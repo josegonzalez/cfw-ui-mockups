@@ -10,8 +10,7 @@ shipped by AmberELEC, ArkOS, Knulli and RetroBat.
 - Reference screenshots from the theme's README: [`reference/`](elementerial/reference/)
 - What changed in the React port: [`porting/elementerial.md`](../porting/elementerial.md)
 
-Implemented at `app/src/themes/elementerial/`. The archived original is under
-[`legacy/elementerial/`](../../legacy/elementerial/).
+Implemented at `app/src/themes/elementerial/`.
 
 This is the first EmulationStation theme in the repo, so it also establishes how ES's
 normalized-coordinate theming model maps onto this repo's native-pixel rule. That mapping
@@ -36,8 +35,7 @@ to its resting values rather than playing - there is no second implementation to
 | Elementflix | `#elementerial/<device>/elementflix` |
 | Menu | `#elementerial/<device>/menu` |
 
-The slugs match the legacy filenames, so the A/B capture in `e2e/capture.spec.ts` pairs each
-screen with its original by name.
+The slugs are the theme's own view names.
 
 Each static screen carries its own scheme, style and system - the same ones the original
 static pages booted with. Fourteen schemes in two styles is most of what this theme is, and

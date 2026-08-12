@@ -13,7 +13,7 @@ n/a - this is a template, not a reproduction. A real theme's page names the upst
 and the commit it was read at, and links its extracted spec in `reference/source-notes.md`.
 
 Mode: **design-new**. There is no screenshot to match, so there is no fidelity gate beyond the
-diff against [`legacy/example-cfw/`](../../legacy/example-cfw/).
+diff against its stored baseline.
 
 ## What a theme is made of
 

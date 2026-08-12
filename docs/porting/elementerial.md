@@ -1,7 +1,10 @@
 # Porting notes: Elementerial
 
-What changed between [`legacy/elementerial/`](../../legacy/elementerial/) and
-`app/src/themes/elementerial/`.
+> The original vanilla-JS mockup this page compares against has since been removed - every
+> implementation here is the interactive application. The comparisons below are kept as the
+> record of what changed and why.
+
+What changed between the original vanilla-JS mockup and `app/src/themes/elementerial/`.
 
 The original was six files - a resolver, a palette module, a view builder, a controller, a
 stylesheet and a generated mask stylesheet - driving 36 boot stubs. The port keeps the resolver
@@ -13,9 +16,10 @@ and the palette almost verbatim, because both were already pure functions of
 The resolver and the generated art are the two places where a transcription error is invisible
 and total. Both are checked by running the **original** code under `node:vm` and comparing:
 
-- `scripts/gen-layout-golden.mjs` boots `legacy/elementerial/layout.js` and captures `resolve()`
-  for all 24 combinations of device, font size and grid direction.
-- `scripts/gen-data.mjs` does the same for the library and the art factories.
+- The fixtures were captured by running the original's own `resolve()` under `node:vm`, across
+  all 24 combinations of device, font size and grid direction, and the same for the library and
+  the art factories. They are frozen now - the code that produced them went with the original -
+  so treat a change to one as a deliberate decision rather than a refresh.
 
 `layout.test.ts` and `art.test.ts` assert the port matches those fixtures value by value. A
 self-snapshot would only prove the port agrees with itself; this proves it agrees with what it
@@ -24,7 +28,7 @@ reproduces.
 ## Deviations
 
 **The 5:3 overlays now draw, so the RG552 screens differ from the original.** See "Defects
-fixed" below. This is the one place where the port deliberately does not match the legacy page.
+fixed" below. This is the one place where the port deliberately does not match the original.
 
 **The scheme stays in the cascade; nothing a widget owns reads it.** Portability rule 3 bans
 cascade dependence, and this is the documented exception: the five scheme tokens are written as
@@ -64,7 +68,7 @@ and `ratio32` but none for `ratio53`, so on all nine RG552 pages the on-screen-d
 the rounded-corner border never drew - despite `assets/ratio53/osd-bg.png` and `borders.png` both
 shipping, and despite `masks.css` carrying the 5:3 scrims. The port resolves overlays by asking
 whether the artwork exists, so they draw wherever it does. The RG552 screens therefore differ
-from their legacy counterparts, and that difference is the fix.
+from the original, and that difference is the fix.
 
 **The device frame styled the theme's help bar.** `shared/device-frame.css` declared a bare
 `.pill` for the Start and Select buttons in the button cluster. Elementerial's help bar gives its
@@ -81,7 +85,7 @@ rather than referenced by a property nothing read.
 
 ## Found by looking at it
 
-Rendered against the legacy page, screen by screen, on every device. These are the ones no
+Rendered and compared screen by screen, on every device. These are the ones no
 automated check caught.
 
 **Every view was invisible.** The theme's z-order runs from -9 (system artwork) to 100
@@ -176,5 +180,5 @@ port renders one view.
   work.
 - `e2e/screens.spec.ts` - all 36 routes render with no console errors, draw content, and have
   nothing opaque covering them.
-- `e2e/capture.spec.ts` - each screen beside its legacy counterpart, for the comparison that
-  found everything in the section above.
+- `e2e/baseline.spec.ts` - a stored capture of every screen at the device's own resolution,
+  which is the comparison a computed-style check cannot make.

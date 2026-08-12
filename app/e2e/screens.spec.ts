@@ -165,24 +165,24 @@ test('the notes open as a rendered page', async ({ page }) => {
   await expect(page.locator('.notes__body')).not.toBeEmpty()
 })
 
-test('every link off the landing page resolves', async ({ page, request }) => {
+test('every notes page the landing links to exists', async ({ request }) => {
   /*
-   * The "Read the notes" and "Open the original" buttons point at `docs/` and `legacy/`, which
-   * live outside the Vite root and are mounted by a plugin. Nothing about a dead link is
-   * visible on the page - it renders perfectly and then does nothing when clicked - so the
-   * targets are fetched rather than assumed.
+   * Each card's "Read the notes" button opens a page out of `docs/`, which lives outside the Vite
+   * root and is mounted by a plugin. Nothing about a dead one is visible - the card renders
+   * perfectly and the viewer opens empty - so the targets are fetched rather than assumed.
    */
-  await page.goto('/')
+  /*
+   * Derived from the manifest rather than the catalogue: the catalogue imports preview art, and
+   * this spec runs outside Vite, so importing it would drag a PNG through Playwright's transform.
+   * That is the reason the manifest is kept free of React and assets in the first place.
+   */
+  const slugs = [...new Set(ROUTES.map((route) => route.theme))]
+  expect(slugs.length).toBeGreaterThan(0)
 
-  const targets = await page.locator('a[href^="/"]').evaluateAll((links) =>
-    [...new Set(links.map((a) => (a as HTMLAnchorElement).getAttribute('href')!))],
-  )
-
-  expect(targets.length).toBeGreaterThan(0)
-
-  for (const href of targets) {
-    const response = await request.get(href)
-    expect(response.status(), `${href} should not be a dead link`).toBe(200)
+  for (const slug of slugs) {
+    const path = `docs/themes/${slug}.md`
+    const response = await request.get(`/${path}`)
+    expect(response.status(), `${path} should not be a dead link`).toBe(200)
   }
 })
 

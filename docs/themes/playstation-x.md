@@ -10,8 +10,7 @@ view types and 3 system-carousel styles.
 - Reference screenshots from the theme author's own site: [`reference/`](playstation-x/reference/)
 - What changed in the React port: [`porting/playstation-x.md`](../porting/playstation-x.md)
 
-Implemented at `app/src/themes/playstation-x/`. The archived original is under
-[`legacy/playstation-x/`](../../legacy/playstation-x/).
+Implemented at `app/src/themes/playstation-x/`.
 
 The theme targets Batocera 39+ / RetroBat 6+ and also runs on EmuElec. It is a Batocera-fork
 theme (`formatVersion 7`), not RetroPie ES or ES-DE.
@@ -42,8 +41,7 @@ values rather than playing - there is no second implementation to drift.
 | Boot splash | `splash.xml` | `#playstation-x/<device>/boot-splash` |
 | Game launch | `gamesplash.xml` | `#playstation-x/<device>/game-launch` |
 
-The slugs match the legacy filenames, so the A/B capture in `e2e/capture.spec.ts` pairs each
-screen with its original by name.
+The slugs are the theme's own view names, hyphenated.
 
 Unlike Elementerial, every static screen boots with the same subsets - blue, PS4, medium,
 default top info, on the PlayStation system. This theme's variation is in its eleven views, so
@@ -268,12 +266,12 @@ uncommitted Python scripts; both are executable assertions now.
 
 All eleven views have also been replayed against the upstream XML and matched by resolved
 geometry. Six agree exactly; the top bar and the system chooser did not, and both are now verified
-against the source rather than against the legacy transcription. What that sweep found, and the
+against the source rather than against the original transcription. What that sweep found, and the
 handful of questions it left open, are in
 [`porting/playstation-x.md`](../porting/playstation-x.md).
 
 The fixtures prove the numbers and say nothing about what those numbers paint, so every screen
-was also rendered and compared against its legacy page on all four devices. That pass found
+was also rendered and compared on all four devices. That pass found
 eleven faults that every numeric check had passed. They are listed, with the class of fault, in
 [`porting/playstation-x.md`](../porting/playstation-x.md), and `views/views.test.tsx` asserts
 each one.

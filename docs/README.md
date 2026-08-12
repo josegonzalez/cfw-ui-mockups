@@ -10,7 +10,6 @@ Index of the documentation in this repo. Start here.
 | [portability.md](portability.md) | The discipline that keeps widgets translatable to a non-DOM renderer, and how it is enforced |
 | [animation.md](animation.md) | The animation descriptor format, the neutral timeline, easing registry and renderer adapters |
 | [testing.md](testing.md) | What is tested where, and how to run each suite |
-| [legacy.md](legacy.md) | What lives under `legacy/`, why it is kept, and how to compare against it |
 
 ## Widgets
 

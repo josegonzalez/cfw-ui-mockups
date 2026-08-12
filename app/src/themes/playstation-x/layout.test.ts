@@ -7,13 +7,14 @@ import golden from './__fixtures__/layout.golden.json'
  *
  * 108 combinations - four devices by three carousel sizes by three carousel types by three
  * top-info settings, which is every row in the spec that a live subset can reach. The fixture
- * is captured by `scripts/gen-psx-golden.mjs`, which runs `legacy/playstation-x/layout.js`
- * under `node:vm`. A snapshot of the port would only prove nobody had changed it lately; this
- * proves it still agrees with the thing it reproduces.
+ * was captured by running the original mockup's own resolver under `node:vm`, before that
+ * mockup was removed. A snapshot of the port would only prove nobody had changed it lately;
+ * this proves it still agrees with what it was ported from. The fixture is now frozen - there
+ * is nothing left to regenerate it from - so treat a change to it as a deliberate decision.
  *
  * `topInfo` is excluded, and that exclusion is the whole reason this comment is long.
  *
- * The legacy mockup is not the theme - it is one transcription of the theme's XML, and this
+ * The original mockup was not the theme - it was one transcription of the theme's XML, and this
  * fixture only ever proved the port agrees with *that*. Checking the top bar against the
  * upstream file directly found rows the transcription never carried: the release year is hidden
  * on `4-3|3-2|5-4` and was being drawn on two devices, the frontend logo and its plus pictogram
@@ -26,8 +27,8 @@ import golden from './__fixtures__/layout.golden.json'
  *
  * Everything else stays, and that is now a stronger claim than it looks: a geometry-level sweep of
  * all eleven views against the upstream files (see `docs/porting/playstation-x.md`) found the
- * remaining blocks already agree with the source, so the legacy fixture and the XML say the same
- * thing for them. The fixture is kept as the regression net.
+ * remaining blocks already agree with the source, so the fixture and the XML say the same thing
+ * for them. It is kept as the regression net.
  */
 const EXCLUDED = ['topInfo', 'system', 'single'] as const
 
