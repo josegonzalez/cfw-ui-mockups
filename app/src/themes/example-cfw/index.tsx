@@ -63,7 +63,6 @@ export function ExampleOs({ view = 'main-menu', selected = 0 }: ExampleOsProps) 
   useButtonPress(
     useCallback(
       (button) => {
-        if (!animate) return
         if (button === 'up') cursor.move(-1)
         else if (button === 'down') cursor.move(1)
         else if (button === 'a' && current === 'main-menu') {
@@ -72,7 +71,7 @@ export function ExampleOs({ view = 'main-menu', selected = 0 }: ExampleOsProps) 
           if (entry?.opens) nav.navigate(entry.opens)
         }
       },
-      [animate, cursor, current, menuCursor.index, nav],
+      [cursor, current, menuCursor.index, nav],
     ),
   )
 

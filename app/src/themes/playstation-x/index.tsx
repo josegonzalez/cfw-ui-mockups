@@ -112,7 +112,6 @@ export function PlayStationX({
   useButtonPress(
     useCallback(
       (button) => {
-        if (!animate) return
         const cursor = isSystemView ? systemCursor : gameCursor
 
         const step =
@@ -122,7 +121,7 @@ export function PlayStationX({
         setEvent(step > 0 ? 'activateNext' : 'activatePrev')
         cursor.move(step)
       },
-      [animate, isSystemView, systemCursor, gameCursor, cols],
+      [isSystemView, systemCursor, gameCursor, cols],
     ),
   )
 

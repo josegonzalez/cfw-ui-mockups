@@ -122,7 +122,6 @@ export function VitroLauncher({
   useButtonPress(
     useCallback(
       (b) => {
-        if (!animate) return
         // Any press wakes the nav pill; the effect below re-arms the fade.
         setNavHidden(false)
         setActivity((n) => n + 1)
@@ -184,7 +183,7 @@ export function VitroLauncher({
             return
         }
       },
-      [animate, move, screen, all, allIndex, settings, settingsIndex, transitions],
+      [move, screen, all, allIndex, settings, settingsIndex, transitions],
     ),
   )
 

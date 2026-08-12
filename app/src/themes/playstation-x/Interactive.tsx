@@ -197,7 +197,12 @@ export function PlayStationXInteractive({ device }: PlayStationXInteractiveProps
 
   return (
     <>
-      <DeviceFrame device={device} animate={animate}>
+      {/*
+        The toggle can only switch motion *off*. Passing `animate` unconditionally would also
+        force it back on, overriding a `?still=1` from the URL - and that is the one thing the
+        settle invariant needs to be able to do.
+      */}
+      <DeviceFrame device={device} {...(animate ? {} : { animate: false })}>
         <ChromeKeys onAction={onAction} />
         <PlayStationX {...themeProps} />
       </DeviceFrame>

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Landing } from './gallery/Landing'
 import { NotesViewer, notesPathFromHash } from './gallery/NotesViewer'
 import { ViewerBar } from './gallery/ViewerBar'
+import { ViewOverridesProvider, parseViewOverrides } from './device/ViewOverrides'
 import { ROUTES } from './themes/registry'
 import { findRoute } from './routes'
 import './gallery/gallery.css'
@@ -34,10 +35,16 @@ export function App() {
   const route = findRoute(ROUTES, hash)
   if (!route) return <Landing />
 
+  /*
+   * `?still=1` and `?mode=fallback` are harness controls with no firmware counterpart - they let
+   * the fallback baselines and the settle invariant pose a screen its route cannot.
+   */
+  const overrides = parseViewOverrides(globalThis.location?.search ?? '')
+
   return (
     <main className="gal-viewer">
       <ViewerBar route={route} />
-      {route.render()}
+      <ViewOverridesProvider overrides={overrides}>{route.render()}</ViewOverridesProvider>
     </main>
   )
 }

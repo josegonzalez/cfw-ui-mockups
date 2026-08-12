@@ -3,6 +3,7 @@ import { InputProvider } from '../input/InputProvider'
 import { RenderModeProvider, type RenderMode } from '../render/RenderModeProvider'
 import { ButtonCluster, Grip } from './ButtonCluster'
 import { ScreenProvider } from './ScreenContext'
+import { useViewOverrides } from './ViewOverrides'
 import { chinHeight, getDevice, gripWidth, radiusCss, type DeviceSlug } from './devices'
 import './device-frame.css'
 import '../anim/anim.css'
@@ -33,13 +34,22 @@ export interface DeviceFrameProps {
  */
 export function DeviceFrame({
   device,
-  animate = true,
+  animate,
   interactive = true,
-  renderMode = 'web',
+  renderMode,
   scale,
   bare = false,
   children,
 }: DeviceFrameProps) {
+  /*
+   * A prop wins over a URL override, which wins over the default. That ordering is what lets the
+   * settle invariant work: a static route sets `animate={false}` itself and ignores the override,
+   * while an interactive route sets nothing and takes it.
+   */
+  const overrides = useViewOverrides()
+  const motion = animate ?? overrides.animate ?? true
+  const mode = renderMode ?? overrides.renderMode ?? 'web'
+
   const info = getDevice(device)
   const shell = info.shell
 
@@ -70,8 +80,8 @@ export function DeviceFrame({
   )
 
   return (
-    <RenderModeProvider mode={renderMode}>
-      <ScreenProvider device={device} animate={animate}>
+    <RenderModeProvider mode={mode}>
+      <ScreenProvider device={device} animate={motion}>
         <InputProvider enabled={interactive}>
           {bare ? (
             screen

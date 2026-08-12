@@ -99,7 +99,6 @@ export function Elementerial({
   useButtonPress(
     useCallback(
       (button) => {
-        if (!animate) return
 
         if (view === 'system') {
           if (button === 'left' || button === 'right') {
@@ -121,7 +120,7 @@ export function Elementerial({
         else if (button === 'left') gameCursor.move(-1)
         else if (button === 'right') gameCursor.move(1)
       },
-      [animate, view, systemCursor, gameCursor, menuCursor],
+      [view, systemCursor, gameCursor, menuCursor],
     ),
   )
 
