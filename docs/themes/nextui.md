@@ -7,8 +7,10 @@ custom firmware, and adopts its palette format whole so palettes written for a N
 straight in.
 
 - Source repository: `github.com/Polprzewodnikowy/N64FlashcartMenu`
-- The theme's own documentation, extracted:
+- Detailed spec extracted from source: [`reference/source-notes.md`](nextui/reference/source-notes.md)
+- The project's own documentation of the theme, kept verbatim:
   [`reference/theme-notes.md`](nextui/reference/theme-notes.md)
+- Reference screenshots from that documentation: [`reference/`](nextui/reference/)
 - What changed in the React port: [`porting/nextui.md`](../porting/nextui.md)
 
 Implemented at `app/src/themes/nextui/`.

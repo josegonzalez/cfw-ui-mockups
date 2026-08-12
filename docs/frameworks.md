@@ -32,6 +32,12 @@ framework design (`README.md:7`), and ships a migration guide for moving between
 layer, the small flat colour theme, and the absence of a grid, a carousel, an animation
 system and video. They are close to one assessment rather than two.
 
+**NextUI is the exception that shows the shape of the problem.** Its browser is a list, a
+right-hand art panel and a footer, and gabagool's `List` already draws all three; both frameworks'
+theme structs match its seven palette slots exactly. What still fails is composition in the small -
+its context menu draws over a browser that stays visible, and both frameworks' selection dialogs
+clear the frame first.
+
 ## What each is
 
 | | Apostrophe | gabagool |
@@ -97,7 +103,7 @@ inference from the docs.
 | Render to texture | `SDL_SetRenderTarget` never called | internal only - rotation canvas and an AA-shape cache |
 | Smooth list scrolling | rows jump; only the highlight pill lerps 50 ms | index jump |
 | Video playback | absent | absent |
-| Data-driven theme or layout format | 7 colours + 2 paths, no layout format | 8 colours + 2 paths, no layout format |
+| Data-driven theme or layout format | 7 colours + 2 paths, no layout format | 7 colours + 2 paths, no layout format |
 | Image fit modes | stretch only - `ap_draw_image(tex, x, y, w, h)` | aspect-fit only, hardcoded |
 | Public alpha or tint on images | no - tint is internal to the NextUI spritesheet | no - `SetColorMod` never called |
 | Reflection and saturation filters | absent | absent |
@@ -260,6 +266,83 @@ Missing from both frameworks:
 
 Maps today: the Settings screen fits `ap_options_list` / `OptionsList` closely, apart from
 the glass and the colour dot.
+
+### NextUI
+
+Full spec: [`themes/nextui/reference/source-notes.md`](themes/nextui/reference/source-notes.md).
+
+This is the closest fit in the registry, and not by coincidence: both frameworks are toolkits for
+NextUI paks, and this set is a theme reproducing NextUI's look on a Nintendo 64. They are drawing
+the same firmware. The gaps are correspondingly small and specific.
+
+Missing from both frameworks:
+
+- **Overlays that draw over the screen they were opened from.** `ui_components_context_menu_draw`
+  and `ui_components_messagebox_draw` are called after the view's own draw, so the browser stays
+  visible behind the menu. Both frameworks' equivalents are blocking modal screens that clear the
+  frame first - Apostrophe's `ap_selection` opens its render block with `ap_draw_background()`,
+  gabagool's `SelectionMessage` with `renderer.Clear()`
+  (`pkg/gabagool/selection_message.go:187-188`). This is the modal-composition blocker in its
+  mildest form: here it costs the backdrop, not the screen.
+- **Image tinting.** `ui_components_nextui_tinted_sprite_draw` modulates white art by a palette
+  colour, which is how the eight ledger icons, the cartridge placeholder and the folder glyph take
+  the theme. `SetColorMod` is zero-hit in both.
+- **One accent pill per hint.** `hint_group_draw_at` draws a separate stadium per hint with an 8 px
+  gap. Both frameworks draw one continuous pill around a whole group - Apostrophe at
+  `include/apostrophe.h:3257, 3279`, gabagool's `renderGroupAsContinuousPill` at
+  `pkg/gabagool/footer.go:132, 140`.
+- **Two stacked pills on a selected settings row** - a full-width accent pill with a main-colour
+  pill hugging the label on top of it. `ap_options_list` draws one full-width pill
+  (`include/apostrophe_widgets.h:1301`); that pairing is what makes a NextUI settings list read
+  differently from its file list despite both being 40 px rows.
+- **A hold-scroll-hold-snap marquee.** The source holds 45 frames, scrolls left 2 px per frame,
+  holds 45, then assigns the offset straight back to zero. Apostrophe's `ap_text_scroll` is
+  ping-pong - it carries a `direction` field and reverses at each end
+  (`include/apostrophe.h:263-269`) - and gabagool's is truncation plus marquee.
+- **A caller-set art box.** gabagool's `List` already contain-fits the highlighted row's art and
+  right-anchors it vertically centred (`pkg/gabagool/list.go:934-957`), which is the exact shape,
+  but its maximum is a hardcoded `screenWidth/3` x `screenHeight/2` and its inset a literal 20 px.
+  The theme's is 288x288 against the overscan edge. Apostrophe's list image is a 24 px in-row icon
+  (`include/apostrophe_widgets.h:585, 911`), not a panel.
+- **A selection pill that does not animate.** `AP__PILL_ANIM_MS 50.0f /* ~3 frames at 60fps,
+  matching NextUI */` lerps the pill's width and y between rows
+  (`include/apostrophe_widgets.h:501, 833`). This theme snaps. It is the only entry in this
+  registry where a framework does *more* motion than a set wants, and the only one where the fix is
+  to turn something off.
+- **Literal pixel geometry.** Both frameworks scale fonts and metrics off a reference width -
+  Apostrophe's font bump against a 320x240 logical reference (`include/apostrophe.h:124-126`),
+  gabagool's `GetScaleFactor`. A console has exactly one output size, so this set's four font sizes
+  are 32 / 24 / 20 / 16 px and every coordinate is a literal. The scaling apparatus is not a gap,
+  but it is dead weight, and the tier bases (24 / 16 / 14 / 12 / 10 / 7) do not land on the four
+  the theme names.
+- **`Z` and `C` buttons**, which the hint bars name and neither framework's button enum has.
+
+Maps today, and more of it than for any other set:
+
+- **The theme struct is a slot-for-slot match.** NextUI's seven colours are Apostrophe's
+  `highlight` / `accent` / `button_label` / `text` / `highlighted_text` / `hint` / `background`
+  (`include/apostrophe.h:244-254`) and gabagool's identically-named seven
+  (`pkg/gabagool/internal/theming.go:10-20`), in the same order, with the same meanings, plus the
+  background-image path the theme also supports. Theming is a hard gap for the other three sets and
+  a complete match here.
+- **Both list widgets already draw the label-hugging selection pill** that is this theme's
+  signature: `pill_target_w = tw + pill_pad * 2` (`include/apostrophe_widgets.h:809-812`) and
+  `pillWidth := Min32(maxPillWidth, measureText(font, itemText)+pillPadding)`
+  (`pkg/gabagool/list.go:795`).
+- **gabagool's `List` is close to the file browser outright** - hugging pill, plus contain-fit box
+  art for the highlighted row anchored right and vertically centred.
+- Rounded-rect and pill primitives in both (`ap_draw_pill`, `include/apostrophe.h:571`;
+  `DrawRoundedRect`, `pkg/gabagool/list.go:803`), so the stadium and the 16 px panel need no
+  nine-patch - even though the source blits `pill_cap_40` and `panel_corner_16` because the RDP has
+  neither.
+- Text measurement and ellipsis in both, which is what this theme's geometry is made of:
+  `ap_measure_text` and `ap_measure_text_ellipsized` (`include/apostrophe.h:578-579`).
+- The footer model - a left group and a right-aligned group of button-plus-label items - is the
+  same idea, differing only in pill granularity.
+- `ap_options_list` / `OptionList` is the settings screen minus the inner pill.
+- **Nothing here is blocked on a degradable effect.** The theme declares none: all 28 of its
+  fallback baselines are byte-identical to its normal ones, so blur, shaders and masks - which
+  block Vitro and Elementerial - are simply not in play.
 
 ## What a port would have to add
 

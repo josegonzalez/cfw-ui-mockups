@@ -1,8 +1,15 @@
+> Kept verbatim from N64FlashcartMenu's own `docs/20_nextui_theme.md`, apart from the image paths,
+> which point at the screenshots beside this file rather than at upstream's `images/` directory.
+> Links to other numbered documents (`16_background_images.md`, `19_gamepak_boxart.md`,
+> `65_experimental.md`) resolve in the upstream docs tree, not here.
+>
+> The extracted spec is [`source-notes.md`](source-notes.md).
+
 ## NextUI theme
 
 N64FlashcartMenu includes an optional theme inspired by the [NextUI](https://nextui.loveretro.games/) custom firmware: a black background, large rounded list text, a white rounded "pill" behind the selected entry, box art for the highlighted ROM on the right side of the screen, full-screen background images, and pill-style button hints.
 
-![NextUI theme file browser](images/nextui_browser.png)
+![NextUI theme file browser](nextui_browser.png)
 
 ### Enabling the theme
 
@@ -92,7 +99,7 @@ Full-screen background images are supported in two ways:
 
 With the NextUI theme active, pressing `Start` opens a full-screen settings list styled like a native NextUI pak: setting names on the left, values on the right, with the selected row highlighted by an accent pill. `Start` works from the browser as well as the History, Favorites and collections screens, and `B` returns to whichever screen Settings was opened from, keeping your place in the list.
 
-![NextUI theme settings](images/nextui_settings.png)
+![NextUI theme settings](nextui_settings.png)
 
 - `Up`/`Down` select a row.
 - `A`, `Left` or `Right` change the value.
@@ -122,7 +129,7 @@ The classic theme keeps its original controls.
 
 ### Collections
 
-![NextUI theme collections](images/nextui_collections.png)
+![NextUI theme collections](nextui_collections.png)
 
 Collections are user-curated game lists, mirroring NextUI's Collections feature. Each collection is a single file in a `Collections` folder at the root of the SD card:
 
@@ -157,7 +164,7 @@ sd:/Collections/.media/01) Racing.png
 
 ### The load screen
 
-![NextUI theme load screen](images/nextui_loadscreen.png)
+![NextUI theme load screen](nextui_loadscreen.png)
 
 Selecting a game opens the load screen, redesigned under the NextUI theme with the game's description as the main content. The screen shows the game's name as a title (styled like every NextUI screen title) with the hint pills, then a hero band: up to three lines of description with Developer, Publisher and Released rows underneath, and the game's box art on the right (loaded in the background so the screen opens instantly). When a game has more than one metadata image, `Left`/`Right` cycle through them and a hint appears under the art; when it has none, a bordered cartridge placeholder marks the spot. Below, an eight-row ledger pairs an icon with each fact: Players (one filled head per supported player), Save type, TV region, Expansion PAK, Rumble PAK, Transfer PAK, Datel Cheats and Patches. Rows whose value is `Not used`, `Off` or `Not required` render dimmed but stay visible. `A` plays, `B` returns to wherever the game was opened from, `R` opens the per-game options, and `Start` opens the extended info view.
 

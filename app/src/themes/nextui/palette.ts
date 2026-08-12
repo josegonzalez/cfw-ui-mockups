@@ -103,7 +103,8 @@ export const PALETTES: readonly Palette[] = [
   },
   {
     id: 'Ink_Gold',
-    name: 'Ink Gold',
+    /* The only built-in whose display name is not its filename with the underscores removed. */
+    name: 'Ink & Gold',
     colors: ['#F2A93B', '#0C0E17', '#241A05', '#E7E6F2', '#241A05', '#8A87A3', '#12141F'],
   },
   {
