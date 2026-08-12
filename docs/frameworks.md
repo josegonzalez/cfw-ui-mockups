@@ -5,26 +5,35 @@ would have to gain first. This file plays the same role for implementation targe
 [`devices.md`](devices.md) plays for hardware.
 
 Assessed on UI capability only. Each framework's device and CFW binding is recorded under
-"What it is" as a porting concern, not weighted as a blocker.
+"What each is" as a porting concern, not weighted as a blocker. One entry is a firmware rather
+than a toolkit; that is recorded there too, and it is compared on the UI layer its paks link
+against.
 
 Two skills keep this current: `/assess-launcher <cfw-slug>` when a mockup set is added, and
 `/assess-framework <repo>` when a candidate framework is added.
 
 ## Verdict
 
-**Neither [Apostrophe](https://github.com/Helaas/Apostrophe) nor
-[gabagool](https://github.com/BrandonKowalski/gabagool) can carry these screens today, and
-the blocker is architectural rather than a list of absent features.**
+**The blocker is the wrappers, not the platform.**
 
-Both are libraries of blocking, full-screen modal screens for NextUI utility paks. Every
-widget runs its own event loop and returns a result struct when the user completes an action
-or presses back. Apostrophe's README states the model outright (`README.md:154`); gabagool's
-`router` runs screens to completion in sequence (`pkg/gabagool/router/router.go:76-99`).
+[NextUI](https://github.com/LoveRetro/NextUI)'s own UI layer is caller-driven immediate-mode
+blitting: `GFX_startFrame()`, a sequence of `GFX_blit*` calls into an `SDL_Surface*` you own, then
+`GFX_flip(screen)` (`workspace/all/common/api.h:338-339`, driven that way by its own launcher at
+`workspace/all/nextui/nextui.c:2327-2328, 3275`). Composing a carousel, a grid and a status bar on
+one screen is what NextUI does every frame. It also carries three things the settled requirement
+list asks for and its wrappers lack: **five fixed compositing layers** with absolute indices no
+container re-bases (`api.h:671-672`), **public tint and alpha** (`api.c:1699-1742`), and **four
+image fit modes** (`api.h:378-384`).
 
-The consequence is that neither can compose two widgets onto one screen. A system carousel
-plus a game grid plus a video preview plus a status bar cannot coexist, because whichever one
-you call owns the frame until it returns. Reaching past the widget layer to the drawing
-primitives means using roughly a third of either library and writing the rest.
+[Apostrophe](https://github.com/Helaas/Apostrophe) and
+[gabagool](https://github.com/BrandonKowalski/gabagool) wrap that in a blocking, full-screen modal
+model: every widget runs its own event loop and returns a result struct when the user completes an
+action or presses back. Apostrophe's README states the model outright (`README.md:154`); gabagool's
+`router` runs screens to completion in sequence (`pkg/gabagool/router/router.go:76-99`). The
+consequence is that neither can compose two widgets onto one screen - whichever one you call owns
+the frame until it returns - and reaching past the widget layer to the drawing primitives means
+using roughly a third of either library and writing the rest. **That is their design choice, not an
+inherited limit.**
 
 Apostrophe describes itself as a C port whose structure was directly informed by gabagool's
 framework design (`README.md:7`), and ships a migration guide for moving between them
@@ -32,44 +41,84 @@ framework design (`README.md:7`), and ships a migration guide for moving between
 layer, the small flat colour theme, and the absence of a grid, a carousel, an animation
 system and video. They are close to one assessment rather than two.
 
-**NextUI is the exception that shows the shape of the problem.** Its browser is a list, a
-right-hand art panel and a footer, and gabagool's `List` already draws all three; both frameworks'
-theme structs match its seven palette slots exactly. What still fails is composition in the small -
-its context menu draws over a browser that stays visible, and both frameworks' selection dialogs
-clear the frame first.
+**What fails on all three is motion.** NextUI's animation is a blocking playback loop -
+`for (frame = 0; frame <= total_frames; ++frame) { ...; PLAT_GPU_Flip(); }`, interpolating x, y and
+opacity linearly (`workspace/all/common/generic_video.c:1213-1241`). There is no timeline, no
+easing (`ease*`, `bezier` and `tween` are zero-hit across 51,197 lines), no way to compose
+independent channels on one element, and **no way to evaluate a track at t=0** - the only route to
+a resting value is to play the animation to its end. Every screen in this repo exists in a settled
+form, so that last point alone rules out drawing a still.
+
+One naming collision to hold in mind: **NextUI is both a framework in this registry and a mockup
+set in this repo** - the firmware, and the N64FlashcartMenu theme that reproduces its look. Below,
+an unqualified "NextUI" is the framework; the set is named "the NextUI set" or reached through
+[its own gap section](#nextui-1).
+
+That set is the closest fit of the five, against all three entries: its browser is a list, a
+right-hand art panel and a footer, and every theme struct here matches its seven palette slots
+because they all descend from the same seven.
 
 ## What each is
 
-| | Apostrophe | gabagool |
-| --- | --- | --- |
-| Self-description | "A header-only C UI toolkit for building graphical tools (Paks) on retro gaming handhelds running NextUI" (`README.md:3`) | "A Go-based UI library for building graphical interfaces on retro gaming handhelds that support SDL2" (`README.md:7`) |
-| Language | C99, header-only (2 headers) | Go 1.24, module `/v2` |
-| Build | GNU Make, Docker cross-compile | `go build`, Docker cross-compile |
-| Backend | SDL2 `SDL_Renderer` 2D | SDL2 `SDL_Renderer` 2D |
-| Dependencies | SDL2, SDL2_ttf, SDL2_image; libcurl optional, downloads only | SDL2, SDL2_image, SDL2_ttf, SDL2_gfx; `oksvg`, `go-evdev`, `go-i18n`, `toml` |
-| Size | 9,882 lines | 13,505 lines |
-| Widgets | 13 modal entry points | ~12 modal screens |
-| Licence | MIT | MIT |
-| Devices | TrimUI Smart Pro, Smart Brick, Smart Pro S, Miyoo Flip | adds `h700` (RG35XX H / Plus) |
+**NextUI is not the same kind of thing as the other two.** It is a firmware, and its UI layer is
+the library its paks link against; Apostrophe and gabagool are toolkits you build a pak *with*.
+They are compared here on UI capability because that layer is what a port would sit on.
 
-Neither ships SDL_mixer, libmpv or ffmpeg. Both read their palette by shelling out to
-NextUI's `nextval.elf` and parsing its JSON, so theme ingestion is NextUI-shaped: Apostrophe
-at `include/apostrophe.h:1081-1109`, gabagool at `pkg/gabagool/platform/nextui/theming.go:88-113`.
+| | NextUI | Apostrophe | gabagool |
+| --- | --- | --- | --- |
+| Self-description | "A CFW based of MinUI with a rebuild emulation engine and tons of added features for the TrimUI Brick and Smart Pro" (`README.md:32`) | "A header-only C UI toolkit for building graphical tools (Paks) on retro gaming handhelds running NextUI" (`README.md:3`) | "A Go-based UI library for building graphical interfaces on retro gaming handhelds that support SDL2" (`README.md:7`) |
+| What it is | a firmware; `workspace/all/common/api.{c,h}` is the UI layer paks link against | a pak toolkit | a pak toolkit |
+| Language | C | C99, header-only (2 headers) | Go 1.24, module `/v2` |
+| Build | GNU Make, Docker cross-compile | GNU Make, Docker cross-compile | `go build`, Docker cross-compile |
+| Backend | SDL2 surfaces for UI; GLES2 for the emulator path | SDL2 `SDL_Renderer` 2D | SDL2 `SDL_Renderer` 2D |
+| Dependencies | SDL2, SDL2_ttf, SDL2_image, OpenGL ES2, pthread, libsamplerate | SDL2, SDL2_ttf, SDL2_image; libcurl optional, downloads only | SDL2, SDL2_image, SDL2_ttf, SDL2_gfx; `oksvg`, `go-evdev`, `go-i18n`, `toml` |
+| Size | 51,197 lines total; 5,722 in `api.{c,h}` | 9,882 lines | 13,505 lines |
+| Widgets | none - drawing primitives only | 13 modal entry points | ~12 modal screens |
+| Licence | **GPL-3.0**, transition underway (README, issue #765) | MIT | MIT |
+| Devices | TrimUI Brick, Smart Pro (`tg5040`, `tg5050`), plus a desktop target | TrimUI Smart Pro, Smart Brick, Smart Pro S, Miyoo Flip | adds `h700` (RG35XX H / Plus) |
+
+**The licence difference is not a footnote.** Both toolkits are MIT, so anything worth harvesting
+from them can be lifted into a port under almost any terms. NextUI is GPL-3.0, so linking a port
+against `api.c` makes that port GPL-3.0 too. Harvesting an idea is free; harvesting the code is
+not.
+
+None of the three ships libmpv or ffmpeg. The two toolkits read their palette by shelling out to
+NextUI's own `nextval.elf` and parsing its JSON, so their theme ingestion is NextUI-shaped by
+construction: Apostrophe at `include/apostrophe.h:1081-1109`, gabagool at
+`pkg/gabagool/platform/nextui/theming.go:88-113`. NextUI holds the same seven values directly
+(`workspace/all/common/config.h:8-14`), which is what they are reading.
 
 Device coverage is partial rather than absent. The Elementerial and Vitro Launcher sets target
-devices neither framework supports, so for those two the binding is a porting concern on top of
-the capability gaps. PlayStation X changes that: it targets the **TrimUI Smart Pro**, which
-Apostrophe supports directly, and the **RG35XX**, whose H / Plus variants gabagool supports via
-`h700`. For that set the device binding is not the obstacle - the UI capabilities below are.
+devices none of the three supports, so for those two the binding is a porting concern on top of
+the capability gaps. PlayStation X changes that: it targets the **TrimUI Smart Pro**, which both
+NextUI (`tg5040`) and Apostrophe support directly, and the **RG35XX**, whose H / Plus variants
+gabagool supports via `h700`. For that set the device binding is not the obstacle - the UI
+capabilities below are.
 
-Either way this is a porting concern rather than a capability gap, and neither could be dropped
-onto an RG35XX running muOS without work below the UI layer.
+Either way this is a porting concern rather than a capability gap, and none of the three could be
+dropped onto an RG35XX running muOS without work below the UI layer.
 
 ## What they do provide
 
-The part worth harvesting, and the reason neither is a bad project:
+The part worth harvesting, and the reason none of the three is a bad project. **Check the licence
+before taking code**: the two toolkits are MIT, NextUI is GPL-3.0 with a transition underway, so
+from NextUI the design is free to copy and the source is not.
 
-- **A good handheld input layer, in both.** Virtual buttons decoupled from hardware, several
+From NextUI:
+
+- **The drawing model itself.** `GFX_startFrame()` / `GFX_blit*` / `GFX_flip(screen)` is the shape
+  a portable widget kit wants: the caller owns the surface and the call order, so paint order is a
+  total order the caller reasons about locally. This repo's four fidelity faults were all elements
+  painted in the wrong order, and none of them is expressible in this model.
+- **Five compositing layers with absolute indices** (`api.h:671-672`) - a depth model that no
+  container re-bases, which is exactly the requirement `docs/widgets/README.md` names.
+- **Tinted asset blitting** (`api.c:1699-1742`), which is how one white sprite set serves every
+  palette, and how the seven-slot theme reaches the icons.
+- **Four fit modes in the drawing layer** rather than at the call site (`api.h:378-384`).
+
+From the two toolkits:
+
+- **A good handheld input layer, in both of them.** Virtual buttons decoupled from hardware, several
   input backends (SDL GameController, raw joystick, device-specific scancodes), D-pad
   auto-repeat with fresh-versus-repeat distinction, analog deadzones, and chord and sequence
   detection. gabagool adds JSON remapping and an input-capture wizard
@@ -89,36 +138,45 @@ The part worth harvesting, and the reason neither is a bad project:
 Every "absent" or "none" below is a verified zero-hit check against the source, not an
 inference from the docs.
 
-| Requirement | Apostrophe | gabagool |
-| --- | --- | --- |
-| Compose widgets on one screen | no - each widget owns the event loop | no - same |
-| Grid view | absent (only a 5x5 colour picker) | absent |
-| Carousel | `ap_selection` is a row of static text pills | absent |
-| Horizontal auto-flow container | absent | absent |
-| Animation system, easing, timeline | none - `ap__lerpf`/`ap__clampf` and four hand-rolled linear animations | none - one per-frame lerp on detail scroll |
-| Named easing curves | zero occurrences | zero occurrences |
-| Event-driven animation (enter / next / prev / exit) | absent | absent |
-| Looping or ping-pong tracks | absent | absent |
-| Screen transitions | fullscreen black fade only (`ap_fade_draw`) | router hard-cuts |
-| Render to texture | `SDL_SetRenderTarget` never called | internal only - rotation canvas and an AA-shape cache |
-| Smooth list scrolling | rows jump; only the highlight pill lerps 50 ms | index jump |
-| Video playback | absent | absent |
-| Data-driven theme or layout format | 7 colours + 2 paths, no layout format | 7 colours + 2 paths, no layout format |
-| Image fit modes | stretch only - `ap_draw_image(tex, x, y, w, h)` | aspect-fit only, hardcoded |
-| Public alpha or tint on images | no - tint is internal to the NextUI spritesheet | no - `SetColorMod` never called |
-| Reflection and saturation filters | absent | absent |
-| Clip / scissor | yes, 12 sites | `SetClipRect` never called |
-| Arbitrary font sizes and families | 6 fixed tiers, one family, forced bold; accepts a caller's `TTF_Font*` | 6 fixed tiers, one typeface, no public arbitrary-size open |
-| Font line-height metrics | not exposed | not exposed |
-| SVG | no | `oksvg`, but only inside `ProcessMessage` |
-| WebP | no - `IMG_INIT_PNG \| IMG_INIT_JPG` | effectively no - see below |
-| Animated GIF | `IMG_LoadAnimation` never referenced | absent |
-| Gradients, blur, drop shadow, general nine-patch | none | none |
-| Rounded corners | yes | yes, via SDL2_gfx |
-| Text wrap and ellipsis | both | wrap yes, ellipsis is truncation plus marquee |
+| Requirement | NextUI | Apostrophe | gabagool |
+| --- | --- | --- | --- |
+| Compose widgets on one screen | **yes** - the caller drives the frame | no - each widget owns the event loop | no - same |
+| Grid view | absent - all 15 `grid` hits are CRT scalers and overlay shaders | absent (only a 5x5 colour picker) | absent |
+| Carousel | absent | `ap_selection` is a row of static text pills | absent |
+| Horizontal auto-flow container | absent | absent | absent |
+| Animation system, easing, timeline | three blocking playback helpers, linear only, no timeline | none - `ap__lerpf`/`ap__clampf` and four hand-rolled linear animations | none - one per-frame lerp on detail scroll |
+| Named easing curves | zero occurrences | zero occurrences | zero occurrences |
+| Event-driven animation (enter / next / prev / exit) | absent | absent | absent |
+| Looping or ping-pong tracks | absent | absent | absent |
+| Screen transitions | `GFX_animateSurface` slide and fade, blocking | fullscreen black fade only (`ap_fade_draw`) | router hard-cuts |
+| Render to texture | **yes** - 29 sites, five layer targets | `SDL_SetRenderTarget` never called | internal only - rotation canvas and an AA-shape cache |
+| Smooth list scrolling | `GFX_animateSurface` between positions | rows jump; only the highlight pill lerps 50 ms | index jump |
+| Video playback | absent - `mpv` / `ffmpeg` / `YUV` / `libav` all zero | absent | absent |
+| Data-driven theme or layout format | 7 colours, no layout format | 7 colours + 2 paths, no layout format | 7 colours + 2 paths, no layout format |
+| Image fit modes | **four** - scaled, stretch, aspect-fit, fill | stretch only - `ap_draw_image(tex, x, y, w, h)` | aspect-fit only, hardcoded |
+| Public alpha or tint on images | **yes** - `GFX_blitSurfaceColor` / `GFX_blitAssetColor` | no - tint is internal to the NextUI spritesheet | no - `SetColorMod` never called |
+| Reflection and saturation filters | absent | absent | absent |
+| Clip / scissor | no scissor API; each blit is bounded by its dst rect | yes, 12 sites | `SetClipRect` never called |
+| Arbitrary font sizes and families | 5 fixed tiers (16/14/12/10/7 x `SCALE1`), one family | 6 fixed tiers, one family, forced bold; accepts a caller's `TTF_Font*` | 6 fixed tiers, one typeface, no public arbitrary-size open |
+| Font line-height metrics | `GFX_getTextHeight` exposed | not exposed | not exposed |
+| SVG | no | no | `oksvg`, but only inside `ProcessMessage` |
+| WebP | no - `IMG_Init(IMG_INIT_PNG)`, one site | no - `IMG_INIT_PNG \| IMG_INIT_JPG` | effectively no - see below |
+| Animated GIF | no | `IMG_LoadAnimation` never referenced | absent |
+| Gradients, blur, drop shadow, general nine-patch | none - pill assets only | none | none |
+| Rounded corners | via pill assets | yes | yes, via SDL2_gfx |
+| Text wrap and ellipsis | both - `GFX_wrapText`, `GFX_truncateText` | both | wrap yes, ellipsis is truncation plus marquee |
+| Depth model | **five fixed layers**, absolute indices, no re-basing (`api.h:671-672`) | paint order only | paint order only |
+| Fragment shader path | GLES2, user-loadable `.glsl`, **but emulator-only** - see below | absent | absent |
 
-Two details worth recording:
+Three details worth recording:
 
+- **NextUI's shader path does not reach the UI.** `PLAT_updateShader(i, filename, ...)` loads a
+  user `.glsl` from `SHADERS_FOLDER/glsl` into one of `MAXSHADERS` passes
+  (`workspace/all/common/generic_video.c:722-750`), and the pipeline runs inside `PLAT_GL_Swap`
+  (`generic_video.c:1991-2220`). **Only the emulator calls it** (`workspace/all/minarch/ma_video.c:644`).
+  The launcher and every pak draw through `GFX_flip` / `GFX_flipHidden`, which take the
+  `SDL_Renderer` path and never touch a shader. So the capability exists in the engine and is not
+  reachable from the UI layer without restructuring which flip path the UI uses.
 - gabagool's WebP support is nominal. `img.INIT_PNG | img.INIT_JPG | img.INIT_TIF |
   img.INIT_WEBP` is OR'd into `sdl.Init()` at `pkg/gabagool/internal/sdl.go:16`, which takes
   `SDL_INIT_*` flags, not image flags. The real `img.Init` calls are PNG at
@@ -129,7 +187,14 @@ Two details worth recording:
 
 ### Performance
 
-Both have a text and texture story that an art-heavy launcher would hit immediately:
+All three have a text and texture story that an art-heavy launcher would hit immediately.
+
+NextUI rasterises through `TTF_RenderUTF8*` at 10 sites in `api.c` with no glyph atlas, but it
+blits into a persistent surface rather than rebuilding a texture per call, and it runs its frame
+preparation on a background thread (`generic_video.c:1908`, `prepareFrameThread`). Its five layer
+targets are allocated once at init rather than per draw.
+
+The two toolkits:
 
 - Apostrophe's `ap_draw_text` creates and destroys a surface **and** a texture on every call,
   every frame (`apostrophe.h:2488-2504`). There is no glyph atlas; the only cache is an
@@ -144,7 +209,7 @@ Both have a text and texture story that an art-heavy launcher would hit immediat
 
 Full spec: [`themes/elementerial/reference/source-notes.md`](themes/elementerial/reference/source-notes.md).
 
-Missing from both frameworks:
+Missing from all three:
 
 - **The ES carousel.** Per-logo continuous scale (1.0 to 1.4) and opacity (0.5 to 1.0) as a
   function of fractional camera distance, so every logo interpolates independently each
@@ -172,33 +237,42 @@ Missing from both frameworks:
 - **Video in the game list** - cover-cropped, delayed 1 s, drawn under a per-pixel alpha
   scrim and under the text list.
 
+**NextUI closes three of these and no more.** Its tint (`GFX_blitSurfaceColor`) covers the
+palette-tinted scrims' colouring, though not their per-pixel alpha masks; its four fit modes cover
+the `maxSize` contain-fit everywhere except the box-shrink-to-image part, which still needs image
+dimensions at layout time; and its five layers give the two cross-fading copies somewhere to sit.
+The 500 ms easeOutQuint strip slide, the three concurrent tracks per cursor move and the video
+remain out of reach, because its animation is a blocking linear playback loop.
+
 Maps today: the detailed gamelist is close to a one-dimensional list with art for the focused
-item, which is the one shape both frameworks already have.
+item, which is the one shape all three already have.
 
 ### PlayStation X
 
 Full spec: [`themes/playstation-x/reference/source-notes.md`](themes/playstation-x/reference/source-notes.md).
 
-Missing from both frameworks:
+Missing from all three:
 
 - **An event-driven animation format.** The theme declares 385 `<animation>` tags in 211
   `<storyboard>` blocks, keyed to five named events - `open`, `activateNext`, `activatePrev`,
   `deactivateNext`, `deactivatePrev` - so every element has up to five distinct motions
-  selected by cursor direction. Neither framework has animation events at all: `storyboard`,
-  `activateNext` and `deactivatePrev` are zero-hit in both, and the only `deactivate` in
-  either is the input-combo API (`apostrophe/docs/API.md:584`).
+  selected by cursor direction. None of the three has animation events: `storyboard`,
+  `activateNext` and `deactivatePrev` are zero-hit in all three, and the only `deactivate` in any
+  of them is Apostrophe's input-combo API (`apostrophe/docs/API.md:584`).
 - **Three transform channels animating concurrently on one element.**
   `_theme_options/animated-list.xml:124-126` runs `scale`, `offsetX` and `offsetY` together;
   `animated-systems.xml:95-97` runs `scale`, `x` and `y`. A tween system that owns one
-  property per element cannot express it, and neither framework has a tween system - `ease`,
-  `bezier` and `elastic` are all zero-hit.
+  property per element cannot express it, and none of the three has a tween system - `ease`,
+  `bezier` and `elastic` are zero-hit in all three. NextUI's `PLAT_animateSurface` moves x, y and
+  opacity together but bakes them into one call rather than exposing them as channels.
 - **A finite track and an infinite track on the same property at once.** `marco-activo`'s
   opacity carries a 500 ms one-shot fade *and* a forever `1 <-> 0.3` ping-pong at
-  `begin=1000`. `autoreverse`, `yoyo` and `iterations` are zero-hit in both.
+  `begin=1000`. `autoreverse`, `yoyo` and `iterations` are zero-hit in all three.
 - **Storyboard-level repeat** - a whole group looping as a unit, 16 blocks in the theme. The
   top bar's two info panels swap on a single 5350 ms cycle (`top-info.xml:115-130`).
 - **`bump`, an overshoot curve.** All 13 uses are `scale 0.94 -> 1.0`, so the value exceeds
-  its target before settling. Neither framework has any named curve.
+  its target before settling. None of the three has a named curve; all interpolation in all three
+  is linear.
 - **`from`-only animations**, which animate from a given value to the element's *authored*
   value (`animated-systems.xml:41`, `carousel-ps4.xml:54`). The end value is only known after
   layout resolves, so animation construction has to run after layout, not before it.
@@ -206,15 +280,15 @@ Missing from both frameworks:
   two predicate kinds that resolve at different times: `ifSubset` / `aspect-ratio` /
   `tinyScreen` per device, and `if=` over `{system.theme}` / `{system.name}` plus `<visible>`
   over `{game:*}` per selected item. Both frameworks carry 7-8 flat colours and compiled-in
-  integers; neither has a layout format.
+  integers, and NextUI seven colours; none has a layout format.
 - **`imagegrid` semantics**: `autoLayout` cols x rows, `autoLayoutSelectedZoom` where the cell
   is sized for the zoomed tile, `centerSelection`, `scrollLoop`, and a grid wider than the
   screen anchored off-screen left. `autoLayout`, `GridView` and `carousel` are all zero-hit.
 - **A horizontal auto-flow container.** Every metadata row is a `<stackpanel>` with a
   `separator`, flowing a mix of text, flags, icon-font glyphs and pulsing badges.
-  `stackpanel`, `hbox` and `flowlayout` are zero-hit in both.
+  `stackpanel`, `hbox` and `flowlayout` are zero-hit in all three.
 - **`reflexion`** - a mirrored, fading reflection under each carousel tile
-  (`carousel.xml`, `0.2 0` unselected, `0.25 0` selected). Zero-hit in both.
+  (`carousel.xml`, `0.2 0` unselected, `0.25 0` selected). Zero-hit in all three.
 - **`saturation` 0** - the PS3 carousel desaturates its icon set (`carousel-ps3.xml`). No
   colour-matrix or saturation filter in either.
 - **A horizontal gradient fill**, used for the bottom accent rule, whose two stops are
@@ -224,23 +298,32 @@ Missing from both frameworks:
   (`gabagool/pkg/gabagool/internal/helpers.go:334-373`).
 - **Auto-scrolling body text** - vertical, with `autoScrollDelay` 7000-10000 ms and
   `autoScrollSpeed` 45-60, distinct from the 2000 ms `singleLineScroll` title marquee.
-  Apostrophe has a ping-pong marquee; neither has the delayed vertical scroll.
+  Apostrophe has a ping-pong marquee and NextUI a continuously wrapping one at a fixed 2 px a frame
+  (`generic_video.c:1290-1330`); none has the delayed vertical scroll, and none lets the caller set
+  the speed.
 - **`roundCorners` as a fraction of the element** (0.15), not a pixel radius - so the radius
   tracks the tile as the carousel size subset changes.
 - **`ninepatch animateColor` with `animateColorTime` 500 ms** - the selected grid tile's edge
   colour tweens rather than cutting.
 
-Maps today: the detailed view is a text list with art for the focused item, the shape both
-frameworks already have; PS5 Style's scrollbar has a direct equivalent in Apostrophe's public
+**NextUI removes the composition blocker and none of the rest.** This is the set that most needs a
+timeline, and its 385 animation tags across 211 storyboards - five named events per element, three
+transform channels composing on one element, a finite and an infinite track on one property,
+`bump`'s overshoot, `from`-only tracks resolved after layout - all land on the one thing NextUI has
+no shape for. Its `PLAT_animateSurface` moves one surface between two positions, linearly, blocking
+the frame while it does.
+
+Maps today: the detailed view is a text list with art for the focused item, the shape all three
+already have; PS5 Style's scrollbar has a direct equivalent in Apostrophe's public
 `ap_draw_scrollbar` (`include/apostrophe.h:582`), though gabagool's is inline in
-`help_overlay.go:122-129` rather than reusable; the help bar maps to both footer hint rows;
-and the theme-options menu is an options list in either.
+`help_overlay.go:122-129` rather than reusable; the help bar maps to all three footer hint rows;
+and the theme-options menu is an options list in any of them.
 
 ### Vitro Launcher
 
 Full spec: [`themes/vitrolauncher/reference/source-notes.md`](themes/vitrolauncher/reference/source-notes.md).
 
-Missing from both frameworks:
+Missing from all three:
 
 - **A continuously animated procedural background** - a GLSL fragment shader, a 70-mote
   additive particle system, or a low-resolution Bayer-dithered cloud scene. Both frameworks
@@ -251,7 +334,8 @@ Missing from both frameworks:
 - Multi-layer box shadows including two insets, and a drop shadow on an alpha silhouette.
 - A 3-slice glass PNG stretched to many different widths (218 px nav pill, 70 px bubble,
   560 px settings row, page arrows).
-- Image recolouring filters, used to flip white glyphs to near-black on the light scheme.
+- Image recolouring filters, used to flip white glyphs to near-black on the light scheme - though
+  NextUI's `GFX_blitAssetColor` covers this one.
 - **A carousel tile that animates its own layout box** - width, height and corner radius
   together - so the whole row's positions move during the animation.
 - A paged grid whose geometry changes with a setting (7x3 or 5x2), rebuilt with focus
@@ -259,10 +343,18 @@ Missing from both frameworks:
 - A sliding nav indicator with a 150 ms hold delay before it moves.
 - **Two-second hold gestures with cancel-on-release at a different duration** (2000 ms in,
   400 ms out), one of them behind a three-button chord. Both frameworks have chord detection
-  and press timestamps, so this is buildable, but neither provides it.
+  and press timestamps, and NextUI has `PAD_isPressed` / `PAD_justRepeated` plus a `PAD_tappedMenu`
+  special case (`api.h:535-539`), so this is buildable on all three - but none provides it.
 - A two-half-circle colour dot, and inline glyph images flowed into a text line.
 - Live re-theming that reconfigures the background system and rebuilds two screens from
   inside the settings screen itself.
+
+**NextUI's shader path does not help here**, which is the finding worth recording: it is a real
+GLES2 pipeline with user-loadable `.glsl`, and it is wired to the emulator's frame presentation
+only (`workspace/all/minarch/ma_video.c:644` is its sole caller). A pak drawing UI goes through
+`GFX_flip`, which never reaches it. The waves background is therefore *missing* rather than
+degraded on all three. What NextUI does bring is render-to-texture as a real facility, which is
+the first half of what backdrop blur needs - the separable blur pass is still absent.
 
 Maps today: the Settings screen fits `ap_options_list` / `OptionsList` closely, apart from
 the glass and the colour dot.
@@ -271,11 +363,28 @@ the glass and the colour dot.
 
 Full spec: [`themes/nextui/reference/source-notes.md`](themes/nextui/reference/source-notes.md).
 
-This is the closest fit in the registry, and not by coincidence: both frameworks are toolkits for
-NextUI paks, and this set is a theme reproducing NextUI's look on a Nintendo 64. They are drawing
-the same firmware. The gaps are correspondingly small and specific.
+This is the closest fit in the registry, and not by coincidence: this set is a theme reproducing
+NextUI's look on a Nintendo 64, and the other two entries are toolkits for NextUI paks. All three
+are drawing the same firmware. The gaps are correspondingly small and specific.
 
-Missing from both frameworks:
+**Against NextUI itself, most of them disappear.** Its seven `THEME_COLOR*_255` slots
+(`workspace/all/common/config.h:8-14`) are where both toolkits copied their palette from, so the
+match is the original rather than a resemblance. Tint covers the ten icons the toolkits cannot
+draw; `GFX_scrollTextSurface` is a marquee, though not this one's; `GFX_blitPill` and
+`GFX_getButtonWidth` are the hint chrome; `GFX_wrapText` and `GFX_truncateText` are the text model. What is left is the overlay
+composition - `ui_components_context_menu_draw` paints over a browser that stays visible, which
+NextUI's five layers do support - and the fact that this theme wants literal 640x480 pixels while
+NextUI scales everything through `SCALE1`.
+
+**Against NextUI, then, only two things are genuinely missing**: a way to opt out of `SCALE1` so
+the theme's literal geometry survives, and the marquee's cycle. NextUI scrolls continuously at 2 px
+a frame through a doubled-text texture and wraps at the loop point, so there is no pause and no
+visible restart (`generic_video.c:1290-1330`); the N64 theme holds 45 frames, scrolls to the end,
+holds 45 again and snaps back. Same speed, different rhythm. Everything else below is a gap in the
+toolkits rather than in the platform they wrap - which is the clearest illustration in this
+registry of what those wrappers give away.
+
+Missing from the two toolkits:
 
 - **Overlays that draw over the screen they were opened from.** `ui_components_context_menu_draw`
   and `ui_components_messagebox_draw` are called after the view's own draw, so the browser stays
@@ -286,7 +395,8 @@ Missing from both frameworks:
   mildest form: here it costs the backdrop, not the screen.
 - **Image tinting.** `ui_components_nextui_tinted_sprite_draw` modulates white art by a palette
   colour, which is how the eight ledger icons, the cartridge placeholder and the folder glyph take
-  the theme. `SetColorMod` is zero-hit in both.
+  the theme. `SetSurfaceColorMod` and `SetTextureColorMod` are zero-hit in both toolkits; NextUI's
+  own `GFX_blitAssetColor` is exactly this operation on exactly these seven slots.
 - **One accent pill per hint.** `hint_group_draw_at` draws a separate stadium per hint with an 8 px
   gap. Both frameworks draw one continuous pill around a whole group - Apostrophe at
   `include/apostrophe.h:3257, 3279`, gabagool's `renderGroupAsContinuousPill` at
@@ -315,7 +425,9 @@ Missing from both frameworks:
   are 32 / 24 / 20 / 16 px and every coordinate is a literal. The scaling apparatus is not a gap,
   but it is dead weight, and the tier bases (24 / 16 / 14 / 12 / 10 / 7) do not land on the four
   the theme names.
-- **`Z` and `C` buttons**, which the hint bars name and neither framework's button enum has.
+- **`Z` and `C` buttons**, which the hint bars name and no button enum in this registry has -
+  NextUI's is the fullest at 30 ids (`workspace/all/common/defines.h`, `BTN_ID_*`) and still stops
+  at L1-L4 / R1-R4, because none of these targets an N64 controller.
 
 Maps today, and more of it than for any other set:
 
@@ -325,18 +437,19 @@ Maps today, and more of it than for any other set:
   (`pkg/gabagool/internal/theming.go:10-20`), in the same order, with the same meanings, plus the
   background-image path the theme also supports. Theming is a hard gap for the other three sets and
   a complete match here.
-- **Both list widgets already draw the label-hugging selection pill** that is this theme's
+- **Both toolkits already draw the label-hugging selection pill** that is this theme's
   signature: `pill_target_w = tw + pill_pad * 2` (`include/apostrophe_widgets.h:809-812`) and
   `pillWidth := Min32(maxPillWidth, measureText(font, itemText)+pillPadding)`
   (`pkg/gabagool/list.go:795`).
 - **gabagool's `List` is close to the file browser outright** - hugging pill, plus contain-fit box
   art for the highlighted row anchored right and vertically centred.
-- Rounded-rect and pill primitives in both (`ap_draw_pill`, `include/apostrophe.h:571`;
-  `DrawRoundedRect`, `pkg/gabagool/list.go:803`), so the stadium and the 16 px panel need no
-  nine-patch - even though the source blits `pill_cap_40` and `panel_corner_16` because the RDP has
-  neither.
-- Text measurement and ellipsis in both, which is what this theme's geometry is made of:
-  `ap_measure_text` and `ap_measure_text_ellipsized` (`include/apostrophe.h:578-579`).
+- Rounded-rect and pill primitives in all three (`GFX_blitPill`, `api.h:391`; `ap_draw_pill`,
+  `include/apostrophe.h:571`; `DrawRoundedRect`, `pkg/gabagool/list.go:803`), so the stadium and
+  the 16 px panel need no nine-patch - even though the source blits `pill_cap_40` and
+  `panel_corner_16` because the RDP has neither.
+- Text measurement and ellipsis in all three, which is what this theme's geometry is made of:
+  `GFX_getTextWidth` and `GFX_truncateText` (`api.h:356, 360`), `ap_measure_text` and
+  `ap_measure_text_ellipsized` (`include/apostrophe.h:578-579`).
 - The footer model - a left group and a right-aligned group of button-plus-label items - is the
   same idea, differing only in pill granularity.
 - `ap_options_list` / `OptionList` is the settings screen minus the inner pill.
@@ -346,22 +459,33 @@ Maps today, and more of it than for any other set:
 
 ## What a port would have to add
 
-Common to both, and in rough dependency order:
+The list is shorter than it was, because NextUI already answers four of it. In rough dependency
+order, and marked with who still needs each:
 
-1. A compositor or scene layer that lets widgets coexist on one screen, replacing the
-   blocking-modal model.
-2. A time-based tween system with named easing curves - at minimum easeOutQuint, easeOut,
-   exponential ease-out, linear and smoothstep - supporting per-property durations, per-property
-   delays, concurrent tracks, and restart-on-event.
-3. Render-to-texture as a public facility, for screen transitions and blur.
+1. **A time-based tween system with named easing curves** - at minimum easeOutQuint, easeOut,
+   exponential ease-out, linear and smoothstep - supporting per-property durations and delays,
+   concurrent channels composing on one element, restart-on-event, and **a resting value
+   evaluable without playing the track**. *All three.* This is now the single largest gap: NextUI
+   animates by blocking the frame until the motion finishes, so a still cannot be drawn at all.
+2. A compositor or scene layer that lets widgets coexist on one screen. *The two toolkits.*
+   NextUI's caller-driven blitting already is one.
+3. Render-to-texture as a public facility, for screen transitions and blur. *The two toolkits.*
+   NextUI has it, across five layer targets.
 4. Image fit modes (contain with box-shrink-to-image, cover with centre crop, stretch,
-   derive-one-axis-from-aspect) with public alpha and tint.
-5. Arbitrary font sizes and families, with the face's line metrics exposed.
-6. A grid and a carousel.
-7. A data-driven theme and layout format, rather than 7 or 8 colours and compiled-in integer
-   literals.
-8. A video decode path.
+   derive-one-axis-from-aspect) with public alpha and tint. *The two toolkits.* NextUI has four
+   fits plus tint; only box-shrink-to-image is missing, and it needs image dimensions at layout
+   time rather than a new primitive.
+5. Arbitrary font sizes and families, with the face's line metrics exposed. *All three* - five or
+   six fixed tiers and one family everywhere.
+6. A grid and a carousel. *All three.*
+7. A data-driven theme and layout format, rather than seven colours and compiled-in integer
+   literals. *All three.*
+8. A fragment-shader path reachable from the UI layer. *All three* - NextUI has the pipeline but
+   wires it to the emulator's presentation only.
+9. A video decode path. *All three.*
 
-That is a new rendering, layout and animation layer. What is worth taking from these projects
-under their MIT licences is the input abstraction, the resolution scaling helpers and the text
-primitives.
+That is still a new layout and animation layer, but no longer a new rendering layer: NextUI's
+drawing model, depth model, tint and fit modes are the shape a portable widget kit wants. The
+obstacle to reusing them directly is the licence, not the design - which makes NextUI the best
+reference and the two MIT toolkits the better source of liftable code, for the input abstraction,
+the resolution scaling helpers and the text primitives.
