@@ -13,9 +13,12 @@ export default defineConfig({
   testDir: './e2e',
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
-  retries: process.env.CI ? 2 : 0,
+  // One retry, not two: a screenshot that differs differs every time, and each retry of a real
+  // failure costs as much as the test.
+  retries: process.env.CI ? 1 : 0,
+  // A macOS runner has three cores, and the suite is split across several of them by `--shard`.
   // Spread rather than `workers: undefined`, which exactOptionalPropertyTypes rejects.
-  ...(process.env.CI ? { workers: 1 } : {}),
+  ...(process.env.CI ? { workers: 3 } : {}),
   reporter: process.env.CI ? [['github'], ['html', { open: 'never' }]] : [['list']],
   expect: {
     toHaveScreenshot: {

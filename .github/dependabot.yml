@@ -1,0 +1,23 @@
+# Every dependency ecosystem in the repo: the app's npm packages and the workflows' actions.
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /app
+    schedule:
+      interval: weekly
+    groups:
+      # Dev tooling moves together - Vite, Vitest, Playwright, ESLint, TypeScript, Storybook - so
+      # one grouped PR per week rather than a dozen that each rebuild the baselines.
+      development:
+        dependency-type: development
+      production:
+        dependency-type: production
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      actions:
+        patterns:
+          - '*'

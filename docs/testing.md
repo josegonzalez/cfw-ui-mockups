@@ -101,7 +101,7 @@ way and none of them found one any other way.
 | `compositing.spec.ts` | Nothing opaque covers the content - and that the check can fail |
 | `interaction.spec.ts` | Cursor traces through carousel, list and grid, plus the hold gestures |
 | `screens.spec.ts` | Zero console errors, something drawn inside the theme's root (or a root marked `data-screen-off`, for a screen dark on the device), controls inside the body |
-| `previews.spec.ts` | The landing page's card art, captured from the routes themselves |
+| `previews.spec.ts` | The landing page's card art, captured from the routes themselves - opt-in with `UPDATE_PREVIEWS=1`, since it writes committed files |
 
 The baselines are the whole regression gate. There is no A/B comparison against a prior
 implementation any more: the original vanilla-JS mockups have been removed, so a screen's

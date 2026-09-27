@@ -25,7 +25,7 @@
  * Transitions:
  *   - The marquee only. The palette picker re-renders live rather than transitioning.
  */
-import { boxart } from '../art'
+import { boxart, boxartLabel } from '../art'
 import { ICON_SIZE, ICONS, type IconName } from '../assets'
 import {
   ART_CENTER_Y,
@@ -226,12 +226,39 @@ function BrowserArt({ entry, t }: { entry: RomEntry | undefined; t: Tokens }) {
   const w = Math.round(ART_MAX * 0.76)
 
   return (
-    <img
-      className="nx-art"
-      style={{ left: ART_X1 - w, top: ART_CENTER_Y - h / 2, width: w, height: h }}
-      src={boxart(entry.name, w, h)}
-      alt=""
-    />
+    <BoxArt name={entry.name} left={ART_X1 - w} top={ART_CENTER_Y - h / 2} w={w} h={h} />
+  )
+}
+
+/**
+ * A generated cover: the banded image, and its title over it as page text in the theme's own face.
+ * The title is not part of the image because an SVG image cannot use the page's fonts - see `art.ts`.
+ */
+function BoxArt({ name, left, top, w, h, tint }: { name: string; left: number; top: number; w: number; h: number; tint?: string }) {
+  const label = boxartLabel(name, w, h)
+  return (
+    <>
+      <img className="nx-art" style={{ left, top, width: w, height: h }} src={boxart(name, w, h)} alt="" data-tint={tint} />
+      {label.lines.map((line, i) => (
+        <div
+          key={i}
+          style={{
+            position: 'absolute',
+            left: left + w / 2,
+            top: top + line.cy - label.size / 2,
+            height: label.size,
+            fontSize: label.size,
+            lineHeight: `${label.size}px`,
+            color: '#ffffff',
+            whiteSpace: 'pre',
+            transform: 'translateX(-50%)',
+          }}
+          data-part="art-title"
+        >
+          {line.text}
+        </div>
+      ))}
+    </>
   )
 }
 
@@ -761,12 +788,7 @@ function LoadScreen({ view, palette, titlePill }: ScreenProps) {
         )
       })}
 
-      <img
-        className="nx-art"
-        style={{ left: LOAD.artX, top: LOAD.heroY, width: LOAD.artW, height: LOAD.artH }}
-        src={boxart(view.title ?? '', LOAD.artW, LOAD.artH)}
-        alt=""
-      />
+      <BoxArt name={view.title ?? ''} left={LOAD.artX} top={LOAD.heroY} w={LOAD.artW} h={LOAD.artH} />
 
       <TextBox
         x={LOAD.artX + (LOAD.artW - textWidth('Left / Right: more images', FONT.tiny)) / 2}
@@ -995,13 +1017,7 @@ function ImageScreen({ palette }: ScreenProps) {
   const h = 288
 
   return (
-    <img
-      className="nx-art"
-      style={{ left: CENTER.x - w / 2, top: CENTER.y - h / 2, width: w, height: h }}
-      src={boxart('boxart_front', w, h)}
-      alt=""
-      data-tint={t.hintText}
-    />
+    <BoxArt name="boxart_front" left={CENTER.x - w / 2} top={CENTER.y - h / 2} w={w} h={h} tint={t.hintText} />
   )
 }
 

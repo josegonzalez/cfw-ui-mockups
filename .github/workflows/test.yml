@@ -1,0 +1,83 @@
+name: test
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      grep:
+        description: Only run the e2e tests whose title matches this pattern
+        required: false
+        default: ''
+
+permissions:
+  contents: read
+
+concurrency:
+  group: test-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: app/package-lock.json
+
+      - run: npm ci
+
+      - run: npm run typecheck
+
+      - run: npm run lint
+
+      - run: npm run test
+
+      - run: npm run build
+
+  # The screenshot baselines are captured on macOS (`*-chromium-darwin.png`), so the e2e suite runs
+  # there too: on Linux every baseline would be missing and font rasterisation would differ anyway.
+  # Split across four runners, since one takes the better part of an hour.
+  e2e:
+    runs-on: macos-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4]
+    defaults:
+      run:
+        working-directory: app
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: app/package-lock.json
+
+      - run: npm ci
+
+      - run: npx playwright install chromium
+
+      - run: npx playwright test --shard=${{ matrix.shard }}/4 ${GREP:+--grep "$GREP"}
+        env:
+          GREP: ${{ inputs.grep }}
+
+      - if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: playwright-report-${{ matrix.shard }}
+          path: |
+            app/playwright-report
+            app/test-results
+          retention-days: 7
