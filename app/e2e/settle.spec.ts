@@ -23,6 +23,7 @@ const PAIRS: Record<string, string> = {
   simpleos: 'boot',
   tortos: 'systems',
   neostation: 'systems',
+  'ds-style': 'home',
   'example-cfw': 'main-menu',
 }
 

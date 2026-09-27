@@ -191,8 +191,14 @@ export function ButtonCluster({ shell }: { shell: ChinShell }) {
     <div className="device__chin">
       <div className="device__controls" data-sticks={shell.sticks || undefined}>
         <div className="device__shoulders">
-          <ClusterButton button="l" className="shoulder" label="L" />
-          <ClusterButton button="r" className="shoulder" label="R" />
+          <div className="device__shoulder-pair">
+            {shell.shoulders2 ? <ClusterButton button="l2" className="shoulder" label="L2" /> : null}
+            <ClusterButton button="l" className="shoulder" label="L" />
+          </div>
+          <div className="device__shoulder-pair">
+            <ClusterButton button="r" className="shoulder" label="R" />
+            {shell.shoulders2 ? <ClusterButton button="r2" className="shoulder" label="R2" /> : null}
+          </div>
         </div>
 
         <Dpad />

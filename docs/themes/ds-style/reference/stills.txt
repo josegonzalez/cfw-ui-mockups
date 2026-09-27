@@ -1,0 +1,47 @@
+# slug|screen|events|environment|flags
+# Every still of the port, posed the way a player would reach it. Keys are the source's own event
+# letters (`source/dsstyle.c:603`): u d l r a b x y, m MENU, s SELECT, t START, q L, e R, 1 L2, 2 R2.
+home|home|||
+home-games|home|d||
+home-apps|home|dr||
+home-settings|home|dd||
+home-power|home|ddrr||
+systems|home|da||
+games|home|daddar||
+games-vertical|home|daddars||
+games-list|home|daddarss||
+games-list-art|home|daddarsss||
+games-marquee|home|daddddddassdd||
+favourites|home|2||
+recents|home|1||
+apps|home|dra||
+search|home|daddarx||
+search-results|home|daddarxdrrrrrrrralllllllladddra||
+launch-mode|home|dat||
+confirm-shutdown|home|ddrra||
+favourite-added|home|daddary||
+launching|home||DS_STYLE_PREVIEW_LAUNCHING=1|
+volume|volume|||
+brightness|brightness|||
+settings|home|m||
+settings-browsing|home|ma||
+settings-artwork|home|mda||
+settings-appearance|home|mdda||
+settings-startup|home|mddda||
+settings-sound|home|mdddda||
+settings-system|home|mddddda||
+settings-controls|home|mdddddda||
+settings-bind|home|mddddddadda||
+setting-help|home|max||
+help|home|mddddddda||
+help-2|home|mdddddddar||
+about|home|mdddddddda||
+about-2|home|mddddddddar||
+snake|home|mddddddddat||
+dark-home|home|mddadabb||
+dark-games|home|mddadabbdaddarss||
+red|home|mddarrrrrrrrrbb||
+bright-green|home|mddarrrrrrbb||
+purple|home|mddalbb||
+gba-art|home|mdaddddabbdaddar||
+lcd-grid|home|||--lcd

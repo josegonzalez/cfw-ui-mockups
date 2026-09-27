@@ -1,0 +1,1478 @@
+# DS Style interface strings, from source/locale.json at 2847683.
+# One block per string: the English (UK) key, then each language (`source/locale.h:2`).
+
+Browsing
+  Français: Navigation
+  Deutsch: Navigation
+  Español: Navegación
+  Português: Navegação
+  Italiano: Navigazione
+  Nederlands: Bladeren
+  English (US): Browsing
+
+Artwork
+  Français: Illustrations
+  Deutsch: Bilder
+  Español: Imágenes
+  Português: Imagens
+  Italiano: Immagini
+  Nederlands: Afbeeldingen
+  English (US): Artwork
+
+Appearance
+  Français: Apparence
+  Deutsch: Aussehen
+  Español: Aspecto
+  Português: Aparência
+  Italiano: Aspetto
+  Nederlands: Uiterlijk
+  English (US): Appearance
+
+Startup
+  Français: Démarrage
+  Deutsch: Startverhalten
+  Español: Inicio
+  Português: Arranque
+  Italiano: Avvio
+  Nederlands: Opstarten
+  English (US): Startup
+
+Sound
+  Français: Son
+  Deutsch: Ton
+  Español: Sonido
+  Português: Som
+  Italiano: Audio
+  Nederlands: Geluid
+  English (US): Sound
+
+System
+  Français: Système
+  Deutsch: System
+  Español: Sistema
+  Português: Sistema
+  Italiano: Sistema
+  Nederlands: Systeem
+  English (US): System
+
+Controls
+  Français: Commandes
+  Deutsch: Steuerung
+  Español: Controles
+  Português: Controlos
+  Italiano: Comandi
+  Nederlands: Bediening
+  English (US): Controls
+
+Help
+  Français: Aide
+  Deutsch: Hilfe
+  Español: Ayuda
+  Português: Ajuda
+  Italiano: Aiuto
+  Nederlands: Hulp
+  English (US): Help
+
+Settings
+  Français: Réglages
+  Deutsch: Einstellungen
+  Español: Ajustes
+  Português: Definições
+  Italiano: Impostazioni
+  Nederlands: Instellingen
+  English (US): Settings
+
+Clock format
+  Français: Format heure
+  Deutsch: Zeitformat
+  Español: Formato hora
+  Português: Formato hora
+  Italiano: Formato ora
+  Nederlands: Klokformaat
+  English (US): Clock format
+
+List folders
+  Français: Dossiers
+  Deutsch: Ordneransicht
+  Español: Ver carpetas
+  Português: Ver pastas
+  Italiano: Vista cartelle
+  Nederlands: Mapweergave
+  English (US): List folders
+
+System names
+  Français: Noms systèmes
+  Deutsch: Systemnamen
+  Español: Nombres
+  Português: Nomes sistemas
+  Italiano: Nomi sistemi
+  Nederlands: Systeemnamen
+  English (US): System names
+
+Clean list
+  Français: Liste épurée
+  Deutsch: Kurze Namen
+  Español: Lista limpia
+  Português: Lista simples
+  Italiano: Lista pulita
+  Nederlands: Schone lijst
+  English (US): Clean list
+
+Colour
+  Français: Couleur
+  Deutsch: Farbe
+  Español: Color
+  Português: Cor
+  Italiano: Colore
+  Nederlands: Kleur
+  English (US): Color
+
+View
+  Français: Affichage
+  Deutsch: Ansicht
+  Español: Vista
+  Português: Vista
+  Italiano: Vista
+  Nederlands: Weergave
+  English (US): View
+
+GBA res. art
+  Français: Rés. GBA
+  Deutsch: GBA-Auflösung
+  Español: Resolución GBA
+  Português: Resolução GBA
+  Italiano: Risoluz. GBA
+  Nederlands: GBA-resolutie
+  English (US): GBA res. art
+
+Art border
+  Français: Bordure image
+  Deutsch: Bildrahmen
+  Español: Borde imagen
+  Português: Borda imagem
+  Italiano: Bordo immagine
+  Nederlands: Beeldrand
+  English (US): Art border
+
+Round corners
+  Français: Coins arrondis
+  Deutsch: Runde Ecken
+  Español: Redondear
+  Português: Arredondar
+  Italiano: Angoli tondi
+  Nederlands: Ronde hoeken
+  English (US): Round corners
+
+Vert. side
+  Français: Côtés vert.
+  Deutsch: Vert. Vorschau
+  Español: Lados vert.
+  Português: Lados vert.
+  Italiano: Lati vert.
+  Nederlands: Vert. zijkant
+  English (US): Vert. side
+
+Horiz. side
+  Français: Côtés horiz.
+  Deutsch: Hor. Vorschau
+  Español: Lados horiz.
+  Português: Lados horiz.
+  Italiano: Lati orizz.
+  Nederlands: Hor. zijkant
+  English (US): Horiz. side
+
+Horiz. fit
+  Français: Largeur image
+  Deutsch: Bildbreite
+  Español: Ancho imagen
+  Português: Largura imagem
+  Italiano: Larghezza
+  Nederlands: Beeldbreedte
+  English (US): Horiz. fit
+
+List artwork
+  Français: Place image
+  Deutsch: Bildposition
+  Español: Posición arte
+  Português: Posição imagem
+  Italiano: Posiz. figura
+  Nederlands: Beeldpositie
+  English (US): List artwork
+
+Home button
+  Français: Bouton accueil
+  Deutsch: Starttaste
+  Español: Botón inicio
+  Português: Botão início
+  Italiano: Tasto iniziale
+  Nederlands: Startknop
+  English (US): Home button
+
+LCD grid
+  Français: Grille LCD
+  Deutsch: LCD-Raster
+  Español: Rejilla LCD
+  Português: Grelha LCD
+  Italiano: Griglia LCD
+  Nederlands: LCD-raster
+  English (US): LCD grid
+
+Stock OS
+  Français: OS d'origine
+  Deutsch: Original-OS
+  Español: SO original
+  Português: SO original
+  Italiano: SO originale
+  Nederlands: Origineel OS
+  English (US): Stock OS
+
+Autoboot
+  Français: Auto DS Style
+  Deutsch: DS-Autostart
+  Español: Auto DS Style
+  Português: Auto DS Style
+  Italiano: Auto DS Style
+  Nederlands: DS-autostart
+  English (US): Autoboot
+
+Reboot
+  Français: Redémarrer
+  Deutsch: Neustart
+  Español: Reiniciar
+  Português: Reiniciar
+  Italiano: Riavvia
+  Nederlands: Herstarten
+  English (US): Reboot
+
+Shutdown
+  Français: Éteindre
+  Deutsch: Ausschalten
+  Español: Apagar
+  Português: Desligar
+  Italiano: Spegni
+  Nederlands: Afsluiten
+  English (US): Shutdown
+
+Apps
+  Français: Applis
+  Deutsch: Apps
+  Español: Apps
+  Português: Apps
+  Italiano: App
+  Nederlands: Apps
+  English (US): Apps
+
+UI sounds
+  Français: Sons des menus
+  Deutsch: Menütöne
+  Español: Sonidos menú
+  Português: Sons dos menus
+  Italiano: Suoni menu
+  Nederlands: Menugeluiden
+  English (US): UI sounds
+
+Startup sound
+  Français: Son au départ
+  Deutsch: Startton
+  Español: Sonido inicio
+  Português: Som inicial
+  Italiano: Suono avvio
+  Nederlands: Opstartgeluid
+  English (US): Startup sound
+
+System icons
+  Français: Icônes système
+  Deutsch: Systemsymbole
+  Español: Iconos sistema
+  Português: Ícones sistema
+  Italiano: Icone sistema
+  Nederlands: Systeemiconen
+  English (US): System icons
+
+Dark mode
+  Français: Mode sombre
+  Deutsch: Dunkelmodus
+  Español: Modo oscuro
+  Português: Modo escuro
+  Italiano: Tema scuro
+  Nederlands: Donkere modus
+  English (US): Dark mode
+
+Pixel transp.
+  Français: Transp. pixels
+  Deutsch: Pixeltransp.
+  Español: Transp. píxel
+  Português: Transp. píxel
+  Italiano: Trasp. pixel
+  Nederlands: Pixeltransp.
+  English (US): Pixel transp.
+
+Boot to
+  Français: Ouvrir au boot
+  Deutsch: Startziel
+  Español: Iniciar en
+  Português: Abrir ao ligar
+  Italiano: Apri all'avvio
+  Nederlands: Startscherm
+  English (US): Boot to
+
+Home screen
+  Français: Écran accueil
+  Deutsch: Startseite
+  Español: Inicio visible
+  Português: Ecrã inicial
+  Italiano: Scherm. inizio
+  Nederlands: Beginscherm
+  English (US): Home screen
+
+Home source
+  Français: Jeu d'accueil
+  Deutsch: Startspiel aus
+  Español: Juego inicial
+  Português: Jogo inicial
+  Italiano: Gioco iniziale
+  Nederlands: Startspel uit
+  English (US): Home source
+
+Quick start
+  Français: Lancement vite
+  Deutsch: Schnellstart
+  Español: Inicio rápido
+  Português: Início rápido
+  Italiano: Avvio rapido
+  Nederlands: Snelstart
+  English (US): Quick start
+
+Language
+  Français: Langue
+  Deutsch: Sprache
+  Español: Idioma
+  Português: Idioma
+  Italiano: Lingua
+  Nederlands: Taal
+  English (US): Language
+
+Controller
+  Français: Manette
+  Deutsch: Controller
+  Español: Mando
+  Português: Comando
+  Italiano: Controller
+  Nederlands: Controller
+  English (US): Controller
+
+Reset controls
+  Français: Réinitialiser
+  Deutsch: Zurücksetzen
+  Español: Restablecer
+  Português: Repor botões
+  Italiano: Ripristina
+  Nederlands: Knoppenherstel
+  English (US): Reset controls
+
+Accept
+  Français: Valider
+  Deutsch: Bestätigen
+  Español: Aceptar
+  Português: Confirmar
+  Italiano: Conferma
+  Nederlands: Bevestigen
+  English (US): Accept
+
+Back
+  Français: Retour
+  Deutsch: Zurück
+  Español: Volver
+  Português: Voltar
+  Italiano: Indietro
+  Nederlands: Terug
+  English (US): Back
+
+Search / help
+  Français: Recherche/aide
+  Deutsch: Suche / Hilfe
+  Español: Buscar / ayuda
+  Português: Busca / ajuda
+  Italiano: Cerca / aiuto
+  Nederlands: Zoeken / hulp
+  English (US): Search / help
+
+Favourite
+  Français: Favori
+  Deutsch: Favorit
+  Español: Favorito
+  Português: Favorito
+  Italiano: Preferito
+  Nederlands: Favoriet
+  English (US): Favorite
+
+View / source
+  Français: Vue / source
+  Deutsch: Ansicht/Quelle
+  Español: Vista / origen
+  Português: Vista / origem
+  Italiano: Vista / fonte
+  Nederlands: Weergave/bron
+  English (US): View / source
+
+Previous tab
+  Français: Onglet avant
+  Deutsch: Voriger Reiter
+  Español: Pestaña previa
+  Português: Separador ant.
+  Italiano: Scheda prima
+  Nederlands: Vorig tabblad
+  English (US): Previous tab
+
+Next tab
+  Français: Onglet suivant
+  Deutsch: Nächster Reiter
+  Español: Pestaña sig.
+  Português: Separador seg.
+  Italiano: Scheda dopo
+  Nederlands: Volgend tabblad
+  English (US): Next tab
+
+Launch mode
+  Français: Mode lancement
+  Deutsch: Startmodus
+  Español: Modo ejecución
+  Português: Modo arranque
+  Italiano: Modo avvio
+  Nederlands: Startmodus
+  English (US): Launch mode
+
+Recents
+  Français: Récents
+  Deutsch: Zuletzt
+  Español: Recientes
+  Português: Recentes
+  Italiano: Recenti
+  Nederlands: Recent
+  English (US): Recents
+
+Favourites
+  Français: Favoris
+  Deutsch: Favoriten
+  Español: Favoritos
+  Português: Favoritos
+  Italiano: Preferiti
+  Nederlands: Favorieten
+  English (US): Favorites
+
+Games
+  Français: Jeux
+  Deutsch: Spiele
+  Español: Juegos
+  Português: Jogos
+  Italiano: Giochi
+  Nederlands: Spellen
+  English (US): Games
+
+Systems
+  Français: Systèmes
+  Deutsch: Systeme
+  Español: Sistemas
+  Português: Sistemas
+  Italiano: Sistemi
+  Nederlands: Systemen
+  English (US): Systems
+
+Home
+  Français: Accueil
+  Deutsch: Startseite
+  Español: Inicio
+  Português: Início
+  Italiano: Inizio
+  Nederlands: Begin
+  English (US): Home
+
+Last game
+  Français: Dernier jeu
+  Deutsch: Letztes Spiel
+  Español: Último juego
+  Português: Último jogo
+  Italiano: Ultimo gioco
+  Nederlands: Laatste spel
+  English (US): Last game
+
+On
+  Français: Oui
+  Deutsch: Ein
+  Español: Sí
+  Português: Sim
+  Italiano: Sì
+  Nederlands: Aan
+  English (US): On
+
+Off
+  Français: Non
+  Deutsch: Aus
+  Español: No
+  Português: Não
+  Italiano: No
+  Nederlands: Uit
+  English (US): Off
+
+List
+  Français: Liste
+  Deutsch: Liste
+  Español: Lista
+  Português: Lista
+  Italiano: Lista
+  Nederlands: Lijst
+  English (US): List
+
+List + Art
+  Français: Liste + image
+  Deutsch: Liste + Bild
+  Español: Lista + imagen
+  Português: Lista + imagem
+  Italiano: Lista + figure
+  Nederlands: Lijst + beeld
+  English (US): List + Art
+
+Horizontal
+  Français: Horizontal
+  Deutsch: Horizontal
+  Español: Horizontal
+  Português: Horizontal
+  Italiano: Orizzontale
+  Nederlands: Horizontaal
+  English (US): Horizontal
+
+Vertical
+  Français: Vertical
+  Deutsch: Vertikal
+  Español: Vertical
+  Português: Vertical
+  Italiano: Verticale
+  Nederlands: Verticaal
+  English (US): Vertical
+
+Top
+  Français: Haut
+  Deutsch: Oben
+  Español: Arriba
+  Português: Topo
+  Italiano: Alto
+  Nederlands: Boven
+  English (US): Top
+
+Centre
+  Français: Centre
+  Deutsch: Mitte
+  Español: Centro
+  Português: Centro
+  Italiano: Centro
+  Nederlands: Midden
+  English (US): Center
+
+Bottom
+  Français: Bas
+  Deutsch: Unten
+  Español: Abajo
+  Português: Fundo
+  Italiano: Basso
+  Nederlands: Onder
+  English (US): Bottom
+
+Left
+  Français: Gauche
+  Deutsch: Links
+  Español: Izquierda
+  Português: Esquerda
+  Italiano: Sinistra
+  Nederlands: Links
+  English (US): Left
+
+Right
+  Français: Droite
+  Deutsch: Rechts
+  Español: Derecha
+  Português: Direita
+  Italiano: Destra
+  Nederlands: Rechts
+  English (US): Right
+
+Contain
+  Français: Ajuster
+  Deutsch: Einpassen
+  Español: Ajustar
+  Português: Ajustar
+  Italiano: Adatta
+  Nederlands: Passend
+  English (US): Contain
+
+Overlap
+  Français: Déborder
+  Deutsch: Überlappen
+  Español: Superponer
+  Português: Sobrepor
+  Italiano: Sovrapponi
+  Nederlands: Overlappen
+  English (US): Overlap
+
+Accent
+  Français: Accent
+  Deutsch: Akzent
+  Español: Acento
+  Português: Destaque
+  Italiano: Accento
+  Nederlands: Accent
+  English (US): Accent
+
+Black
+  Français: Noir
+  Deutsch: Schwarz
+  Español: Negro
+  Português: Preto
+  Italiano: Nero
+  Nederlands: Zwart
+  English (US): Black
+
+Grey
+  Français: Gris
+  Deutsch: Grau
+  Español: Gris
+  Português: Cinzento
+  Italiano: Grigio
+  Nederlands: Grijs
+  English (US): Grey
+
+White
+  Français: Blanc
+  Deutsch: Weiß
+  Español: Blanco
+  Português: Branco
+  Italiano: Bianco
+  Nederlands: Wit
+  English (US): White
+
+Full
+  Français: Complet
+  Deutsch: Voll
+  Español: Completo
+  Português: Completo
+  Italiano: Completo
+  Nederlands: Volledig
+  English (US): Full
+
+Short
+  Français: Court
+  Deutsch: Kurz
+  Español: Corto
+  Português: Curto
+  Italiano: Breve
+  Nederlands: Kort
+  English (US): Short
+
+No Start
+  Français: Sauf accueil
+  Deutsch: Ohne Start
+  Español: Salvo inicio
+  Português: Sem início
+  Italiano: Tranne inizio
+  Nederlands: Behalve begin
+  English (US): No Start
+
+Folders
+  Français: Dossiers
+  Deutsch: Ordner
+  Español: Carpetas
+  Português: Pastas
+  Italiano: Cartelle
+  Nederlands: Mappen
+  English (US): Folders
+
+12 hour
+  Français: 12 heures
+  Deutsch: 12 Stunden
+  Español: 12 horas
+  Português: 12 horas
+  Italiano: 12 ore
+  Nederlands: 12 uur
+  English (US): 12 hour
+
+24 hour
+  Français: 24 heures
+  Deutsch: 24 Stunden
+  Español: 24 horas
+  Português: 24 horas
+  Italiano: 24 ore
+  Nederlands: 24 uur
+  English (US): 24 hour
+
+Search
+  Français: Recherche
+  Deutsch: Suche
+  Español: Buscar
+  Português: Procurar
+  Italiano: Cerca
+  Nederlands: Zoeken
+  English (US): Search
+
+Delete
+  Français: Effacer
+  Deutsch: Löschen
+  Español: Borrar
+  Português: Apagar
+  Italiano: Cancella
+  Nederlands: Wissen
+  English (US): Delete
+
+Results
+  Français: Résultats
+  Deutsch: Ergebnisse
+  Español: Resultados
+  Português: Resultados
+  Italiano: Risultati
+  Nederlands: Resultaten
+  English (US): Results
+
+Launching
+  Français: Lancement
+  Deutsch: Wird gestartet
+  Español: Iniciando
+  Português: A iniciar
+  Italiano: Avvio
+  Nederlands: Starten
+  English (US): Launching
+
+No games found
+  Français: Aucun jeu trouvé
+  Deutsch: Keine Spiele
+  Español: No hay juegos
+  Português: Sem jogos
+  Italiano: Nessun gioco
+  Nederlands: Geen spellen
+  English (US): No games found
+
+No favourites
+  Français: Aucun favori
+  Deutsch: Keine Favoriten
+  Español: Sin favoritos
+  Português: Sem favoritos
+  Italiano: Nessun preferito
+  Nederlands: Geen favorieten
+  English (US): No favorites
+
+No recent games
+  Français: Aucun jeu récent
+  Deutsch: Keine letzten Spiele
+  Español: Sin recientes
+  Português: Sem recentes
+  Italiano: Nessun recente
+  Nederlands: Geen recente spellen
+  English (US): No recent games
+
+No recent game
+  Français: Aucun jeu récent
+  Deutsch: Kein letztes Spiel
+  Español: Sin juego reciente
+  Português: Sem jogo recente
+  Italiano: Nessun recente
+  Nederlands: Geen recent spel
+  English (US): No recent game
+
+No favourite game
+  Français: Aucun jeu favori
+  Deutsch: Kein Favorit
+  Español: Sin juego favorito
+  Português: Sem jogo favorito
+  Italiano: Nessun preferito
+  Nederlands: Geen favoriet spel
+  English (US): No favorite game
+
+Controls reset
+  Français: Commandes réinitialisées
+  Deutsch: Steuerung zurückgesetzt
+  Español: Controles restablecidos
+  Português: Controlos repostos
+  Italiano: Comandi ripristinati
+  Nederlands: Bediening hersteld
+  English (US): Controls reset
+
+Added to favourites
+  Français: Ajouté aux favoris
+  Deutsch: Zu Favoriten hinzugefügt
+  Español: Añadido a favoritos
+  Português: Adicionado aos favoritos
+  Italiano: Aggiunto ai preferiti
+  Nederlands: Toegevoegd aan favorieten
+  English (US): Added to favorites
+
+Removed from favourites
+  Français: Retiré des favoris
+  Deutsch: Aus Favoriten entfernt
+  Español: Quitado de favoritos
+  Português: Removido dos favoritos
+  Italiano: Rimosso dai preferiti
+  Nederlands: Verwijderd uit favorieten
+  English (US): Removed from favorites
+
+Open / change
+  Français: Ouvrir / modifier
+  Deutsch: Öffnen / ändern
+  Español: Abrir / cambiar
+  Português: Abrir / alterar
+  Italiano: Apri / cambia
+  Nederlands: Openen / wijzigen
+  English (US): Open / change
+
+Back / cancel
+  Français: Retour / annuler
+  Deutsch: Zurück / abbrechen
+  Español: Volver / cancelar
+  Português: Voltar / cancelar
+  Italiano: Indietro / annulla
+  Nederlands: Terug / annuleren
+  English (US): Back / cancel
+
+Set favourite
+  Français: Ajouter / retirer favori
+  Deutsch: Favorit setzen / löschen
+  Español: Añadir / quitar favorito
+  Português: Adicionar / tirar favorito
+  Italiano: Imposta / togli preferito
+  Nederlands: Favoriet aan / uit
+  English (US): Set favorite
+
+Reboot?
+  Français: Redémarrer ?
+  Deutsch: Neu starten?
+  Español: ¿Reiniciar?
+  Português: Reiniciar?
+  Italiano: Riavviare?
+  Nederlands: Herstarten?
+  English (US): Reboot?
+
+Shutdown?
+  Français: Éteindre ?
+  Deutsch: Ausschalten?
+  Español: ¿Apagar?
+  Português: Desligar?
+  Italiano: Spegnere?
+  Nederlands: Afsluiten?
+  English (US): Shutdown?
+
+Yes
+  Français: Oui
+  Deutsch: Ja
+  Español: Sí
+  Português: Sim
+  Italiano: Sì
+  Nederlands: Ja
+  English (US): Yes
+
+Cancel
+  Français: Annuler
+  Deutsch: Abbrechen
+  Español: Cancelar
+  Português: Cancelar
+  Italiano: Annulla
+  Nederlands: Annuleren
+  English (US): Cancel
+
+Set launch mode
+  Français: Mode de lancement
+  Deutsch: Startmodus wählen
+  Español: Modo de ejecución
+  Português: Modo de arranque
+  Italiano: Modo di avvio
+  Nederlands: Startmodus kiezen
+  English (US): Set launch mode
+
+Choose a 12 or 24 hour clock.
+  Français: Choisir une horloge sur 12 ou 24 heures.
+  Deutsch: 12- oder 24-Stunden-Uhr wählen.
+  Español: Elegir reloj de 12 o 24 horas.
+  Português: Escolher relógio de 12 ou 24 horas.
+  Italiano: Scegli l'orologio a 12 o 24 ore.
+  Nederlands: Kies een 12- of 24-uursklok.
+  English (US): Choose a 12 or 24 hour clock.
+
+Use list views for folders. Game folders keep your chosen view.
+  Français: Afficher les dossiers en liste. Les jeux gardent la vue choisie.
+  Deutsch: Ordner als Liste zeigen. Spiele behalten die gewählte Ansicht.
+  Español: Ver carpetas como lista. Los juegos conservan su vista.
+  Português: Ver pastas em lista. Os jogos mantêm a vista escolhida.
+  Italiano: Mostra le cartelle in lista. I giochi mantengono la vista scelta.
+  Nederlands: Toon mappen als lijst. Spellen behouden de gekozen weergave.
+  English (US): Use list views for folders. Game folders keep your chosen view.
+
+Show full system names. The top bar keeps short names.
+  Français: Afficher les noms complets. La barre garde les noms courts.
+  Deutsch: Volle Systemnamen zeigen. Die Titelleiste bleibt kurz.
+  Español: Mostrar nombres completos. La barra usa nombres cortos.
+  Português: Mostrar nomes completos. A barra mantém nomes curtos.
+  Italiano: Mostra nomi completi. La barra mantiene i nomi brevi.
+  Nederlands: Toon volledige systeemnamen. De titelbalk blijft kort.
+  English (US): Show full system names. The top bar keeps short names.
+
+Hide file extensions, tags and file sizes in lists.
+  Français: Masquer extensions, tags et tailles des fichiers.
+  Deutsch: Dateiendungen, Zusätze und Größen ausblenden.
+  Español: Ocultar extensiones, etiquetas y tamaños.
+  Português: Ocultar extensões, etiquetas e tamanhos.
+  Italiano: Nascondi estensioni, etichette e dimensioni.
+  Nederlands: Verberg extensies, tags en bestandsgrootte.
+  English (US): Hide file extensions, tags and file sizes in lists.
+
+Choose the accent colour used by bars and selections.
+  Français: Choisir la couleur des barres et de la sélection.
+  Deutsch: Farbe für Leisten und Auswahl wählen.
+  Español: Elegir color para barras y selección.
+  Português: Escolher cor das barras e seleção.
+  Italiano: Scegli il colore di barre e selezione.
+  Nederlands: Kies de kleur van balken en selectie.
+  English (US): Choose the accent color used by bars and selections.
+
+Choose List, List + Art, Horizontal or Vertical.
+  Français: Choisir liste, liste avec image ou carrousel horizontal ou vertical.
+  Deutsch: Liste, Liste mit Bild oder horizontale bzw. vertikale Ansicht wählen.
+  Español: Elegir lista, lista con imagen o vista horizontal o vertical.
+  Português: Escolher lista, lista com imagem ou vista horizontal ou vertical.
+  Italiano: Scegli lista, lista con immagini o vista orizzontale o verticale.
+  Nederlands: Kies lijst, lijst met beeld, horizontaal of verticaal.
+  English (US): Choose List, List + Art, Horizontal or Vertical.
+
+Render artwork at GBA resolution for a pixel look.
+  Français: Afficher les images à la résolution GBA.
+  Deutsch: Bilder mit GBA-Auflösung darstellen.
+  Español: Mostrar imágenes con resolución GBA.
+  Português: Mostrar imagens com resolução GBA.
+  Italiano: Mostra le immagini a risoluzione GBA.
+  Nederlands: Toon afbeeldingen op GBA-resolutie.
+  English (US): Render artwork at GBA resolution for a pixel look.
+
+Choose the colour of the artwork outline, or turn it off.
+  Français: Choisir la couleur de bordure, ou la désactiver.
+  Deutsch: Farbe des Bildrahmens wählen oder ihn ausschalten.
+  Español: Elegir color del borde o desactivarlo.
+  Português: Escolher cor da borda ou desligar.
+  Italiano: Scegli il colore del bordo o disattivalo.
+  Nederlands: Kies de randkleur of schakel de rand uit.
+  English (US): Choose the color of the artwork outline, or turn it off.
+
+Round artwork corners. No Start keeps home artwork square.
+  Français: Arrondir les images. Sauf accueil garde l'image d'accueil carrée.
+  Deutsch: Bildecken abrunden. Ohne Start lässt das Startbild eckig.
+  Español: Redondear imágenes. Salvo inicio mantiene recta la imagen inicial.
+  Português: Arredondar imagens. Sem início mantém a imagem inicial quadrada.
+  Italiano: Arrotonda le immagini. Tranne inizio lascia gli angoli iniziali dritti.
+  Nederlands: Rond hoeken af. Behalve begin houdt de startafbeelding recht.
+  English (US): Round artwork corners. No Start keeps home artwork square.
+
+Align the smaller images in vertical view.
+  Français: Aligner les petites images en vue verticale.
+  Deutsch: Kleine Bilder in der vertikalen Ansicht ausrichten.
+  Español: Alinear imágenes pequeñas en vista vertical.
+  Português: Alinhar imagens pequenas na vista vertical.
+  Italiano: Allinea le immagini piccole nella vista verticale.
+  Nederlands: Lijn kleine afbeeldingen verticaal uit.
+  English (US): Align the smaller images in vertical view.
+
+Align the smaller images in horizontal view.
+  Français: Aligner les petites images en vue horizontale.
+  Deutsch: Kleine Bilder in der horizontalen Ansicht ausrichten.
+  Español: Alinear imágenes pequeñas en vista horizontal.
+  Português: Alinhar imagens pequenas na vista horizontal.
+  Italiano: Allinea le immagini piccole nella vista orizzontale.
+  Nederlands: Lijn kleine afbeeldingen horizontaal uit.
+  English (US): Align the smaller images in horizontal view.
+
+Contain wide images, or let them overlap in horizontal view.
+  Français: Ajuster les images larges ou les laisser déborder en vue horizontale.
+  Deutsch: Breite Bilder einpassen oder horizontal überlappen lassen.
+  Español: Ajustar imágenes anchas o permitir que se superpongan.
+  Português: Ajustar imagens largas ou deixar sobrepor na vista horizontal.
+  Italiano: Adatta immagini larghe o lasciale sovrapporre in orizzontale.
+  Nederlands: Pas brede afbeeldingen in of laat ze overlappen.
+  English (US): Contain wide images, or let them overlap in horizontal view.
+
+Place list artwork at the top, centre or bottom.
+  Français: Placer l'image en haut, au centre ou en bas de la liste.
+  Deutsch: Listenbild oben, mittig oder unten platzieren.
+  Español: Colocar imagen arriba, al centro o abajo.
+  Português: Colocar imagem no topo, centro ou fundo.
+  Italiano: Posiziona l'immagine in alto, al centro o in basso.
+  Nederlands: Plaats het lijstbeeld boven, midden of onder.
+  English (US): Place list artwork at the top, center or bottom.
+
+Choose Apps, Favourites or Recents for the home button.
+  Français: Choisir Applis, Favoris ou Récents pour le bouton d'accueil.
+  Deutsch: Apps, Favoriten oder Zuletzt für die Starttaste wählen.
+  Español: Elegir Apps, Favoritos o Recientes para el botón inicial.
+  Português: Escolher Apps, Favoritos ou Recentes para o botão inicial.
+  Italiano: Scegli App, Preferiti o Recenti per il tasto iniziale.
+  Nederlands: Kies Apps, Favorieten of Recent voor de startknop.
+  English (US): Choose Apps, Favorites or Recents for the home button.
+
+Add an LCD grid to the screen.
+  Français: Ajouter une grille LCD à l'écran.
+  Deutsch: Ein LCD-Raster auf dem Bildschirm anzeigen.
+  Español: Añadir una rejilla LCD a la pantalla.
+  Português: Adicionar uma grelha LCD ao ecrã.
+  Italiano: Aggiungi una griglia LCD allo schermo.
+  Nederlands: Voeg een LCD-raster aan het scherm toe.
+  English (US): Add an LCD grid to the screen.
+
+Return to Stock OS. Stock settings remain available there.
+  Français: Revenir au système d'origine pour ses réglages avancés.
+  Deutsch: Zum Original-OS und seinen Einstellungen zurückkehren.
+  Español: Volver al SO original para sus ajustes.
+  Português: Voltar ao SO original para as suas definições.
+  Italiano: Torna al SO originale e alle sue impostazioni.
+  Nederlands: Ga terug naar het originele OS voor instellingen.
+  English (US): Return to Stock OS. Stock settings remain available there.
+
+Start DS Style automatically when the device boots.
+  Français: Lancer DS Style automatiquement au démarrage.
+  Deutsch: DS Style beim Einschalten automatisch starten.
+  Español: Abrir DS Style al encender el dispositivo.
+  Português: Abrir DS Style ao ligar o dispositivo.
+  Italiano: Avvia DS Style all'accensione.
+  Nederlands: Start DS Style automatisch bij inschakelen.
+  English (US): Start DS Style automatically when the device boots.
+
+Restart the device using the stock power route.
+  Français: Redémarrer avec la procédure du système d'origine.
+  Deutsch: Mit der Original-Systemroutine neu starten.
+  Español: Reiniciar con la rutina del SO original.
+  Português: Reiniciar pela rotina do SO original.
+  Italiano: Riavvia con la procedura del SO originale.
+  Nederlands: Herstart via de originele systeemroutine.
+  English (US): Restart the device using the stock power route.
+
+Turn off the device using the stock power route.
+  Français: Éteindre avec la procédure du système d'origine.
+  Deutsch: Mit der Original-Systemroutine ausschalten.
+  Español: Apagar con la rutina del SO original.
+  Português: Desligar pela rotina do SO original.
+  Italiano: Spegni con la procedura del SO originale.
+  Nederlands: Sluit af via de originele systeemroutine.
+  English (US): Turn off the device using the stock power route.
+
+Open installed applications.
+  Français: Ouvrir les applications installées.
+  Deutsch: Installierte Anwendungen öffnen.
+  Español: Abrir aplicaciones instaladas.
+  Português: Abrir aplicações instaladas.
+  Italiano: Apri le applicazioni installate.
+  Nederlands: Open geïnstalleerde apps.
+  English (US): Open installed applications.
+
+Play sounds when a menu action takes place.
+  Français: Jouer un son lorsqu'une action est effectuée.
+  Deutsch: Bei einer Menüaktion einen Ton abspielen.
+  Español: Reproducir sonido al realizar una acción.
+  Português: Tocar som quando ocorre uma ação.
+  Italiano: Riproduci un suono quando avviene un'azione.
+  Nederlands: Speel geluid bij een menuactie.
+  English (US): Play sounds when a menu action takes place.
+
+Play a startup sound on device boot.
+  Français: Jouer un son au démarrage de l'appareil.
+  Deutsch: Beim Einschalten des Geräts einen Startton abspielen.
+  Español: Reproducir un sonido al encender el dispositivo.
+  Português: Reproduzir um som ao ligar o dispositivo.
+  Italiano: Riproduci un suono all'avvio del dispositivo.
+  Nederlands: Speel een geluid af wanneer het apparaat opstart.
+  English (US): Play a startup sound on device boot.
+
+Use console icons or folder icons for systems.
+  Français: Afficher des icônes de consoles ou de dossiers.
+  Deutsch: Konsolen- oder Ordnersymbole anzeigen.
+  Español: Mostrar iconos de consolas o carpetas.
+  Português: Mostrar ícones de consolas ou pastas.
+  Italiano: Mostra icone di console o cartelle.
+  Nederlands: Toon console- of mappictogrammen.
+  English (US): Use console icons or folder icons for systems.
+
+Toggle dark backgrounds.
+  Français: Activer ou désactiver les fonds sombres.
+  Deutsch: Dunkle Hintergründe ein- oder ausschalten.
+  Español: Activar o desactivar fondos oscuros.
+  Português: Ativar ou desativar fundos escuros.
+  Italiano: Attiva o disattiva gli sfondi scuri.
+  Nederlands: Schakel donkere achtergronden in of uit.
+  English (US): Toggle dark backgrounds.
+
+Add a pixel transparency effect.
+  Français: Ajouter un effet de transparence des pixels.
+  Deutsch: Einen Pixeltransparenzeffekt hinzufügen.
+  Español: Añadir un efecto de transparencia de píxeles.
+  Português: Adicionar um efeito de transparência de píxeis.
+  Italiano: Aggiungi un effetto di trasparenza dei pixel.
+  Nederlands: Voeg een pixeltransparantie-effect toe.
+  English (US): Add a pixel transparency effect.
+
+Choose where DS Style starts. Hold START at startup to skip automatic game launch.
+  Français: Choisir l'écran initial. Maintenir START au démarrage pour éviter le lancement automatique.
+  Deutsch: Startziel wählen. START beim Start halten, um den automatischen Spielstart zu überspringen.
+  Español: Elegir inicio. Mantener START al encender para evitar el juego automático.
+  Português: Escolher início. Segurar START ao ligar para evitar o jogo automático.
+  Italiano: Scegli l'avvio. Tieni START all'accensione per saltare l'avvio del gioco.
+  Nederlands: Kies het startdoel. Houd START vast bij opstarten om automatisch spelen over te slaan.
+  English (US): Choose where DS Style starts. Hold START at startup to skip automatic game launch.
+
+Turn off the home screen. Home boot then opens Games.
+  Français: Désactiver l'accueil. Le démarrage Accueil ouvre alors Jeux.
+  Deutsch: Startbildschirm ausschalten. Startseite öffnet dann Spiele.
+  Español: Desactivar inicio. El destino Inicio abrirá Juegos.
+  Português: Desligar ecrã inicial. O destino Início abre Jogos.
+  Italiano: Disattiva la schermata iniziale. Inizio aprirà Giochi.
+  Nederlands: Schakel het beginscherm uit. Begin opent dan Spellen.
+  English (US): Turn off the home screen. Home boot then opens Games.
+
+Choose Recents or Favourites for the home game.
+  Français: Choisir Récents ou Favoris pour le jeu d'accueil.
+  Deutsch: Zuletzt oder Favoriten als Quelle des Startspiels wählen.
+  Español: Elegir Recientes o Favoritos para el juego inicial.
+  Português: Escolher Recentes ou Favoritos para o jogo inicial.
+  Italiano: Scegli Recenti o Preferiti per il gioco iniziale.
+  Nederlands: Kies Recent of Favorieten voor het startspel.
+  English (US): Choose Recents or Favorites for the home game.
+
+Hold this button at startup to launch the home game.
+  Français: Maintenir ce bouton au démarrage pour lancer le jeu d'accueil.
+  Deutsch: Diese Taste beim Start halten, um das Startspiel zu öffnen.
+  Español: Mantener este botón al encender para abrir el juego de inicio.
+  Português: Segurar este botão ao ligar para abrir o jogo inicial.
+  Italiano: Tieni questo tasto all'avvio per aprire il gioco iniziale.
+  Nederlands: Houd deze knop vast bij het opstarten om het startspel te openen.
+  English (US): Hold this button at startup to launch the home game.
+
+Choose the interface language. Game filenames stay unchanged.
+  Français: Choisir la langue des menus. Les noms de jeux restent inchangés.
+  Deutsch: Menüsprache wählen. Spieldateinamen bleiben unverändert.
+  Español: Elegir idioma de menús. Los nombres de juegos no cambian.
+  Português: Escolher idioma dos menus. Os nomes dos jogos não mudam.
+  Italiano: Scegli la lingua dei menu. I nomi dei giochi non cambiano.
+  Nederlands: Kies de menutaal. Spelbestandsnamen blijven gelijk.
+  English (US): Choose the interface language. Game filenames stay unchanged.
+
+Choose a controller to edit. Connected devices are detected automatically.
+  Français: Choisir la manette à régler. Les connexions sont détectées automatiquement.
+  Deutsch: Controller zum Bearbeiten wählen. Neue Geräte werden automatisch erkannt.
+  Español: Elegir mando a configurar. Las conexiones se detectan automáticamente.
+  Português: Escolher comando a configurar. As ligações são detetadas automaticamente.
+  Italiano: Scegli il controller da configurare. Le connessioni vengono rilevate.
+  Nederlands: Kies de controller. Verbonden apparaten worden automatisch herkend.
+  English (US): Choose a controller to edit. Connected devices are detected automatically.
+
+Restore this controller's default buttons. D-pad navigation stays fixed.
+  Français: Rétablir les boutons de cette manette. La croix reste fixe.
+  Deutsch: Standardtasten dieses Controllers wiederherstellen. Das Steuerkreuz bleibt fest.
+  Español: Restablecer botones de este mando. La cruceta queda fija.
+  Português: Repor botões deste comando. O direcional mantém-se fixo.
+  Italiano: Ripristina i tasti del controller. La croce direzionale resta fissa.
+  Nederlands: Herstel de knoppen van deze controller. Het D-pad blijft vast.
+  English (US): Restore this controller's default buttons. D-pad navigation stays fixed.
+
+Hold START while DS Style starts to return to the menu when Last game boot is enabled.
+  Français: Maintenir START au démarrage de DS Style pour revenir au menu si Dernier jeu est activé.
+  Deutsch: START beim DS-Style-Start halten, um bei Letztes Spiel zum Menü zurückzukehren.
+  Español: Mantén START al iniciar DS Style para volver al menú si Último juego está activado.
+  Português: Segura START ao iniciar DS Style para voltar ao menu se Último jogo estiver ativo.
+  Italiano: Tieni START all'avvio di DS Style per tornare al menu con Ultimo gioco attivo.
+  Nederlands: Houd START vast bij het starten van DS Style om terug te keren bij Laatste spel.
+  English (US): Hold START while DS Style starts to return to the menu when Last game boot is enabled.
+
+Press a new button to bind. Conflicts swap buttons. D-pad Left cancels. Binding times out after 5 seconds.
+  Français: Appuyer sur un nouveau bouton à assigner. Les conflits échangent les boutons. Gauche sur la croix annule ; délai de 5 secondes.
+  Deutsch: Neue Taste zum Belegen drücken. Konflikte tauschen Tasten. Steuerkreuz links bricht ab; Zeitlimit: 5 Sekunden.
+  Español: Pulsa un botón nuevo para asignarlo. Los conflictos intercambian botones. Izquierda en la cruceta cancela; límite de 5 segundos.
+  Português: Prime um novo botão para atribuir. Os conflitos trocam botões. Esquerda no direcional cancela; limite de 5 segundos.
+  Italiano: Premi un nuovo tasto da assegnare. I conflitti scambiano i tasti. Sinistra sul D-pad annulla; limite di 5 secondi.
+  Nederlands: Druk op een nieuwe knop om te koppelen. Conflicten wisselen knoppen. D-pad links annuleert; tijdslimiet: 5 seconden.
+  English (US): Press a new button to bind. Conflicts swap buttons. D-pad Left cancels. Binding times out after 5 seconds.
+
+Navigate
+  Français: Naviguer
+  Deutsch: Navigieren
+  Español: Navegar
+  Português: Navegar
+  Italiano: Naviga
+  Nederlands: Navigeren
+  English (US): Navigate
+
+Volume
+  Français: Volume
+  Deutsch: Lautstärke
+  Español: Volumen
+  Português: Volume
+  Italiano: Volume
+  Nederlands: Volume
+  English (US): Volume
+
+Brightness
+  Français: Luminosité
+  Deutsch: Helligkeit
+  Español: Brillo
+  Português: Brilho
+  Italiano: Luminosità
+  Nederlands: Helderheid
+  English (US): Brightness
+
+Startup escape
+  Français: Retour au démarrage
+  Deutsch: Start abbrechen
+  Español: Cancelar inicio
+  Português: Cancelar início
+  Italiano: Annulla avvio
+  Nederlands: Opstarten afbreken
+  English (US): Startup escape
+
+Pale Blue
+  Français: Bleu pâle
+  Deutsch: Blassblau
+  Español: Azul pálido
+  Português: Azul pálido
+  Italiano: Azzurro tenue
+  Nederlands: Bleekblauw
+  English (US): Pale Blue
+
+Light Blue
+  Français: Bleu clair
+  Deutsch: Hellblau
+  Español: Azul claro
+  Português: Azul claro
+  Italiano: Azzurro
+  Nederlands: Lichtblauw
+  English (US): Light Blue
+
+Blue
+  Français: Bleu
+  Deutsch: Blau
+  Español: Azul
+  Português: Azul
+  Italiano: Blu
+  Nederlands: Blauw
+  English (US): Blue
+
+Dark Blue
+  Français: Bleu foncé
+  Deutsch: Dunkelblau
+  Español: Azul oscuro
+  Português: Azul escuro
+  Italiano: Blu scuro
+  Nederlands: Donkerblauw
+  English (US): Dark Blue
+
+Green
+  Français: Vert
+  Deutsch: Grün
+  Español: Verde
+  Português: Verde
+  Italiano: Verde
+  Nederlands: Groen
+  English (US): Green
+
+Pale Green
+  Français: Vert pâle
+  Deutsch: Blassgrün
+  Español: Verde pálido
+  Português: Verde pálido
+  Italiano: Verde tenue
+  Nederlands: Bleekgroen
+  English (US): Pale Green
+
+Bright Green
+  Français: Vert vif
+  Deutsch: Leuchtgrün
+  Español: Verde vivo
+  Português: Verde vivo
+  Italiano: Verde vivo
+  Nederlands: Felgroen
+  English (US): Bright Green
+
+Lime
+  Français: Citron vert
+  Deutsch: Limonengrün
+  Español: Lima
+  Português: Lima
+  Italiano: Lime
+  Nederlands: Limoengroen
+  English (US): Lime
+
+Yellow
+  Français: Jaune
+  Deutsch: Gelb
+  Español: Amarillo
+  Português: Amarelo
+  Italiano: Giallo
+  Nederlands: Geel
+  English (US): Yellow
+
+Red
+  Français: Rouge
+  Deutsch: Rot
+  Español: Rojo
+  Português: Vermelho
+  Italiano: Rosso
+  Nederlands: Rood
+  English (US): Red
+
+Orange
+  Français: Orange
+  Deutsch: Orange
+  Español: Naranja
+  Português: Laranja
+  Italiano: Arancione
+  Nederlands: Oranje
+  English (US): Orange
+
+Brown
+  Français: Marron
+  Deutsch: Braun
+  Español: Marrón
+  Português: Castanho
+  Italiano: Marrone
+  Nederlands: Bruin
+  English (US): Brown
+
+Pink
+  Français: Rose
+  Deutsch: Rosa
+  Español: Rosa
+  Português: Rosa
+  Italiano: Rosa
+  Nederlands: Roze
+  English (US): Pink
+
+Pale Pink
+  Français: Rose pâle
+  Deutsch: Blassrosa
+  Español: Rosa pálido
+  Português: Rosa pálido
+  Italiano: Rosa tenue
+  Nederlands: Bleekroze
+  English (US): Pale Pink
+
+Magenta
+  Français: Magenta
+  Deutsch: Magenta
+  Español: Magenta
+  Português: Magenta
+  Italiano: Magenta
+  Nederlands: Magenta
+  English (US): Magenta
+
+Purple
+  Français: Violet
+  Deutsch: Violett
+  Español: Morado
+  Português: Roxo
+  Italiano: Viola
+  Nederlands: Paars
+  English (US): Purple
+
+Favs
+  Français: Favs
+  Deutsch: Favs
+  Español: Favs
+  Português: Favs
+  Italiano: Pref.
+  Nederlands: Favs
+  English (US): Favs
+
+About
+  Français: À propos
+  Deutsch: Über
+  Español: Acerca de
+  Português: Sobre
+  Italiano: Informazioni
+  Nederlands: Over
+  English (US): About
+
+Apps in Games
+  Français: Applis en jeux
+  Deutsch: Apps in Spiele
+  Español: Apps en juegos
+  Português: Apps nos jogos
+  Italiano: App nei giochi
+  Nederlands: Apps in Games
+  English (US): Apps in Games
+
+Show an Apps shortcut in the Systems list.
+  Français: Afficher un raccourci vers les applis dans la liste des consoles.
+  Deutsch: Eine Apps-Verknüpfung in der Systemliste anzeigen.
+  Español: Mostrar un acceso a Apps en la lista de sistemas.
+  Português: Mostrar um atalho para Apps na lista de sistemas.
+  Italiano: Mostra un collegamento alle app nella lista dei sistemi.
+  Nederlands: Toon een Apps-snelkoppeling in de systeemlijst.
+  English (US): Show an Apps shortcut in the Systems list.
+
+Created by FrankieT19.
+  Français: Créé par FrankieT19.
+  Deutsch: Erstellt von FrankieT19.
+  Español: Creado por FrankieT19.
+  Português: Criado por FrankieT19.
+  Italiano: Creato da FrankieT19.
+  Nederlands: Gemaakt door FrankieT19.
+  English (US): Created by FrankieT19.
+
+Originally a Nintendo DS-inspired
+  Français: Interface GBA inspirée de la DS,
+  Deutsch: Vom Nintendo DS inspirierte
+  Español: Interfaz GBA inspirada en DS,
+  Português: Interface GBA inspirada na DS,
+  Italiano: Interfaccia GBA ispirata al DS,
+  Nederlands: Een op Nintendo DS geïnspireerde
+  English (US): Originally a Nintendo DS-inspired
+
+GBA frontend for EZ-FLASH Omega
+  Français: pour EZ-FLASH Omega
+  Deutsch: GBA-Oberfläche für EZ-FLASH Omega
+  Español: para EZ-FLASH Omega
+  Português: para EZ-FLASH Omega
+  Italiano: per EZ-FLASH Omega
+  Nederlands: GBA-interface voor EZ-FLASH Omega
+  English (US): GBA frontend for EZ-FLASH Omega
+
+and Omega Definitive Edition.
+  Français: et Omega Definitive Edition.
+  Deutsch: und Omega Definitive Edition.
+  Español: y Omega Definitive Edition.
+  Português: e Omega Definitive Edition.
+  Italiano: e Omega Definitive Edition.
+  Nederlands: en Omega Definitive Edition.
+  English (US): and Omega Definitive Edition.
+
+Free and open source.
+  Français: Libre et open source.
+  Deutsch: Kostenlos und quelloffen.
+  Español: Gratis y de código abierto.
+  Português: Gratuito e de código aberto.
+  Italiano: Gratuito e open source.
+  Nederlands: Gratis en open source.
+  English (US): Free and open source.
+
+RG SP port v1.0
+  Français: Portage RG SP v1.0
+  Deutsch: RG-SP-Portierung v1.0
+  Español: Versión RG SP v1.0
+  Português: Versão RG SP v1.0
+  Italiano: Versione RG SP v1.0
+  Nederlands: RG SP-versie v1.0
+  English (US): RG SP port v1.0
+
+Credits
+  Français: Crédits
+  Deutsch: Mitwirkende
+  Español: Créditos
+  Português: Créditos
+  Italiano: Crediti
+  Nederlands: Credits
+  English (US): Credits
+
+LCD grid: based on lcd1x
+  Français: Grille LCD basée sur lcd1x
+  Deutsch: LCD-Raster: basiert auf lcd1x
+  Español: Rejilla LCD basada en lcd1x
+  Português: Grelha LCD baseada em lcd1x
+  Italiano: Griglia LCD basata su lcd1x
+  Nederlands: LCD-raster: gebaseerd op lcd1x
+  English (US): LCD grid: based on lcd1x

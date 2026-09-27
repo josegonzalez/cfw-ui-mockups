@@ -19,6 +19,8 @@ export type Button =
   | 'y'
   | 'l'
   | 'r'
+  | 'l2'
+  | 'r2'
   | 'start'
   | 'select'
   | 'menu'
@@ -34,6 +36,8 @@ export const BUTTONS: readonly Button[] = [
   'y',
   'l',
   'r',
+  'l2',
+  'r2',
   'start',
   'select',
   'menu',
@@ -66,6 +70,10 @@ export const KEY_TO_BUTTON: Readonly<Record<string, Button>> = {
   Q: 'l',
   w: 'r',
   W: 'r',
+  // The second shoulders. `1` and `2` are what DS Style's own desktop preview binds them to
+  // (rg-sp-ds-style `source/dsstyle.c:596`), and no mockup-only key uses a digit.
+  '1': 'l2',
+  '2': 'r2',
   Escape: 'menu',
 }
 
@@ -92,6 +100,8 @@ export const BUTTON_KEY_LABEL: Readonly<Record<Button, string>> = {
   y: 'S',
   l: 'Q',
   r: 'W',
+  l2: '1',
+  r2: '2',
   start: 'Enter',
   select: 'Right Shift',
   menu: 'Esc',

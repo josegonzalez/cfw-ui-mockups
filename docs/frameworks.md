@@ -111,6 +111,7 @@ inference from the docs.
 | Arbitrary font sizes and families | 6 fixed tiers, one family, forced bold; accepts a caller's `TTF_Font*` | 6 fixed tiers, one typeface, no public arbitrary-size open |
 | Font line-height metrics | not exposed | not exposed |
 | Italic, and a regular weight beside bold | no - `TTF_STYLE_ITALIC` zero-hit; every font set bold at load (`apostrophe.h:1415`) | no - `italic` zero-hit; embedded Bold faces, no style call |
+| Low-resolution canvas shown at an integer scale | no - `SDL_RenderSetLogicalSize` is the panel's own size (`apostrophe.h:4717`); `RenderSetIntegerScale` zero-hit | no - `SetLogicalSize` is the panel's own size (`internal/window.go:105-115`); same |
 | SVG | no | `oksvg`, but only inside `ProcessMessage` |
 | WebP | no - `IMG_INIT_PNG \| IMG_INIT_JPG` | effectively no - see below |
 | Animated GIF | `IMG_LoadAnimation` never referenced | absent |
@@ -636,6 +637,85 @@ Maps today:
 - Text is measured to lay out the header, and wrapped and ellipsised in every panel, which both
   frameworks' text primitives do.
 
+### DS Style
+
+Full spec: [`themes/ds-style/reference/source-notes.md`](themes/ds-style/reference/source-notes.md).
+
+> Assessed from the C source, `FrankieT19/rg-sp-ds-style` at `2847683`. Built as
+> `app/src/themes/ds-style/`; [`porting/ds-style.md`](porting/ds-style.md) records the deviations,
+> and every still matches a frame the launcher rendered itself. Checked against Apostrophe at
+> `5ed3f74` and gabagool at `895f493`.
+
+The smallest drawing vocabulary in the registry: six primitives, no blending, one bitmap font and
+one canvas of 240x160 shown at exactly 3x. It does not even use SDL, writing the framebuffer
+directly. What it asks of a framework is therefore less about effects than about owning the pixels:
+a low-resolution canvas, exact nearest-neighbour art, and a bitmap face. It also needs popups over
+a live list, which is the composition blocker again.
+
+Missing from both frameworks:
+
+- **A low-resolution canvas at an integer scale.** Everything is laid out on 240x160 and shown at
+  3x (`source/dsstyle.c:45-46`, `ui.h:369-390`). Both frameworks set the renderer's logical size to
+  the panel's own (`include/apostrophe.h:4717`, `pkg/gabagool/internal/window.go:105-115`), and
+  `RenderSetIntegerScale` is zero-hit in both. They lay out against a 1024px reference width instead
+  - a different, damped scale. A port would draw at 3x literally or render to a small target, and
+  Apostrophe has no render target.
+- **Popups, a keyboard and a cursor over a live screen.** The Home cursor's corners are drawn over
+  Home. Notices, confirms, "Launching" and the search keyboard are drawn over the list they belong
+  to, which stays visible around them (`ui.h:319-338`, `extra_ui.h:50-57`). This is the composition
+  blocker; both frameworks' confirmation and keyboard screens clear the frame.
+- **Art sampled per physical pixel, nearest, top-left.** Artwork is scaled with integer division
+  at 720x480 (`ui.h:352-358`), so a 480x320 picture in a 120x80 slot is crisp and exact. Apostrophe
+  hints bilinear filtering globally (`include/apostrophe.h:4696`), which softens every picture;
+  `SetTextureScaleMode` is zero-hit in both. gabagool's default nearest is right in kind, but only
+  as SDL's default, with no way to choose it per texture.
+- **A bitmap font on a six-pixel advance.** Every glyph is 8x12, drawn eight columns wide and
+  advanced six (`dsstyle.c:118-124`), and anything outside ASCII and 66 Latin letters is `?`. Both
+  frameworks draw text only through SDL_ttf. A rebuilt TTF works, as in this port - once each
+  glyph's side bearing is its own left edge. Apostrophe loads its fonts bold
+  (`include/apostrophe.h:1415`), which smears a pixel face, and gabagool has no public way to open
+  one (as for SimpleOS).
+- **A retargetable glide on a named curve.** The Home cursor's four corners move 200ms on
+  smoothstep and set off again from where they are drawn when a press arrives mid-glide
+  (`ui.h:190-209`). Named curves are zero-hit in both, as for TortOS.
+- **A wrapping marquee.** The chosen title holds 333ms, then scrolls at 30 logical px/s and wraps
+  round, repeating every name-plus-three-glyphs, sampled per physical pixel (`ui.h:249-264`). Both
+  frameworks' marquees are ping-pong (`ap_text_scroll_update`, `include/apostrophe.h:3094`;
+  `pkg/gabagool/list.go:1035`).
+- **A theme that is a set of images.** Each of 16 accent themes brings its own title bar and folder
+  and GBA icons, and dark mode swaps all five backgrounds (`original_layout.h:81-85`, `ui.h:28, 73-80`).
+  Both frameworks' themes are NextUI's seven colours.
+
+Not on this list:
+- **Colour keys.** The 16x14 icons use pure black as a colour key (`dsstyle.c:107`), and
+  `SetColorKey` is zero-hit in both. A port can bake the key into the images, as this one does.
+- **The LCD grid.** It is a per-pixel multiply over the frame (`ui.h:340-366`), and `BLENDMODE_MOD`
+  and `MUL` are zero-hit in both. But the port declares it web-only, with the fallback off.
+- **Pixel Transparency.** The port does not reproduce it.
+
+Maps today:
+
+- **Settings.** Every page is label-left, value-right rows cycled in place, which is
+  `ap_options_list` or gabagool's `OptionsList` (`pkg/gabagool/option_list.go:254`).
+- **Confirms.** Reboot, Shutdown and the launch-mode choice are two-answer confirms:
+  `ap_confirmation` (`include/apostrophe_widgets.h:213`) or `ConfirmationMessage`
+  (`pkg/gabagool/confirmation_message.go:63`).
+- **The search keyboard** is a 40-key grid with Delete and Results, the shape of `ap_keyboard`
+  (`include/apostrophe_widgets.h:186`) or gabagool's `Keyboard` (`pkg/gabagool/keyboard.go:715`).
+- **Rebinding.** Settings > Controls rebinds every button by capturing the next press. That is
+  gabagool's input-capture wizard and JSON remapping (`pkg/gabagool/input_capture.go:171`,
+  `internal/input_mapper.go:18`).
+- **Languages.** DS Style ships eight and switches at runtime. gabagool has go-i18n with
+  `SetLanguage` and `GetString` (`pkg/gabagool/i18n/i18n.go:61, 78`); Apostrophe has no localisation
+  (`locale` and `i18n` zero-hit).
+- **Text.**
+  - Every string is hard-cut after a glyph count, never ellipsised, which is
+    `ap_draw_text_clipped` (`include/apostrophe.h:595`).
+  - The help boxes are word-wrapped at 33 glyphs, which both frameworks' wrap does.
+  - The scrolling title is clipped to its column: Apostrophe clips, gabagool does not.
+- **Input.** Held-direction repeat (350ms, then 100ms) and the MENU + VOL chord are both frameworks'
+  input layers.
+
 ## What a port would have to add
 
 Common to both, and in rough dependency order:
@@ -649,7 +729,8 @@ Common to both, and in rough dependency order:
    integrator**: slot's shelf is a critically damped spring with no duration at all, and a tween
    system cannot express one.
 3. Render-to-texture as a public facility, for screen transitions, blur and TortOS's cube,
-   with textured geometry and additive blending beside it.
+   with textured geometry and additive blending beside it - and a low-resolution canvas shown at an
+   integer scale, for DS Style's 240x160 at 3x.
 4. Image fit modes (contain with box-shrink-to-image, cover with centre crop, stretch,
    derive-one-axis-from-aspect) with public alpha and tint.
 5. Arbitrary font sizes and families, with the face's line metrics exposed, and italic and regular

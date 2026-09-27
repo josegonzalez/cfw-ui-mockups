@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react
 import type { StoryboardMap } from '../../anim/types'
 import { useStoryboard } from '../../anim/useStoryboard'
 import { useScreen } from '../../device/ScreenContext'
-import { useButtonPress, useOptionalInput } from '../../input/InputProvider'
+import { useButtonPress, useInteractive } from '../../input/InputProvider'
 import type { Button } from '../../input/keymap'
 import { useWebEffects } from '../../render/RenderModeProvider'
 import { PLATFORM, resolve } from './layout'
@@ -72,7 +72,7 @@ export function NeoStation(seed: NeoStationProps) {
   // (`game_launch_utils.dart:47-84`), a random spin lands after 18 ticks of 80ms
   // (`random_game_dialog.dart:57-59`), a scrape reports back. Only the live build runs them - a
   // still has no input and must stay the picture it was posed as.
-  const live = useOptionalInput() !== null
+  const live = useInteractive()
   const phase =
     overlay?.kind === 'launch' ? overlay.phase : overlay?.kind === 'random' && overlay.spinning ? 'spin' : null
   useEffect(() => {

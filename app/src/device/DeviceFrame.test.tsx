@@ -12,7 +12,7 @@ import {
   type DeviceSlug,
 } from './devices'
 import { useScreen } from './ScreenContext'
-import { useButtonPress, useInput } from '../input/InputProvider'
+import { useButtonPress, useInput, useInteractive } from '../input/InputProvider'
 import { useRenderMode } from '../render/RenderModeProvider'
 
 function Probe() {
@@ -304,6 +304,34 @@ describe('shell details taken from references', () => {
     const rg351m = frameFor('rg351m')
     expect(rg351m.querySelector('[data-btn="menu"]')).toBeNull()
     expect(rg351m.querySelector('.speaker')).toBeNull()
+  })
+
+  it('tells a still from the live build, although both have an input provider', () => {
+    // A still mounts a disabled provider, so "is there a provider" was true for every still and a
+    // clock meant for the live build ran in stills too - DS Style's Snake stepped before capture.
+    function Live() {
+      return <span data-testid="live">{String(useInteractive())}</span>
+    }
+    const still = render(
+      <DeviceFrame device="rg-sp" interactive={false}>
+        <Live />
+      </DeviceFrame>,
+    )
+    expect(still.getByTestId('live').textContent).toBe('false')
+    still.unmount()
+    const live = render(
+      <DeviceFrame device="rg-sp">
+        <Live />
+      </DeviceFrame>,
+    )
+    expect(live.getByTestId('live').textContent).toBe('true')
+  })
+
+  it('draws L2 and R2 outside L and R only where the profile has them', () => {
+    const shoulders = (c: HTMLElement) =>
+      [...c.querySelectorAll('.device__shoulders [data-btn]')].map((b) => b.getAttribute('data-btn'))
+    expect(shoulders(frameFor('rg-sp'))).toEqual(['l2', 'l', 'r', 'r2'])
+    expect(shoulders(frameFor('rg35xx'))).toEqual(['l', 'r'])
   })
 
   it('prints control names on the body rather than inside the buttons', () => {

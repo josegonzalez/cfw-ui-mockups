@@ -9,6 +9,7 @@ import slotPreview from '../assets/previews/slot.png'
 import simpleosPreview from '../assets/previews/simpleos.png'
 import tortosPreview from '../assets/previews/tortos.png'
 import neostationPreview from '../assets/previews/neostation.png'
+import dsStylePreview from '../assets/previews/ds-style.png'
 import exampleCfwPreview from '../assets/previews/example-cfw.png'
 
 /**
@@ -228,6 +229,28 @@ export const THEMES: readonly ThemeEntry[] = [
     fonts: ['Anta'],
     ported: true,
     docPath: 'docs/themes/neostation.md',
+  },
+  {
+    slug: 'ds-style',
+    name: 'DS Style',
+    author: 'FrankieT19',
+    kind: 'Launcher for the Anbernic RG SP stock OS',
+    summary:
+      'A Nintendo DS-inspired launcher, first made for the GBA, drawn at the GBA\'s 240x160 and shown at exactly 3x. A home screen of a recent game, Games and Apps, then lists and carousels of systems and games, all in an 8x12 bitmap font.',
+    highlights: [
+      'Drawn at 240x160 and scaled 3x, with artwork sampled at the full 720x480',
+      '16 accent themes, a dark mode, and an LCD grid filter',
+      'Every still matches a frame rendered by the launcher itself, pixel for pixel',
+    ],
+    preview: dsStylePreview,
+    previewAlt: 'DS Style Games in Horizontal view: Garden Quest centred between its neighbours, the title in a box below',
+    accent: '#52738c',
+    swatches: ['#52738c', '#299cce', '#005af7', '#00a539', '#00c600', '#d6c600', '#ff0010', '#ff9400', '#ff18a5', '#8c00d6'],
+    views: 44,
+    devices: ['rg-sp'],
+    fonts: ['DS Style 8x12 bitmap'],
+    ported: true,
+    docPath: 'docs/themes/ds-style.md',
   },
   {
     slug: 'example-cfw',

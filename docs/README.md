@@ -40,10 +40,11 @@ inventory, alongside the reference material extracted from its upstream source.
 | SimpleOS | [themes/simpleos.md](themes/simpleos.md) | [themes/simpleos/reference/](themes/simpleos/reference/) |
 | TortOS | [themes/tortos.md](themes/tortos.md) | [themes/tortos/reference/](themes/tortos/reference/) |
 | NeoStation | [themes/neostation.md](themes/neostation.md) | [themes/neostation/reference/](themes/neostation/reference/) |
+| DS Style | [themes/ds-style.md](themes/ds-style.md) | [themes/ds-style/reference/](themes/ds-style/reference/) |
 | Example OS | [themes/example-cfw.md](themes/example-cfw.md) | none - it is a scaffold, not a reproduction |
 
 Pages still carrying a status banner describe the original mockups; each is rewritten for the
-React implementation as its theme is ported. All nine sets above are ported.
+React implementation as its theme is ported. All ten sets above are ported.
 
 **[themes/example-cfw.md](themes/example-cfw.md) is the template for adding a theme.** It is
 ported, and it documents what a theme is made of and how to start a new one.
@@ -57,6 +58,7 @@ compares against that. SimpleOS has no source to read, so its page compares agai
 trailer and what was recovered from the binary. TortOS was built from its C source, so its page
 compares against that and the reference frames the source repo ships. NeoStation was built from
 its Flutter source, so its page compares against that and the frames from the project's website.
+DS Style renders headlessly, so its page compares against frames the launcher drew itself.
 
 - [porting/elementerial.md](porting/elementerial.md)
 - [porting/playstation-x.md](porting/playstation-x.md)
@@ -66,6 +68,7 @@ its Flutter source, so its page compares against that and the frames from the pr
 - [porting/simpleos.md](porting/simpleos.md)
 - [porting/tortos.md](porting/tortos.md)
 - [porting/neostation.md](porting/neostation.md)
+- [porting/ds-style.md](porting/ds-style.md)
 - [porting/example-cfw.md](porting/example-cfw.md)
 
-All nine sets are ported, so this list is complete.
+All ten sets are ported, so this list is complete.

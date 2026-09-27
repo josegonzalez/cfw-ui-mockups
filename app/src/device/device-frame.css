@@ -131,6 +131,12 @@
   margin-bottom: calc(8px * var(--control-scale, 1));
 }
 
+/* L2 sits outside L, and R2 outside R, as they do on a handheld seen from the front. */
+.device__shoulder-pair {
+  display: flex;
+  gap: calc(6px * var(--control-scale, 1));
+}
+
 .shoulder {
   min-width: calc(46px * var(--control-scale, 1));
   padding: calc(5px * var(--control-scale, 1)) calc(12px * var(--control-scale, 1));

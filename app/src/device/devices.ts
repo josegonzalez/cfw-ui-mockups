@@ -131,6 +131,8 @@ export interface ChinShell extends ShellCommon {
   readonly chinExtra?: number | undefined
   /** A round Menu button in the middle of the strip. */
   readonly menuButton?: boolean | undefined
+  /** A second pair of shoulders, L2 and R2, beside the first. */
+  readonly shoulders2?: boolean | undefined
   /** A speaker grille in the bottom-right corner. */
   readonly speakerGrille?: boolean | undefined
 }
@@ -494,6 +496,8 @@ export const DEVICES: Record<DeviceSlug, Device> = {
       controlScale: 0.92,
       chinExtra: 18,
       menuButton: true,
+      // The RG SP has L2 and R2 behind L and R; DS Style binds Recents and Favourites to them.
+      shoulders2: true,
       speakerGrille: true,
       body: BODY.indigo,
     },
