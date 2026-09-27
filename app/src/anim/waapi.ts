@@ -21,6 +21,7 @@ export const CHANNEL_CSS: Record<Channel, string> = {
   x: '--px-x',
   y: '--px-y',
   scale: '--px-sc',
+  scaleX: '--px-scx',
   zIndex: 'z-index',
 }
 

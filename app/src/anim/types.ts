@@ -58,7 +58,7 @@ export type EasingName =
  * separate channels rather than one, because the source runs them concurrently on the same
  * element and they must not collapse into a single value.
  */
-export type Channel = 'opacity' | 'offsetX' | 'offsetY' | 'x' | 'y' | 'scale' | 'zIndex'
+export type Channel = 'opacity' | 'offsetX' | 'offsetY' | 'x' | 'y' | 'scale' | 'scaleX' | 'zIndex'
 
 /**
  * The UI events a storyboard can answer.

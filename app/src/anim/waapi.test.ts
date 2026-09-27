@@ -25,7 +25,7 @@ describe('CHANNEL_CSS', () => {
   it('routes each transform channel to its own custom property', () => {
     // Two Web Animations cannot both target `transform`, and up to three of these run at once,
     // so each must own a distinct property for CSS to recompose.
-    const transformChannels = ['offsetX', 'offsetY', 'x', 'y', 'scale'] as const
+    const transformChannels = ['offsetX', 'offsetY', 'x', 'y', 'scale', 'scaleX'] as const
     const props = transformChannels.map((c) => CHANNEL_CSS[c])
 
     expect(new Set(props).size).toBe(props.length)
