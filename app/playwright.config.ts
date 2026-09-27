@@ -9,6 +9,16 @@ import { defineConfig, devices } from '@playwright/test'
  * Baselines are the regression gate: every route is captured at native resolution, so a change
  * that leaves the numbers right and the screen wrong still fails.
  */
+/*
+ * CI serves a production build rather than the dev server. Every test opens a fresh browser
+ * context with an empty cache, and against Vite's dev server that means fetching and transforming
+ * the whole unbundled module graph again, a few hundred requests, for each of ~2,500 tests. A
+ * build serves one bundle. Locally the dev server stays the default, since it is usually already
+ * running; `E2E_PREVIEW=1` runs against a build here too.
+ */
+const preview = !!process.env.CI || !!process.env.E2E_PREVIEW
+const port = preview ? 4173 : 5173
+
 export default defineConfig({
   testDir: './e2e',
   fullyParallel: true,
@@ -28,7 +38,7 @@ export default defineConfig({
     },
   },
   use: {
-    baseURL: 'http://localhost:5173',
+    baseURL: `http://localhost:${port}`,
     deviceScaleFactor: 1,
     trace: 'on-first-retry',
   },
@@ -39,8 +49,10 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: 'npm run dev',
-    url: 'http://localhost:5173',
+    // `vite build` alone: the `check` job already typechecks, and `npm run build` would again.
+    command: preview ? `npx vite build && npx vite preview --port ${port} --strictPort` : 'npm run dev',
+    url: `http://localhost:${port}`,
+    timeout: 180_000,
     reuseExistingServer: !process.env.CI,
     stdout: 'ignore',
     stderr: 'pipe',
