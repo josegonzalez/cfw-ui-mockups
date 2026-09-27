@@ -19,8 +19,11 @@ for it.
 | `rg351m`            | Anbernic RG351M / RG351MP     | 480x320    | 3:2    | other     |
 | `rg552`             | Anbernic RG552                | 1920x1152  | 5:3    | other     |
 | `trimui-brick`      | Trimui Brick                  | 1024x768   | 4:3    | other     |
+| `rg-ds`             | Anbernic RG DS                | 640x480    | 4:3    | 640x480   |
 
-Every resolution above is confirmed. This is the load-bearing column - a screen renders at exactly
+Every resolution above is confirmed. The RG DS has **two** 640x480 panels, one in the lid and one
+in the base; the resolution column is per panel. SimpleOS's own splash bitmaps are 640x480 each,
+one drawn per panel, which is what confirms it. This is the load-bearing column - a screen renders at exactly
 these numbers, so a wrong one makes the whole mockup wrong in a way no assertion here can catch.
 
 The RG28XX was previously recorded as a 640x480 panel rotated into a 480x640 portrait. A reference
@@ -54,6 +57,7 @@ different spacing:
 - **`chin`** - the upright arrangement: panel on top, controls in a strip below it.
 - **`flanking`** - the landscape controller arrangement: panel in the middle, a rounded grip
   either side, controls stacked down each grip.
+- **`clamshell`** - two panels: a lid with one, a hinge, and a flanking base with the other.
 
 | Slug | Layout | Sticks | Reference | Silhouette |
 | --- | --- | --- | --- | --- |
@@ -69,6 +73,7 @@ different spacing:
 | `rg351m` | flanking | 2 | yes | Slim landscape slab, Select and Start at the top of each grip |
 | `rg552` | flanking | 2 | yes | Widest body, panel across nearly the whole face |
 | `trimui-brick` | chin | - | yes | Boxy, tight corners, lower body as deep as the panel |
+| `rg-ds` | clamshell | 2 | yes | Turquoise, a panel in each half, speaker grilles on the lid - see below |
 
 **These are stylised silhouettes, not technical drawings.** They exist so the devices are
 distinguishable at a glance. The shell is mockup chrome and sits outside the portable widget
@@ -96,6 +101,17 @@ for this device even though the numbers look right.
 body, which is what the device is when it is open: panel above, controls below. The hinge and the
 upper half are not drawn. A folding shell would need a second body above the panel and a fold
 state to go with it, and nothing inside `.screen` depends on either.
+
+`rg-ds` is the only device with two panels. Its reference photograph is kept with the set that
+uses it, at `docs/themes/simpleos/reference/rg-ds.png`, and it is the same body the SimpleOS
+trailer renders its screens into. Of the four small buttons at the foot of the grips, Select and
+Start are the right pair and the system button is the left of the other; the fourth has no button
+in the input map, so it is drawn as moulding and cannot be pressed. The two panels share one
+`.screen`, stacked with the hinge between them, so everything that captures or inspects a screen
+works unchanged; a theme draws into them through `Panels`, which gives it each panel as its own
+640x480 surface. The hinge gap is part of that element and is left see-through, so the body shows
+in it. Unlike `rg-sp`, the hinge is drawn, because on this device the second half is not empty
+plastic - it carries a panel.
 
 The RG28XX correction went further than the shell. It was recorded as a 640x480 panel rotated into
 a 480x640 portrait, and the photograph shows a landscape device with the panel the right way up -

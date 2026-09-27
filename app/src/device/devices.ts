@@ -19,6 +19,7 @@ export type DeviceSlug =
   | 'rg351m'
   | 'rg552'
   | 'trimui-brick'
+  | 'rg-ds'
 
 /** The four first-class panel classes. `other` covers the odd sizes. */
 export type ResolutionClass = '640x480' | '1280x720' | '720x720' | 'other'
@@ -76,15 +77,27 @@ export function radiusCss(shell: DeviceShell): string {
  * they are a discriminated union - a `gripWidth` means nothing to a chin and a `controlScale`
  * means nothing to a grip, and an open shape invites both being set and one being ignored.
  */
-export type ShellLayout = 'chin' | 'flanking' | 'console'
+export type ShellLayout = 'chin' | 'flanking' | 'console' | 'clamshell'
 
 /**
  * What occupies a grip's small-button slot.
  *
  * `pair` is Select and Start side by side on one moulded pad; `select` and `start` are one round
  * button each, split across the two grips; `function` is a lone system button.
+ *
+ * `round-pair` is Select and Start as two separate round buttons on one grip, and `menu-pair` is
+ * the system button beside a second round key the input map has no button for - the RG DS puts
+ * one of each at the foot of its grips. The second key is moulding, not a control: it is drawn so
+ * the grip reads right, and it cannot be pressed because there is nothing for it to press.
  */
-export type AuxKind = 'none' | 'pair' | 'select' | 'start' | 'function'
+export type AuxKind =
+  | 'none'
+  | 'pair'
+  | 'select'
+  | 'start'
+  | 'function'
+  | 'round-pair'
+  | 'menu-pair'
 
 /**
  * A console's video output rather than a handheld.
@@ -146,7 +159,36 @@ export interface FlankingShell extends ShellCommon {
   }
 }
 
-export type DeviceShell = ChinShell | FlankingShell | ConsoleShell
+/**
+ * A two-panel clamshell: a lid carrying one panel above a hinge, and a base carrying the other
+ * between two grips.
+ *
+ * The only body with two panels, and the reason a device can have more than one. Both panels are
+ * the device's `w` x `h`; `hinge` is the distance between them, which is lid bezel, hinge barrel
+ * and base bezel together. It is measured in device pixels because the two panels share one
+ * `.screen`, and the gap is part of that element - left see-through so the body shows in it.
+ *
+ * The base is a flanking body in everything but height: the grips run the height of the base
+ * only, never up beside the lid.
+ */
+export interface ClamshellShell extends ShellCommon {
+  readonly layout: 'clamshell'
+  readonly gripWidth: number
+  readonly aux: FlankingShell['aux']
+  readonly hinge: number
+}
+
+export type DeviceShell = ChinShell | FlankingShell | ConsoleShell | ClamshellShell
+
+/** How many panels a shell carries. Two only for a clamshell. */
+export function panelCount(shell: DeviceShell): 1 | 2 {
+  return shell.layout === 'clamshell' ? 2 : 1
+}
+
+/** The distance between two panels, in device pixels. Zero for a single-panel body. */
+export function panelGap(shell: DeviceShell): number {
+  return shell.layout === 'clamshell' ? shell.hinge : 0
+}
 
 /**
  * How tall the chin cluster is before scaling.
@@ -167,9 +209,9 @@ export function chinHeight(shell: DeviceShell): number {
   return Math.round(clusterHeight(shell) * shell.controlScale) + (shell.chinExtra ?? 0)
 }
 
-/** Grip width in pixels, for a flanking body. Zero for anything else, which has no grips. */
+/** Grip width in pixels, for a body with grips. Zero for anything else. */
 export function gripWidth(shell: DeviceShell, panelWidth: number): number {
-  if (shell.layout !== 'flanking') return 0
+  if (shell.layout !== 'flanking' && shell.layout !== 'clamshell') return 0
   return Math.round(shell.gripWidth * panelWidth)
 }
 
@@ -202,10 +244,12 @@ const BODY = {
   khaki: ['#b9b199', '#948c78'],
   /** The Game Boy Advance indigo the RG34XX is a homage to. */
   indigo: ['#6b62aa', '#4c4483'],
+  /** The RG DS turquoise, sampled from its reference photograph. */
+  turquoise: ['#64d2dd', '#57c8d4'],
 } as const satisfies Record<string, readonly [string, string]>
 
 /** Printed-name colours. Pale bodies need dark ink; the default grey vanishes on them. */
-const INK = { light: '#8b8d93', dark: '#4a463d' } as const
+const INK = { light: '#8b8d93', dark: '#4a463d', teal: '#1f6f7c' } as const
 
 /**
  * The reference handheld: even bezel, generously rounded, no sticks.
@@ -540,6 +584,37 @@ export const DEVICES: Record<DeviceSlug, Device> = {
       menuButton: true,
       speakerGrille: true,
       body: BODY.charcoal,
+    },
+  },
+  'rg-ds': {
+    slug: 'rg-ds',
+    label: 'Anbernic RG DS',
+    w: 640,
+    h: 480,
+    aspect: '4:3',
+    resolutionClass: '640x480',
+    viewScale: 0.63,
+    /*
+     * Matched to a reference photograph of the turquoise model
+     * (`docs/themes/simpleos/reference/rg-ds.png`), which is also the body the SimpleOS trailer
+     * renders its screens into.
+     *
+     * Two 640x480 panels, one in the lid and one in the base - SimpleOS's own splash bitmaps are
+     * 640x480 each, one per panel, which settles the resolution. Measured at the panel's scale the
+     * body is nearly square. The base carries the pad over a stick on the left and the faces over
+     * a stick on the right, and two small round buttons at the foot of each grip; the lid carries
+     * nothing but the panel and two speaker grilles. The base runs out barely below its panel.
+     */
+    shell: {
+      layout: 'clamshell',
+      bezel: { top: 79, side: 30, bottom: 23 },
+      radius: 30,
+      sticks: 2,
+      gripWidth: 0.43,
+      aux: { position: 'bottom', left: 'menu-pair', right: 'round-pair' },
+      hinge: 190,
+      body: BODY.turquoise,
+      ink: INK.teal,
     },
   },
 }

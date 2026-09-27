@@ -15,6 +15,7 @@ export type ThemeSlug =
   | 'vitrolauncher'
   | 'nextui'
   | 'slot'
+  | 'simpleos'
 
 /**
  * A capability a simple renderer may not have.

@@ -1,0 +1,25 @@
+/*
+ * SimpleOS's one font: the 8x8 bitmap table compiled into its binary (`FONT8X8`), rebuilt as a
+ * TrueType face whose every pixel is a square on an 8-unit grid. At 8, 16 and 24px - the three
+ * sizes SimpleOS draws - each glyph pixel lands on whole device pixels.
+ *
+ * `docs/themes/simpleos/reference/extract-font8x8.py` and `build-font8x8.py` regenerate it.
+ */
+@font-face {
+  font-family: 'SimpleOS 8x8';
+  src: url('./assets/fonts/SimpleOS8x8.ttf') format('truetype');
+  font-display: block;
+}
+
+.simpleos {
+  position: absolute;
+  inset: 0;
+  /*
+   * A bitmap font has no bold and no italic. Left to itself a browser would smear one on any text
+   * a parent marks heavier, which is exactly the fault a pixel font cannot hide.
+   */
+  font-synthesis: none;
+  -webkit-font-smoothing: none;
+  font-smooth: never;
+  isolation: isolate;
+}
