@@ -21,6 +21,7 @@ const PAIRS: Record<string, string> = {
   nextui: 'browser',
   slot: 'shelf',
   simpleos: 'boot',
+  tortos: 'systems',
   'example-cfw': 'main-menu',
 }
 

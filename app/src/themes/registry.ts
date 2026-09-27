@@ -4,6 +4,7 @@ import { exampleRoutes } from './example-cfw/routes'
 import { nextuiRoutes } from './nextui/routes'
 import { playstationXRoutes } from './playstation-x/routes'
 import { simpleosRoutes } from './simpleos/routes'
+import { tortosRoutes } from './tortos/routes'
 import { slotRoutes } from './slot/routes'
 import { vitroRoutes } from './vitrolauncher/routes'
 
@@ -19,5 +20,6 @@ export const ROUTES: readonly ScreenRoute[] = [
   ...nextuiRoutes(),
   ...slotRoutes(),
   ...simpleosRoutes(),
+  ...tortosRoutes(),
   ...exampleRoutes(),
 ]

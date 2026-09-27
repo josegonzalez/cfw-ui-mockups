@@ -18,6 +18,9 @@
  * Named easing curves. Every curve any theme uses, with its provenance.
  *
  * The eight from `linear` through `bump` are the source format's own `mode=` vocabulary.
+ * `smoothstep` is TortOS's vertical shelf and cube turn: `3u^2 - 2u^3`, which is exactly the cubic
+ * bezier `(1/3, 0, 2/3, 1)` rather than an approximation of it.
+ *
  * `easeOutQuint` and `easeOutQuad` were added by the other two themes as CSS custom
  * properties; they are the standard bezier approximations of those Penner curves, so they
  * name cleanly rather than needing a theme-specific alias.
@@ -33,6 +36,7 @@ export type EasingName =
   | 'bump'
   | 'easeOutQuint'
   | 'easeOutQuad'
+  | 'smoothstep'
 
 /**
  * What an animation track drives.

@@ -16,6 +16,7 @@ export type ThemeSlug =
   | 'nextui'
   | 'slot'
   | 'simpleos'
+  | 'tortos'
 
 /**
  * A capability a simple renderer may not have.
@@ -30,6 +31,7 @@ export type WebOnlyCapability =
   | 'boxReflect'
   | 'cssEllipsis'
   | 'cssFilter'
+  | 'transform3d'
 
 export interface WidgetMeta {
   readonly name: string

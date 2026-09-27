@@ -25,6 +25,8 @@ export const EASING_CSS: Record<EasingName, string> = {
   easeOutQuint: 'cubic-bezier(0.23,1,0.32,1)',
   /** Vitro Launcher's `--ease-out`, its CSS approximation of a Love2D exponential ease-out. */
   easeOutQuad: 'cubic-bezier(0.25,0.46,0.45,0.94)',
+  /** TortOS's `ease_smooth`, `3u^2 - 2u^3`. With x linear this bezier is that curve exactly. */
+  smoothstep: 'cubic-bezier(0.3333,0,0.6667,1)',
 }
 
 /**
@@ -43,8 +45,47 @@ export const EASING_BEZIER: Record<EasingName, readonly [number, number, number,
   bump: [0.34, 1.56, 0.64, 1],
   easeOutQuint: [0.23, 1, 0.32, 1],
   easeOutQuad: [0.25, 0.46, 0.45, 0.94],
+  smoothstep: [1 / 3, 0, 2 / 3, 1],
 }
 
 export function easingToCss(name: EasingName | undefined): string {
   return name ? EASING_CSS[name] : EASING_CSS.linear
+}
+
+/**
+ * A curve's value at `u`, for a theme that integrates motion itself rather than handing a
+ * descriptor to the adapter - TortOS's shelf, which is retargeted mid-flight, is the one that
+ * needed it.
+ *
+ * Solved from `EASING_BEZIER` rather than written out per curve, so the value a theme computes
+ * and the curve a browser draws for the same name are the same curve. Newton's method on x, with
+ * bisection as the fallback where the slope is too flat to trust.
+ */
+export function evaluateEasing(name: EasingName, u: number): number {
+  if (u <= 0) return 0
+  if (u >= 1) return 1
+  const [x1, y1, x2, y2] = EASING_BEZIER[name]
+  const bez = (t: number, a: number, b: number) => 3 * (1 - t) * (1 - t) * t * a + 3 * (1 - t) * t * t * b + t * t * t
+  const slope = (t: number, a: number, b: number) =>
+    3 * (1 - t) * (1 - t) * a + 6 * (1 - t) * t * (b - a) + 3 * t * t * (1 - b)
+
+  let t = u
+  for (let i = 0; i < 8; i++) {
+    const err = bez(t, x1, x2) - u
+    if (Math.abs(err) < 1e-6) return bez(t, y1, y2)
+    const d = slope(t, x1, x2)
+    if (Math.abs(d) < 1e-6) break
+    t -= err / d
+  }
+  let lo = 0
+  let hi = 1
+  t = u
+  for (let i = 0; i < 40; i++) {
+    const x = bez(t, x1, x2)
+    if (Math.abs(x - u) < 1e-7) break
+    if (x < u) lo = t
+    else hi = t
+    t = (lo + hi) / 2
+  }
+  return bez(t, y1, y2)
 }
