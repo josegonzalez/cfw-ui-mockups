@@ -103,6 +103,7 @@ way and none of them found one any other way.
 | `fallback.spec.ts` | The same stills again in the degraded renderer |
 | `settle.spec.ts` | A still is byte-identical to the live build with motion off |
 | `compositing.spec.ts` | Nothing opaque covers the content - and that the check can fail |
+| `ds-style-reference.spec.ts` | Every DS Style still against a frame the launcher itself rendered, pixel for pixel - and that the check can fail |
 | `interaction.spec.ts` | Cursor traces through carousel, list and grid, plus the hold gestures |
 | `screens.spec.ts` | Zero console errors, something drawn inside the theme's root (or a root marked `data-screen-off`, for a screen dark on the device), controls inside the body |
 | `previews.spec.ts` | The landing page's card art, captured from the routes themselves - opt-in with `UPDATE_PREVIEWS=1`, since it writes committed files |
@@ -129,6 +130,7 @@ the regression gate: a change that leaves every number right and the screen wron
 | `fallback.spec.ts` | The same stills again in the degraded renderer |
 | `settle.spec.ts` | A still is byte-identical to the live build with motion off |
 | `compositing.spec.ts` | Nothing opaque covers the content - and that the check can fail |
+| `ds-style-reference.spec.ts` | Every DS Style still against a frame the launcher itself rendered, pixel for pixel - and that the check can fail |
 | `interaction.spec.ts` | Cursor traces through carousel, list and grid, plus the hold gestures |
 | `screens.spec.ts` | Zero console errors, something drawn inside the theme's root (or a root marked `data-screen-off`, for a screen dark on the device), controls inside the body |
 
