@@ -72,6 +72,9 @@ function serveRepoDirs(): Plugin {
 }
 
 export default defineConfig({
+  // Relative asset URLs, so a built bundle can be served from any subpath - GitHub Pages serves
+  // a project site from `/<repo>/`, where root-absolute URLs would 404.
+  base: './',
   plugins: [react(), tailwindcss(), serveRepoDirs()],
   resolve: {
     alias: {
@@ -82,7 +85,6 @@ export default defineConfig({
     fs: { allow: [repoRoot] },
   },
   build: {
-    // Relative asset URLs, so a built bundle can be served from any subpath.
     assetsInlineLimit: 0,
   },
   test: {

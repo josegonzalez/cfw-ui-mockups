@@ -47,7 +47,7 @@ function resolveLinks(root: HTMLElement, docPath: string) {
       // Another document: stay in the viewer.
       anchor.setAttribute('href', `#${NOTES_PREFIX}${resolved}`)
     } else {
-      anchor.setAttribute('href', `/${resolved}`)
+      anchor.setAttribute('href', `${import.meta.env.BASE_URL}${resolved}`)
     }
   }
 }
@@ -111,7 +111,8 @@ export function NotesViewer({ path }: NotesViewerProps) {
   useEffect(() => {
     let cancelled = false
 
-    fetch(`/${path}`)
+    // Through the base, not the root: under GitHub Pages the site lives at `/<repo>/`.
+    fetch(`${import.meta.env.BASE_URL}${path}`)
       .then((response) => {
         if (!response.ok) throw new Error(`${response.status} ${response.statusText}`)
         return response.text()
@@ -148,7 +149,7 @@ export function NotesViewer({ path }: NotesViewerProps) {
           All screens
         </a>
         <span className="notes__path">{path}</span>
-        <a className="gal-btn notes__raw" href={`/${path}`}>
+        <a className="gal-btn notes__raw" href={`${import.meta.env.BASE_URL}${path}`}>
           View raw
         </a>
       </div>

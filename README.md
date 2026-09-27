@@ -24,6 +24,12 @@ Other commands, all from `app/`:
 | `npm run storybook` | Widget catalogue |
 | `npm run lint` | Lint, including the portability rules |
 
+## Deploying
+
+Every push to `main` builds `app/` and deploys it to GitHub Pages through
+`.github/workflows/pages.yml`. The repo's Pages source must be set to GitHub Actions under
+Settings > Pages.
+
 ## Layout
 
 ```
