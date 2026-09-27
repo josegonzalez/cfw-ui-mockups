@@ -6,11 +6,14 @@ import { resolve } from 'node:path'
  *
  * Captured from the mockups themselves rather than drawn by hand, so a preview cannot flatter
  * a screen that no longer looks like that. Regenerate with
- * `npx playwright test e2e/previews.spec.ts`.
+ * `UPDATE_PREVIEWS=1 npx playwright test e2e/previews.spec.ts`.
  *
  * Not part of the normal suite: it writes into `src/assets/previews/`, and the results are
- * committed. It only needs rerunning when a theme's look changes.
+ * committed. It only needs rerunning when a theme's look changes. It used to run with every full
+ * suite anyway, and rewrote any preview whose screen animates between captures, so it now skips
+ * unless asked.
  */
+test.skip(!process.env.UPDATE_PREVIEWS, 'writes committed art; set UPDATE_PREVIEWS=1 to regenerate')
 const OUT = resolve(process.cwd(), 'src/assets/previews')
 
 /**
