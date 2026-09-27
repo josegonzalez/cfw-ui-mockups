@@ -41,7 +41,14 @@ value and where it came from.
 - **The zoom's grid does not swell.** As the preview opens, the real grid behind it scales up
   towards the slot while it darkens; here it only darkens.
 - **Closing the HOME Menu is immediate.** Its opening was measured; its closing was not.
+- **Leaving a tile screen by Back** fades straight to the screen behind; the recording shows only a
+  tile being chosen.
 - **The Health & Safety prompt shows at once.** On the console it appears after a few seconds.
+- **Motion is timed from System Menu 1.0.** The only 60fps recording that shows most transitions
+  (`v1` in the source notes) is of 1.0, not 4.3. Where a 4.3 recording also shows a transition - the
+  zoom, the arrows' bob - the two agree to within its frame.
+- **Wii Options' tiles grow in whenever it opens.** The recording shows a tile screen's tiles growing
+  out of its title tab when returning to one; the port plays it on the way in from the menu too.
 - **The SD Card Menu's About dialog has two pages.** The first is the one its help button opens;
   the second is the one the first-run introduction ends on.
 - **The Wii Number is made up**, so no still carries a real console's.
@@ -69,7 +76,9 @@ value and where it came from.
   bulge like a television's.
 - **Every other still** looked at beside its frame, or beside its 16:9 frame for the three arranged
   screens.
-- **The live build** driven with the keyboard through a page turn, a zoom in and out, and the HOME
-  Menu, with frames captured mid-transition.
+- **The live build** driven with the keyboard through the boot, the highlight, a page turn, a zoom
+  in and out, the HOME Menu, Wii Options and a Settings page turn, with frames captured
+  mid-transition and the arrows' offset sampled through a cycle.
+- **Every transition's timing** held to the frame counts in the source notes' Motion table.
 - **Every reachable Settings state has its frame**, checked by walking the machine in
   `wii-menu.test.tsx`.

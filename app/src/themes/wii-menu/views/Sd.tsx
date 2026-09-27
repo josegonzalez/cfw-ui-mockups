@@ -1,9 +1,9 @@
-import { menuImg, sdImg } from '../assets'
-import { ARROW, H, PAGE_W, TILE, W, tileBox } from '../layout'
+import { sdImg } from '../assets'
+import { H, PAGE_W, TILE, W, tileBox } from '../layout'
 import { SD_PAGES, type SdFocus } from '../machine'
 import { PALETTE } from '../palette'
 import { barPath } from './Menu'
-import { abs, Img, Pill, Text, type Box } from './parts'
+import { abs, Img, PageArrow, Pill, Text, type Box } from './parts'
 
 /**
  * PORTING NOTES
@@ -85,8 +85,8 @@ export function Sd({ page, dialog, focus }: { page: number; dialog: 0 | 1 | 2; f
         const b = tileBox(i % 12)
         return <DarkSlot key={i} box={{ ...b, x: b.x + p * PAGE_W }} />
       })}
-      {page > 0 ? <Img src={menuImg('arrow-left')} box={{ x: ARROW.leftCx - ARROW.size / 2, y: ARROW.cy - ARROW.size / 2, w: ARROW.size, h: ARROW.size }} /> : null}
-      {page < SD_PAGES - 1 ? <Img src={menuImg('arrow-right')} box={{ x: ARROW.rightCx - ARROW.size / 2, y: ARROW.cy - ARROW.size / 2, w: ARROW.size, h: ARROW.size }} /> : null}
+      {page > 0 ? <PageArrow side="left" /> : null}
+      {page < SD_PAGES - 1 ? <PageArrow side="right" /> : null}
       <SdBar page={page} focus={dialog === 0 ? focus : null} />
       {dialog > 0 ? <Dialog page={dialog as 1 | 2} focus={focus} /> : null}
     </div>

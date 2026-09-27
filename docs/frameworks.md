@@ -744,8 +744,8 @@ Missing from both frameworks:
   `include/apostrophe.h:712`; `pkg/gabagool/list.go:191`) - but keeping anything drawn beneath it
   is the composition blocker.
 - **Motion on named curves, several tracks at once, some looping.** The HOME Menu's bars slide in
-  217ms while the screen dims, Settings pages slide 283ms, empty slots cycle four static frames and
-  the Health & Safety prompt pulses. Named curves and looping tracks are zero-hit in both.
+  217ms while the screen dims, Settings pages slide 400ms while the arriving page brightens, the page
+  arrows bob, empty slots cycle four static frames and the Health & Safety prompt pulses. Named curves and looping tracks are zero-hit in both.
 - **Text from 10px to 38px in three weights**, one family. Both have six fixed tiers, and Apostrophe
   loads every face bold.
 

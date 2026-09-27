@@ -22,8 +22,9 @@ import { abs, Img, motion } from './parts'
  *                Settings pages; on a page of options Left / Right move along Back and Confirm.
  *                A opens an item, picks an option, or presses the button; B is Back. Confirm
  *                saves the choice; Back discards it.
- * Transitions:   A page turn slides the frames 608px in 283ms (17 frames at 59.94fps); a page
- *                opening cross-fades over the last in the same time.
+ * Transitions:   A page turn slides the frames 608px in 400ms, easing out, the incoming page
+ *                brightening from dim and the outgoing one dimming (`EOZxJue_N6s` 155.73s). A page
+ *                opening fades up over the last in 283ms (17 frames at 59.94fps).
  * Notes:         The frames carry a hover state for the page arrows, which the + Control Pad never
  *                needs: Left / Right turn the page directly. Items whose own pages the pack does not
  *                cover as whole frames - Console Nickname, Parental Controls, Internet, WiiConnect24,
@@ -42,11 +43,20 @@ export function SettingsPages({ page, focus }: { page: number; focus: ListFocus 
         style={{
           ...abs({ x: 0, y: 0, w: W * SETTINGS_PAGES, h: H }),
           transform: `translateX(${-page * W}px)`,
-          transition: motion(animate, [{ property: 'transform', duration: MOTION.settings, easing: 'easeOutCubic' }]),
+          transition: motion(animate, [{ property: 'transform', duration: MOTION.settingsTurn, easing: 'easeOutCubic' }]),
         }}
       >
+        {/* A page off screen is dimmed, so the one arriving brightens as it slides in. */}
         {Array.from({ length: SETTINGS_PAGES }, (_, p) => (
-          <Img key={p} src={settingsFrame('pages', `${p + 1}-${p === page ? key(focus) : 'none'}`)} box={{ x: p * W, y: 0, w: W, h: H }} />
+          <Img
+            key={p}
+            src={settingsFrame('pages', `${p + 1}-${p === page ? key(focus) : 'none'}`)}
+            box={{ x: p * W, y: 0, w: W, h: H }}
+            style={{
+              opacity: p === page ? 1 : 0.4,
+              transition: motion(animate, [{ property: 'opacity', duration: MOTION.settingsTurn, easing: 'easeOutCubic' }]),
+            }}
+          />
         ))}
       </div>
     </div>

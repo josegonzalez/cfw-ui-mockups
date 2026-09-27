@@ -50,6 +50,24 @@ describe('Wii Menu machine', () => {
     expect(top(press(s, 'a')).kind).toBe('menu')
   })
 
+  it('fades Health & Safety to black, waits, then shows the menu', () => {
+    const out = reduce(initialState(), 'a')
+    expect([top(out).kind, out.boot]).toEqual(['health', 'out'])
+    // Nothing is taken until the menu is up.
+    expect(reduce(out, 'a')).toBe(out)
+    const menuUp = settle(out)
+    expect([top(menuUp).kind, menuUp.boot]).toEqual(['menu', null])
+  })
+
+  it('plays the chosen tile out of Wii Options before opening its screen', () => {
+    const options = initialState({ events: 'addda' })
+    const leaving = reduce(options, 'a')
+    expect([top(leaving).kind, leaving.pending]).toEqual(['options', { kind: 'settings', page: 0, focus: 0 }])
+    expect(reduce(leaving, 'b')).toBe(leaving)
+    expect(top(settle(leaving)).kind).toBe('settings')
+    expect(top(press(options, 'left', 'a')).kind).toBe('data')
+  })
+
   it('turns the page past the last column and with - and +, never past the ends', () => {
     let s = menu()
     s = press(s, 'right', 'right', 'right', 'right')

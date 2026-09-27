@@ -47,16 +47,22 @@ RG35XX's panel is that signal, so the port draws the frame 1:1 at (16, 12) and s
 
 | What | How |
 | --- | --- |
+| Health & Safety to the menu | fades to black, 467ms linear; black for 900ms while the menu loads; the menu fades up, 317ms linear |
+| Health & Safety prompt | pulses to nothing and back, 950ms a cycle |
 | Page turn | the grid slides 512px, 334ms, decelerating |
-| Grid to preview | the slot grows into the panel while the grid fades to black, 500ms; the banner and buttons fade up after it, 267ms. Wii Menu reverses it |
+| Highlight | the slot's cyan rim eases in, 100ms; its name bubble appears 400ms after |
+| Page arrows | bob inward two pixels and back, 900ms a cycle, on every screen that has them |
+| Grid to preview | the slot grows into the panel while the grid fades to black, 467ms, the banner fading up over the last 133ms |
+| Preview to grid | the panel shrinks back into its slot with its banner, the grid fading in behind, 467ms |
 | HOME Menu | its bars slide in from the top and bottom while the screen dims, 217ms |
-| Settings page turn | the page slides out and the next in, 283ms |
-| Every other screen change | the new screen fades up, 283ms; the Wii Menu itself 500ms |
+| Wii Options' tiles | grow out of the title tab, 267ms, the second 67ms after the first |
+| Choosing a tile | the other fades, 100ms; the chosen one flies into the tab, 200ms; the screen fades to black, 333ms |
+| Settings page turn | the page slides out and the next in, 400ms, the arriving page brightening from dim |
+| Every other screen change | the new screen fades up, 283ms |
 | Empty slots | WM4K's four static frames, cycling |
-| Health & Safety prompt | pulses |
 
 Each has a resting value, so a still is the live build with motion off. The static rests on its
-first frame and the prompt at full strength.
+first frame, the prompt at full strength, the arrows in place and the bubble shown.
 
 ## Colour
 
@@ -94,7 +100,7 @@ or drawn. Credits are in `app/src/themes/wii-menu/assets/SOURCE.md`.
 
 | File | Job |
 | --- | --- |
-| `index.tsx` | the root: state, the zoom's clocks, the screen and the HOME Menu over it |
+| `index.tsx` | the root: state, the clocks that finish the boot, the zoom and a tile's exit, the screen and the HOME Menu over it |
 | `machine.ts` | the view stack and every button as a pure reducer |
 | `layout.ts`, `palette.ts`, `motion.ts` | geometry, colours and durations, each with where it was measured |
 | `library.ts`, `assets.ts` | the channels, the clock and date, and asset lookup |

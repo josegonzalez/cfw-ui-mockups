@@ -1,7 +1,10 @@
 import type { CSSProperties, ReactNode } from 'react'
-import type { TransitionSpec } from '../../../anim/types'
+import { Animated } from '../../../anim/Animated'
+import type { StoryboardMap, TransitionSpec } from '../../../anim/types'
 import { transitionsToCss } from '../../../anim/waapi'
 import { menuImg } from '../assets'
+import { ARROW, BORDER_X } from '../layout'
+import { MOTION } from '../motion'
 import { PALETTE } from '../palette'
 
 /**
@@ -115,15 +118,22 @@ export function Pill({
   )
 }
 
+const BUBBLE_IN: StoryboardMap = {
+  open: { animations: [{ property: 'opacity', from: 0, begin: MOTION.bubbleDelay, duration: 67, mode: 'linear' }] },
+}
+
 /**
  * The name bubble the menu shows under whatever the pointer rests on: a white pill with a grey
- * edge, its text grey (`frames/menu-hover.png`, "Disc Channel").
+ * edge, its text grey (`frames/menu-hover.png`, "Disc Channel"). It appears once the pointer has
+ * rested a moment, so callers key it by what it names and it waits again for each.
  */
 export function Bubble({ x, y, label }: { x: number; y: number; label: string }) {
   // The bubble is as wide as its label; M PLUS 1p at 21px averages about 11px a glyph.
   const w = Math.round(label.length * 11 + 34)
   return (
-    <div
+    <Animated
+      storyboard={BUBBLE_IN}
+      event="open"
       className="wii-bubble"
       style={{
         ...abs({ x, y, w, h: 36 }),
@@ -137,7 +147,36 @@ export function Bubble({ x, y, label }: { x: number; y: number; label: string })
       <Text box={{ x: 0, y: 0, w: w - 4, h: 32 }} size={21} weight={500} color={PALETTE.inkSoft}>
         {label}
       </Text>
-    </div>
+    </Animated>
+  )
+}
+
+/**
+ * The page arrows bob inward and back out together, two of the Wii's pixels, on every screen that
+ * has them. `offsetX` is a fraction of the panel's width, which is the Wii's frame plus its border.
+ */
+const BOB = 2 / (608 + 2 * BORDER_X)
+const bob = (dir: 1 | -1): StoryboardMap => ({
+  _: {
+    animations: [
+      { property: 'offsetX', from: 0, to: dir * BOB, duration: MOTION.arrowBob, mode: 'easeInOut', autoreverse: true, repeat: 'forever' },
+    ],
+  },
+})
+const BOB_LEFT = bob(1)
+const BOB_RIGHT = bob(-1)
+
+/** A page arrow at its place over the left or right edge of the screen. */
+export function PageArrow({ side }: { side: 'left' | 'right' }) {
+  const cx = side === 'left' ? ARROW.leftCx : ARROW.rightCx
+  return (
+    <Animated
+      storyboard={side === 'left' ? BOB_LEFT : BOB_RIGHT}
+      event="_"
+      style={abs({ x: cx - ARROW.size / 2, y: ARROW.cy - ARROW.size / 2, w: ARROW.size, h: ARROW.size })}
+    >
+      <Img src={menuImg(side === 'left' ? 'arrow-left' : 'arrow-right')} box={{ x: 0, y: 0, w: ARROW.size, h: ARROW.size }} />
+    </Animated>
   )
 }
 

@@ -2,13 +2,13 @@ import { useEffect, useState, type ReactNode } from 'react'
 import { useScreen } from '../../../device/ScreenContext'
 import { useInteractive } from '../../../input/InputProvider'
 import { menuImg } from '../assets'
-import { ARROW, BAR, CLOCK_BOX, DATE_Y, H, MAIL_BUTTON, PAGE_W, SD_BUTTON, TILE, W, WII_BUTTON, tileBox } from '../layout'
+import { BAR, CLOCK_BOX, DATE_Y, H, MAIL_BUTTON, PAGE_W, SD_BUTTON, TILE, W, WII_BUTTON, tileBox } from '../layout'
 import { CHANNELS, CLOCK, DATE_LABEL, GRID, PAGES, PER_PAGE } from '../library'
 import type { Focus } from '../machine'
 import { MOTION } from '../motion'
 import { PALETTE } from '../palette'
 import { ChannelIcon } from './Channel'
-import { abs, Bubble, Clock, Img, motion, Text, type Box } from './parts'
+import { abs, Bubble, Clock, Img, motion, PageArrow, Text, type Box } from './parts'
 
 /**
  * PORTING NOTES
@@ -28,7 +28,9 @@ import { abs, Bubble, Clock, Img, motion, Text, type Box } from './parts'
  * Buttons:       A opens a channel's preview, or the bar button's screen. L / SELECT and R / START
  *                are the Wii Remote's - and +, turning the page. MENU is HOME.
  * Transitions:   A page turn slides the grid 512px in 334ms, decelerating (measured, 10 frames at
- *                29.97fps). An empty slot's static flickers through WM4K's four frames.
+ *                29.97fps). The highlight's rim eases in over 100ms and its name bubble appears
+ *                400ms after it lands (`EOZxJue_N6s`). The page arrows bob inward and back. An
+ *                empty slot's static flickers through WM4K's four frames.
  * Notes:         The pointer is not drawn - a handheld has none - so the highlight stands for it.
  *                An empty slot's static is drawn over a flat grey, the same as the captures show.
  */
@@ -47,32 +49,48 @@ function Static({ box }: { box: Box }) {
 }
 
 function Slot({ slot, box, focused }: { slot: number; box: Box; focused: boolean }) {
+  const { animate } = useScreen()
   const id = GRID[slot]
   const inner: Box = { x: 0, y: 0, w: box.w, h: box.h }
+  // The highlight eases in and out rather than switching, so its glow and cyan rim are layers of
+  // their own whose opacity moves.
+  const ease = motion(animate, [{ property: 'opacity', duration: MOTION.highlight, easing: 'easeOut' }])
   return (
-    <div
-      className="wii-slot"
-      data-slot={slot}
-      style={{
-        ...abs(box),
-        borderRadius: TILE.radius,
-        overflow: 'hidden',
-        background: id ? '#ffffff' : '#eeefef',
-        boxShadow: focused
-          ? `inset 0 0 0 3px ${PALETTE.cyan}, 0 0 6px ${PALETTE.cyanSoft}`
-          : `inset 0 0 0 2px ${PALETTE.tileEdge}`,
-      }}
-    >
-      {id ? <ChannelIcon id={id} box={inner} /> : <Static box={inner} />}
-      {/* The rim is drawn over the art, so a full-bleed icon still reads as a slot. */}
+    <>
       <div
         style={{
-          ...abs(inner),
+          ...abs(box),
           borderRadius: TILE.radius,
-          boxShadow: focused ? `inset 0 0 0 3px ${PALETTE.cyan}` : `inset 0 0 0 2px ${PALETTE.tileEdge}`,
+          boxShadow: `0 0 6px ${PALETTE.cyanSoft}`,
+          opacity: focused ? 1 : 0,
+          transition: ease,
         }}
       />
-    </div>
+      <div
+        className="wii-slot"
+        data-slot={slot}
+        data-focused={focused || undefined}
+        style={{
+          ...abs(box),
+          borderRadius: TILE.radius,
+          overflow: 'hidden',
+          background: id ? '#ffffff' : '#eeefef',
+        }}
+      >
+        {id ? <ChannelIcon id={id} box={inner} /> : <Static box={inner} />}
+        {/* The rims are drawn over the art, so a full-bleed icon still reads as a slot. */}
+        <div style={{ ...abs(inner), borderRadius: TILE.radius, boxShadow: `inset 0 0 0 2px ${PALETTE.tileEdge}` }} />
+        <div
+          style={{
+            ...abs(inner),
+            borderRadius: TILE.radius,
+            boxShadow: `inset 0 0 0 3px ${PALETTE.cyan}`,
+            opacity: focused ? 1 : 0,
+            transition: ease,
+          }}
+        />
+      </div>
+    </>
   )
 }
 
@@ -139,9 +157,9 @@ export function Bar({ focus }: { focus: Focus }) {
       <Text box={{ x: 0, y: DATE_Y, w: W, h: 34 }} size={30} weight={700} color={PALETTE.clock}>
         {DATE_LABEL}
       </Text>
-      {on('wii') ? <Bubble x={WII_BUTTON.cx - 12} y={WII_BUTTON.cy - WII_BUTTON.d / 2 - 44} label="Wii Options" /> : null}
-      {on('sd') ? <Bubble x={SD_BUTTON.x - 20} y={SD_BUTTON.y - 46} label="SD Card Menu" /> : null}
-      {on('mail') ? <Bubble x={MAIL_BUTTON.cx - 190} y={MAIL_BUTTON.cy - MAIL_BUTTON.d / 2 - 44} label="Wii Message Board" /> : null}
+      {on('wii') ? <Bubble key="wii" x={WII_BUTTON.cx - 12} y={WII_BUTTON.cy - WII_BUTTON.d / 2 - 44} label="Wii Options" /> : null}
+      {on('sd') ? <Bubble key="sd" x={SD_BUTTON.x - 20} y={SD_BUTTON.y - 46} label="SD Card Menu" /> : null}
+      {on('mail') ? <Bubble key="mail" x={MAIL_BUTTON.cx - 190} y={MAIL_BUTTON.cy - MAIL_BUTTON.d / 2 - 44} label="Wii Message Board" /> : null}
     </>
   )
 }
@@ -171,10 +189,10 @@ export function Menu({ page, focus }: { page: number; focus: Focus }) {
           return <Slot key={i} slot={i} box={{ ...b, x: b.x + p * PAGE_W }} focused={i === focusedSlot} />
         })}
       </div>
-      {page > 0 ? <Img src={menuImg('arrow-left')} box={{ x: ARROW.leftCx - ARROW.size / 2, y: ARROW.cy - ARROW.size / 2, w: ARROW.size, h: ARROW.size }} /> : null}
-      {page < PAGES - 1 ? <Img src={menuImg('arrow-right')} box={{ x: ARROW.rightCx - ARROW.size / 2, y: ARROW.cy - ARROW.size / 2, w: ARROW.size, h: ARROW.size }} /> : null}
+      {page > 0 ? <PageArrow side="left" /> : null}
+      {page < PAGES - 1 ? <PageArrow side="right" /> : null}
       <Bar focus={focus} />
-      {bubbleAt && GRID[focusedSlot] ? <Bubble x={bubbleAt.x + 10} y={bubbleAt.y + bubbleAt.h + 8} label={CHANNELS[GRID[focusedSlot]!].title} /> : null}
+      {bubbleAt && GRID[focusedSlot] ? <Bubble key={focusedSlot} x={bubbleAt.x + 10} y={bubbleAt.y + bubbleAt.h + 8} label={CHANNELS[GRID[focusedSlot]!].title} /> : null}
     </div>
   )
 }

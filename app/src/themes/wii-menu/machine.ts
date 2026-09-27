@@ -83,6 +83,13 @@ export interface State {
   readonly memos: readonly number[]
   /** Bumped by Reset in the HOME Menu, so the running channel starts over. */
   readonly resets: number
+  /**
+   * Leaving Health & Safety: the warning fades to black (`out`), the screen stays black while the
+   * menu loads (`black`), then the menu fades up. Null once it has.
+   */
+  readonly boot: 'out' | 'black' | null
+  /** A screen waiting for the one showing to finish its exit - Wii Options' chosen tile flying off. */
+  readonly pending: View | null
 }
 
 /** The Wii's own defaults for a console set up for a 4:3 television. */
@@ -120,6 +127,8 @@ export function initialState(seed: Seed = {}): State {
     zoom: 'open',
     memos: [],
     resets: 0,
+    boot: null,
+    pending: null,
   }
   for (const ch of seed.events ?? '') {
     const button = LETTERS[ch]
@@ -133,9 +142,21 @@ export const top = (s: State): View => s.stack[s.stack.length - 1]!
 
 /** Every transition finished: what a still shows, and what the root's clocks arrive at. */
 export function settle(s: State): State {
+  if (s.boot !== null) return finishBoot(s)
+  if (s.pending !== null) return finishPending(s)
   if (s.zoom === 'enter' || s.zoom === 'opening') return { ...s, zoom: 'open' }
   if (s.zoom === 'leave') return finishLeave(s)
   return s
+}
+
+/** The black between Health & Safety and the menu is over: the menu is showing. */
+export function finishBoot(s: State): State {
+  return { ...s, boot: null, stack: [{ kind: 'menu' }] }
+}
+
+/** The exit has played: the waiting screen is showing. */
+export function finishPending(s: State): State {
+  return s.pending ? { ...s, pending: null, stack: [...s.stack, s.pending] } : s
 }
 
 /** The preview has shrunk back into its tile: it is gone, and the grid is showing. */
@@ -148,14 +169,14 @@ const pop = (s: State): State => (s.stack.length > 1 ? { ...s, stack: s.stack.sl
 const replace = (s: State, v: View): State => ({ ...s, stack: [...s.stack.slice(0, -1), v] })
 
 export function reduce(s: State, button: Button): State {
-  // The preview is still moving: the System Menu takes no input until it settles.
-  if (s.zoom !== 'open') return s
+  // Something is still moving: the System Menu takes no input until it settles.
+  if (s.zoom !== 'open' || s.boot !== null || s.pending !== null) return s
   if (s.home !== null) return home(s, button, s.home)
   const v = top(s)
   if (button === 'menu' && v.kind !== 'health') return { ...s, home: 'close' }
   switch (v.kind) {
     case 'health':
-      return button === 'a' ? { ...s, stack: [{ kind: 'menu' }] } : s
+      return button === 'a' ? { ...s, boot: 'out' } : s
     case 'menu':
       return menu(s, button)
     case 'preview':
@@ -325,8 +346,9 @@ function options(s: State, button: Button, v: Extract<View, { kind: 'options' }>
       return pop(s)
     case 'a':
       if (v.focus === 'back') return pop(s)
-      if (v.focus === 0) return push(s, { kind: 'data', focus: 0 })
-      return push(s, { kind: 'settings', page: 0, focus: 0 })
+      // The chosen tile flies off before the next screen comes up.
+      if (v.focus === 0) return { ...s, pending: { kind: 'data', focus: 0 } }
+      return { ...s, pending: { kind: 'settings', page: 0, focus: 0 } }
     default:
       return s
   }

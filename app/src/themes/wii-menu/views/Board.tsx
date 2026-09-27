@@ -1,10 +1,10 @@
 import type { ReactNode } from 'react'
-import { mailImg, menuImg } from '../assets'
-import { ARROW, H, W } from '../layout'
+import { mailImg } from '../assets'
+import { H, W } from '../layout'
 import { CALENDAR, DATE, WII_NUMBER } from '../library'
 import { dayLabel, type BoardFocus } from '../machine'
 import { PALETTE } from '../palette'
-import { abs, Img, Pill, Text, type Box } from './parts'
+import { abs, Img, PageArrow, Pill, Text, type Box } from './parts'
 
 /**
  * PORTING NOTES
@@ -79,8 +79,8 @@ export function Board({ day, focus, memos }: { day: number; focus: BoardFocus; m
           </Text>
         </div>
       ))}
-      {day > -(DATE.day - 1) ? <Img src={menuImg('arrow-left')} box={{ x: ARROW.leftCx - ARROW.size / 2, y: ARROW.cy - ARROW.size / 2, w: ARROW.size, h: ARROW.size }} /> : null}
-      {day < 0 ? <Img src={menuImg('arrow-right')} box={{ x: ARROW.rightCx - ARROW.size / 2, y: ARROW.cy - ARROW.size / 2, w: ARROW.size, h: ARROW.size }} /> : null}
+      {day > -(DATE.day - 1) ? <PageArrow side="left" /> : null}
+      {day < 0 ? <PageArrow side="right" /> : null}
       <BoardBar day={day} focus={focus} />
     </div>
   )

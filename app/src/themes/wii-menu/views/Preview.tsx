@@ -1,12 +1,11 @@
 import { useScreen } from '../../../device/ScreenContext'
-import { menuImg } from '../assets'
-import { ARROW, H, PANEL, PREVIEW_BUTTONS, W, tileBox } from '../layout'
+import { H, PANEL, PREVIEW_BUTTONS, W, tileBox } from '../layout'
 import { CHANNELS, GRID, PER_PAGE } from '../library'
 import { zoomedIn, type Zoom } from '../machine'
 import { MOTION } from '../motion'
 import { PALETTE } from '../palette'
 import { ChannelBanner } from './Channel'
-import { abs, Img, motion, Pill } from './parts'
+import { abs, motion, PageArrow, Pill } from './parts'
 
 /**
  * PORTING NOTES
@@ -24,8 +23,9 @@ import { abs, Img, motion, Pill } from './parts'
  *                L / SELECT and R / START are - and +, stepping to the previous or next channel.
  *                MENU is HOME.
  * Transitions:   The panel grows out of the channel's slot while the grid behind it fades to
- *                black (500ms); then the banner and buttons fade up (267ms). Wii Menu reverses
- *                it into the slot of the channel now showing.
+ *                black, 467ms, the banner and buttons fading up over its last 133ms. Wii Menu
+ *                shrinks it, banner and all, back into the slot of the channel now showing, the
+ *                grid fading back in behind (467ms). The page arrows bob inward and back.
  * Notes:         The arrows are pointer targets on the Wii; here - and + do their job.
  */
 
@@ -42,8 +42,14 @@ export function Preview({ slot, focus, zoom }: { slot: number; focus: 'menu' | '
   const id = GRID[slot]!
   const open = zoomedIn(zoom)
   const zoomMotion = motion(animate, [{ property: 'transform', duration: MOTION.zoom, easing: 'easeOutCubic' }])
+  // The banner fades up over the zoom's last frames, and stays as the panel shrinks back: only the
+  // first frame of the zoom in, still drawn over its slot, has it hidden.
   const content = motion(animate, [
-    { property: 'opacity', duration: MOTION.zoomContent, easing: 'linear', delay: open ? MOTION.zoom : 0 },
+    { property: 'opacity', duration: MOTION.zoomContent, easing: 'linear', delay: MOTION.zoom - MOTION.zoomContent },
+  ])
+  // The arrows come with the banner and go as soon as the panel starts to shrink.
+  const arrows = motion(animate, [
+    { property: 'opacity', duration: MOTION.zoomContent, easing: 'linear', delay: open ? MOTION.zoom - MOTION.zoomContent : 0 },
   ])
   const band = PANEL.h - PANEL.split
   return (
@@ -61,7 +67,7 @@ export function Preview({ slot, focus, zoom }: { slot: number; focus: 'menu' | '
           boxShadow: '0 0 0 2px #d8dcdf',
         }}
       >
-        <div style={{ ...abs({ x: 0, y: 0, w: PANEL.w, h: PANEL.h }), opacity: open ? 1 : 0, transition: content }}>
+        <div style={{ ...abs({ x: 0, y: 0, w: PANEL.w, h: PANEL.h }), opacity: zoom === 'enter' ? 0 : 1, transition: content }}>
           <ChannelBanner id={id} />
           <div
             style={{
@@ -85,9 +91,9 @@ export function Preview({ slot, focus, zoom }: { slot: number; focus: 'menu' | '
           />
         </div>
       </div>
-      <div style={{ opacity: open ? 1 : 0, transition: content }}>
-        <Img src={menuImg('arrow-left')} box={{ x: ARROW.leftCx - ARROW.size / 2, y: ARROW.cy - ARROW.size / 2, w: ARROW.size, h: ARROW.size }} />
-        <Img src={menuImg('arrow-right')} box={{ x: ARROW.rightCx - ARROW.size / 2, y: ARROW.cy - ARROW.size / 2, w: ARROW.size, h: ARROW.size }} />
+      <div style={{ opacity: open ? 1 : 0, transition: arrows }}>
+        <PageArrow side="left" />
+        <PageArrow side="right" />
       </div>
     </div>
   )

@@ -13,6 +13,7 @@ quoted from a published description, and each says which.
 | `setup` | [Nintendo Wii - Initial System Setup and New Menu Tour 2025](https://www.youtube.com/watch?v=KzORmt_gWDA), 1280x720 at 59.94fps, 16:9 | the Settings page turn and cross-fade, the Message Board calendar |
 | `showcase` | The WM4K showcase recording linked from the pack's README, 1920x1080, 16:9 | the SD Card Menu, its About dialog, the Message Board, Wii Options |
 | `sd-intro` | [PC/ROG Ally - Install The Wii System Menu On Dolphin Emulator](https://www.youtube.com/watch?v=WUJeCy6QP8Q), 16:9 | the SD Card Menu's first-run text |
+| `v1` | [The Original Wii Menu (v1.0)](https://www.youtube.com/watch?v=EOZxJue_N6s), 1280x720 at 60fps, the 4:3 picture stretched to 16:9 | every transition's timing but the page turn and the HOME Menu |
 | `WM4K` | [Alan-bur/WM4K](https://github.com/Alan-bur/WM4K) at `b04bd27`, `0000000100000002/USA/` | every texture the port draws; the Settings pages |
 | `wikipedia` | [Wii system software](https://en.wikipedia.org/wiki/Wii_system_software), Wii Menu and Home Menu sections | the grid's size, the HOME Menu's buttons |
 
@@ -28,6 +29,30 @@ Dolphin's the same proportion, 918x690 at (178, 15) in its 1280x720 recording. T
 640x480, so the port draws the frame 1:1 at (16, 12).
 
 Every position below is a pixel of that 608x456 frame: a `tv` measurement with (14, 10) taken off.
+
+## Motion
+
+Timed frame by frame in `v1`, at 60fps, from the change between consecutive frames. `v1` is System
+Menu 1.0, not 4.3; where `tv` or `dolphin` also show a transition, the two agree.
+
+| Transition | Frames | Where |
+| --- | --- | --- |
+| Health & Safety fading to black, near linear | 28, 467ms | 4.70-5.17s |
+| Black while the menu loads | 54, 900ms | 5.17-6.07s |
+| The menu fading up, linear | 19, 317ms | 6.07-6.40s |
+| The prompt's pulse, to nothing and back | 57 a cycle, 950ms | 0.5-4.7s |
+| Grid to preview: the panel grows while the grid fades to black | 28, 467ms | 18.83s, 22.47s |
+| The banner and buttons fading up, over the zoom's end | 8, 133ms | 19.2-19.3s |
+| Preview to grid: the panel shrinks with its banner, the grid fading in | 28, 467ms | 21.12s, 124.72s |
+| The highlight's rim easing in | about 6, 100ms | 21.8s |
+| The name bubble appearing after the pointer settles | 24-28, 400-467ms | 21.8-22.2s |
+| The page arrows bobbing inward 2 of the Wii's pixels and back, both together | 54 a cycle, 900ms | 19.6-21.1s, 23-26s |
+| Wii Options: the other tile fading, the chosen one flying into the title tab, the screen fading to black | 6, 12 and 20: 100, 200 and 333ms | 147.7-148.45s |
+| A tile screen's tiles growing out of the title tab, one after the other | 16, 267ms, 4 apart | 144.95s, 146.5s |
+| A Settings page turn, the incoming page brightening from dim | 16 to land, 24 to rest: 400ms | 155.73s |
+
+The capture card (`tv`) measures the zoom at 15 frames at 29.97fps (500ms) and bobs the grid's
+arrows by the same two pixels at about the same rate; `v1` is the finer of the two.
 
 ## The Wii Menu
 
@@ -69,8 +94,8 @@ From `tv` 23.5s to 76s (`frames/preview-*.png`) and 22.6-23.4s (`zoom-in-a.png`,
 - **Disc Channel with no disc.** A cyan band across the top widening at the right under "Disc
   Channel"; a Wii disc and a GameCube disc side by side; "Please insert a disc."; Start greyed out.
 - **Arrows.** The page arrows at the same place as on the grid, over the banner's edges.
-- **Zoom in.** The slot grows into the panel while the grid behind darkens to black, 15 frames
-  (500ms); then the banner and buttons fade up over 8 frames (267ms).
+- **Zoom in.** The slot grows into the panel while the grid behind darkens to black; see Motion for
+  its timing.
 - **Channel order when stepping.** The arrows step to the previous and next channel in grid order.
 
 ## The HOME Menu
@@ -104,7 +129,7 @@ focus fill and its orange "selected" corners fall; the table is in `extract-asse
 | Sensor Bar Position | each option selected, by each focus |
 | Wii System Update | Yes, No |
 
-- **Page turn.** The page slides out and the next slides in, 17 frames at 59.94fps, 283ms (`setup`
+- **Page turn.** The page slides out and the next slides in; see Motion (`v1` 155.73s, and `setup`
   356.8s).
 - **Opening a page.** The new page cross-fades in over the last, 17 frames, 283ms (`setup` 351.2s).
 
