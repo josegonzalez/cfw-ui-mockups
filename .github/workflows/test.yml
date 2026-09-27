@@ -46,13 +46,15 @@ jobs:
 
   # The screenshot baselines are captured on macOS (`*-chromium-darwin.png`), so the e2e suite runs
   # there too: on Linux every baseline would be missing and font rasterisation would differ anyway.
-  # Split across four runners, since one takes the better part of an hour.
+  # Split across five runners, the most macOS jobs a free account runs at once - a sixth would
+  # queue behind them and take longer, not less. Each serves a production build, not the dev
+  # server (`playwright.config.ts`), which is most of what keeps a runner under five minutes.
   e2e:
     runs-on: macos-latest
     strategy:
       fail-fast: false
       matrix:
-        shard: [1, 2, 3, 4]
+        shard: [1, 2, 3, 4, 5]
     defaults:
       run:
         working-directory: app
@@ -69,7 +71,7 @@ jobs:
 
       - run: npx playwright install chromium
 
-      - run: npx playwright test --shard=${{ matrix.shard }}/4 ${GREP:+--grep "$GREP"}
+      - run: npx playwright test --shard=${{ matrix.shard }}/5 ${GREP:+--grep "$GREP"}
         env:
           GREP: ${{ inputs.grep }}
 
