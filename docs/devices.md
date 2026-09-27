@@ -102,7 +102,9 @@ for this device even though the numbers look right.
 `rg-sp` is a vertical clamshell - the Game Boy Advance SP's shape - and the shell here is a chin
 body, which is what the device is when it is open: panel above, controls below. The hinge and the
 upper half are not drawn. A folding shell would need a second body above the panel and a fold
-state to go with it, and nothing inside `.screen` depends on either.
+state to go with it, and nothing inside `.screen` depends on either. It is the one chin body with a second
+pair of shoulders, L2 and R2, drawn outside L and R (the shell's `shoulders2` flag), because DS
+Style binds Recents and Favourites to them; the keyboard gives them `1` and `2`.
 
 `odin2-mini` is the one body whose sticks are staggered: the left stick sits above the D-pad and
 the right below the face buttons, which is the shell's `stagger` flag rather than a case in the

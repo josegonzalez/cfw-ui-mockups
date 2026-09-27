@@ -306,6 +306,13 @@ describe('shell details taken from references', () => {
     expect(rg351m.querySelector('.speaker')).toBeNull()
   })
 
+  it('draws L2 and R2 outside L and R only where the profile has them', () => {
+    const shoulders = (c: HTMLElement) =>
+      [...c.querySelectorAll('.device__shoulders [data-btn]')].map((b) => b.getAttribute('data-btn'))
+    expect(shoulders(frameFor('rg-sp'))).toEqual(['l2', 'l', 'r', 'r2'])
+    expect(shoulders(frameFor('rg35xx'))).toEqual(['l', 'r'])
+  })
+
   it('prints control names on the body rather than inside the buttons', () => {
     // Text set inside the pills is what pushed the RG35XX's face buttons off the plastic once
     // its controls were scaled to match the reference.
