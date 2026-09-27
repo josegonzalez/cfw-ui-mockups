@@ -138,6 +138,22 @@ was already there.
 which also caught the `Palette` and `Title Pills` rows and turned `Default` into `DEFAULT`. Fixed
 by uppercasing the hex where the hex is produced.
 
+## Faults found by CI
+
+**Every pill was measured in someone else's font.** The first CI run failed every NextUI screen by
+1-2% of its pixels, and nothing else. The face was registered as `BPreplay`, and the machine the
+baselines were made on has BPreplay Bold installed: the canvas measured with that `.otf` before the
+page's `.ttf` had loaded, so the pills were sized by one font and drawn in another. The two differ in
+width, and the installed one is wrong for this screen - the START / SETTINGS pill was 197px against
+the reference frame's 184. On a machine without it the measurement raced the web font, and the
+check meant to catch that, `document.fonts.check()`, also answers true when no face of the name is
+registered yet. The face is now `NextUI BPreplay`, "ready" means that face is loaded, and a width
+measured before then is not cached. The pill is 185px, and a local run now matches CI byte for byte.
+
+**The box-art title was never in BPreplay.** It was `<text>` inside the art's SVG, and an SVG loaded
+as an image cannot use the page's fonts, so it was set in the machine's `sans-serif`. It is page
+text over the art now.
+
 ## Where the numbers came from
 
 Every constant in `layout.ts` is `NEXTUI_*` from `ui_components/constants.h`, name for name. Both

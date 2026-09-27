@@ -11,8 +11,9 @@
  * would be describing a different program.
  */
 
+/* Not named 'BPreplay': a machine with it installed would draw and measure its own copy - text.ts. */
 @font-face {
-  font-family: 'BPreplay';
+  font-family: 'NextUI BPreplay';
   src: url('./assets/fonts/BPreplayBold.ttf') format('truetype');
   font-weight: 700;
   font-style: normal;
@@ -30,7 +31,7 @@
   overflow: hidden;
   background: var(--nx-bg);
   color: var(--nx-list);
-  font-family: 'BPreplay', system-ui, sans-serif;
+  font-family: 'NextUI BPreplay', system-ui, sans-serif;
   font-weight: 700;
   -webkit-font-smoothing: antialiased;
 }

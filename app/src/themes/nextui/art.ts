@@ -18,10 +18,6 @@ function hash(s: string): number {
   return Math.abs(h)
 }
 
-function esc(s: string): string {
-  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-}
-
 /** Wrap a title onto lines short enough to read at art width. */
 function wrap(name: string, perLine: number): string[] {
   const words = name.split(' ')
@@ -41,10 +37,12 @@ function wrap(name: string, perLine: number): string[] {
 }
 
 /**
- * Banded box art with the title over it, at whatever size fits inside 288x288.
+ * Banded box art, at whatever size fits inside 288x288. The title that goes over it is
+ * `boxartLabel`, drawn by the caller as page text.
  *
- * The title is drawn into the image rather than beside it because that is what a scraped cover
- * looks like: the art carries its own wordmark. Nothing in the theme labels the art slot.
+ * The title used to be `<text>` inside this SVG. An SVG loaded as an image cannot see the page's
+ * web fonts, so it was set in whatever `sans-serif` the machine had rather than BPreplay - and
+ * every NextUI baseline differed between two Macs by the width of that fallback.
  */
 export function boxart(name: string, w: number, h: number): string {
   const hue = hash(name) % 360
@@ -56,19 +54,20 @@ export function boxart(name: string, w: number, h: number): string {
     return `<rect x="0" y="${((i * h) / bands).toFixed(2)}" width="${w}" height="${(h / bands + 1).toFixed(2)}" fill="hsl(${hue},52%,${l.toFixed(1)}%)"/>`
   }).join('')
 
+  return svgDataUri(`<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">${rows}</svg>`)
+}
+
+/**
+ * The title over the box art: its lines, each with the y of its centre, and the size.
+ *
+ * Drawn into the art rather than beside it because that is what a scraped cover looks like: the
+ * art carries its own wordmark. Nothing in the theme labels the art slot.
+ */
+export function boxartLabel(name: string, w: number, h: number): { size: number; lines: { text: string; cy: number }[] } {
   const size = Math.round(Math.min(w, h) / 7)
   const lines = wrap(name, Math.max(8, Math.floor(w / (size * 0.55))))
   const top = h / 2 - ((lines.length - 1) * size * 1.25) / 2
-  const label = lines
-    .map(
-      (line, i) =>
-        `<text x="${w / 2}" y="${(top + i * size * 1.25).toFixed(1)}" text-anchor="middle" dominant-baseline="central" font-family="BPreplay, sans-serif" font-weight="700" font-size="${size}" fill="#ffffff">${esc(line)}</text>`,
-    )
-    .join('')
-
-  return svgDataUri(
-    `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">${rows}${label}</svg>`,
-  )
+  return { size, lines: lines.map((text, i) => ({ text, cy: top + i * size * 1.25 })) }
 }
 
 /**
