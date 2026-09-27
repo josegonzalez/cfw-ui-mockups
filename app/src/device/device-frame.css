@@ -280,6 +280,24 @@
   background: #ffd166;
 }
 
+/* An Xbox diamond: the same four buttons, Y on top and A at the bottom. */
+.faces[data-faces='xbox'] .face[data-btn='y'] {
+  top: 0;
+  left: 33%;
+}
+.faces[data-faces='xbox'] .face[data-btn='x'] {
+  top: 33%;
+  left: 0;
+}
+.faces[data-faces='xbox'] .face[data-btn='b'] {
+  top: 33%;
+  left: 66%;
+}
+.faces[data-faces='xbox'] .face[data-btn='a'] {
+  top: 66%;
+  left: 33%;
+}
+
 /* --- analog sticks ------------------------------------------------------- */
 
 /*
@@ -435,6 +453,22 @@
 }
 .grip[data-aux='top'] .grip__stick {
   top: 72%;
+}
+
+/*
+ * Staggered sticks, as on an Xbox pad: the left stick rides above the D-pad and the right stick
+ * below the face buttons. Measured off the AYN Odin 2 Mini's photograph.
+ */
+.grip[data-stagger].grip--left .grip__stick,
+.grip[data-stagger].grip--right .grip__primary {
+  top: 31%;
+}
+.grip[data-stagger].grip--left .grip__primary,
+.grip[data-stagger].grip--right .grip__stick {
+  top: 59%;
+}
+.grip[data-stagger] .grip__aux {
+  top: 82%;
 }
 
 /*

@@ -20,6 +20,7 @@ export type DeviceSlug =
   | 'rg552'
   | 'trimui-brick'
   | 'rg-ds'
+  | 'odin2-mini'
 
 /** The four first-class panel classes. `other` covers the odd sizes. */
 export type ResolutionClass = '640x480' | '1280x720' | '720x720' | 'other'
@@ -152,6 +153,18 @@ export interface FlankingShell extends ShellCommon {
    * `position` reorders the whole grip - small buttons at the top push the pad to the middle and
    * the stick to the bottom.
    */
+  /**
+   * Sticks staggered as on an Xbox pad: the left stick above the D-pad, the right stick below the
+   * face buttons. Every other landscape body here puts both sticks below, so it is a flag on the
+   * shell rather than a per-device case in the grip.
+   */
+  readonly stagger?: boolean | undefined
+  /**
+   * Where the face buttons sit. The diamond is Nintendo's - X top, A right - on every body but the
+   * ones that follow an Xbox pad, with Y on top and A at the bottom. A button keeps its identity
+   * either way: only where it is drawn changes.
+   */
+  readonly faces?: 'xbox' | undefined
   readonly aux: {
     readonly position: 'top' | 'bottom'
     readonly left: AuxKind
@@ -583,6 +596,34 @@ export const DEVICES: Record<DeviceSlug, Device> = {
       chinExtra: 210,
       menuButton: true,
       speakerGrille: true,
+      body: BODY.charcoal,
+    },
+  },
+  'odin2-mini': {
+    slug: 'odin2-mini',
+    label: 'AYN Odin 2 Mini',
+    w: 1920,
+    h: 1080,
+    aspect: '16:9',
+    resolutionClass: 'other',
+    viewScale: 0.36,
+    /*
+     * Matched to a product photograph (`docs/themes/neostation/reference/odin2-mini.webp`).
+     *
+     * A slim 16:9 slab with rounded grips, the panel filling most of the face. The sticks are
+     * staggered as on an Xbox pad - the left above the D-pad, the right below the face buttons -
+     * and two small round buttons sit at the foot of each grip. The Pro is a RAM and storage tier
+     * on the same 5" 1080p panel, so this entry is both.
+     */
+    shell: {
+      layout: 'flanking',
+      bezel: { top: 145, side: 36, bottom: 135 },
+      radius: 200,
+      sticks: 2,
+      stagger: true,
+      faces: 'xbox',
+      gripWidth: 0.28,
+      aux: { position: 'bottom', left: 'menu-pair', right: 'round-pair' },
       body: BODY.charcoal,
     },
   },
