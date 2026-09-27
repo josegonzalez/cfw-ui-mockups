@@ -2,6 +2,7 @@ import type { DeviceSlug } from '../device/devices'
 import type { ThemeSlug } from '../widgets/types'
 import { ELEMENTERIAL_MANIFEST } from './elementerial/manifest'
 import { EXAMPLE_MANIFEST } from './example-cfw/manifest'
+import { NEOSTATION_MANIFEST } from './neostation/manifest'
 import { NEXTUI_MANIFEST } from './nextui/manifest'
 import { PSX_MANIFEST } from './playstation-x/manifest'
 import { SIMPLEOS_MANIFEST } from './simpleos/manifest'
@@ -34,6 +35,7 @@ export const SCREEN_MANIFEST: readonly ScreenManifestEntry[] = [
   ...SLOT_MANIFEST,
   ...SIMPLEOS_MANIFEST,
   ...TORTOS_MANIFEST,
+  ...NEOSTATION_MANIFEST,
   ...EXAMPLE_MANIFEST,
 ]
 

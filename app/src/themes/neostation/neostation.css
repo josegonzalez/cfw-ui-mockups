@@ -1,0 +1,40 @@
+/*
+ * NeoStation's type is Anta, which the app fetches through `google_fonts` and applies to the whole
+ * text theme (`lib/main.dart:1073-1075`). Registered under a family name no machine has installed,
+ * so a missing file shows as a fallback font rather than as a correct-looking local copy.
+ */
+@font-face {
+  font-family: 'NeoStation Anta';
+  src: url('./assets/fonts/Anta-Regular.ttf') format('truetype');
+  font-display: block;
+}
+
+/* Icons: Material Symbols, drawn filled (`IconThemeData(fill: 1.0)`, `lib/main.dart:1076`). */
+@font-face {
+  font-family: 'NeoStation Symbols Rounded';
+  src: url('./assets/fonts/MaterialSymbolsRounded-subset.woff2') format('woff2');
+  font-display: block;
+}
+
+/* The five symbols the source also draws with `fill: 0`. */
+@font-face {
+  font-family: 'NeoStation Symbols Unfilled';
+  src: url('./assets/fonts/MaterialSymbolsRounded-unfilled-subset.woff2') format('woff2');
+  font-display: block;
+}
+
+@font-face {
+  font-family: 'NeoStation Symbols Outlined';
+  src: url('./assets/fonts/MaterialSymbolsOutlined-subset.woff2') format('woff2');
+  font-display: block;
+}
+
+.neostation {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  font-family: 'NeoStation Anta';
+  /* Anta ships one upright face. Flutter slants it for `FontStyle.italic`, so oblique is synthesised; weight is not. */
+  font-synthesis: style;
+  isolation: isolate;
+}

@@ -1,6 +1,7 @@
 import type { ScreenRoute } from '../routes'
 import { elementerialRoutes } from './elementerial/routes'
 import { exampleRoutes } from './example-cfw/routes'
+import { neostationRoutes } from './neostation/routes'
 import { nextuiRoutes } from './nextui/routes'
 import { playstationXRoutes } from './playstation-x/routes'
 import { simpleosRoutes } from './simpleos/routes'
@@ -21,5 +22,6 @@ export const ROUTES: readonly ScreenRoute[] = [
   ...slotRoutes(),
   ...simpleosRoutes(),
   ...tortosRoutes(),
+  ...neostationRoutes(),
   ...exampleRoutes(),
 ]

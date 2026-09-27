@@ -8,6 +8,7 @@ import nextuiPreview from '../assets/previews/nextui.png'
 import slotPreview from '../assets/previews/slot.png'
 import simpleosPreview from '../assets/previews/simpleos.png'
 import tortosPreview from '../assets/previews/tortos.png'
+import neostationPreview from '../assets/previews/neostation.png'
 import exampleCfwPreview from '../assets/previews/example-cfw.png'
 
 /**
@@ -205,6 +206,28 @@ export const THEMES: readonly ThemeEntry[] = [
     fonts: ['Josefin Sans'],
     ported: true,
     docPath: 'docs/themes/tortos.md',
+  },
+  {
+    slug: 'neostation',
+    name: 'NeoStation',
+    author: 'misobadev',
+    kind: 'Emulation frontend for Android, Linux, Windows and macOS',
+    summary:
+      'A Flutter frontend laid out on a 640x480 design canvas and scaled to the screen. A tab bar of library, search, cloud saves, achievements, scraper, RomM and settings over a systems grid, with a games list whose details card carries art, game info and RetroAchievements.',
+    highlights: [
+      '14 built-in colour themes, switchable from Settings',
+      'One layout on two screens: the 640x480 it is designed for, and 1080p at three pixels per unit',
+      'Platform branches: the Android build has an apps grid and a permissions step the Linux one does not',
+    ],
+    preview: neostationPreview,
+    previewAlt: 'NeoStation games list: Goodboy Galaxy selected in the Game Boy Advance list, beside its PLAY footer',
+    accent: '#605dff',
+    swatches: ['#605dff', '#422ad5', '#f43098', '#ff79c6', '#5e81ac', '#db924c', '#bdff00', '#13ecf3', '#e95678'],
+    views: 53,
+    devices: ['odin2-mini', 'rg40xx'],
+    fonts: ['Anta'],
+    ported: true,
+    docPath: 'docs/themes/neostation.md',
   },
   {
     slug: 'example-cfw',
