@@ -79,6 +79,10 @@ had no mask, and painted solid over every Elementerial view. Every numeric check
 element boxes, palette tokens, font sizes, row pitch, input handling, zero console errors -
 because nothing about that fault is visible in computed styles. Only compositing shows it.
 
+An element's own containers do not count as what it covers: they always sit below it, and counting
+them flagged slot's game - one full-bleed picture, the whole screen by design - as covering the box
+it is drawn in.
+
 A masked scrim is exempt from that guard - the mask is what stops it painting solid, and
 covering the whole panel is exactly what it is for. Its own failure mode, a mask that does not
 load, shows up as a failed request in the zero-console-errors check.
@@ -96,7 +100,7 @@ way and none of them found one any other way.
 | `settle.spec.ts` | A still is byte-identical to the live build with motion off |
 | `compositing.spec.ts` | Nothing opaque covers the content - and that the check can fail |
 | `interaction.spec.ts` | Cursor traces through carousel, list and grid, plus the hold gestures |
-| `screens.spec.ts` | Zero console errors, content painted, controls inside the body |
+| `screens.spec.ts` | Zero console errors, something drawn inside the theme's root (or a root marked `data-screen-off`, for a screen dark on the device), controls inside the body |
 | `previews.spec.ts` | The landing page's card art, captured from the routes themselves |
 
 The baselines are the whole regression gate. There is no A/B comparison against a prior
@@ -122,7 +126,7 @@ the regression gate: a change that leaves every number right and the screen wron
 | `settle.spec.ts` | A still is byte-identical to the live build with motion off |
 | `compositing.spec.ts` | Nothing opaque covers the content - and that the check can fail |
 | `interaction.spec.ts` | Cursor traces through carousel, list and grid, plus the hold gestures |
-| `screens.spec.ts` | Zero console errors, content painted, controls inside the body |
+| `screens.spec.ts` | Zero console errors, something drawn inside the theme's root (or a root marked `data-screen-off`, for a screen dark on the device), controls inside the body |
 
 ### Two things that had to be got right first
 

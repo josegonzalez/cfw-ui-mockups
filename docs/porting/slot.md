@@ -106,6 +106,11 @@ a fixed ink is unreadable on about half the library.
 covers everything, so the capture was indistinguishable from Playing. Reposed to 0.64, just seated
 and before the strike, which is the moment the still exists to show.
 
+**Found by the settle check, not by looking: the live build opened on a different cart from its still.** The `shelf` still is posed on the
+third cart so both neighbours show; the live build opened on the first, so the settle check compared
+two different screens and failed. It opens on the third now, from one shared constant. The same fix
+keys the stills by slug, since their props only seed state.
+
 One more thing looked wrong and was not: the panel at low power renders as a thin full-width strip
 of squeezed picture, which reads at a glance like a small box in the middle of the screen. Probing
 the DOM showed 720x25 with the picture filling it, exactly as intended - the power-on squeezes the

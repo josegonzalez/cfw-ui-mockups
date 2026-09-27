@@ -47,8 +47,11 @@ const FIND_COVERING = (root: Element): string[] => {
         Number(cs.opacity) > 0.98 && bg !== 'rgba(0, 0, 0, 0)' && !bg.startsWith('rgba(')
       if (!opaque) continue
 
+      // What it would hide: anything under it that is not one of its own containers. An
+      // element's ancestors always sit below it in the stack, and counting them flagged every
+      // full-bleed picture - slot's game panel - as covering the very box it is drawn in.
       const below = stack.slice(stack.indexOf(el) + 1)
-      if (below.some((n) => n !== root && root.contains(n))) {
+      if (below.some((n) => n !== root && root.contains(n) && !n.contains(el))) {
         found.push(`${el.tagName}.${String(el.className).slice(0, 40)}`)
       }
     }
