@@ -1,0 +1,15 @@
+# system|file - the port's sample library, as files the launcher can list.
+# The GBA games are the source's own demo list (`source/dsstyle.c:594`).
+GBA|Aster Trail.gba
+GBA|Garden Quest.gba
+GBA|Pocket Rally.gba
+GBA|Skybound.gba
+GBA|Tiny Workshop.gba
+GB|Tetris.gb
+GB|Kirby's Dream Land.gb
+GBC|Link's Awakening DX.gbc
+FC|Super Mario Bros.nes
+SFC|Super Metroid.sfc
+SFC|Chrono Trigger.sfc
+MD|Sonic the Hedgehog.md
+PS|Crash Bandicoot.chd
