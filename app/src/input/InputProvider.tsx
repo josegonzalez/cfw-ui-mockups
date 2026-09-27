@@ -25,6 +25,8 @@ export type ButtonHandler = (button: Button, meta: ButtonEventMeta) => void
 export type ChromeHandler = (action: ChromeAction) => void
 
 export interface InputApi {
+  /** Whether this screen takes input at all - false for a still, whose provider listens to nothing. */
+  readonly enabled: boolean
   /** Buttons currently held down. Chords and hold gestures read this. */
   readonly pressed: ReadonlySet<Button>
   /** Buttons lit for the press flash. Purely visual. */
@@ -156,6 +158,7 @@ export function InputProvider({ enabled = true, chromeKeys = true, children }: I
 
   const api = useMemo<InputApi>(
     () => ({
+      enabled,
       pressed,
       flashing,
       press: (button) => dispatchPress(button, { repeat: false, synthetic: true }),
@@ -173,10 +176,18 @@ export function InputProvider({ enabled = true, chromeKeys = true, children }: I
         return () => chromeHandlers.current.delete(handler)
       },
     }),
-    [pressed, flashing, dispatchPress, dispatchRelease],
+    [enabled, pressed, flashing, dispatchPress, dispatchRelease],
   )
 
   return <InputContext value={api}>{children}</InputContext>
+}
+
+/**
+ * Whether this is the live build. A still's frame mounts an input provider too - disabled - so the
+ * provider being there says nothing; a clock that must only run live asks this instead.
+ */
+export function useInteractive(): boolean {
+  return use(InputContext)?.enabled ?? false
 }
 
 export function useInput(): InputApi {
