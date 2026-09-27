@@ -30,8 +30,14 @@ export interface SlotScreenDef {
  * times on purpose: it is the set's signature motion and a single frame of it says nothing about
  * the catch, which is the whole point of the travel.
  */
+/**
+ * The cart the shelf is posed on: the third, so both neighbours are on screen. The live build opens
+ * here too, which is what makes it comparable with the `shelf` still in `settle.spec.ts`.
+ */
+export const SHELF_SELECTED = 2
+
 export const SLOT_SCREENS: readonly SlotScreenDef[] = [
-  { slug: 'shelf', title: 'Shelf', view: 'shelf', selected: 2 },
+  { slug: 'shelf', title: 'Shelf', view: 'shelf', selected: SHELF_SELECTED },
   {
     slug: 'shelf-wallpaper',
     title: 'Shelf with wallpaper',

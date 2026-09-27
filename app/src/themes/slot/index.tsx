@@ -161,7 +161,14 @@ export function Slot({
   const posed = seat ?? (def.phase === 'ejecting' ? 0.55 : def.phase === 'inserting' ? 0.78 : 0)
 
   return (
-    <div className="slot" data-theme="slot" data-view={def.slug} data-phase={phase}>
+    <div
+      className="slot"
+      data-theme="slot"
+      data-view={def.slug}
+      data-phase={phase}
+      // Doze is the panel off. Nothing is drawn, and the e2e check for an empty screen is told so.
+      data-screen-off={phase === 'doze' || undefined}
+    >
       <Screen
         phase={phase}
         scroll={scroll}

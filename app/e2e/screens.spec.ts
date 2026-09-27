@@ -49,9 +49,25 @@ for (const route of ROUTES) {
       return
     }
 
-    // A screen that mounted but rendered nothing still passes a visibility check.
-    const painted = await screen.evaluate((el) => el.querySelectorAll('*').length)
-    expect(painted).toBeGreaterThan(5)
+    /*
+     * A screen that mounted but rendered nothing still passes a visibility check, so the question
+     * is whether anything inside the theme's root draws with a size. The root itself always has
+     * one, which is why it does not count. This used to be an element count over five, which
+     * failed slot's game - one full-bleed picture and its mask is a whole screen.
+     *
+     * A screen that is dark on the device says so with `data-screen-off` on its root: slot dozes
+     * with the panel off, and drawing something there to satisfy this would be the wrong screen.
+     */
+    const drawn = await screen.evaluate((el) => {
+      const root = el.querySelector('[data-theme]')
+      if (!root) return false
+      if (root.hasAttribute('data-screen-off')) return true
+      return [...root.querySelectorAll<HTMLElement>('*')].some((n) => {
+        const r = n.getBoundingClientRect()
+        return r.width > 0 && r.height > 0
+      })
+    })
+    expect(drawn).toBe(true)
   })
 
   test(`${id} keeps every control inside the body`, async ({ page }) => {

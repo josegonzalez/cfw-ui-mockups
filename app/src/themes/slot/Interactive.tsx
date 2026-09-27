@@ -4,6 +4,7 @@ import { useChromeKeys } from '../../input/InputProvider'
 import { SubsetPanel, type SubsetGroup } from '../../gallery/SubsetPanel'
 import { Slot } from '.'
 import { VIEWS, type HudKind } from './library'
+import { SHELF_SELECTED } from './manifest'
 import type { DeviceSlug } from '../../device/devices'
 
 const HUDS: readonly (HudKind | 'none')[] = ['none', 'volume', 'brightness', 'blueLight', 'rewind']
@@ -105,6 +106,7 @@ export function SlotInteractive({ device }: SlotInteractiveProps) {
         <Slot
           key={`${subsets.view}|${subsets.wallpaper}`}
           view={subsets.view}
+          selected={SHELF_SELECTED}
           hud={subsets.hud === 'none' ? null : subsets.hud}
           wallpaper={subsets.wallpaper}
         />

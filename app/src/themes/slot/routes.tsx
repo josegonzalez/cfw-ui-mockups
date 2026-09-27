@@ -26,7 +26,12 @@ export function slotRoutes(): ScreenRoute[] {
       ...entry,
       render: () => (
         <DeviceFrame device={entry.device} animate={false} interactive={false}>
+          {/*
+            Keyed by slug: the props only seed state, so moving between two stills without a remount
+            would keep the first one's phase and draw it under the second one's name.
+          */}
           <Slot
+            key={screen.slug}
             view={screen.view}
             selected={screen.selected ?? 0}
             seat={screen.seat}
