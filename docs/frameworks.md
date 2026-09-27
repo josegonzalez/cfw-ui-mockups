@@ -121,6 +121,8 @@ inference from the docs.
 | Two output panels, one application across both | no - one global window and renderer (`apostrophe.h:4680, 4699`) | no - one window on display 0 (`window.go:34, 83`) |
 | Touch input | absent - `FINGERDOWN`, `TouchFinger`, `MOUSEBUTTONDOWN` zero-hit | absent - same |
 | Per-texture scale mode (nearest for pixel art) | no - bilinear hinted globally (`apostrophe.h:4696`); `SetTextureScaleMode` zero-hit | no - `SetTextureScaleMode` zero-hit; SDL's default nearest for everything |
+| Textured geometry (arbitrary vertex quads, for per-card perspective) | absent - `RenderGeometry`, `Vertex` and `RenderCopyEx` zero-hit | absent - same |
+| Additive blending | absent - `BLENDMODE_BLEND` and `NONE` only | absent - same |
 
 Two details worth recording:
 
@@ -474,6 +476,74 @@ motion either framework would have to turn off, as for NextUI. Beyond that:
   frameworks' input layers, as for slot.
 - The cards, tiles and rows are rounded rects, which both draw natively.
 
+### TortOS
+
+Full spec: [`themes/tortos/reference/source-notes.md`](themes/tortos/reference/source-notes.md).
+
+> Assessed from the C source, `ericreinsmidt/TortOS` at `v1.0-3-g9b9c342`. Built as
+> `app/src/themes/tortos/`; [`porting/tortos.md`](porting/tortos.md) records the deviations.
+> Checked against Apostrophe at `5ed3f74` and gabagool at `895f493`.
+
+The closest of any set to what these frameworks are: a C launcher on SDL2, SDL_ttf and
+SDL_image, one font, one flat palette, and most of its screens a list in a panel over the
+shelf. What separates it is the shelf itself, which is drawn with textured geometry rather than
+copied rects. It also has motion on almost everything the player touches.
+
+Missing from both frameworks:
+
+- **Textured geometry.** Every coverflow card is 16 strips through `SDL_RenderGeometry`, projected
+  per card by `F / (F + z)` with `F` six half-widths (`src/coverflow.c:451-621`). The cube turns
+  two whole screens as 32 strips each (`cube_face`, 736). `RenderGeometry`, `Vertex` and
+  `RenderCopyEx` are zero-hit in both, so neither can even rotate a texture, let alone yaw one.
+- **A coverflow.** Seven cards, drawn far to near, with scale and alpha falling to a side value
+  one step out, three fit rules (contain, equal area, wide area), and reflections from where the
+  art's opaque pixels stop down to a shared floor (`draw_card`, 485). This is the carousel row,
+  absent in gabagool and a row of text pills in Apostrophe. The reflection row is absent in both.
+- **Two whole screens rendered offscreen and composited in 3D.** The cube draws each face into a
+  full-screen target (`face_tex`, `src/main.c:492`). Apostrophe never calls `SetRenderTarget`.
+  gabagool calls it only for its rotation canvas and an anti-aliased shape cache
+  (`internal/window.go:152`, `internal/helpers.go:394`).
+- **Additive blending.** Every glow - the bottom wash, the light behind the focused card, the
+  halo round each panel - is one texture tinted with `SetTextureColorMod`/`AlphaMod` and drawn with
+  `SDL_BLENDMODE_ADD` (`src/ui.c:63-86, 370-385`). Both frameworks use only `BLEND` and `NONE`
+  (`include/apostrophe.h:719, 4716`; `internal/helpers.go:410, 421`). `SetColorMod` is zero-hit
+  in both.
+- **A retargetable tween.** Each shelf move is a fixed-duration tween that restarts from wherever
+  the cards are drawn when a press arrives. A Cubic shelf also chases, never more than a step
+  behind. A move past eight cards is an accelerating departure that cuts to its destination
+  (`cf_set_cursor_dir`, `src/coverflow.c:234-327`). Three curves are named: ease-out cubic,
+  smoothstep and ease-in cubic. Named curves are zero-hit in both.
+- **Exponential chases.** The background tint, `1 - e^(-9 dt)` landing within 12 per channel
+  (`tick_tint`, `src/main.c:3154`), and the menu plate, two chained decays at 22ms (3780-3861).
+  Apostrophe's 50ms linear pill lerp is the nearest thing in either framework.
+- **Concurrent tracks on one interaction.** One press moves the shelf, the rail marker and the
+  tint together. Stood on end, it also crossfades the system's name on the move's linear clock
+  (`cf_label`, 329). Both frameworks animate at most one property of one widget.
+- **A panel over a live shelf.** Every menu draws the shelf, a dim and then its panel, and the
+  tint keeps moving behind the panel while it is open (`menu_run_body`, `src/main.c:4554-4562`).
+  This is the composition blocker in its smallest form.
+- **Arbitrary sizes of one face.** Josefin Sans opens at 60, 49, 55, 37, 71 and 560
+  (`src/ui.c:35-42, 797`). Both frameworks fix six tiers.
+
+Maps today:
+
+- Most of the screen count. Wi-Fi, Bluetooth, Play Time, About, Controls, the system menu, game
+  details and the in-game menu are label-left, value-right lists with values cycled in place. That
+  is `ap_options_list` (`include/apostrophe_widgets.h:170`) or gabagool's `OptionList`. The forget
+  prompt is `ap_confirmation` (213) or `confirmation_message.go`.
+- The sign-in and Wi-Fi password keyboard is `ap_keyboard` (`apostrophe_widgets.h:186`) or
+  `Keyboard` (`pkg/gabagool/keyboard.go:715`). TortOS's is ten keys by four rows with shift and
+  symbol layers, which both cover.
+- Both frameworks have a ping-pong marquee with a pause at each end: `ap_text_scroll_update`
+  (`include/apostrophe.h:3094`) and `listController.updateScrollData`
+  (`pkg/gabagool/list.go:1035`). TortOS's is 70px/s with 1.4s and 0.9s holds and faded edges.
+  Apostrophe's steps a fixed pixel per update, so it would need timing by `dt`.
+- "..." truncation is `ap_draw_text_ellipsized` (`apostrophe_widgets.h:1377`) or gabagool's
+  `list.go:1132`, both using three full stops as TortOS does. Rounded rects, the panel's border
+  and the plate are native in both.
+- Held-button repeat (300ms, then 90ms) is both frameworks' input layer. TortOS has no chords to
+  ask for.
+
 ## What a port would have to add
 
 Common to both, and in rough dependency order:
@@ -485,7 +555,8 @@ Common to both, and in rough dependency order:
    per-property delays, concurrent tracks, and restart-on-event. Alongside it, a **velocity-carrying
    integrator**: slot's shelf is a critically damped spring with no duration at all, and a tween
    system cannot express one.
-3. Render-to-texture as a public facility, for screen transitions and blur.
+3. Render-to-texture as a public facility, for screen transitions, blur and TortOS's cube,
+   with textured geometry and additive blending beside it.
 4. Image fit modes (contain with box-shrink-to-image, cover with centre crop, stretch,
    derive-one-axis-from-aspect) with public alpha and tint.
 5. Arbitrary font sizes and families, with the face's line metrics exposed.
