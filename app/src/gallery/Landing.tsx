@@ -47,11 +47,13 @@ function ThemeCard({ theme }: { theme: ThemeEntry }) {
           ))}
         </ul>
 
-        <div className="gal-swatches" role="img" aria-label={`${theme.name} palette`}>
-          {theme.swatches.map((hex) => (
-            <span key={hex} className="gal-swatch" style={{ background: hex }} />
-          ))}
-        </div>
+        {theme.swatches.length > 0 ? (
+          <div className="gal-swatches" role="img" aria-label={`${theme.name} palette`}>
+            {theme.swatches.map((hex) => (
+              <span key={hex} className="gal-swatch" style={{ background: hex }} />
+            ))}
+          </div>
+        ) : null}
 
         <div className="gal-card__meta">
           <span className="gal-chip gal-chip--status">

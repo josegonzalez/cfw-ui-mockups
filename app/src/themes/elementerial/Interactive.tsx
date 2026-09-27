@@ -136,7 +136,7 @@ export function ElementerialInteractive({ device }: ElementerialInteractiveProps
       onSelect: (value) => setSubsets((prev) => toView(prev, value as ElementerialView)),
     },
     {
-      title: 'Colour scheme',
+      title: 'Color Scheme',
       keys: ', .',
       current: subsets.scheme,
       options: SCHEME_IDS.map((id) => ({ value: id, label: id })),

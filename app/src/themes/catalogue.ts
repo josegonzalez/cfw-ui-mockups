@@ -30,7 +30,7 @@ export interface ThemeEntry {
   readonly preview: string
   readonly previewAlt: string
   readonly accent: string
-  /** Representative colours from the set's own palette. */
+  /** Representative colours from the set's own palette. Empty for a set with no palette. */
   readonly swatches: readonly string[]
   readonly views: number
   readonly devices: readonly DeviceSlug[]
@@ -78,7 +78,8 @@ export const THEMES: readonly ThemeEntry[] = [
     preview: playstationXPreview,
     previewAlt: 'PlayStation X game list: a tile row over a character cutout and game metadata',
     accent: '#0070d1',
-    swatches: ['#0070d1', '#003791', '#F3C300', '#00AD9E', '#F2001A', '#666666'],
+    // The two colorsets and nothing else: each one's menu selector gradient, blue then black.
+    swatches: ['#0070d1', '#003791', '#2d2828', '#000000'],
     views: 11,
     devices: ['rg34xx', 'rg35xx', 'rg552', 'trimui-smart-pro'],
     fonts: ['SST'],
@@ -146,8 +147,8 @@ export const THEMES: readonly ThemeEntry[] = [
     preview: slotPreview,
     previewAlt: 'slot shelf: three GBA cartridges on a row, the middle one full size above an empty slot',
     accent: '#249c60',
-    // The shell table's own colours, which are the only thing that varies between carts.
-    swatches: ['#c2332e', '#2f5cc0', '#249c60', '#d85224', '#63b044', '#c6c6c9', '#35353a'],
+    // No palette to show: slot has none, and its cart shell colours are not one.
+    swatches: [],
     views: 7,
     devices: ['rg-sp'],
     fonts: ['Open Sans'],

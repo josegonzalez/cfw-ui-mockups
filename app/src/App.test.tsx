@@ -22,7 +22,10 @@ describe('landing page', () => {
     for (const theme of THEMES) {
       const card = screen.getByRole('article', { name: theme.name })
       expect(within(card).getByAltText(theme.previewAlt)).toBeInTheDocument()
-      expect(within(card).getByRole('img', { name: `${theme.name} palette` })).toBeInTheDocument()
+      const palette = within(card).queryByRole('img', { name: `${theme.name} palette` })
+      // A set with no palette shows no strip, rather than an empty one.
+      if (theme.swatches.length > 0) expect(palette).toBeInTheDocument()
+      else expect(palette).not.toBeInTheDocument()
       expect(within(card).getByText(theme.summary)).toBeInTheDocument()
     }
   })

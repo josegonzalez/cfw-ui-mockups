@@ -90,7 +90,7 @@ export function NextUiInteractive({ device }: NextUiInteractiveProps) {
       onSelect: (value) => setSubsets((p) => ({ ...p, view: value })),
     },
     {
-      title: 'Palette',
+      title: 'Color Scheme',
       keys: ', .',
       current: subsets.palette,
       options: PALETTES.map((p) => ({ value: p.id, label: p.name })),

@@ -119,7 +119,7 @@ export function VitroLauncherInteractive({ device }: VitroLauncherInteractivePro
       onSelect: (value) => setSubsets((p) => ({ ...p, theme: value as BackgroundTheme })),
     },
     {
-      title: 'Colour',
+      title: 'Color Scheme',
       keys: ', .',
       current: String(subsets.color),
       options: COLORS.map((c, i) => ({ value: String(i), label: c.l })),

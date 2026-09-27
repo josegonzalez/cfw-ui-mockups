@@ -264,7 +264,7 @@ describe('Elementerial interactive', () => {
   it('offers every subset on the panel below the device', () => {
     render(<ElementerialInteractive device="rg35xx" />)
 
-    for (const group of ['View', 'Colour scheme', 'Style', 'Font size', 'Grid direction', 'System']) {
+    for (const group of ['View', 'Color Scheme', 'Style', 'Font size', 'Grid direction', 'System']) {
       expect(screen.getByRole('group', { name: group })).toBeInTheDocument()
     }
   })
