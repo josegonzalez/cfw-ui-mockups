@@ -7,6 +7,8 @@ import { hasSettingsFrame } from './assets'
 import { CHANNELS, FILLED, GRID, SLOTS } from './library'
 import { DEFAULT_PREFS, dayLabel, initialState, reduce, settle, top, type State, type View } from './machine'
 import { WII_MENU_SCREENS } from './manifest'
+import { compileStoryboard, restingValues } from '../../anim/compile'
+import { loop } from './views/parts'
 
 const press = (s: State, ...buttons: Button[]) => buttons.reduce((acc, b) => settle(reduce(acc, b)), s)
 const menu = () => initialState({ events: 'a' })
@@ -183,6 +185,49 @@ describe('Wii Menu machine', () => {
     }
     expect([...missing]).toEqual([])
     expect(seen.size).toBeGreaterThan(100)
+  })
+})
+
+describe('Wii Menu loops', () => {
+  const ctx = { w: 640, h: 480 }
+  const sb = loop(1000, { opacity: [[0, 1], [400, 1], [600, 0], [1000, 1]] })._!
+
+  it('spans the whole period on every channel, so the group stays in step', () => {
+    for (const track of compileStoryboard(sb, ctx)) {
+      expect(track.timing.duration).toBe(1000)
+      expect(track.timing.iterations).toBe(Infinity)
+    }
+  })
+
+  it('rests on its first breakpoint, and an offset starts it later in the cycle', () => {
+    expect(restingValues(sb, ctx).get('opacity')).toBe(1)
+    const turned = loop(1000, { opacity: [[0, 1], [400, 1], [600, 0], [1000, 1]] }, 500)._!
+    expect(restingValues(turned, ctx).get('opacity')).toBeCloseTo(0.5)
+    expect(compileStoryboard(turned, ctx)[0]!.timing.duration).toBe(1000)
+  })
+})
+
+describe('Wii Menu transitions', () => {
+  it('shows the boot label once the menu is up, and a still settles past it', () => {
+    const black = { ...reduce(initialState(), 'a'), boot: 'black' as const }
+    expect(settle(black).bootLabel).toBe(false)
+    expect(top(settle(black)).kind).toBe('menu')
+  })
+
+  it('fades the menu out before Wii Options and the SD Card Menu open', () => {
+    const bar = press(menu(), 'down', 'down', 'down')
+    const options = reduce(bar, 'a')
+    expect([top(options).kind, options.pending?.kind]).toEqual(['menu', 'options'])
+    expect(top(settle(options)).kind).toBe('options')
+    const sd = reduce(press(bar, 'right'), 'a')
+    expect(sd.pending?.kind).toBe('sd')
+    // The SD Card Menu opens on its loading box; a still settles past it.
+    expect(settle(sd).sdLoading).toBe(false)
+  })
+
+  it('marks a preview reached with - or + as stepped', () => {
+    expect(top(press(menu(), 'a'))).not.toHaveProperty('stepped')
+    expect(top(press(menu(), 'a', 'start'))).toMatchObject({ stepped: true })
   })
 })
 

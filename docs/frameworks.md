@@ -732,9 +732,9 @@ missing animation system are most of the gap.
 Missing from both frameworks:
 
 - **A paged grid that slides.** Four pages of 4x3 slots side by side, the neighbouring pages' edge
-  columns showing, sliding 512px in 334ms. Grid and tween are both absent.
+  columns showing, sliding 512px in 333ms. Grid and tween are both absent.
 - **A panel that grows out of a slot.** The preview scales from the 120x90 slot to 585x439 while the
-  grid fades to black, then reverses on Wii Menu. That is a composed panel drawn scaled, which needs
+  grid behind swells towards the slot and fades to black, then reverses on Wii Menu. That is a composed panel drawn scaled, which needs
   render to texture: Apostrophe never calls `SetRenderTarget`, and gabagool only internally. The
   panel also clips its banner to rounded corners; `RenderSetClipRect` is rectangular in Apostrophe
   and zero-hit in gabagool, and a rounded clip is zero-hit in both.
@@ -743,9 +743,13 @@ Missing from both frameworks:
   their screens. The dim itself is no gap - both fill with alpha (`ap_fade_draw`,
   `include/apostrophe.h:712`; `pkg/gabagool/list.go:191`) - but keeping anything drawn beneath it
   is the composition blocker.
-- **Motion on named curves, several tracks at once, some looping.** The HOME Menu's bars slide in
-  217ms while the screen dims, Settings pages slide 400ms while the arriving page brightens, the page
-  arrows bob, empty slots cycle four static frames and the Health & Safety prompt pulses. Named curves and looping tracks are zero-hit in both.
+- **Motion on named curves, several tracks at once, many looping.** The HOME Menu's bars slide in
+  217ms while the screen dims, Settings pages slide 233ms while the arriving page brightens, a
+  chosen tile flashes and flies into the title tab, dialogs slide up from the bottom edge. Every
+  stock channel's icon loops on its own 6-17s cycle of cross-fades and slides - the Disc Channel's
+  turning edge-on and back - alongside the page arrows' bob, the clock's blinking colon, the empty
+  slots' static and the Health & Safety prompt. Named curves and looping tracks are zero-hit in
+  both.
 - **Text from 10px to 38px in three weights**, one family. Both have six fixed tiers, and Apostrophe
   loads every face bold.
 

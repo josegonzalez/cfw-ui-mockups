@@ -38,17 +38,21 @@ value and where it came from.
 - **Three screens are arranged, not measured.** Wii Options, the SD Card Menu and the Message Board
   appear only in 16:9 recordings, so their 4:3 positions are derived: they sit on the Wii Menu's own
   grid and bar, and on the Settings pages' ground and Back button.
-- **The zoom's grid does not swell.** As the preview opens, the real grid behind it scales up
-  towards the slot while it darkens; here it only darkens.
 - **Closing the HOME Menu is immediate.** Its opening was measured; its closing was not.
-- **Leaving a tile screen by Back** fades straight to the screen behind; the recording shows only a
-  tile being chosen.
-- **The Health & Safety prompt shows at once.** On the console it appears after a few seconds.
-- **Motion is timed from System Menu 1.0.** The only 60fps recording that shows most transitions
-  (`v1` in the source notes) is of 1.0, not 4.3. Where a 4.3 recording also shows a transition - the
-  zoom, the arrows' bob - the two agree to within its frame.
-- **Wii Options' tiles grow in whenever it opens.** The recording shows a tile screen's tiles growing
-  out of its title tab when returning to one; the port plays it on the way in from the menu too.
+- **Leaving a tile screen by Back** fades straight to the screen behind; `v43` was not measured for
+  it.
+- **Health & Safety is white.** A console recording of 4.3 (`v43`) shows the sign and the address
+  white; the Dolphin recording shows them yellow and blue. The set follows the console.
+- **The loading black before Wii Settings is left out.** The console holds black for about four
+  seconds while it loads Settings; the port goes straight to the fade up.
+- **The SD Card Menu shows its loading box with no card.** The console reads the card behind it;
+  the port has none to read, so only the box and its timing are reproduced.
+- **Icon loops are rebuilt, not replayed.** Each stock icon's loop is its own animated title on the
+  console. The port rebuilds each from the channel's WM4K pieces with the measured timings. WM4K has
+  no WiiConnect24 icon, so Everybody Votes and Check Mii Out draw one; the Internet Channel's wipe
+  is its letters fading in one by one; the Wii Shop's tiles are the pack's card texture, pale.
+- **Wii Options and Data Management keep their earlier arrangement.** `v43` shows both in 4:3, with
+  larger tiles than the port's; their motion follows it, their layout has not yet been held to it.
 - **The SD Card Menu's About dialog has two pages.** The first is the one its help button opens;
   the second is the one the first-run introduction ends on.
 - **The Wii Number is made up**, so no still carries a real console's.
@@ -79,6 +83,10 @@ value and where it came from.
 - **The live build** driven with the keyboard through the boot, the highlight, a page turn, a zoom
   in and out, the HOME Menu, Wii Options and a Settings page turn, with frames captured
   mid-transition and the arrows' offset sampled through a cycle.
-- **Every transition's timing** held to the frame counts in the source notes' Motion table.
+- **Every transition's timing** held to the frame counts in the source notes' Motion table, from a
+  60fps recording of 4.3.
+- **The live build** sampled through a tile's flight, the disc's turn, the colon's blink and a
+  dialog's slide, reading the element's computed style frame by frame, and captured mid-transition
+  beside `frames/43/`.
 - **Every reachable Settings state has its frame**, checked by walking the machine in
   `wii-menu.test.tsx`.

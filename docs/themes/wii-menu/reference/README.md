@@ -7,6 +7,7 @@ The recordings are listed in `source-notes.md`, with the id each note cites.
 | --- | --- |
 | `source-notes.md` | Every measured value, texture and quoted string, each citing its recording, texture or article |
 | `frames/*.png` | Frames of the 4:3 recordings (`tv`, `dolphin`), the Wii's 608x456 picture cut out and placed 1:1 at (16, 12) in 640x480, as the console's signal carries it |
+| `frames/43/*.png` | Frames of `v43`, a 4:3 recording of 4.3 at 60fps, its 608x456 picture placed 1:1 at (16, 12) in 640x480: the hover states and the midpoints of the transitions |
 | `frames/widescreen/*.png` | Frames of the 16:9 recordings (`showcase`), squeezed to 640x480; only what they show is used, not where |
 | `extract-assets.py` | Copies the selected WM4K textures into `app/src/themes/wii-menu/assets/` at their native size |
 | `build-fonts.sh` | Fetches M PLUS 1p and cuts it to Latin |
@@ -24,6 +25,12 @@ The recordings are listed in `source-notes.md`, with the id each note cites.
 | `home-menu.png` | `dolphin` 117s, over a game |
 | `widescreen/sd-card-menu.png`, `widescreen/sd-about.png` | `showcase` 32s, 34s |
 | `widescreen/board-create.png`, `widescreen/board-address-book.png` | `showcase` 66s, 70s |
+| `43/health.png`, `43/menu-boot-label.png`, `43/menu.png` | `v43` 3.5s, 11.0s, 34.5s |
+| `43/zoom-in-mid.png`, `43/zoom-in-landed.png`, `43/preview-disc.png` | `v43` 36.25s, 36.55s, 38.0s |
+| `43/step-background.png`, `43/preview-wii-menu-hover.png`, `43/zoom-out-mid.png` | `v43` 53.1s, 85.6s, 86.02s |
+| `43/sd-loading.png`, `43/wii-button-hover.png`, `43/options.png` | `v43` 236.4s, 281.3s, 285.6s |
+| `43/options-choose.png`, `43/data-tab.png`, `43/data-management.png` | `v43` 287.1s, 287.55s, 288.3s |
+| `43/settings.png`, `43/settings-turn-mid.png`, `43/dialog-mid.png` | `v43` 313.35s, 366.8s, 407.75s |
 
 The recordings carry the console's own interface; the frames are kept only as the reference each
 still is compared with.

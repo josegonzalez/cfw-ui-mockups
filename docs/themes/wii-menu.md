@@ -45,24 +45,35 @@ RG35XX's panel is that signal, so the port draws the frame 1:1 at (16, 12) and s
 
 ## Motion
 
+Timed from a 60fps recording of 4.3 (`v43` in the source notes), which has the frame counts.
+
 | What | How |
 | --- | --- |
-| Health & Safety to the menu | fades to black, 467ms linear; black for 900ms while the menu loads; the menu fades up, 317ms linear |
-| Health & Safety prompt | pulses to nothing and back, 950ms a cycle |
-| Page turn | the grid slides 512px, 334ms, decelerating |
-| Highlight | the slot's cyan rim eases in, 100ms; its name bubble appears 400ms after |
+| Health & Safety | the prompt first shows 1.93s in, then pulses to nothing and back once a second |
+| Health & Safety to the menu | fades to black, 400ms; black for 2.4s while the menu loads; the menu fades up, 300ms linear |
+| After boot | "Wii Menu" stands in the clock's place, cyan, for 3.67s, then cross-fades to the clock (200ms) |
+| Clock | the colon blinks, a second on and a second off |
+| Page turn | the grid slides 512px, 333ms, decelerating |
+| Highlight | the slot's cyan rim eases in, 100ms; its name bubble appears 367ms after |
+| Hover | a bar or preview button grows 8% in 50ms, its rim unchanged |
 | Page arrows | bob inward two pixels and back, 900ms a cycle, on every screen that has them |
-| Grid to preview | the slot grows into the panel while the grid fades to black, 467ms, the banner fading up over the last 133ms |
-| Preview to grid | the panel shrinks back into its slot with its banner, the grid fading in behind, 467ms |
+| Channel icons | each stock icon loops, 6 to 16.7s a cycle - see the source notes |
+| Grid to preview | the panel grows out of its slot, 417ms easing in and out, as the grid swells 1.5x towards it and darkens (400ms); the banner's content fades up once it lands (333ms) |
+| Preview to grid | the panel shrinks into its slot with its banner (333ms), the grid unswelling and brightening from 167ms in (300ms) |
+| Preview step | the next banner's background at once, its content fading up after 333ms (200ms) |
 | HOME Menu | its bars slide in from the top and bottom while the screen dims, 217ms |
-| Wii Options' tiles | grow out of the title tab, 267ms, the second 67ms after the first |
-| Choosing a tile | the other fades, 100ms; the chosen one flies into the tab, 200ms; the screen fades to black, 333ms |
-| Settings page turn | the page slides out and the next in, 400ms, the arriving page brightening from dim |
+| Menu to Wii Options or the SD Card Menu | the menu fades to black, 333ms |
+| Wii Options | 200ms black, the ground over 500ms, the tiles over 250ms |
+| Choosing a tile | it flashes white while the other darkens (167ms), then flies into the title tab (200ms); Wii Settings follows through black (333ms); Data Management grows its name out of the tab (133ms) and fades its tiles up (167ms) |
+| Wii Settings | a page fades up from black over 250ms; a page turn slides in 233ms while the arriving page brightens (333ms) |
+| SD Card Menu | black 283ms, fades up 283ms, "Loading from the SD Card..." for 1.35s |
+| Dialogs | slide up from the bottom edge, decelerating, 233ms, the screen dimming behind |
 | Every other screen change | the new screen fades up, 283ms |
 | Empty slots | WM4K's four static frames, cycling |
 
-Each has a resting value, so a still is the live build with motion off. The static rests on its
-first frame, the prompt at full strength, the arrows in place and the bubble shown.
+Each has a resting value, so a still is the live build with motion off: the static on its first
+frame, the prompt and colon shown, the arrows in place, the bubble shown, every icon loop on the
+picture that stands for its channel, and no boot label or loading box.
 
 ## Colour
 
@@ -100,7 +111,7 @@ or drawn. Credits are in `app/src/themes/wii-menu/assets/SOURCE.md`.
 
 | File | Job |
 | --- | --- |
-| `index.tsx` | the root: state, the clocks that finish the boot, the zoom and a tile's exit, the screen and the HOME Menu over it |
+| `index.tsx` | the root: state, the clocks that finish the boot, its label, the zoom, each screen's exit and the SD loading box, the screen and the HOME Menu over it |
 | `machine.ts` | the view stack and every button as a pure reducer |
 | `layout.ts`, `palette.ts`, `motion.ts` | geometry, colours and durations, each with where it was measured |
 | `library.ts`, `assets.ts` | the channels, the clock and date, and asset lookup |

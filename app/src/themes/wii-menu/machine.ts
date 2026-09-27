@@ -28,7 +28,8 @@ export type BoardFocus = 'calendar' | 'create' | 'wii'
 export type View =
   | { readonly kind: 'health' }
   | { readonly kind: 'menu' }
-  | { readonly kind: 'preview'; readonly slot: number; readonly focus: 'menu' | 'start' }
+  /** `stepped`: reached with - or + from another preview, rather than grown out of the grid. */
+  | { readonly kind: 'preview'; readonly slot: number; readonly focus: 'menu' | 'start'; readonly stepped?: boolean }
   | { readonly kind: 'running'; readonly slot: number }
   | { readonly kind: 'options'; readonly focus: 0 | 1 | 'back' }
   | { readonly kind: 'data'; readonly focus: 0 | 1 | 'back' }
@@ -88,8 +89,15 @@ export interface State {
    * menu loads (`black`), then the menu fades up. Null once it has.
    */
   readonly boot: 'out' | 'black' | null
-  /** A screen waiting for the one showing to finish its exit - Wii Options' chosen tile flying off. */
+  /**
+   * A screen waiting for the one showing to finish its exit: the Wii Menu fading to black, or Wii
+   * Options' chosen tile flying off.
+   */
   readonly pending: View | null
+  /** "Wii Menu" standing in the clock's place just after boot. */
+  readonly bootLabel: boolean
+  /** The SD Card Menu's "Loading from the SD Card..." box, just after it opens. */
+  readonly sdLoading: boolean
 }
 
 /** The Wii's own defaults for a console set up for a 4:3 television. */
@@ -129,6 +137,8 @@ export function initialState(seed: Seed = {}): State {
     resets: 0,
     boot: null,
     pending: null,
+    bootLabel: false,
+    sdLoading: false,
   }
   for (const ch of seed.events ?? '') {
     const button = LETTERS[ch]
@@ -140,23 +150,39 @@ export function initialState(seed: Seed = {}): State {
 
 export const top = (s: State): View => s.stack[s.stack.length - 1]!
 
-/** Every transition finished: what a still shows, and what the root's clocks arrive at. */
-export function settle(s: State): State {
+/** One step of settling: the next transition in line, finished. */
+function settleStep(s: State): State {
   if (s.boot !== null) return finishBoot(s)
   if (s.pending !== null) return finishPending(s)
   if (s.zoom === 'enter' || s.zoom === 'opening') return { ...s, zoom: 'open' }
   if (s.zoom === 'leave') return finishLeave(s)
+  if (s.bootLabel || s.sdLoading) return { ...s, bootLabel: false, sdLoading: false }
   return s
 }
 
-/** The black between Health & Safety and the menu is over: the menu is showing. */
-export function finishBoot(s: State): State {
-  return { ...s, boot: null, stack: [{ kind: 'menu' }] }
+/**
+ * Every transition finished: what a still shows, and what the root's clocks arrive at. One
+ * transition can lead to another - the menu's boot shows its label, the SD Card Menu opens on its
+ * loading box - so this runs until nothing is left moving.
+ */
+export function settle(s: State): State {
+  let next = settleStep(s)
+  while (next !== s) {
+    s = next
+    next = settleStep(s)
+  }
+  return s
 }
 
-/** The exit has played: the waiting screen is showing. */
+/** The black between Health & Safety and the menu is over: the menu is showing, labelled. */
+export function finishBoot(s: State): State {
+  return { ...s, boot: null, stack: [{ kind: 'menu' }], bootLabel: true }
+}
+
+/** The exit has played: the waiting screen is showing. The SD Card Menu opens loading. */
 export function finishPending(s: State): State {
-  return s.pending ? { ...s, pending: null, stack: [...s.stack, s.pending] } : s
+  if (!s.pending) return s
+  return { ...s, pending: null, stack: [...s.stack, s.pending], sdLoading: s.pending.kind === 'sd' }
 }
 
 /** The preview has shrunk back into its tile: it is gone, and the grid is showing. */
@@ -256,8 +282,9 @@ function menu(s: State, button: Button): State {
     case 'up':
       return { ...s, focus: { area: 'grid', slot: 2 * COLS + (f.item === 'wii' ? 0 : f.item === 'sd' ? 1 : COLS - 1) } }
     case 'a':
-      if (f.item === 'wii') return push(s, { kind: 'options', focus: 1 })
-      if (f.item === 'sd') return push(s, { kind: 'sd', page: 0, dialog: 0, focus: 'wii' })
+      // Wii Options and the SD Card Menu open once the menu has faded to black.
+      if (f.item === 'wii') return { ...s, pending: { kind: 'options', focus: 1 } }
+      if (f.item === 'sd') return { ...s, pending: { kind: 'sd', page: 0, dialog: 0, focus: 'wii' } }
       return push(s, { kind: 'board', day: 0, focus: 'wii' })
     default:
       return s
@@ -276,7 +303,7 @@ function preview(s: State, button: Button, v: Extract<View, { kind: 'preview' }>
   const step = (by: number) => {
     const at = FILLED.indexOf(v.slot)
     const slot = FILLED[(at + by + FILLED.length) % FILLED.length]!
-    return replace(showSlot(s, slot), { kind: 'preview', slot, focus: 'menu' })
+    return replace(showSlot(s, slot), { kind: 'preview', slot, focus: 'menu', stepped: true })
   }
   switch (button) {
     case 'l':

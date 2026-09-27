@@ -13,7 +13,8 @@ quoted from a published description, and each says which.
 | `setup` | [Nintendo Wii - Initial System Setup and New Menu Tour 2025](https://www.youtube.com/watch?v=KzORmt_gWDA), 1280x720 at 59.94fps, 16:9 | the Settings page turn and cross-fade, the Message Board calendar |
 | `showcase` | The WM4K showcase recording linked from the pack's README, 1920x1080, 16:9 | the SD Card Menu, its About dialog, the Message Board, Wii Options |
 | `sd-intro` | [PC/ROG Ally - Install The Wii System Menu On Dolphin Emulator](https://www.youtube.com/watch?v=WUJeCy6QP8Q), 16:9 | the SD Card Menu's first-run text |
-| `v1` | [The Original Wii Menu (v1.0)](https://www.youtube.com/watch?v=EOZxJue_N6s), 1280x720 at 60fps, the 4:3 picture stretched to 16:9 | every transition's timing but the page turn and the HOME Menu |
+| `v43` | [Wii System Menu Demonstration (4:3)](https://www.youtube.com/watch?v=9iT7IgLAgPc), 960x720 at 60fps, the 608x456 picture filling the frame | every transition's timing, hover states, the channel icons' loops, the clock's colon |
+| `v1` | [The Original Wii Menu (v1.0)](https://www.youtube.com/watch?v=EOZxJue_N6s), 1280x720 at 60fps, the 4:3 picture stretched to 16:9 | the highlight's ease and the arrows' bob, which `v43` agrees with |
 | `WM4K` | [Alan-bur/WM4K](https://github.com/Alan-bur/WM4K) at `b04bd27`, `0000000100000002/USA/` | every texture the port draws; the Settings pages |
 | `wikipedia` | [Wii system software](https://en.wikipedia.org/wiki/Wii_system_software), Wii Menu and Home Menu sections | the grid's size, the HOME Menu's buttons |
 
@@ -32,27 +33,56 @@ Every position below is a pixel of that 608x456 frame: a `tv` measurement with (
 
 ## Motion
 
-Timed frame by frame in `v1`, at 60fps, from the change between consecutive frames. `v1` is System
-Menu 1.0, not 4.3; where `tv` or `dolphin` also show a transition, the two agree.
+Timed frame by frame in `v43`, a 60fps recording of 4.3, from the change between consecutive
+frames, brightness traces and the extents of moving panels. Earlier recordings are cited only where
+`v43` does not show a transition: the HOME Menu (`dolphin`) and the Message Board.
 
 | Transition | Frames | Where |
 | --- | --- | --- |
-| Health & Safety fading to black, near linear | 28, 467ms | 4.70-5.17s |
-| Black while the menu loads | 54, 900ms | 5.17-6.07s |
-| The menu fading up, linear | 19, 317ms | 6.07-6.40s |
-| The prompt's pulse, to nothing and back | 57 a cycle, 950ms | 0.5-4.7s |
-| Grid to preview: the panel grows while the grid fades to black | 28, 467ms | 18.83s, 22.47s |
-| The banner and buttons fading up, over the zoom's end | 8, 133ms | 19.2-19.3s |
-| Preview to grid: the panel shrinks with its banner, the grid fading in | 28, 467ms | 21.12s, 124.72s |
-| The highlight's rim easing in | about 6, 100ms | 21.8s |
-| The name bubble appearing after the pointer settles | 24-28, 400-467ms | 21.8-22.2s |
-| The page arrows bobbing inward 2 of the Wii's pixels and back, both together | 54 a cycle, 900ms | 19.6-21.1s, 23-26s |
-| Wii Options: the other tile fading, the chosen one flying into the title tab, the screen fading to black | 6, 12 and 20: 100, 200 and 333ms | 147.7-148.45s |
-| A tile screen's tiles growing out of the title tab, one after the other | 16, 267ms, 4 apart | 144.95s, 146.5s |
-| A Settings page turn, the incoming page brightening from dim | 16 to land, 24 to rest: 400ms | 155.73s |
+| Health & Safety: the prompt first shows | 116, 1.93s | 1.93s |
+| The prompt's pulse: rise, hold, fall, off | 24, 8, 20, 8 - a second | 2.0-7.0s |
+| Health & Safety fading to black, near linear | 24, 400ms | 6.78-7.17s |
+| Black while the menu loads | 145, 2.42s | 7.17-9.58s |
+| The menu fading up, linear | 18, 300ms | 9.58-9.88s |
+| "Wii Menu", cyan, in the clock's place, then cross-fading to the clock | 220 then 12: 3.67s, 200ms | 9.58-13.45s |
+| The clock's colon: on, off, switching over 4 frames | 60 each, a 2s cycle | 15.0-19.0s |
+| The grid's page turn, decelerating | 20, 333ms | 137.57s |
+| Grid to preview: the panel grows out of its slot, easing in and out | 25, 417ms | 36.13-36.55s |
+| The grid behind swelling 1.5x towards the slot and darkening to black | 24, 400ms | 36.10-36.50s |
+| The banner's content fading up once the panel has landed; band and buttons there throughout | 20, 333ms | 36.58-36.92s |
+| Preview to grid: the panel shrinking into its slot, banner and all | 20, 333ms | 85.85-86.18s |
+| The grid unswelling and brightening, from 10 frames into the shrink | 18, 300ms | 86.00-86.30s |
+| Stepping to the next channel: its background at once, its content after 20 frames | 20 then 12: 333, 200ms | 52.97-53.50s |
+| A preview button growing 8% under the pointer, rim unchanged | 3, 50ms | 85.48-85.55s |
+| The Wii button growing under the pointer; its name bubble 20-24 frames later | 3; 367ms | 280.9s |
+| The Wii Menu fading to black to open Wii Options or the SD Card Menu | 20, 333ms | 281.40s, 234.85s |
+| Wii Options coming up: black, the ground, then the tiles | 12, 30, 15: 200, 500, 250ms | 281.75-282.70s |
+| Choosing a tile: it flashes white while the other darkens, then shrinks into the title tab | 10, 12: 167, 200ms | 287.0-287.4s |
+| To Wii Settings: the screen fading to black after the flight | 20, 333ms | 308.3-308.65s |
+| To Data Management: its name growing out of the tab, its tiles fading up after 10 empty frames | 8, 10: 133, 167ms | 287.4-287.9s |
+| A Settings page fading up from black, accelerating | 15, 250ms | 313.20-313.45s |
+| A Settings page turn: the slide, easing in and out, and the arriving page brightening | 14, 20: 233, 333ms | 366.70-367.05s |
+| The SD Card Menu: the menu to black, black, the SD Card Menu up, "Loading from the SD Card..." | 20, 17, 17, 81: 333, 283, 283, 1350ms | 234.85-237.45s |
+| A dialog sliding up from the bottom edge, decelerating; its top 335, 293, 253 ... 66, 65, 64 | 14, 233ms | 407.62-407.85s |
 
-The capture card (`tv`) measures the zoom at 15 frames at 29.97fps (500ms) and bobs the grid's
-arrows by the same two pixels at about the same rate; `v1` is the finer of the two.
+Where `v1` (1.0) differs - a longer zoom with the banner fading in before the panel lands, no
+swell, a slower pulse, tiles growing out of the tab - 4.3 is what the set follows.
+
+### The channel icons
+
+Each stock channel's icon loops on the grid (`v43` 10.5-33s for page 1, 138-146s and 219-230s for
+page 2). Periods are measured between repeats of the same change.
+
+| Icon | Cycle | What moves |
+| --- | --- | --- |
+| Disc Channel | 6.0s | the disc turns once about its vertical axis, over 1.1s (15.53s, 21.53s, 27.52s) |
+| Mii Channel | 13.35s | the faces hold 5.85s, cross-fade to the Mii logo over 0.8s, the logo holds 5.95s, and back over 0.75s |
+| Photo Channel | 12.67s | the icon fades to bare cork (0.5s), three photos slide in 0.83s apart, the label fades up 1.37s later (0.5s), and all hold 7.84s |
+| Wii Shop Channel | 10.33s | the tiles fade up one by one over 2.8s, the bag over the last 0.67s, all hold 3.72s, fade over 1.5s, and it is blank 2.3s |
+| Internet Channel | 16.68s | "Internet Channel" holds, fades (0.25s); "i" alone 1.8s; "internet" wipes in (0.97s) and holds 4.73s; it cross-fades back (0.87s) |
+| Everybody Votes, Check Mii Out | 8.0s | the logo 3.5s, a blank, the WiiConnect24 icon 2.5s, a blank; Check Mii Out runs 0.65s behind |
+| Forecast Channel | 6.57s | "Forecast Channel" 2.5s, cross-fading (0.33s) with the weathernews logo, 3.4s |
+| News, Nintendo | - | still |
 
 ## The Wii Menu
 
@@ -155,13 +185,17 @@ for 4:3; the port keeps what is arranged and how, on the grid and bar it shares 
 
 ## Health & Safety
 
-From `dolphin` 13s (`frames/health-safety.png`): white bold capitals on black.
+From `v43` 3.5s (`frames/43/health.png`) and `dolphin` 13s (`frames/health-safety.png`): white bold
+capitals on black.
 
-- "WARNING-HEALTH AND SAFETY" with a yellow warning sign.
+- "WARNING-HEALTH AND SAFETY" with a warning sign.
 - "BEFORE PLAYING, READ YOUR OPERATIONS / MANUAL FOR IMPORTANT INFORMATION / ABOUT YOUR HEALTH AND
   SAFETY."
-- "Also online at" and "www.nintendo.com/healthsafety/" in blue.
-- "Press (A) to continue." in grey, which is absent at 1s (`health-safety-early.png`).
+- "Also online at" and "www.nintendo.com/healthsafety/".
+- "Press (A) to continue." in grey, which first shows 1.93s in (`v43`; `health-safety-early.png`
+  has none).
+- The two recordings disagree on colour: `v43`, a console, shows the sign and the address white;
+  `dolphin` shows the sign yellow and the address blue. The set follows `v43`.
 
 ## The stock channels
 

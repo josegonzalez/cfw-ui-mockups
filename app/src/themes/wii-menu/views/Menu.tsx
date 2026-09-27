@@ -27,10 +27,14 @@ import { abs, Bubble, Clock, Img, motion, PageArrow, Text, type Box } from './pa
  *                page, below the last row it drops into the bar. Starts on the Disc Channel.
  * Buttons:       A opens a channel's preview, or the bar button's screen. L / SELECT and R / START
  *                are the Wii Remote's - and +, turning the page. MENU is HOME.
- * Transitions:   A page turn slides the grid 512px in 334ms, decelerating (measured, 10 frames at
- *                29.97fps). The highlight's rim eases in over 100ms and its name bubble appears
- *                400ms after it lands (`EOZxJue_N6s`). The page arrows bob inward and back. An
- *                empty slot's static flickers through WM4K's four frames.
+ * Transitions:   A page turn slides the grid 512px in 333ms, decelerating (`v43` 137.57s). The
+ *                highlight's rim eases in over 100ms and its name bubble appears 367ms after it
+ *                lands. A bar button grows 8% under the highlight in 50ms, its rim unchanged.
+ *                After boot "Wii Menu" stands in the clock's place for 3.67s, then cross-fades to
+ *                the clock (200ms); the clock's colon blinks, a second on and a second off.
+ *                Opening Wii Options or the SD Card Menu fades the menu to black (333ms). The
+ *                page arrows bob inward and back, the channel icons loop (see `Channel`), and an
+ *                empty slot's static flickers through WM4K's four frames - all `v43`.
  * Notes:         The pointer is not drawn - a handheld has none - so the highlight stands for it.
  *                An empty slot's static is drawn over a flat grey, the same as the captures show.
  */
@@ -111,19 +115,22 @@ export function barPath(closed = true): string {
   return (closed ? [...edge, `L ${W} ${H}`, `L 0 ${H}`, 'Z'] : edge).join(' ')
 }
 
+/** A round bar button. Under the pointer it grows by 8%, its cyan rim unchanged (`v43` 280.9s). */
 function RoundButton({ cx, cy, d, focused, children }: { cx: number; cy: number; d: number; focused: boolean; children: ReactNode }) {
-  const size = focused ? d + 6 : d
+  const { animate } = useScreen()
   return (
     <div
       className="wii-round"
       data-focused={focused || undefined}
       style={{
-        ...abs({ x: cx - size / 2, y: cy - size / 2, w: size, h: size }),
+        ...abs({ x: cx - d / 2, y: cy - d / 2, w: d, h: d }),
         borderRadius: '50%',
         background: 'radial-gradient(circle at 50% 35%, #ffffff 0%, #eef0f1 55%, #d6dadd 100%)',
-        border: `${focused ? 4 : 3}px solid ${focused ? PALETTE.cyan : PALETTE.cyanSoft}`,
-        boxShadow: focused ? `0 0 10px ${PALETTE.cyanSoft}` : '0 2px 4px rgba(0,0,0,0.15)',
+        border: `3px solid ${PALETTE.cyan}`,
+        boxShadow: '0 2px 4px rgba(0,0,0,0.15)',
         boxSizing: 'border-box',
+        transform: focused ? `scale(${MOTION.hoverScale})` : 'none',
+        transition: motion(animate, [{ property: 'transform', duration: MOTION.hover, easing: 'easeOut' }]),
       }}
     >
       {children}
@@ -131,7 +138,13 @@ function RoundButton({ cx, cy, d, focused, children }: { cx: number; cy: number;
   )
 }
 
-export function Bar({ focus }: { focus: Focus }) {
+/**
+ * The bar. Just after boot `label` puts "Wii Menu" in the clock's place, cyan; it cross-fades to the
+ * clock after its hold (`v43` 9.58-13.45s).
+ */
+export function Bar({ focus, label = false }: { focus: Focus; label?: boolean }) {
+  const { animate } = useScreen()
+  const swap = motion(animate, [{ property: 'opacity', duration: MOTION.bootLabel.fade, easing: 'linear' }])
   const on = (item: 'wii' | 'sd' | 'mail') => focus.area === 'bar' && focus.item === item
   const wiiInner = WII_BUTTON.d - 12
   return (
@@ -153,7 +166,14 @@ export function Bar({ focus }: { focus: Focus }) {
       <RoundButton cx={MAIL_BUTTON.cx} cy={MAIL_BUTTON.cy} d={MAIL_BUTTON.d} focused={on('mail')}>
         <Img src={menuImg('mail')} box={{ x: (MAIL_BUTTON.d - 6 - 44) / 2, y: 20, w: 44, h: 30 }} />
       </RoundButton>
-      <Clock cx={CLOCK_BOX.cx} cy={CLOCK_BOX.cy} hour={CLOCK.hour} minute={CLOCK.minute} pm={CLOCK.pm} digit={CLOCK_BOX.digit} />
+      <div style={{ ...abs({ x: 0, y: 0, w: W, h: H }), opacity: label ? 0 : 1, transition: swap }}>
+        <Clock cx={CLOCK_BOX.cx} cy={CLOCK_BOX.cy} hour={CLOCK.hour} minute={CLOCK.minute} pm={CLOCK.pm} digit={CLOCK_BOX.digit} />
+      </div>
+      <div style={{ ...abs({ x: 0, y: 0, w: W, h: H }), opacity: label ? 1 : 0, transition: swap }}>
+        <Text box={{ x: 0, y: CLOCK_BOX.cy - 18, w: W, h: 36 }} size={28} weight={500} color={PALETTE.cyan}>
+          Wii Menu
+        </Text>
+      </div>
       <Text box={{ x: 0, y: DATE_Y, w: W, h: 34 }} size={30} weight={700} color={PALETTE.clock}>
         {DATE_LABEL}
       </Text>
@@ -165,7 +185,11 @@ export function Bar({ focus }: { focus: Focus }) {
 }
 
 /** The Wii Menu: the grid strip, its arrows, and the bar. */
-export function Menu({ page, focus }: { page: number; focus: Focus }) {
+/**
+ * The Wii Menu. `label` is the boot label (see `Bar`); `leaving` fades the menu to black as it
+ * opens Wii Options or the SD Card Menu.
+ */
+export function Menu({ page, focus, label, leaving }: { page: number; focus: Focus; label: boolean; leaving: boolean }) {
   const { animate } = useScreen()
   const focusedSlot = focus.area === 'grid' ? page * PER_PAGE + focus.slot : -1
   // Every page is laid out side by side; the strip slides so the current page is in place. Slots
@@ -173,7 +197,15 @@ export function Menu({ page, focus }: { page: number; focus: Focus }) {
   const slots = GRID.map((_, i) => i).filter((i) => Math.abs(Math.floor(i / PER_PAGE) - page) <= 1)
   const bubbleAt = focus.area === 'grid' ? tileBox(focus.slot) : null
   return (
-    <div className="wii-menu-screen" style={{ ...abs({ x: 0, y: 0, w: W, h: H }), background: `linear-gradient(${PALETTE.ground} 60%, ${PALETTE.groundLow})` }}>
+    <div
+      className="wii-menu-screen"
+      style={{
+        ...abs({ x: 0, y: 0, w: W, h: H }),
+        background: `linear-gradient(${PALETTE.ground} 60%, ${PALETTE.groundLow})`,
+        opacity: leaving ? 0 : 1,
+        transition: motion(animate, [{ property: 'opacity', duration: MOTION.menuOut, easing: 'linear' }]),
+      }}
+    >
       <div
         className="wii-strip"
         data-page={page}
@@ -191,7 +223,7 @@ export function Menu({ page, focus }: { page: number; focus: Focus }) {
       </div>
       {page > 0 ? <PageArrow side="left" /> : null}
       {page < PAGES - 1 ? <PageArrow side="right" /> : null}
-      <Bar focus={focus} />
+      <Bar focus={focus} label={label} />
       {bubbleAt && GRID[focusedSlot] ? <Bubble key={focusedSlot} x={bubbleAt.x + 10} y={bubbleAt.y + bubbleAt.h + 8} label={CHANNELS[GRID[focusedSlot]!].title} /> : null}
     </div>
   )

@@ -24,8 +24,6 @@ export const PALETTE = {
   inkSoft: '#6e6e6e',
   /** A disabled button's label. */
   disabled: '#b8bcbf',
-  /** The Health & Safety screen's link. */
-  link: '#6d93d6',
   /** The HOME Menu's bars and the dimming behind them. */
   homeBar: 'rgba(0, 0, 0, 0.82)',
   homeDim: 'rgba(0, 0, 0, 0.45)',

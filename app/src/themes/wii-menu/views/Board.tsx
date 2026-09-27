@@ -4,7 +4,7 @@ import { H, W } from '../layout'
 import { CALENDAR, DATE, WII_NUMBER } from '../library'
 import { dayLabel, type BoardFocus } from '../machine'
 import { PALETTE } from '../palette'
-import { abs, Img, PageArrow, Pill, Text, type Box } from './parts'
+import { abs, Dialog, Img, PageArrow, Pill, Text, type Box } from './parts'
 
 /**
  * PORTING NOTES
@@ -22,7 +22,8 @@ import { abs, Img, PageArrow, Pill, Text, type Box } from './parts'
  * Buttons:       Left / Right along the bar. L / SELECT and R / START are the arrows, a day back
  *                or forward, no further than today. A presses; B goes back. Posting a memo pins
  *                it to the day being shown.
- * Transitions:   Fades in over the Wii Menu (283ms, not measured).
+ * Transitions:   Fades in over the Wii Menu (283ms, not measured). The No Miis dialog slides up
+ *                from the bottom edge as the SD Card Menu's does (233ms, `v43` 407.62s).
  * Notes:         Arranged from 16:9 captures onto the 608x456 frame. The memo cannot be written
  *                in - there is no keyboard in this port - so a posted memo is blank. Register in
  *                the address book opens nothing. The Wii Number is made up.
@@ -177,15 +178,12 @@ export function AddressBook({ focus }: { focus: 'back' | 'register' }) {
 export function NoMiis() {
   const panel: Box = { x: 144, y: 110, w: 320, h: 220 }
   return (
-    <>
-      <div style={{ ...abs({ x: 0, y: 0, w: W, h: H }), background: 'rgba(0,0,0,0.55)' }} />
-      <div className="wii-dialog" style={{ ...abs(panel), background: 'linear-gradient(#f7f7f7, #e8e9ea)', borderRadius: 8, border: '2px solid #c8cbcd', boxSizing: 'border-box' }}>
-        <Text box={{ x: 24, y: 26, w: panel.w - 48, h: 110 }} size={18} weight={500} color={PALETTE.ink} wrap lineHeight={30}>
-          No Miis have been registered. Please use the Mii Channel to create a Mii.
-        </Text>
-        <Pill box={{ x: 90, y: 150, w: 136, h: 48 }} label="OK" focused size={21} />
-      </div>
-    </>
+    <Dialog panel={panel}>
+      <Text box={{ x: 24, y: 26, w: panel.w - 48, h: 110 }} size={18} weight={500} color={PALETTE.ink} wrap lineHeight={30}>
+        No Miis have been registered. Please use the Mii Channel to create a Mii.
+      </Text>
+      <Pill box={{ x: 90, y: 150, w: 136, h: 48 }} label="OK" focused size={21} />
+    </Dialog>
   )
 }
 

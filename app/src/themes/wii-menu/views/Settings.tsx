@@ -22,9 +22,10 @@ import { abs, Img, motion } from './parts'
  *                Settings pages; on a page of options Left / Right move along Back and Confirm.
  *                A opens an item, picks an option, or presses the button; B is Back. Confirm
  *                saves the choice; Back discards it.
- * Transitions:   A page turn slides the frames 608px in 400ms, easing out, the incoming page
- *                brightening from dim and the outgoing one dimming (`EOZxJue_N6s` 155.73s). A page
- *                opening fades up over the last in 283ms (17 frames at 59.94fps).
+ * Transitions:   A page turn slides the frames 608px in 233ms, easing in and out, while the
+ *                arriving page brightens from dim over 333ms and the leaving one dims (`v43`
+ *                366.70s). A page opens by fading up from black over 250ms, accelerating (`v43`
+ *                313.20s).
  * Notes:         The frames carry a hover state for the page arrows, which the + Control Pad never
  *                needs: Left / Right turn the page directly. Items whose own pages the pack does not
  *                cover as whole frames - Console Nickname, Parental Controls, Internet, WiiConnect24,
@@ -43,7 +44,7 @@ export function SettingsPages({ page, focus }: { page: number; focus: ListFocus 
         style={{
           ...abs({ x: 0, y: 0, w: W * SETTINGS_PAGES, h: H }),
           transform: `translateX(${-page * W}px)`,
-          transition: motion(animate, [{ property: 'transform', duration: MOTION.settingsTurn, easing: 'easeOutCubic' }]),
+          transition: motion(animate, [{ property: 'transform', duration: MOTION.settingsTurn.slide, easing: 'easeInOutCubic' }]),
         }}
       >
         {/* A page off screen is dimmed, so the one arriving brightens as it slides in. */}
@@ -54,7 +55,7 @@ export function SettingsPages({ page, focus }: { page: number; focus: ListFocus 
             box={{ x: p * W, y: 0, w: W, h: H }}
             style={{
               opacity: p === page ? 1 : 0.4,
-              transition: motion(animate, [{ property: 'opacity', duration: MOTION.settingsTurn, easing: 'easeOutCubic' }]),
+              transition: motion(animate, [{ property: 'opacity', duration: MOTION.settingsTurn.brighten, easing: 'easeOut' }]),
             }}
           />
         ))}

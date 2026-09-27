@@ -1,9 +1,10 @@
+import { useScreen } from '../../../device/ScreenContext'
 import { sdImg } from '../assets'
 import { H, PAGE_W, TILE, W, tileBox } from '../layout'
 import { SD_PAGES, type SdFocus } from '../machine'
 import { PALETTE } from '../palette'
 import { barPath } from './Menu'
-import { abs, Img, PageArrow, Pill, Text, type Box } from './parts'
+import { abs, Dialog, Img, motion, PageArrow, Pill, Text, type Box } from './parts'
 
 /**
  * PORTING NOTES
@@ -19,7 +20,10 @@ import { abs, Img, PageArrow, Pill, Text, type Box } from './parts'
  * Buttons:       Left / Right between the two buttons. A on Wii goes back to the Wii Menu; A on
  *                the help button opens "About the SD Card Menu". L / SELECT and R / START turn the
  *                twenty pages. B goes back.
- * Transitions:   Fades in over the Wii Menu (283ms, not measured).
+ * Transitions:   The Wii Menu fades to black (333ms), stays black (283ms), and this fades up
+ *                (283ms), "Loading from the SD Card..." showing over the slots for 1.35s before it
+ *                clears (250ms). The About dialog slides up from the bottom edge, decelerating
+ *                into place (233ms) - `v43` 234.85-237.45s, 407.62s.
  * Notes:         Arranged from 16:9 captures, on the Wii Menu's own 4:3 grid. The About dialog's
  *                text is set in M PLUS 1p; the console sets it in a serif face. Its second page
  *                ("To view this information again...") is the one the first-run introduction ends
@@ -39,15 +43,10 @@ function DarkSlot({ box }: { box: Box }) {
   )
 }
 
-function Dialog({ page, focus }: { page: 1 | 2; focus: SdFocus }) {
+function About({ page, focus }: { page: 1 | 2; focus: SdFocus }) {
   const panel: Box = { x: 144, y: 54, w: 320, h: 336 }
   return (
-    <>
-      <div style={{ ...abs({ x: 0, y: 0, w: W, h: H }), background: 'rgba(0,0,0,0.5)' }} />
-      <div
-        className="wii-dialog"
-        style={{ ...abs(panel), background: 'linear-gradient(#f7f7f7, #e8e9ea)', borderRadius: 8, border: '2px solid #c8cbcd', boxSizing: 'border-box' }}
-      >
+    <Dialog panel={panel}>
         {page === 1 ? (
           <>
             <Text box={{ x: 20, y: 22, w: panel.w - 40, h: 28 }} size={18} weight={500} color={PALETTE.ink}>
@@ -67,12 +66,39 @@ function Dialog({ page, focus }: { page: 1 | 2; focus: SdFocus }) {
         )}
         <Pill box={{ x: 14, y: 262, w: 140, h: 50 }} label="Back" focused={focus === 'back'} size={21} />
         <Pill box={{ x: 162, y: 262, w: 140, h: 50 }} label={page === 1 ? 'Next' : 'Close'} focused={focus === 'next' || focus === 'close'} size={21} />
-      </div>
-    </>
+    </Dialog>
   )
 }
 
-export function Sd({ page, dialog, focus }: { page: number; dialog: 0 | 1 | 2; focus: SdFocus }) {
+/**
+ * "Loading from the SD Card..." over the slots as the menu opens, gone once it has read the card
+ * (`v43` 235.7-237.45s). With no card the port has nothing to load, so it only shows the box.
+ */
+function Loading({ on }: { on: boolean }) {
+  const { animate } = useScreen()
+  const panel: Box = { x: 67, y: 82, w: 474, h: 192 }
+  return (
+    <div
+      className="wii-sd-loading"
+      style={{
+        ...abs(panel),
+        borderRadius: 20,
+        background: 'rgba(0, 0, 0, 0.85)',
+        opacity: on ? 1 : 0,
+        transition: motion(animate, [{ property: 'opacity', duration: 250, easing: 'linear' }]),
+      }}
+    >
+      {Array.from({ length: 9 }, (_, i) => (
+        <div key={i} style={{ ...abs({ x: panel.w / 2 - 11 + (i % 3) * 8, y: 44 + Math.floor(i / 3) * 8, w: 5, h: 5 }), background: '#3aa4ea', borderRadius: 1 }} />
+      ))}
+      <Text box={{ x: 0, y: 92, w: panel.w, h: 28 }} size={18} weight={400} color="#ffffff">
+        Loading from the SD Card...
+      </Text>
+    </div>
+  )
+}
+
+export function Sd({ page, dialog, focus, loading = false }: { page: number; dialog: 0 | 1 | 2; focus: SdFocus; loading?: boolean }) {
   // This page's slots, and the neighbouring pages' edges where there is a neighbour.
   const slots = Array.from({ length: 12 * 3 }, (_, i) => i).filter((i) => {
     const p = Math.floor(i / 12) - 1
@@ -88,7 +114,8 @@ export function Sd({ page, dialog, focus }: { page: number; dialog: 0 | 1 | 2; f
       {page > 0 ? <PageArrow side="left" /> : null}
       {page < SD_PAGES - 1 ? <PageArrow side="right" /> : null}
       <SdBar page={page} focus={dialog === 0 ? focus : null} />
-      {dialog > 0 ? <Dialog page={dialog as 1 | 2} focus={focus} /> : null}
+      <Loading on={loading} />
+      {dialog > 0 ? <About page={dialog as 1 | 2} focus={focus} /> : null}
     </div>
   )
 }

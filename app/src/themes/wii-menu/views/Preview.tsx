@@ -1,17 +1,20 @@
+import type { ReactNode } from 'react'
+import { Animated } from '../../../anim/Animated'
+import type { StoryboardMap } from '../../../anim/types'
 import { useScreen } from '../../../device/ScreenContext'
 import { H, PANEL, PREVIEW_BUTTONS, W, tileBox } from '../layout'
 import { CHANNELS, GRID, PER_PAGE } from '../library'
 import { zoomedIn, type Zoom } from '../machine'
 import { MOTION } from '../motion'
 import { PALETTE } from '../palette'
-import { ChannelBanner } from './Channel'
+import { ChannelBanner, type Reveal } from './Channel'
 import { abs, motion, PageArrow, Pill } from './parts'
 
 /**
  * PORTING NOTES
  * CFW: Wii Menu (System Menu 4.3U)   Devices: rg35xx
- * Source: closed. Measured from `docs/themes/wii-menu/reference/frames/preview-*.png` and the
- *         zoom frames `zoom-in-a.png` and `zoom-in-b.png`.
+ * Source: closed. Measured from `docs/themes/wii-menu/reference/frames/preview-*.png`; motion from
+ *         `9iT7IgLAgPc`, a 60fps recording of 4.3 (`v43` in the source notes).
  * Mode: reproduce
  *
  * Layout:        A rounded panel at (12, 8), 585x439, on black: the channel's banner above, and a
@@ -22,12 +25,19 @@ import { abs, motion, PageArrow, Pill } from './parts'
  * Buttons:       Left / Right move between the buttons. A presses the focused one; B is Wii Menu.
  *                L / SELECT and R / START are - and +, stepping to the previous or next channel.
  *                MENU is HOME.
- * Transitions:   The panel grows out of the channel's slot while the grid behind it fades to
- *                black, 467ms, the banner and buttons fading up over its last 133ms. Wii Menu
- *                shrinks it, banner and all, back into the slot of the channel now showing, the
- *                grid fading back in behind (467ms). The page arrows bob inward and back.
+ * Transitions:   The panel grows out of the channel's slot, 417ms easing in and out, while the
+ *                grid behind swells 1.5x towards the slot and darkens to black (400ms). The band
+ *                and its buttons come with the panel; the banner's content fades up once it has
+ *                landed (333ms). Wii Menu shrinks the panel, banner and all, into the slot of the
+ *                channel now showing (333ms), the grid unswelling and brightening from 167ms in
+ *                (300ms). Stepping with - or + shows the next banner's background at once and
+ *                fades its content up after 333ms (200ms). The page arrows bob inward and back.
  * Notes:         The arrows are pointer targets on the Wii; here - and + do their job.
  */
+
+/** The banner's content after a zoom in, and after a step: stable, so re-rendering never restarts them. */
+const ZOOM_REVEAL: Reveal = { delay: MOTION.zoomIn, duration: MOTION.zoomContent }
+const STEP_REVEAL: Reveal = { delay: MOTION.step.delay, duration: MOTION.step.duration }
 
 /** Where the panel starts and ends its zoom: the slot, as a transform of the full panel. */
 function fromSlot(slot: number) {
@@ -37,19 +47,16 @@ function fromSlot(slot: number) {
   return `translate(${b.x - PANEL.x}px, ${b.y - PANEL.y}px) scale(${sx}, ${sy})`
 }
 
-export function Preview({ slot, focus, zoom }: { slot: number; focus: 'menu' | 'start'; zoom: Zoom }) {
+export function Preview({ slot, focus, zoom, stepped }: { slot: number; focus: 'menu' | 'start'; zoom: Zoom; stepped: boolean }) {
   const { animate } = useScreen()
   const id = GRID[slot]!
   const open = zoomedIn(zoom)
-  const zoomMotion = motion(animate, [{ property: 'transform', duration: MOTION.zoom, easing: 'easeOutCubic' }])
-  // The banner fades up over the zoom's last frames, and stays as the panel shrinks back: only the
-  // first frame of the zoom in, still drawn over its slot, has it hidden.
-  const content = motion(animate, [
-    { property: 'opacity', duration: MOTION.zoomContent, easing: 'linear', delay: MOTION.zoom - MOTION.zoomContent },
+  const zoomMotion = motion(animate, [
+    { property: 'transform', duration: open ? MOTION.zoomIn : MOTION.zoomOut, easing: 'easeInOutCubic' },
   ])
-  // The arrows come with the banner and go as soon as the panel starts to shrink.
+  // The arrows come once the panel has landed, and go as soon as it starts to shrink.
   const arrows = motion(animate, [
-    { property: 'opacity', duration: MOTION.zoomContent, easing: 'linear', delay: open ? MOTION.zoom - MOTION.zoomContent : 0 },
+    { property: 'opacity', duration: MOTION.zoomContent, easing: 'linear', delay: open ? MOTION.zoomIn : 0 },
   ])
   const band = PANEL.h - PANEL.split
   return (
@@ -67,8 +74,9 @@ export function Preview({ slot, focus, zoom }: { slot: number; focus: 'menu' | '
           boxShadow: '0 0 0 2px #d8dcdf',
         }}
       >
-        <div style={{ ...abs({ x: 0, y: 0, w: PANEL.w, h: PANEL.h }), opacity: zoom === 'enter' ? 0 : 1, transition: content }}>
-          <ChannelBanner id={id} />
+        <div style={abs({ x: 0, y: 0, w: PANEL.w, h: PANEL.h })}>
+          {/* Keyed by slot: a new channel's banner comes up afresh. */}
+          <ChannelBanner key={slot} id={id} reveal={stepped ? STEP_REVEAL : ZOOM_REVEAL} />
           <div
             style={{
               ...abs({ x: 0, y: PANEL.split, w: PANEL.w, h: band }),
@@ -100,9 +108,8 @@ export function Preview({ slot, focus, zoom }: { slot: number; focus: 'menu' | '
 }
 
 /**
- * The grid behind the preview fades to black as the panel grows, and is black once the preview is
- * open (`frames/zoom-in-*.png`). The real grid also swells towards the slot as it darkens; the port
- * keeps it still.
+ * The black over the grid: it darkens as the panel grows and is black once the preview is open
+ * (`frames/zoom-in-*.png`); on the way back it clears from 167ms in, as the panel nears its slot.
  */
 export function PreviewBackdrop({ zoom }: { zoom: Zoom }) {
   const { animate } = useScreen()
@@ -114,9 +121,52 @@ export function PreviewBackdrop({ zoom }: { zoom: Zoom }) {
         ...abs({ x: 0, y: 0, w: W, h: H }),
         background: PALETTE.black,
         opacity: open ? 1 : 0,
-        transition: motion(animate, [{ property: 'opacity', duration: MOTION.zoom, easing: 'easeOutCubic' }]),
+        transition: motion(animate, [
+          open
+            ? { property: 'opacity', duration: MOTION.zoomGrid, easing: 'linear' }
+            : { property: 'opacity', duration: MOTION.zoomGridOut.duration, easing: 'linear', delay: MOTION.zoomGridOut.delay },
+        ]),
       }}
     />
+  )
+}
+
+/** The grid shrinking back to size about the slot as the preview closes. */
+const UNSWELL: StoryboardMap = {
+  open: {
+    animations: [
+      { property: 'scale', from: MOTION.zoomSwell, begin: MOTION.zoomGridOut.delay, duration: MOTION.zoomGridOut.duration, mode: 'easeOutCubic' },
+    ],
+  },
+}
+
+/**
+ * The grid under a moving preview. It swells towards the slot as the panel grows out of it, and
+ * shrinks back as the panel returns. It is only there while the zoom moves: an open preview has
+ * nothing under its black.
+ */
+export function GridSwell({ slot, zoom, children }: { slot: number; zoom: Zoom; children: ReactNode }) {
+  const { animate } = useScreen()
+  const b = tileBox(slot % PER_PAGE)
+  const origin = `${b.x + b.w / 2}px ${b.y + b.h / 2}px`
+  if (zoom === 'leave') {
+    return (
+      <Animated storyboard={UNSWELL} event="open" style={{ ...abs({ x: 0, y: 0, w: W, h: H }), transformOrigin: origin }}>
+        {children}
+      </Animated>
+    )
+  }
+  return (
+    <div
+      style={{
+        ...abs({ x: 0, y: 0, w: W, h: H }),
+        transformOrigin: origin,
+        transform: zoom === 'opening' ? `scale(${MOTION.zoomSwell})` : 'none',
+        transition: motion(animate, [{ property: 'transform', duration: MOTION.zoomGrid, easing: 'easeIn' }]),
+      }}
+    >
+      {children}
+    </div>
   )
 }
 
