@@ -55,4 +55,7 @@ while IFS='|' read -r slug screen events env flags; do
   convert "$work/$slug.bmp" -strip -define png:exclude-chunks=date,time "$here/render/$slug.png"
 done < "$here/stills.txt"
 
+# Every frame is deterministic but `snake`: the launcher seeds Snake's food from the clock
+# (`about_snake.h:70`), so that one frame's food moves on every run. Keep the committed copy unless
+# the board itself changes; `app/e2e/ds-style-reference.spec.ts` masks the food.
 echo "rendered $(ls "$here/render" | wc -l) frames"

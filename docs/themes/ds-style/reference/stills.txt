@@ -11,6 +11,7 @@ games|home|daddar||
 games-vertical|home|daddars||
 games-list|home|daddarss||
 games-list-art|home|daddarsss||
+games-marquee|home|daddddddassdd||
 favourites|home|2||
 recents|home|1||
 apps|home|dra||

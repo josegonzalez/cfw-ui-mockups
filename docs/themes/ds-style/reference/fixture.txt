@@ -11,5 +11,7 @@ GBC|Link's Awakening DX.gbc
 FC|Super Mario Bros.nes
 SFC|Super Metroid.sfc
 SFC|Chrono Trigger.sfc
+# Long enough to scroll in the list, which needs a name wider than 37 glyphs (`source/ui.h:252`).
+SFC|The Legend of Zelda - A Link to the Past.sfc
 MD|Sonic the Hedgehog.md
 PS|Crash Bandicoot.chd

@@ -61,6 +61,35 @@ def save(im: Image.Image, rel: str) -> None:
     im.save(path, optimize=True)
 
 
+# Every size `art_size` gives the 480x320 pictures in the slots the layouts use (`source/ui.h:146-152`):
+# Home 56x37, Horizontal 120x80 and 60x40, List + Art 90x60, Vertical 84x56 and 48x32.
+ART_SIZES = [(55, 37), (120, 80), (60, 40), (90, 60), (84, 56), (48, 32)]
+
+
+def prescale(im: Image.Image, name: str) -> None:
+    """Art at the exact pixels the launcher shows.
+
+    Native art is sampled per physical pixel, top-left, with integer division:
+    `src = x * pic.w / (w * 3)` (`ui.h:352-358`). A browser's nearest-neighbour picks by pixel
+    centre instead and lands a pixel over on most rows, so the port draws these 1:1. With GBA res.
+    art on, the picture is sampled once per logical pixel and each is shown three wide
+    (`ui.h:161-165`) - the `-gba` copy."""
+    src = im.load()
+    for w, h in ART_SIZES:
+        native = Image.new('RGBA', (w * 3, h * 3))
+        px = native.load()
+        for y in range(h * 3):
+            for x in range(w * 3):
+                px[x, y] = src[x * im.width // (w * 3), y * im.height // (h * 3)]
+        save(native, f'art/{name}-{w}x{h}.png')
+        gba = Image.new('RGBA', (w * 3, h * 3))
+        px = gba.load()
+        for y in range(h * 3):
+            for x in range(w * 3):
+                px[x, y] = src[(x // 3) * im.width // w, (y // 3) * im.height // h]
+        save(gba, f'art/{name}-{w}x{h}-gba.png')
+
+
 def dark_power(im: Image.Image) -> Image.Image:
     """Dark mode recolours the RESET and POWER greys pair by pair at draw time (`ui.h:31-39`)."""
     light = [0, 73, 121, 162, 195, 211, 251]
@@ -98,7 +127,8 @@ def main() -> None:
         if src.exists():
             save(hard(rgba(src), True), f'icons/icon_{name}.png')
     for system in SYSTEMS:
-        save(hard(rgba(SRC / 'systems' / 'wide' / f'{system}.png')), f'systems/{system}.png')
+        prescale(hard(rgba(SRC / 'systems' / 'wide' / f'{system}.png')), system)
+    prescale(hard(rgba(SRC / 'NOTFOUND.png')), 'NOTFOUND')
     build_font()
     build_strings()
 
@@ -162,7 +192,10 @@ def build_font() -> None:
                     pen.closePath()
         outlines[name] = pen.glyph()
     fb.setupGlyf(outlines)
-    fb.setupHorizontalMetrics({name: (advance, 0) for name in order})
+    # The left side bearing must be each glyph's own leftmost column: TrueType places the outline so
+    # its xMin sits at the bearing, and a bearing of 0 would pull every narrow letter left.
+    glyf = fb.font['glyf']
+    fb.setupHorizontalMetrics({name: (advance, getattr(glyf[name], 'xMin', 0)) for name in order})
     fb.setupHorizontalHeader(ascent=upm, descent=0)
     fb.setupNameTable({'familyName': 'DS Style Bitmap', 'styleName': 'Regular'})
     fb.setupOS2(sTypoAscender=upm, sTypoDescender=0, sTypoLineGap=0, usWinAscent=upm, usWinDescent=0)
