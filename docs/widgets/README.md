@@ -19,6 +19,7 @@ away from the code.
 | [AnchoredImage](AnchoredImage.md) | An image fitted to a slot, then shrunk to its fitted size | elementerial, playstation-x |
 | [Carousel](Carousel.md) | A strip where the strip moves and the selection stays put | all but example-cfw |
 | [Clock](Clock.md) | The status-bar clock | all |
+| [Coverflow](Coverflow.md) | A row whose centre card faces you and whose neighbours turn away, reflected onto one floor | tortos |
 | [FullScreenFade](FullScreenFade.md) | A full-screen fade for launch and power-off | elementerial, vitrolauncher |
 | [GeneratedArt](GeneratedArt.md) | Deterministic placeholder artwork | all |
 | [GlassPanel](GlassPanel.md) | A frosted stadium that samples the background beneath it | vitrolauncher |
@@ -44,6 +45,7 @@ not.
 | PlayStation X | `Ticker`, `Badge`, `IconRow`, `ProgressBar` |
 | Vitro Launcher | `GlassPanel` |
 | NextUI | none, and it uses none |
+| TortOS | `Coverflow` |
 
 Three sets added between one and four widgets each, which is the useful signal: the first cut was
 close to right, and what the later themes needed were leaf components rather than changes to the
@@ -95,7 +97,7 @@ and four new leaf widgets each rather than any change to its shape, and the one 
 needed none of it. So this is the handoff - what a second
 renderer, with no DOM and no cascade, would have to implement to draw every screen in this repo.
 
-**Nineteen widgets.** Each is a pure function of typed props onto a rectangle. None reads ambient
+**Twenty widgets.** Each is a pure function of typed props onto a rectangle. None reads ambient
 state, so each can be compiled independently.
 
 **One geometry primitive.** A `Box` of resolved device pixels - `left`, `top`, `width`, `height`,
@@ -111,8 +113,8 @@ locally - if a container can silently re-base the depths inside it, as a CSS sta
 does, the same class of bug is waiting.
 
 **Motion as a timeline of segments.** `channel, from, to, begin, duration, easing`, plus repeat
-and alternate. Seven channels - opacity, two offsets, two positions, scale, depth - and ten
-easings, which is every curve the four sets between them use. Two properties matter beyond the obvious: several channels animate on one element at
+and alternate. Seven channels - opacity, two offsets, two positions, scale, depth - and eleven
+easings, which is every curve the sets between them use. Two properties matter beyond the obvious: several channels animate on one element at
 once and must compose rather than overwrite, and every track has a defined *resting* value so a
 still can be drawn without running a clock. See [animation.md](../animation.md).
 
@@ -123,11 +125,13 @@ is a prop rather than a CSS property.
 **Three image fit modes** - contain, cover, and the anchored fit above - each with a corner radius
 and an optional nearest-neighbour scale for pixel art.
 
-**One capability flag.** Whether the richer path is available. Four effects across the four sets
-need it: backdrop blur, an arbitrary mask, CSS ellipsis, and a fragment shader. The first three are
-declared by widgets alongside the fallback they render instead; the shader belongs to Vitro's wave
-background, which is a render loop rather than a widget and carries its own 2D approximation. A
-renderer implementing none of the four still draws every screen in this repo.
+**One capability flag.** Whether the richer path is available. Five effects across the sets need
+it: backdrop blur, an arbitrary mask, CSS ellipsis, a fragment shader, and a perspective transform.
+All but the shader are declared by widgets alongside the fallback they render instead; the shader
+belongs to Vitro's wave background, which is a render loop rather than a widget and carries its own
+2D approximation. TortOS's cube and its additive glow are theme-local and degrade the same way - a
+cut between faces, a normal blend. A renderer implementing none of them still draws every screen
+in this repo.
 
 (The capability list also names `boxReflect`, which no widget currently declares - PlayStation X's
 carousel reflection was dropped during the port. It is kept in the type because the effect is real

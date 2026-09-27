@@ -4,6 +4,7 @@ import { meta as anchoredImage } from './AnchoredImage/meta'
 import { meta as badge } from './Badge/meta'
 import { meta as carousel } from './Carousel/meta'
 import { meta as clock } from './Clock/meta'
+import { meta as coverflow } from './Coverflow/meta'
 import { meta as fullScreenFade } from './FullScreenFade/meta'
 import { meta as generatedArt } from './GeneratedArt/meta'
 import { meta as glassPanel } from './GlassPanel/meta'
@@ -35,6 +36,7 @@ export const WIDGETS: readonly WidgetMeta[] = [
   badge,
   carousel,
   clock,
+  coverflow,
   fullScreenFade,
   generatedArt,
   glassPanel,

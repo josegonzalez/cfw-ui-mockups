@@ -180,8 +180,9 @@ disable transitions rather than merely fail to enable them.
 ## The easing registry
 
 Every curve in the repo, in one table with its provenance. Eight are the source format's own
-`mode=` vocabulary; the last two arrived from the other two themes and are the standard bezier
-approximations of the Penner curves they are named for.
+`mode=` vocabulary; `easeOutQuint` and `easeOutQuad` arrived from the other two themes and are the
+standard bezier approximations of the Penner curves they are named for, and `smoothstep` arrived
+with TortOS.
 
 | Name | Curve | From |
 | --- | --- | --- |
@@ -195,13 +196,16 @@ approximations of the Penner curves they are named for.
 | `bump` | `cubic-bezier(0.34,1.56,0.64,1)` | inferred - see below |
 | `easeOutQuint` | `cubic-bezier(0.23,1,0.32,1)` | Elementerial, `Math::easeOutQuint` |
 | `easeOutQuad` | `cubic-bezier(0.25,0.46,0.45,0.94)` | Vitro Launcher's `--ease-out` |
+| `smoothstep` | `cubic-bezier(0.3333,0,0.6667,1)` | TortOS's `ease_smooth`, `3u^2 - 2u^3` - exact, not approximated |
 
 `bump` is the one inference. It has no documented curve upstream, but all thirteen of its uses
 are `scale 0.9|0.94 -> 1.0` and it never appears on opacity, so it reads as an overshoot pop.
 The 1.56 control point is what produces the overshoot.
 
 `EASING_BEZIER` carries the four control points per curve, for a renderer that evaluates the
-curve itself rather than handing a string to a browser.
+curve itself rather than handing a string to a browser. `evaluateEasing(name, u)` solves that bezier in
+JavaScript, for a theme that integrates its own motion - TortOS's shelf is retargeted by every
+press, so it cannot be a descriptor, but it still names its curves from this table.
 
 ## Using it
 
