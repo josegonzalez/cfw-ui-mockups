@@ -19,16 +19,21 @@ const OUT = resolve(process.cwd(), 'src/assets/previews')
  * Every theme is captured from its own route, so a card cannot flatter a screen that no longer
  * looks like that.
  */
-const PREVIEWS: Array<{ slug: string; route: string }> = [
+const PREVIEWS: Array<{ slug: string; route: string; selector?: string }> = [
   { slug: 'elementerial', route: 'elementerial/rg35xx/system' },
   { slug: 'playstation-x', route: 'playstation-x/rg35xx/ps4-style' },
   { slug: 'vitrolauncher', route: 'vitrolauncher/rg35xx/last-played' },
   { slug: 'nextui', route: 'nextui/n64/browser' },
   { slug: 'slot', route: 'slot/rg-sp/shelf' },
+  /*
+   * One panel of two. Both panels with the hinge between them are twice as tall as every other
+   * preview, and the card crops that to a strip of hinge; the grid is what reads as SimpleOS.
+   */
+  { slug: 'simpleos', route: 'simpleos/rg-ds/home', selector: '[data-panel="bottom"]' },
   { slug: 'example-cfw', route: 'example-cfw/rg35xx/main-menu' },
 ]
 
-for (const { slug, route } of PREVIEWS) {
+for (const { slug, route, selector } of PREVIEWS) {
   test(`preview ${slug}`, async ({ page }) => {
     await page.goto(`/#${route}`)
     const screen = page.locator('.screen')
@@ -36,6 +41,7 @@ for (const { slug, route } of PREVIEWS) {
     // Fonts, generated art and the animated background all need a beat to settle.
     await page.waitForTimeout(1200)
 
-    await screen.screenshot({ path: resolve(OUT, `${slug}.png`) })
+    const target = selector ? screen.locator(selector) : screen
+    await target.screenshot({ path: resolve(OUT, `${slug}.png`) })
   })
 }

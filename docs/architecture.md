@@ -41,6 +41,29 @@ A screen is a device frame wrapped around theme content:
 Every axis a screen can vary on therefore enters from outside it. That is what lets the same
 component render live, static, or in fallback mode with none of its own code changing.
 
+## Two panels
+
+One device has two panels: the RG DS, a clamshell with a panel in the lid and one in the base.
+It still has **one** `.screen`, sized to both panels stacked with the hinge gap between them, so
+everything that captures or inspects a screen - the baselines, the settle comparison, the
+compositing guard - works on it unchanged.
+
+A theme for it draws through `Panels` (`app/src/device/Panels.tsx`), which divides that `.screen`
+into a `top` and a `bottom` surface. Each is its own `w` x `h` positioning context, clipped and
+isolated, so the theme lays out both in the same device pixels it would use for one. The gap is
+the hinge's: it is left see-through and nothing a theme draws can reach it. `useScreen()` reports
+`panels` and `panelGap`, and `Panels` throws on a one-panel device rather than quietly dropping
+half a screen.
+
+One theme root renders both panels, not one root per panel. The two are one application - the
+cursor on the bottom decides what the top shows - and splitting the root would mean inventing a
+channel between two halves of the same state.
+
+The per-panel checks matter. A fault that covers one panel covers under half of `.screen`, below
+the share the compositing guard looks for, so `e2e/compositing.spec.ts` checks each panel as a
+surface of its own - and scrolls it into view first, because a two-panel device at native scale
+is taller than the test viewport and a point outside the viewport samples nothing.
+
 ## Native resolution, then scale
 
 Screens lay out at the device's exact pixel resolution. The bezel is scaled up for comfortable

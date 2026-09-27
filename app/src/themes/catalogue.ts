@@ -6,6 +6,7 @@ import playstationXPreview from '../assets/previews/playstation-x.png'
 import vitrolauncherPreview from '../assets/previews/vitrolauncher.png'
 import nextuiPreview from '../assets/previews/nextui.png'
 import slotPreview from '../assets/previews/slot.png'
+import simpleosPreview from '../assets/previews/simpleos.png'
 import exampleCfwPreview from '../assets/previews/example-cfw.png'
 
 /**
@@ -30,7 +31,10 @@ export interface ThemeEntry {
   readonly preview: string
   readonly previewAlt: string
   readonly accent: string
-  /** Representative colours from the set's own palette. Empty for a set with no palette. */
+  /**
+   * Representative colours from the set's colour themes. Empty for a set that has none to switch
+   * between: a strip on the card says the launcher offers a choice of colours.
+   */
   readonly swatches: readonly string[]
   readonly views: number
   readonly devices: readonly DeviceSlug[]
@@ -156,6 +160,29 @@ export const THEMES: readonly ThemeEntry[] = [
     docPath: 'docs/themes/slot.md',
   },
   {
+    slug: 'simpleos',
+    name: 'SimpleOS',
+    author: 'boorngos',
+    kind: 'DS frontend for the RG DS',
+    summary:
+      'An overlay on Anbernic Linux that turns the RG DS into a DSi-style DS machine. A game grid on the bottom panel, the highlighted title on the top, and a quick menu inside DraStic that also switches between games.',
+    highlights: [
+      'The only set drawn across two panels, with one application spanning both',
+      'Every string in its own 8x8 bitmap font, recovered from the binary',
+      'An in-game menu that doubles as a game switcher',
+    ],
+    preview: simpleosPreview,
+    previewAlt: 'SimpleOS home: the highlighted title on the top panel over a grid of game tiles on the bottom',
+    accent: '#2e6cc9',
+    // One fixed look and no colour themes to switch between.
+    swatches: [],
+    views: 15,
+    devices: ['rg-ds'],
+    fonts: ['SimpleOS 8x8'],
+    ported: true,
+    docPath: 'docs/themes/simpleos.md',
+  },
+  {
     slug: 'example-cfw',
     name: 'Example OS',
     kind: 'Scaffold reference',
@@ -169,8 +196,8 @@ export const THEMES: readonly ThemeEntry[] = [
     preview: exampleCfwPreview,
     previewAlt: 'Example OS main menu: five icon rows with the first selected in cyan',
     accent: '#4cc9f0',
-    // Light to dark, so the row reads as a ramp rather than as three broken boxes.
-    swatches: ['#4cc9f0', '#e7e9f0', '#8b90a3', '#2a2e40', '#1b1e2b', '#12141c'],
+    // One palette and no colour themes to switch between.
+    swatches: [],
     views: 2,
     devices: ['rg35xx', 'rg-cubexx'],
     fonts: ['System sans'],

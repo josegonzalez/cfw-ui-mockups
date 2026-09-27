@@ -1,5 +1,5 @@
 import { createContext, use, useMemo, type ReactNode } from 'react'
-import { getDevice, type Device, type DeviceSlug } from './devices'
+import { getDevice, panelCount, panelGap, type Device, type DeviceSlug } from './devices'
 
 /**
  * What every screen knows about itself: which device it is drawn for, and whether motion runs.
@@ -13,8 +13,12 @@ export interface ScreenInfo {
   readonly device: Device
   /** Device panel width in pixels. */
   readonly w: number
-  /** Device panel height in pixels. */
+  /** Device panel height in pixels. On a two-panel device, the height of one panel. */
   readonly h: number
+  /** How many panels the device has. A theme for a two-panel device lays out both. */
+  readonly panels: 1 | 2
+  /** The distance between two panels in device pixels, and zero with only one. */
+  readonly panelGap: number
   readonly animate: boolean
 }
 
@@ -29,7 +33,14 @@ export interface ScreenProviderProps {
 export function ScreenProvider({ device, animate = true, children }: ScreenProviderProps) {
   const value = useMemo<ScreenInfo>(() => {
     const d = getDevice(device)
-    return { device: d, w: d.w, h: d.h, animate }
+    return {
+      device: d,
+      w: d.w,
+      h: d.h,
+      panels: panelCount(d.shell),
+      panelGap: panelGap(d.shell),
+      animate,
+    }
   }, [device, animate])
 
   return <ScreenContext value={value}>{children}</ScreenContext>

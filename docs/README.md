@@ -37,10 +37,11 @@ inventory, alongside the reference material extracted from its upstream source.
 | Vitro Launcher | [themes/vitrolauncher.md](themes/vitrolauncher.md) | [themes/vitrolauncher/reference/](themes/vitrolauncher/reference/) |
 | NextUI | [themes/nextui.md](themes/nextui.md) | [themes/nextui/reference/](themes/nextui/reference/) |
 | slot | [themes/slot.md](themes/slot.md) | [themes/slot/reference/](themes/slot/reference/) |
+| SimpleOS | [themes/simpleos.md](themes/simpleos.md) | [themes/simpleos/reference/](themes/simpleos/reference/) |
 | Example OS | [themes/example-cfw.md](themes/example-cfw.md) | none - it is a scaffold, not a reproduction |
 
 Pages still carrying a status banner describe the original mockups; each is rewritten for the
-React implementation as its theme is ported. All six sets above are ported.
+React implementation as its theme is ported. All seven sets above are ported.
 
 **[themes/example-cfw.md](themes/example-cfw.md) is the template for adding a theme.** It is
 ported, and it documents what a theme is made of and how to start a new one.
@@ -50,13 +51,15 @@ ported, and it documents what a theme is made of and how to start a new one.
 What the React implementation does differently from what it reproduces: every defect fixed, every
 deliberate deviation, and how each was verified. For the four sets that had one, the comparison is
 against the original vanilla-JS mockup; NextUI was built from firmware source directly, so its page
-compares against that.
+compares against that. SimpleOS has no source to read, so its page compares against the release
+trailer and what was recovered from the binary.
 
 - [porting/elementerial.md](porting/elementerial.md)
 - [porting/playstation-x.md](porting/playstation-x.md)
 - [porting/vitrolauncher.md](porting/vitrolauncher.md)
 - [porting/nextui.md](porting/nextui.md)
 - [porting/slot.md](porting/slot.md)
+- [porting/simpleos.md](porting/simpleos.md)
 - [porting/example-cfw.md](porting/example-cfw.md)
 
-All six sets are ported, so this list is complete.
+All seven sets are ported, so this list is complete.

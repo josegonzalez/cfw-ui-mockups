@@ -4,7 +4,15 @@ import { RenderModeProvider, type RenderMode } from '../render/RenderModeProvide
 import { ButtonCluster, Grip } from './ButtonCluster'
 import { ScreenProvider } from './ScreenContext'
 import { useViewOverrides } from './ViewOverrides'
-import { chinHeight, getDevice, gripWidth, radiusCss, type DeviceSlug } from './devices'
+import {
+  chinHeight,
+  getDevice,
+  gripWidth,
+  panelCount,
+  panelGap,
+  radiusCss,
+  type DeviceSlug,
+} from './devices'
 import './device-frame.css'
 import '../anim/anim.css'
 
@@ -23,6 +31,29 @@ export interface DeviceFrameProps {
   /** Hides the bezel and controls, leaving a bare screen. Used by the screenshot specs. */
   readonly bare?: boolean
   readonly children: ReactNode
+}
+
+/**
+ * The moulded parts of a clamshell that are not controls: the lid, the hinge barrel, the base,
+ * the recessed well each panel sits in, and the lid's two speaker grilles.
+ *
+ * Drawn behind the panels and the grips rather than as the body's own background, because a
+ * clamshell is two bodies joined by a hinge and one gradient reads as a single slab. Every piece
+ * is placed from the same custom properties the frame sizes itself with, so nothing here is a
+ * number of its own.
+ */
+function ClamshellBody() {
+  return (
+    <div className="clam" aria-hidden="true">
+      <div className="clam__lid" />
+      <div className="clam__base" />
+      <div className="clam__hinge" />
+      <div className="clam__well clam__well--top" />
+      <div className="clam__well clam__well--bottom" />
+      <div className="clam__speaker clam__speaker--left" />
+      <div className="clam__speaker clam__speaker--right" />
+    </div>
+  )
 }
 
 /**
@@ -52,12 +83,20 @@ export function DeviceFrame({
 
   const info = getDevice(device)
   const shell = info.shell
+  /*
+   * Two panels share one `.screen`, stacked with the hinge between them. One element rather than
+   * two is what keeps every consumer of `.screen` - the baselines, the compositing guard, the
+   * settle comparison - working unchanged on a device that has two.
+   */
+  const screenH = info.h * panelCount(shell) + panelGap(shell)
 
   // The shell is data, not a per-device stylesheet: ten devices would otherwise be ten blocks
   // of nearly identical CSS, and adding an eleventh would mean writing another one.
   const viewportStyle = {
     '--screen-w': info.w,
-    '--screen-h': info.h,
+    '--screen-h': screenH,
+    '--panel-h': `${info.h}px`,
+    '--hinge': `${panelGap(shell)}px`,
     '--scale': scale ?? info.viewScale,
     '--bezel-top': `${shell.bezel.top}px`,
     '--bezel-side': `${shell.bezel.side}px`,
@@ -98,6 +137,13 @@ export function DeviceFrame({
                   <>
                     {screen}
                     <ButtonCluster shell={shell} />
+                  </>
+                ) : shell.layout === 'clamshell' ? (
+                  <>
+                    <ClamshellBody />
+                    <Grip side="left" shell={shell} />
+                    {screen}
+                    <Grip side="right" shell={shell} />
                   </>
                 ) : (
                   /*

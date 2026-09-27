@@ -118,6 +118,9 @@ inference from the docs.
 | Text wrap and ellipsis | both | wrap yes, ellipsis is truncation plus marquee |
 | Physics-based motion (a spring carrying velocity across a target change) | absent - `spring` and `velocity` zero-hit | absent - same |
 | Composite a foreign framebuffer (a frame the UI does not produce, with a post pass over it) | absent - `emulator`, `libretro` and `frame_texture` zero-hit | absent - same |
+| Two output panels, one application across both | no - one global window and renderer (`apostrophe.h:4680, 4699`) | no - one window on display 0 (`window.go:34, 83`) |
+| Touch input | absent - `FINGERDOWN`, `TouchFinger`, `MOUSEBUTTONDOWN` zero-hit | absent - same |
+| Per-texture scale mode (nearest for pixel art) | no - bilinear hinted globally (`apostrophe.h:4696`); `SetTextureScaleMode` zero-hit | no - `SetTextureScaleMode` zero-hit; SDL's default nearest for everything |
 
 Two details worth recording:
 
@@ -405,6 +408,71 @@ hold-versus-tap throughout. The save-state switcher is a horizontal row of thumb
 three-key legend, which is gabagool's `List` with images or Apostrophe's `ap_selection`; the clock
 picker is a five-field editor that `ap_options_list` / `OptionList` covers; and the HUD plate is a
 rounded rect with an icon and a bar, which both draw natively.
+
+### SimpleOS
+
+Full spec: [`themes/simpleos/reference/source-notes.md`](themes/simpleos/reference/source-notes.md).
+
+> Assessed from the release binary, its strings and symbols, and the trailer - SimpleOS ships no
+> source. Built as `app/src/themes/simpleos/`; [`porting/simpleos.md`](porting/simpleos.md) records
+> the deviations. Checked against Apostrophe at `5ed3f74` and gabagool at `895f493`.
+
+The first set drawn across **two panels**, and otherwise the plainest in the registry. It has no
+motion at all, checked at 30fps and confirmed by a binary with no easing or timeline code. It has no
+theming and no degradable effect: all 20 of its fallback baselines are byte-identical to its normal
+ones. It draws with SDL2's 2D renderer using fills, rounded rects, an 8x8 bitmap font and icon
+textures, and nothing else. So its gaps are about the device, not the drawing.
+
+Missing from both frameworks:
+
+- **Two panels, one application.** SimpleOS drives a window and renderer per panel (`Video_top`,
+  `Video_bot`; `SIMPLEOS_OUT_TOP` / `SIMPLEOS_OUT_BOT`), and the panels are one screen: the bottom
+  panel's cursor decides what the top one draws. Apostrophe holds one window and one renderer in a
+  global (`include/apostrophe.h:4680, 4699`); gabagool opens one window on display 0
+  (`pkg/gabagool/internal/window.go:34, 83`). `GetNumVideoDisplays` is zero-hit in both. This is the
+  modal-composition blocker doubled: a widget owns the frame, and this screen is two frames at once.
+- **Chrome over a frame the UI does not produce.** The in-game menu is drawn straight over DraStic's
+  output with no scrim, and the RetroAchievements banner over the game's top panel - the "composite
+  a foreign framebuffer" row, absent in both, as for slot.
+- **Touch.** The boot screen continues on a tap of the bottom panel. Menus highlight on a first tap
+  and confirm on a second (`CHANGELOG.txt` 20260914), with a `*Hit` function per screen in the
+  binary (`Ui_homeHit`, `Ui_menuHit`, `Ui_optionsHit`). `FINGERDOWN`, `TouchFinger` and
+  `MOUSEBUTTONDOWN` are zero-hit in both. The only `touch` in either is a shell `touch /tmp/poweroff`
+  (`include/apostrophe.h:4427`, `pkg/gabagool/init.go:109`).
+- **A paged 3x2 grid** with the highlighted title's detail on the other panel - the grid row,
+  absent in both.
+- **A bitmap font at integer scales.** Every string is the binary's `FONT8X8` at 1x, 2x or 3x,
+  blitted with `Draw_pixel`. Both frameworks draw text only through SDL_ttf
+  (`TTF_RenderUTF8_Blended`, `include/apostrophe.h:2669`; `pkg/gabagool/internal/text_cache.go:58`).
+  Apostrophe's `SDL_RenderDrawPoint` calls are its anti-aliased circle
+  (`include/apostrophe.h:2508-2535`), not a glyph blitter. A TTF rebuilt from the table works at
+  exact multiples of 8px, which is how this port draws it, but Apostrophe loads its own fonts bold
+  (`include/apostrophe.h:1415`), which smears a pixel face. It would have to be opened by the caller
+  and handed to `ap_draw_text` directly. gabagool has no public way to open an arbitrary face.
+- **Nearest-neighbour scaling for the icons.** Each title's 32x32 banner icon is scaled per texture
+  (`SDL_SetTextureScaleMode` is among the binary's imports). Apostrophe hints bilinear filtering
+  globally (`include/apostrophe.h:4696`), and `SetTextureScaleMode` is zero-hit in both. gabagool
+  therefore inherits SDL's default nearest filter for every texture, with no way to vary it.
+- **Text with a dark edge.** The in-game menu and its title are drawn with `Draw_textShadow`,
+  straight over the game. `shadow`, `outline` and `stroke` are zero-hit in Apostrophe; gabagool's
+  four hits are anti-aliasing comments (`pkg/gabagool/internal/helpers.go:334, 364, 372-373`).
+
+Maps today, and the whole animation half of the matrix costs nothing here. This is the first set
+that asks for no tween, curve, timeline or effect, and Apostrophe's 50 ms pill lerp is the only
+motion either framework would have to turn off, as for NextUI. Beyond that:
+
+- Every settings screen - Options, Network, Game settings, This game with its `GLOBAL` / `ON` /
+  `OFF` cycling, Power, Video - is `ap_options_list` / `OptionList`: label left, value right, values
+  cycled in place.
+- `ap_draw_text_clipped` (`include/apostrophe.h:595`) is SimpleOS's own `draw_text_clipped`: a hard
+  cut at a width with no ellipsis, which is how every long title here ends.
+- The on-screen keyboard SimpleOS uses for Wi-Fi and RetroAchievements credentials is `ap_keyboard`
+  (`include/apostrophe_widgets.h:186`) or gabagool's `Keyboard` (`pkg/gabagool/keyboard.go:715`).
+- Controls' bind-and-add remapping is close to gabagool's input-capture wizard
+  (`pkg/gabagool/internal/input_capture.go`).
+- Held-button repeat and chords - MENU+L1 brightness, the Anbernic-key shortcuts - are both
+  frameworks' input layers, as for slot.
+- The cards, tiles and rows are rounded rects, which both draw natively.
 
 ## What a port would have to add
 

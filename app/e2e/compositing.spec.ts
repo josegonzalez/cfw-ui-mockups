@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test'
+import { expect, test, type Locator } from '@playwright/test'
 import { openScreen, screenId, settle, STATIC_ROUTES } from './support'
 
 /**
@@ -79,6 +79,53 @@ test('the guard catches an opaque layer over the content', async ({ page }) => {
   expect(await screen.evaluate(FIND_COVERING)).toContain('DIV.injected-fault')
 })
 
+/**
+ * The surfaces to check: each panel of a two-panel device, or the screen itself.
+ *
+ * On a two-panel device one panel is under half the screen, so an opaque layer over the whole of
+ * it would never reach the detector's share of the area. Checked per panel, it is the full-bleed
+ * fault it is on any other device.
+ */
+async function surfaces(screen: Locator): Promise<Locator[]> {
+  const panels = screen.locator('[data-panel]')
+  return (await panels.count()) > 0 ? panels.all() : [screen]
+}
+
+/**
+ * Sample a surface, scrolled into view first.
+ *
+ * `elementsFromPoint` sees only the viewport, and a point outside it returns nothing - which the
+ * detector reads as "nothing covering". A two-panel device at native scale is taller than the
+ * viewport, so without this its bottom panel passed every check without being looked at.
+ */
+async function covering(surface: Locator): Promise<string[]> {
+  await surface.scrollIntoViewIfNeeded()
+  return surface.evaluate(FIND_COVERING)
+}
+
+test('the guard catches an opaque layer over one panel of two', async ({ page }) => {
+  const route = STATIC_ROUTES.find((r) => r.theme === 'simpleos')
+  test.skip(!route, 'no two-panel route to inject into')
+  const screen = await openScreen(page, screenId(route!))
+  await settle(page)
+
+  const bottom = screen.locator('[data-panel="bottom"]')
+  expect(await covering(bottom)).toEqual([])
+
+  await bottom.evaluate((root) => {
+    const sheet = document.createElement('div')
+    sheet.className = 'injected-fault'
+    sheet.style.cssText =
+      'position:absolute;inset:0;z-index:9999;background:rgb(20,20,20);opacity:1;'
+    root.appendChild(sheet)
+  })
+
+  // Missed at screen scale, which is the reason for checking per panel...
+  expect(await covering(screen)).toEqual([])
+  // ...and caught at panel scale.
+  expect(await covering(bottom)).toContain('DIV.injected-fault')
+})
+
 for (const route of STATIC_ROUTES) {
   const id = screenId(route)
 
@@ -86,8 +133,8 @@ for (const route of STATIC_ROUTES) {
     const screen = await openScreen(page, id)
     await settle(page)
 
-    const offenders = await screen.evaluate(FIND_COVERING)
-
-    expect(offenders).toEqual([])
+    for (const surface of await surfaces(screen)) {
+      expect(await covering(surface)).toEqual([])
+    }
   })
 }

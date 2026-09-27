@@ -29,6 +29,26 @@ for (const route of ROUTES) {
     const screen = page.locator('.screen')
     await expect(screen).toBeVisible()
 
+    const panels = screen.locator('[data-panel]')
+    if ((await panels.count()) > 0) {
+      /*
+       * On a two-panel device the question is per panel: one blank panel is the failure, and an
+       * element count over the whole screen cannot see it. A panel may legitimately be a single
+       * full-bleed image - SimpleOS's splash is exactly that - so what is asked is whether it
+       * draws anything with a size, not how many elements it took.
+       */
+      for (const panel of await panels.all()) {
+        const drawn = await panel.evaluate((el) =>
+          [...el.querySelectorAll<HTMLElement>('*')].some((n) => {
+            const r = n.getBoundingClientRect()
+            return r.width > 0 && r.height > 0
+          }),
+        )
+        expect(drawn).toBe(true)
+      }
+      return
+    }
+
     // A screen that mounted but rendered nothing still passes a visibility check.
     const painted = await screen.evaluate((el) => el.querySelectorAll('*').length)
     expect(painted).toBeGreaterThan(5)
@@ -140,6 +160,15 @@ test('every theme is represented with preview art that actually loads', async ({
   const themes = new Set(ROUTES.map((route) => route.theme))
   const cards = page.locator('.gal-card')
   await expect(cards).toHaveCount(themes.size)
+
+  /*
+   * The previews are `loading="lazy"`, which is right for the page and means a card below the fold
+   * never fetches its art until it is scrolled to. Unscrolled, every such card reported "never
+   * decoded" - a fault in this check, not in the art - so each one is brought into view first.
+   */
+  for (const img of await page.locator('.gal-card__img').all()) {
+    await img.scrollIntoViewIfNeeded()
+  }
 
   // A broken preview still renders an <img> box, so check the decoded dimensions. Polled
   // rather than sampled once: an image that has not finished decoding also reports zero, and

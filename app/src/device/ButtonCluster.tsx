@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
 import { useInput } from '../input/InputProvider'
-import type { AuxKind, ChinShell, FlankingShell } from './devices'
+import type { AuxKind, ChinShell, ClamshellShell, FlankingShell } from './devices'
 import type { Button } from '../input/keymap'
 
 /**
@@ -112,6 +112,21 @@ function Aux({ kind }: { kind: AuxKind }) {
           <ClusterButton button="start" className="pill pill--grip" label="Start" />
         </div>
       )
+    case 'round-pair':
+      return (
+        <div className="aux-duo">
+          <ClusterButton button="select" className="aux-button" label="select" />
+          <ClusterButton button="start" className="aux-button" label="start" />
+        </div>
+      )
+    case 'menu-pair':
+      return (
+        <div className="aux-duo">
+          <ClusterButton button="menu" className="aux-button" label="menu" />
+          {/* Moulding only: the input map has no button for this key. */}
+          <span className="aux-button aux-button--inert" aria-hidden="true" />
+        </div>
+      )
   }
 }
 
@@ -122,7 +137,13 @@ function Aux({ kind }: { kind: AuxKind }) {
  * proportion on any panel - which is what the chin layout needs `controlScale` for. A grip has
  * its own width to measure against; a chin only has the panel's.
  */
-export function Grip({ side, shell }: { side: 'left' | 'right'; shell: FlankingShell }) {
+export function Grip({
+  side,
+  shell,
+}: {
+  side: 'left' | 'right'
+  shell: FlankingShell | ClamshellShell
+}) {
   const left = side === 'left'
   const auxTop = shell.aux.position === 'top'
   const kind = left ? shell.aux.left : shell.aux.right

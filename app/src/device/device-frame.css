@@ -582,3 +582,220 @@
     transparent 5px 13px
   );
 }
+
+/* --- clamshell body ------------------------------------------------------ */
+
+/*
+ * Two bodies joined by a hinge: the lid with the top panel, the base with the bottom panel
+ * between two grips. The panels share one `.screen`, so the frame lays out exactly like a
+ * flanking body whose panel happens to be tall - and the moulded parts are drawn behind it.
+ *
+ * The hinge gap is split three ways - the lid's own lower bezel, the barrel, and the base's upper
+ * bezel - in the proportions the RG DS reference photograph has. Only the total is data
+ * (`--hinge`); the split is a proportion of it here.
+ */
+.device[data-layout='clamshell'] {
+  --lid-foot: calc(var(--hinge) * 0.28);
+  --barrel: calc(var(--hinge) * 0.45);
+  --lid-h: calc(var(--bezel-top) + var(--panel-h) + var(--lid-foot));
+  --base-h: calc(var(--frame-h) - var(--lid-h) - var(--barrel));
+  /* The controls are moulded in a deeper shade of the body, not in black. */
+  --control: color-mix(in srgb, var(--body-b), #0a6f78 28%);
+  position: relative;
+  flex-direction: row;
+  align-items: flex-end;
+  padding: 0;
+  background: none;
+}
+
+.device[data-layout='clamshell'] .device__screen {
+  position: relative;
+  margin: var(--bezel-top) var(--bezel-side) var(--bezel-bottom);
+  /* The hinge shows through between the panels; each panel paints its own black. */
+  background: transparent;
+  box-shadow: none;
+  border-radius: 0;
+}
+
+/* The grips run the height of the base only. */
+.device[data-layout='clamshell'] .grip {
+  height: var(--base-h);
+}
+
+/* Measured off the photograph: pad and faces a quarter of the way down, sticks at two thirds,
+   and the small buttons almost at the foot. */
+.device[data-layout='clamshell'] .grip .grip__primary {
+  top: 25%;
+}
+.device[data-layout='clamshell'] .grip .grip__stick {
+  top: 66%;
+}
+.device[data-layout='clamshell'] .grip .grip__aux {
+  top: 93%;
+  left: 50%;
+}
+
+.device[data-layout='clamshell'] .dpad--disc::before {
+  display: none;
+}
+
+.device[data-layout='clamshell'] .dpad__btn,
+.device[data-layout='clamshell'] .dpad__center {
+  background: var(--control);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.3),
+    0 2px 3px rgba(0, 40, 50, 0.3);
+}
+
+/* A wide concave well with the cap standing in it, both in the body's own colour. */
+.device[data-layout='clamshell'] .stick {
+  background: radial-gradient(circle at 50% 35%, var(--body-b), var(--control));
+  box-shadow:
+    inset 0 3px 8px rgba(0, 50, 60, 0.35),
+    0 0 0 calc(var(--grip-w) * 0.06) color-mix(in srgb, var(--body-a), #fff 10%),
+    0 1px 0 calc(var(--grip-w) * 0.06) rgba(0, 50, 60, 0.2);
+}
+
+.device[data-layout='clamshell'] .stick__cap {
+  background: radial-gradient(circle at 42% 32%, var(--body-a), var(--control) 75%);
+  box-shadow:
+    inset 0 -2px 3px rgba(0, 50, 60, 0.35),
+    0 2px 4px rgba(0, 50, 60, 0.35);
+}
+
+.device[data-layout='clamshell'] .shoulder {
+  background: var(--control);
+  color: var(--body-ink);
+}
+
+.aux-duo {
+  display: flex;
+  gap: calc(var(--grip-w) * 0.08);
+}
+
+.device[data-layout='clamshell'] .aux-button {
+  width: calc(var(--grip-w) * 0.2);
+  height: calc(var(--grip-w) * 0.2);
+  background: radial-gradient(circle at 42% 34%, var(--body-a), var(--control));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.3),
+    0 2px 3px rgba(0, 50, 60, 0.3);
+}
+
+.clam > * {
+  position: absolute;
+}
+
+.clam__lid,
+.clam__base {
+  left: 0;
+  right: 0;
+  background: linear-gradient(175deg, var(--body-a) 0%, var(--body-b) 100%);
+  box-shadow:
+    inset 0 2px 0 rgba(255, 255, 255, 0.35),
+    inset 0 -3px 6px rgba(0, 60, 70, 0.15);
+}
+
+.clam__lid {
+  top: 0;
+  height: var(--lid-h);
+  border-radius: var(--body-radius) var(--body-radius) 12px 12px;
+}
+
+.clam__base {
+  bottom: 0;
+  height: var(--base-h);
+  border-radius: 12px 12px var(--body-radius) var(--body-radius);
+}
+
+/*
+ * The barrel: a rounded bar across the full width with a dark seam along its middle, where the
+ * photograph shows it turning away. The raised centre knuckle sits between two recesses.
+ */
+.clam__hinge {
+  left: 0;
+  right: 0;
+  top: var(--lid-h);
+  height: var(--barrel);
+  border-radius: calc(var(--barrel) / 2);
+  background: linear-gradient(180deg, #3cc3cd 0%, #19adb7 30%, #1a7f90 55%, #0b878f 100%);
+  box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.3);
+}
+
+.clam__hinge::after {
+  content: '';
+  position: absolute;
+  left: calc(var(--grip-w) + var(--bezel-side) + 40px);
+  right: calc(var(--grip-w) + var(--bezel-side) + 40px);
+  top: 8%;
+  bottom: 8%;
+  border-radius: calc(var(--barrel) / 2);
+  background: linear-gradient(180deg, var(--body-a) 0%, var(--body-b) 45%, #1d9aa6 100%);
+  box-shadow:
+    inset 0 2px 0 rgba(255, 255, 255, 0.35),
+    0 0 0 3px rgba(0, 70, 80, 0.25);
+}
+
+/* The frame each panel sits in: raised a little from the plastic, with a fine outline. */
+.clam__well {
+  left: calc(var(--grip-w) + var(--bezel-side) - 22px);
+  width: calc(var(--screen-w) * 1px + 44px);
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--body-a), var(--body-b) 50%);
+  box-shadow:
+    inset 0 0 0 2px rgba(0, 80, 90, 0.18),
+    0 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+.clam__well--top {
+  top: calc(var(--bezel-top) - 26px);
+  height: calc(var(--panel-h) + 52px);
+}
+
+/* The base's well runs out almost to the foot of the body, as the photograph's does. */
+.clam__well--bottom {
+  top: calc(var(--bezel-top) + var(--panel-h) + var(--hinge) - 26px);
+  height: calc(var(--panel-h) + 26px + var(--bezel-bottom) - 8px);
+}
+
+/* Quincunx grilles either side of the top panel, centred on it as the reference lid's are. */
+.clam__speaker {
+  top: calc(var(--bezel-top) + var(--panel-h) * 0.5 - 30px);
+  width: 60px;
+  height: 60px;
+  background:
+    radial-gradient(circle, var(--body-ink) 0 4px, transparent 5px) 0 0 / 30px 30px,
+    radial-gradient(circle, var(--body-ink) 0 4px, transparent 5px) 15px 15px / 30px 30px;
+  opacity: 0.65;
+}
+
+.clam__speaker--left {
+  left: calc((var(--grip-w) + var(--bezel-side)) / 2 - 30px);
+}
+
+.clam__speaker--right {
+  right: calc((var(--grip-w) + var(--bezel-side)) / 2 - 30px);
+}
+
+/*
+ * The shoulders are on the base's back edge, out of sight in a front-on photograph, so they are
+ * drawn as thin tabs along the top outer corners rather than as pills over the pad and faces.
+ */
+.device[data-layout='clamshell'] .grip .shoulder--grip {
+  top: 0;
+  min-width: calc(var(--grip-w) * 0.5);
+  padding: calc(var(--grip-w) * 0.012) 0;
+  font-size: calc(var(--grip-w) * 0.05);
+  border-radius: 0 0 calc(var(--grip-w) * 0.05) calc(var(--grip-w) * 0.05);
+  box-shadow: inset 0 -1px 0 rgba(0, 50, 60, 0.25);
+}
+
+.device[data-layout='clamshell'] .grip--left .shoulder--grip {
+  right: auto;
+  left: 10%;
+}
+
+.device[data-layout='clamshell'] .grip--right .shoulder--grip {
+  left: auto;
+  right: 10%;
+}

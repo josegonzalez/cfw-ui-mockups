@@ -1,0 +1,491 @@
+LCD1x
+Install now
+Update now
+slow
+Europe/Moscow
+Network preview
+Europe/Warsaw
+homenav
+Pacific/Honolulu
+SLOW %s dt=%u
+STALL %s dt=%u
+drop %s ign=%u
+batt
+/tmp/simpleos_ra_post
+Refresh list
+/sbin/reboot
+systemctl reboot
+Reboot
+SimpleOS bot
+Continent
+Power management
+Please wait
+/sys/class/backlight
+reset
+/tmp/simpleos-net.connect
+/tmp/simpleos-net.status
+/tmp/simpleos-install-status
+Points
+A  select      B  continents
+Wi-Fi, RetroAchievements
+Overrides the global defaults
+max_brightness
+%s/%s/brightness
+%s_0.dss
+pass
+userdata/maps
+%s.sos
+Africa/Lagos
+/mnt/mmc/simpleos
+/mnt/SDCARD/simpleos
+Remap DS buttons
+START  options
+userdata/icons
+Europe/Athens
+Controls
+No networks
+Refresh networks
+%d networks
+Europe/Paris
+Game settings
+Flags
+/tmp/save_nds/savestates
+/mnt/vendor/deep/drastic_aarch64/savestates
+/mnt/vendor/deep/drastic64/savestates
+Checking for updates
+Atlantic/Azores
+userdata/hires
+America/Argentina/Buenos_Aires
+Buenos Aires
+/mnt/SDCARD/games
+No games
+Hide finished games
+%d games
+Best on 3D games
+Archived titles
+America/Los_Angeles
+Los Angeles
+roms/nds
+/mnt/mmc/Roms/nds
+.nds
+.ids
+Waiting for DS ROMs
+%s%s
+r=login2&u=%s&p=%s
+r=gameid&m=%s
+%s/%s
+sh "%s" tz %s
+%u %s
+Signed in as %s
+sh "%s" %s
+Network  %s
+%s  ->  %s
+IP    %s
+Network error
+Error
+LCD1x + NDS Color
+zFast + NDS Color
+Sharp + NDS Color
+/usr/bin/amixer
+sh %s power
+Network, update, power
+America/Denver
+Later
+RetroAchievements user
+User
+userdata/shader
+A  toggle     
+  shader
+A  APPLY HIRES      
+  shader
+Shader
+MemAddr
+Sharp bilinear
+holdoff clear
+qwertyuiop
+%s.tmp
+system/splash/logo.bmp
+system/splash/logo2.bmp
+package.zip
+/tmp/simpleos-ota-zip
+SimpleOS-RGDS zip
+skip
+https://retroachievements.org/dorequest.php
+http://retroachievements.org/dorequest.php
+swap
+/tmp/simpleos_menu_tap
+remap
+Asia/Tokyo
+auto
+America/Toronto
+Africa/Cairo
+America/Sao_Paulo
+Sao Paulo
+America/Santiago
+America/Chicago
+down
+Several inputs per button
+./skeleton
+userdata/ra-session
+LCD1x + Natural Vision
+zFast + Natural Vision
+Sharp + Natural Vision
+/usr/bin/python
+Europe/London
+Europe/Lisbon
+wifi-on
+ssh-on
+Radio on
+Keep the RG DS on
+SSH on
+RA on
+Europe/Berlin
+Europe/Dublin
+%016llx.bin
+Leave the SD in and try again
+Try again
+Sign in
+Not signed in
+Signed in
+open
+No token
+Token
+Password hidden
+/tmp/simpleos-net.scan
+Confirm
+kmsdrm
+/proc/%d/comm
+/tmp/simpleos_nightdim
+/mnt/SDCARD/system
+System
+Europe/Amsterdam
+Asia/Seoul
+Europe/Istanbul
+/usr/bin/wpctl
+/usr/bin/pactl
+/usr/bin/curl
+.srl
+/tmp/simpleos_need_vol
+kill %d 2>/dev/null
+curl -fsS --max-time 15 -A SimpleOS -d @%s '%s' 2>/dev/null
+curl -fsS --max-time 20 -A SimpleOS -o "%s" -d @%s '%s' 2>/dev/null
+wget -q -T 15 -O - --post-file=%s '%s' 2>/dev/null
+wget -q -T 20 -O "%s" --post-file=%s '%s' 2>/dev/null
+netpoll
+fill
+--install
+fail
+A  confirm     B  cancel
+tap zone      A  list      B  cancel
+tap arrows      A  save      B  cancel
+Cancel
+manual
+apply-local
+global
+Global
+Network
+America/New_York
+New York
+Asia/Bangkok
+START  options    SELECT  clock
+/tmp/simpleos-net.lock
+Press a button or stick
+check
+OK connect     SELECT back
+OK save     SELECT back
+A  bind   X  add   B  back
+A  select     B  back
+A  install     B  back
+A  bind     X  add     B  back
+A  open      B  back
+A  move      B  back
+Back
+.dsi
+userdata/hw.ini
+userdata/settings.ini
+userdata/ra.ini
+Europe/Helsinki
+Pacific/Fiji
+Asia/Taipei
+Africa/Nairobi
+Asia/Shanghai
+Asia/Dubai
+Wi-Fi
+Australia/Perth
+splash
+%s/system/apply-hw.sh
+%s/system/net.sh
+%s/system/apply-power.sh
+%s/system/clock.sh
+%s/system/suspend.sh
+%s/system/ota.sh
+/tmp/simpleos_ra_patch
+home A launch
+%s.ach
+Africa/Johannesburg
+python3 "%s" '%s' %s 2>>/tmp/simpleos.log
+python3 "%s" '%s' %s "%s" 2>>/tmp/simpleos.log
+/tmp/simpleos-pad.log
+Asia/Hong_Kong
+Hong Kong
+Restarting
+Connecting
+Updating
+Updater missing
+net.sh missing
+ring
+Installing
+HOME  game config
+/mnt/vendor/deep/drastic_aarch64/config/drastic.cfg
+/mnt/vendor/deep/drastic64/config/drastic.cfg
+/sbin/poweroff
+systemctl poweroff
+menu input during holdoff
+wifi-off
+ssh-off
+Power off
+Radio off
+Do not turn off
+SSH off
+RA off
+0123456789abcdef
+Conservative
+  change  live
+A  play           X  archive
+userdata/ra-queue
+/usr/bin/amixer -q sset Master %d%% unmute
+/sys/power/state
+/mnt/mmc/simpleos/userdata/update
+/mnt/SDCARD/simpleos/userdata/update
+Manual update
+Update
+You're up to date
+Asia/Singapore
+Europe
+timezone
+none
+done
+/sys/class/power_supply/usb/online
+/sys/class/power_supply/rk-usb/online
+/sys/class/power_supply/axp2202-usb/online
+/sys/class/power_supply/AC/online
+userdata/noresume
+boot_resume
+auto_resume
+userdata/resume
+Auto-resume
+volume
+A  select     B  home
+A  cycle / Controls     B  home
+Europe/Rome
+Username
+last_game
+HOME on a title for per-game
+Identify game
+This game
+No game
+Choose a game
+Default for every title
+Title
+the console
+Password visible
+Update available
+/tmp/simpleos_woke
+wake
+userdata/ra-cache
+America/Anchorage
+Missing package
+Australia/Adelaide
+fade
+High performance
+Performance
+/tmp/simpleos_osd
+Enter user and password
+Password
+userdata/command
+wayland
+Pacific/Auckland
+Europe/Madrid
+/tmp/simpleos-ota.pid
+User saved
+Password saved
+Connected
+Connection failed
+Login failed
+Install failed
+Hash failed
+Session write failed
+Update failed
+Enabled
+/tmp/simpleos_splashed
+userdata/autoload
+Auto-load
+%02d %s %04d
+hires_3d
+%02d:%02d
+%04d-%02d-%02d
+%s scan=%d sym=%d rep=%d
+%s btn=%d
+%s btn=%d which=%d
+r=patch&u=%s&t=%s&g=%d
+menu confirm %s holdoff=%d
+mode %d->%d holdoff=%d
+RA #%d
+set %d
+set-volume %d
+RA game %d
+/proc
+sh "%s" resync
+/mnt/mmc
+Atlantic
+Pacific
+Asia/Jakarta
+/tmp/simpleos-ota
+Asia/Kolkata
+/mnt/mmc/simpleos/userdata
+/mnt/SDCARD/simpleos/userdata
+PatchData
+America/Lima
+Asia
+Australia
+Africa/Casablanca
+Africa
+America
+ASDFGHJKL_
+LIBRARY
+SHOW
+SIMPLEOS_APPLY_HW
+LCD1x + NDS + NV
+zFast + NDS + NV
+Sharp + NDS + NV
+MENU
+SIMPLEOS_HOST
+START
+SIMPLEOS_ROOT
+REBOOT
+SIMPLEOS_OUT_BOT
+BRIGHT
+RS RIGHT
+LS RIGHT
+NIGHT
+SHIFT
+RS LEFT
+LS LEFT
+RESET
+SELECT
+SIMPLEOS_INSTALL_STATUS
+MINUS
+PLUS
+SDL_MOUSE_TOUCH_EVENTS
+SDL_TOUCH_MOUSE_EVENTS
+RETROACHIEVEMENTS
+SimpleOS
+SIMPLE OS
+OPTIONS
+CONTROLS
+GAME SETTINGS
+SIMPLEOS_GAMES
+/mnt/mmc/Roms/NDS
+Nintendo DS
+RG DS
+HOUR
+POWER
+SDL_VIDEODRIVER
+RA USER
+SHADER
+YEAR
+JOYUP
+KEYUP
+RSUP
+LSUP
+GCUP
+RS UP
+LS UP
+SIMPLEOS_OUT_TOP
+QWERTYUIOP
+SIMPLEOS_OTA_ZIP
+VIDEO
+RS DOWN
+LS DOWN
+SIMPLEOS_POWERMON
+%s/system/VERSION
+JOYDN
+KEYDN
+RSDN
+LSDN
+GCDN
+SIMPLEOS_OTA_URL
+SIMPLEOS_INSTALL
+GLOBAL
+SIMPLEOS_PSK
+NETWORK
+CLOCK
+WIFI
+WI-FI
+SIMPLEOS_SPLASH
+SIMPLEOS_PADLOG
+POWER OFF
+0123456789ABCDEF
+ARCHIVE
+SAVE
+SIMPLEOS_OTA_REMOTE
+MANUAL UPDATE
+TIMEZONE
+RESUME
+VOLUME
+HOME
+THIS GAME
+HIDE
+SPACE
+Install from SD
+OTA or zip on the SD
+No zip on the SD
+RA PASSWORD
+/mnt/SDCARD
+GameID
+SIMPLEOS_SSID
+SIMPLEOS_WINDOWED
+SAVED
+SIMPLEOS_STACKED
+LOADED
+zFast LCD
+LOAD
+DraStic High res 3D
+HIGH RES 3D
+ANBERNIC
+Unknown on RA
+Reboot now?
+Power off now?
+Install this zip?
+<  >
+ZXCVBNM,;:
+rk3568
+/usr/bin/python3
+date -s '%04d-%02d-%02d %02d:%02d:00' >/dev/null 2>&1; hwclock -w -u >/dev/null 2>&1 || hwclock -w >/dev/null 2>&1
+1234567890
+sh "%s" set %04d-%02d-%02d %02d:%02d:00
+Copy the zip next to Roms/
+Copy .nds files to games/
+Put .nds files in games/
+zxcvbnm._/
+Pick a region, then a city.
+Touch the touch screen to continue.
+leave the home grid.
+Signing in...
+Identifying...
+Scanning...
+Updating timezone...
+vol-
+asdfghjkl-
+bri-
+vol+
+bri+
+Account password (not API key)
+A  apply (restarts)
+!@#$%^&*()
+sh -c 'sh "%s" connect; rm -f /tmp/simpleos-net.connect' >/dev/null 2>&1 &
+sh -c 'touch /tmp/simpleos-net.lock; sh "%s" status; rm -f /tmp/simpleos-net.lock' >/dev/null 2>&1 &
+sh "%s" %s >>/tmp/simpleos-hw.log 2>&1 &
+sh "%s" %s >>/tmp/simpleos-ota.log 2>&1 &
+/usr/bin/pactl set-sink-volume @DEFAULT_SINK@ %d%%
+/usr/bin/wpctl set-volume @DEFAULT_AUDIO_SINK@ %d%%

@@ -20,6 +20,7 @@ const PAIRS: Record<string, string> = {
   vitrolauncher: 'last-played',
   nextui: 'browser',
   slot: 'shelf',
+  simpleos: 'boot',
   'example-cfw': 'main-menu',
 }
 
