@@ -17,6 +17,7 @@ export type ThemeSlug =
   | 'slot'
   | 'simpleos'
   | 'tortos'
+  | 'neostation'
 
 /**
  * A capability a simple renderer may not have.

@@ -182,7 +182,9 @@ disable transitions rather than merely fail to enable them.
 Every curve in the repo, in one table with its provenance. Eight are the source format's own
 `mode=` vocabulary; `easeOutQuint` and `easeOutQuad` arrived from the other two themes and are the
 standard bezier approximations of the Penner curves they are named for, and `smoothstep` arrived
-with TortOS.
+with TortOS. The last eight are Flutter's `Curves`, which NeoStation uses by name. Flutter's cubic
+curves are different beziers from the two above that share their names, so those two take a
+`flutter` prefix rather than moving every other set's motion.
 
 | Name | Curve | From |
 | --- | --- | --- |
@@ -197,6 +199,14 @@ with TortOS.
 | `easeOutQuint` | `cubic-bezier(0.23,1,0.32,1)` | Elementerial, `Math::easeOutQuint` |
 | `easeOutQuad` | `cubic-bezier(0.25,0.46,0.45,0.94)` | Vitro Launcher's `--ease-out` |
 | `smoothstep` | `cubic-bezier(0.3333,0,0.6667,1)` | TortOS's `ease_smooth`, `3u^2 - 2u^3` - exact, not approximated |
+| `easeOutQuart` | `cubic-bezier(0.165,0.84,0.44,1)` | Flutter's `Curves.easeOutQuart`, NeoStation |
+| `easeOutExpo` | `cubic-bezier(0.19,1,0.22,1)` | Flutter's `Curves.easeOutExpo`, NeoStation |
+| `easeInQuint` | `cubic-bezier(0.755,0.05,0.855,0.06)` | Flutter's `Curves.easeInQuint`, NeoStation |
+| `easeInOutCubic` | `cubic-bezier(0.645,0.045,0.355,1)` | Flutter's `Curves.easeInOutCubic`, NeoStation |
+| `easeOutBack` | `cubic-bezier(0.175,0.885,0.32,1.275)` | Flutter's `Curves.easeOutBack`, NeoStation |
+| `fastOutSlowIn` | `cubic-bezier(0.4,0,0.2,1)` | Flutter's `Curves.fastOutSlowIn`, NeoStation |
+| `flutterEaseInCubic` | `cubic-bezier(0.55,0.055,0.675,0.19)` | Flutter's `Curves.easeInCubic`, NeoStation |
+| `flutterEaseOutCubic` | `cubic-bezier(0.215,0.61,0.355,1)` | Flutter's `Curves.easeOutCubic`, NeoStation |
 
 `bump` is the one inference. It has no documented curve upstream, but all thirteen of its uses
 are `scale 0.9|0.94 -> 1.0` and it never appears on opacity, so it reads as an overshoot pop.

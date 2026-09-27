@@ -83,10 +83,10 @@ function Dpad({ disc = false }: { disc?: boolean }) {
   )
 }
 
-/** The face diamond: X top, Y left, A right, B bottom. */
-function Faces() {
+/** The face diamond: X top, Y left, A right, B bottom - or Y top, X left, B right, A bottom on an Xbox layout. */
+function Faces({ layout }: { layout?: 'xbox' | undefined }) {
   return (
-    <div className="faces">
+    <div className="faces" data-faces={layout}>
       <ClusterButton button="x" className="face" label="X" />
       <ClusterButton button="y" className="face" label="Y" />
       <ClusterButton button="a" className="face" label="A" />
@@ -149,7 +149,11 @@ export function Grip({
   const kind = left ? shell.aux.left : shell.aux.right
 
   return (
-    <div className={`grip grip--${side}`} data-aux={shell.aux.position}>
+    <div
+      className={`grip grip--${side}`}
+      data-aux={shell.aux.position}
+      data-stagger={(shell.layout === 'flanking' && shell.stagger) || undefined}
+    >
       <ClusterButton
         button={left ? 'l' : 'r'}
         className="shoulder shoulder--grip"
@@ -157,7 +161,9 @@ export function Grip({
       />
 
       {/* The pad is seated in a round plate only on the bodies whose photographs show one. */}
-      <div className="grip__primary">{left ? <Dpad disc={!auxTop} /> : <Faces />}</div>
+      <div className="grip__primary">
+        {left ? <Dpad disc={!auxTop} /> : <Faces layout={shell.layout === 'flanking' ? shell.faces : undefined} />}
+      </div>
 
       {shell.sticks === 2 ? (
         <div className="grip__stick">

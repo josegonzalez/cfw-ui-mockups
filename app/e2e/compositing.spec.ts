@@ -47,6 +47,14 @@ const FIND_COVERING = (root: Element): string[] => {
         Number(cs.opacity) > 0.98 && bg !== 'rgba(0, 0, 0, 0)' && !bg.startsWith('rgba(')
       if (!opaque) continue
 
+      // A dialog the source draws inset over a dimmed screen - NeoStation's settings dialogs are
+      // 16 units in from every edge - hides that screen on purpose. It is exempt only while it is
+      // inset on every side: a full-bleed layer is the fault whatever it calls itself.
+      if (el.hasAttribute('data-dialog')) {
+        const inset = Math.min(r.left - box.left, r.top - box.top, box.right - r.right, box.bottom - r.bottom)
+        if (inset >= 1) continue
+      }
+
       // What it would hide: anything under it that is not one of its own containers. An
       // element's ancestors always sit below it in the stack, and counting them flagged every
       // full-bleed picture - slot's game panel - as covering the very box it is drawn in.
@@ -74,6 +82,22 @@ test('the guard catches an opaque layer over the content', async ({ page }) => {
   await screen.evaluate((root) => {
     const sheet = document.createElement('div')
     sheet.className = 'injected-fault'
+    sheet.style.cssText =
+      'position:absolute;inset:0;z-index:9999;background:rgb(20,20,20);opacity:1;'
+    root.querySelector('*')?.parentElement?.appendChild(sheet)
+  })
+
+  expect(await screen.evaluate(FIND_COVERING)).toContain('DIV.injected-fault')
+})
+
+test('a full-bleed layer is caught even when it says it is a dialog', async ({ page }) => {
+  const screen = await openScreen(page, screenId(STATIC_ROUTES[0]!))
+  await settle(page)
+
+  await screen.evaluate((root) => {
+    const sheet = document.createElement('div')
+    sheet.className = 'injected-fault'
+    sheet.setAttribute('data-dialog', '')
     sheet.style.cssText =
       'position:absolute;inset:0;z-index:9999;background:rgb(20,20,20);opacity:1;'
     root.querySelector('*')?.parentElement?.appendChild(sheet)

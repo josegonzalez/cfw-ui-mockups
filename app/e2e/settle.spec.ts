@@ -22,6 +22,7 @@ const PAIRS: Record<string, string> = {
   slot: 'shelf',
   simpleos: 'boot',
   tortos: 'systems',
+  neostation: 'systems',
   'example-cfw': 'main-menu',
 }
 

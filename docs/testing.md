@@ -83,6 +83,10 @@ An element's own containers do not count as what it covers: they always sit belo
 them flagged slot's game - one full-bleed picture, the whole screen by design - as covering the box
 it is drawn in.
 
+A dialog marked `data-dialog` is exempt while it is inset on every side. NeoStation's settings
+dialogs are 16 units in from each edge over a dimmed screen, most of the screen by design; a
+full-bleed layer is still caught whatever it calls itself, and a test proves it.
+
 A masked scrim is exempt from that guard - the mask is what stops it painting solid, and
 covering the whole panel is exactly what it is for. Its own failure mode, a mask that does not
 load, shows up as a failed request in the zero-console-errors check.

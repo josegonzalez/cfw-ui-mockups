@@ -24,6 +24,10 @@
  * `easeOutQuint` and `easeOutQuad` were added by the other two themes as CSS custom
  * properties; they are the standard bezier approximations of those Penner curves, so they
  * name cleanly rather than needing a theme-specific alias.
+ *
+ * The eight from `easeOutQuart` on are Flutter's `Curves`, for NeoStation. Flutter's cubic and
+ * quartic curves are not the same beziers as the ones above that share a name, so the two that
+ * collide carry a `flutter` prefix rather than moving every other set's motion.
  */
 export type EasingName =
   | 'linear'
@@ -37,6 +41,14 @@ export type EasingName =
   | 'easeOutQuint'
   | 'easeOutQuad'
   | 'smoothstep'
+  | 'easeOutQuart'
+  | 'easeOutExpo'
+  | 'easeInQuint'
+  | 'easeInOutCubic'
+  | 'easeOutBack'
+  | 'fastOutSlowIn'
+  | 'flutterEaseInCubic'
+  | 'flutterEaseOutCubic'
 
 /**
  * What an animation track drives.

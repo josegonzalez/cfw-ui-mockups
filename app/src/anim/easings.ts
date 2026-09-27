@@ -27,6 +27,17 @@ export const EASING_CSS: Record<EasingName, string> = {
   easeOutQuad: 'cubic-bezier(0.25,0.46,0.45,0.94)',
   /** TortOS's `ease_smooth`, `3u^2 - 2u^3`. With x linear this bezier is that curve exactly. */
   smoothstep: 'cubic-bezier(0.3333,0,0.6667,1)',
+  /** Flutter's `Curves` (`packages/flutter/lib/src/animation/curves.dart`), for NeoStation. */
+  easeOutQuart: 'cubic-bezier(0.165,0.84,0.44,1)',
+  easeOutExpo: 'cubic-bezier(0.19,1,0.22,1)',
+  easeInQuint: 'cubic-bezier(0.755,0.05,0.855,0.06)',
+  easeInOutCubic: 'cubic-bezier(0.645,0.045,0.355,1)',
+  easeOutBack: 'cubic-bezier(0.175,0.885,0.32,1.275)',
+  fastOutSlowIn: 'cubic-bezier(0.4,0,0.2,1)',
+  /** Flutter's `Curves.easeInCubic`, which is not the `easeInCubic` above. */
+  flutterEaseInCubic: 'cubic-bezier(0.55,0.055,0.675,0.19)',
+  /** Flutter's `Curves.easeOutCubic`, which is not the `easeOutCubic` above. */
+  flutterEaseOutCubic: 'cubic-bezier(0.215,0.61,0.355,1)',
 }
 
 /**
@@ -46,6 +57,14 @@ export const EASING_BEZIER: Record<EasingName, readonly [number, number, number,
   easeOutQuint: [0.23, 1, 0.32, 1],
   easeOutQuad: [0.25, 0.46, 0.45, 0.94],
   smoothstep: [1 / 3, 0, 2 / 3, 1],
+  easeOutQuart: [0.165, 0.84, 0.44, 1],
+  easeOutExpo: [0.19, 1, 0.22, 1],
+  easeInQuint: [0.755, 0.05, 0.855, 0.06],
+  easeInOutCubic: [0.645, 0.045, 0.355, 1],
+  easeOutBack: [0.175, 0.885, 0.32, 1.275],
+  fastOutSlowIn: [0.4, 0, 0.2, 1],
+  flutterEaseInCubic: [0.55, 0.055, 0.675, 0.19],
+  flutterEaseOutCubic: [0.215, 0.61, 0.355, 1],
 }
 
 export function easingToCss(name: EasingName | undefined): string {

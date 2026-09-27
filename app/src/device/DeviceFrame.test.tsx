@@ -267,6 +267,18 @@ describe('flanking bodies', () => {
     expect(bottom.querySelectorAll('.pill--grip')).toHaveLength(2)
   })
 
+  it('staggers the sticks only on the bodies that have them offset', () => {
+    // The Odin 2 Mini puts the left stick above the pad and the right stick below the face buttons,
+    // as an Xbox pad does; every other flanking body stacks the same way on both sides.
+    expect(frameFor('odin2-mini').querySelectorAll('.grip[data-stagger]')).toHaveLength(2)
+    expect(frameFor('rg552').querySelector('.grip[data-stagger]')).toBeNull()
+  })
+
+  it('draws an Xbox diamond only on the bodies that have one', () => {
+    expect(frameFor('odin2-mini').querySelector('.faces')).toHaveAttribute('data-faces', 'xbox')
+    expect(frameFor('rg552').querySelector('.faces')).not.toHaveAttribute('data-faces')
+  })
+
   it('draws a system button only where the hardware has one', () => {
     expect(frameFor('rg-cubexx').querySelector('.fn-button')).not.toBeNull()
     // The slimmer bodies put Select and Start at the top instead and have no system button.

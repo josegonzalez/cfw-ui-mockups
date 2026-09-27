@@ -20,6 +20,7 @@ for it.
 | `rg552`             | Anbernic RG552                | 1920x1152  | 5:3    | other     |
 | `trimui-brick`      | Trimui Brick                  | 1024x768   | 4:3    | other     |
 | `rg-ds`             | Anbernic RG DS                | 640x480    | 4:3    | 640x480   |
+| `odin2-mini`        | AYN Odin 2 Mini               | 1920x1080  | 16:9   | other     |
 
 Every resolution above is confirmed. The RG DS has **two** 640x480 panels, one in the lid and one
 in the base; the resolution column is per panel. SimpleOS's own splash bitmaps are 640x480 each,
@@ -74,6 +75,7 @@ different spacing:
 | `rg552` | flanking | 2 | yes | Widest body, panel across nearly the whole face |
 | `trimui-brick` | chin | - | yes | Boxy, tight corners, lower body as deep as the panel |
 | `rg-ds` | clamshell | 2 | yes | Turquoise, a panel in each half, speaker grilles on the lid - see below |
+| `odin2-mini` | flanking | 2 | yes | Slim 16:9 slab, sticks staggered as on an Xbox pad, two round buttons at each grip's foot - see below |
 
 **These are stylised silhouettes, not technical drawings.** They exist so the devices are
 distinguishable at a glance. The shell is mockup chrome and sits outside the portable widget
@@ -101,6 +103,15 @@ for this device even though the numbers look right.
 body, which is what the device is when it is open: panel above, controls below. The hinge and the
 upper half are not drawn. A folding shell would need a second body above the panel and a fold
 state to go with it, and nothing inside `.screen` depends on either.
+
+`odin2-mini` is the one body whose sticks are staggered: the left stick sits above the D-pad and
+the right below the face buttons, which is the shell's `stagger` flag rather than a case in the
+grip. Its face buttons follow the Xbox diamond - Y on top, A at the bottom - which is the shell's
+`faces: 'xbox'`; each button keeps its identity and only where it is drawn changes. Its reference photograph is kept with the set that uses it, at
+`docs/themes/neostation/reference/odin2-mini.webp`. The Pro is a RAM and storage tier on the same
+5" 1920x1080 panel, so one entry covers both. Of its four small buttons, the right pair is Select
+and Start and the left pair is the system button and a second key the input map has no button for,
+drawn as moulding.
 
 `rg-ds` is the only device with two panels. Its reference photograph is kept with the set that
 uses it, at `docs/themes/simpleos/reference/rg-ds.png`, and it is the same body the SimpleOS

@@ -32,6 +32,31 @@ export async function openScreen(page: Page, id: string, query = ''): Promise<Lo
       { timeout: 5000 },
     )
     .catch(() => undefined)
+  /*
+   * And the images CSS draws - a mask or a background. `document.images` does not list them, and
+   * one that lands after the first paint re-rasters only its own tiles: NeoStation's tinted glyphs
+   * did, and the blurred shadows across those tile edges came out a level or two different, so two
+   * captures of the same screen disagreed about one run in ten under load.
+   */
+  await page
+    .evaluate(async () => {
+      const urls = new Set<string>()
+      for (const el of document.querySelectorAll('.screen *')) {
+        const cs = getComputedStyle(el)
+        for (const value of [cs.maskImage, cs.getPropertyValue('-webkit-mask-image'), cs.backgroundImage]) {
+          for (const m of value.matchAll(/url\("?([^")]+)"?\)/g)) urls.add(m[1]!)
+        }
+      }
+      await Promise.all(
+        [...urls].map((src) => {
+          const img = new Image()
+          img.src = src
+          return img.decode().catch(() => undefined)
+        }),
+      )
+      await new Promise((done) => requestAnimationFrame(() => requestAnimationFrame(done)))
+    })
+    .catch(() => undefined)
   return screen
 }
 
