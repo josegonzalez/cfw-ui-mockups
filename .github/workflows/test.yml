@@ -5,6 +5,12 @@ on:
     branches:
       - main
   pull_request:
+  workflow_dispatch:
+    inputs:
+      grep:
+        description: Only run the e2e tests whose title matches this pattern
+        required: false
+        default: ''
 
 permissions:
   contents: read
@@ -20,9 +26,9 @@ jobs:
       run:
         working-directory: app
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: 24
           cache: npm
@@ -40,15 +46,20 @@ jobs:
 
   # The screenshot baselines are captured on macOS (`*-chromium-darwin.png`), so the e2e suite runs
   # there too: on Linux every baseline would be missing and font rasterisation would differ anyway.
+  # Split across four runners, since one takes the better part of an hour.
   e2e:
     runs-on: macos-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4]
     defaults:
       run:
         working-directory: app
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: 24
           cache: npm
@@ -58,12 +69,14 @@ jobs:
 
       - run: npx playwright install chromium
 
-      - run: npm run test:e2e
+      - run: npx playwright test --shard=${{ matrix.shard }}/4 ${GREP:+--grep "$GREP"}
+        env:
+          GREP: ${{ inputs.grep }}
 
       - if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
-          name: playwright-report
+          name: playwright-report-${{ matrix.shard }}
           path: |
             app/playwright-report
             app/test-results
