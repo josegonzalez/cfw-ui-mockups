@@ -1,0 +1,180 @@
+import { useEffect, useState, type ReactNode } from 'react'
+import { useScreen } from '../../../device/ScreenContext'
+import { useInteractive } from '../../../input/InputProvider'
+import { menuImg } from '../assets'
+import { ARROW, BAR, CLOCK_BOX, DATE_Y, H, MAIL_BUTTON, PAGE_W, SD_BUTTON, TILE, W, WII_BUTTON, tileBox } from '../layout'
+import { CHANNELS, CLOCK, DATE_LABEL, GRID, PAGES, PER_PAGE } from '../library'
+import type { Focus } from '../machine'
+import { MOTION } from '../motion'
+import { PALETTE } from '../palette'
+import { ChannelIcon } from './Channel'
+import { abs, Bubble, Clock, Img, motion, Text, type Box } from './parts'
+
+/**
+ * PORTING NOTES
+ * CFW: Wii Menu (System Menu 4.3U)   Devices: rg35xx
+ * Source: closed. Measured from `docs/themes/wii-menu/reference/frames/menu.png`, `menu-hover.png`
+ *         and `menu-page-2.png` (a 640x480 capture-card recording), with WM4K's `Wii Menu/` textures.
+ * Mode: reproduce
+ *
+ * Layout:        Four pages of a 4x3 grid of 120x90 slots on a 128x96 pitch, starting at (53, 37).
+ *                The next page's first column shows at the right edge and the previous page's
+ *                last at the left. Below, the bar: Wii button, SD Card Menu button, the
+ *                seven-segment clock in the bar's dip with the date under it, the Message Board
+ *                button.
+ * Focus & selection: The pointer's highlight: a cyan outline on the slot and a name bubble below
+ *                it. The + Control Pad moves it slot to slot; past the last column it turns the
+ *                page, below the last row it drops into the bar. Starts on the Disc Channel.
+ * Buttons:       A opens a channel's preview, or the bar button's screen. L / SELECT and R / START
+ *                are the Wii Remote's - and +, turning the page. MENU is HOME.
+ * Transitions:   A page turn slides the grid 512px in 334ms, decelerating (measured, 10 frames at
+ *                29.97fps). An empty slot's static flickers through WM4K's four frames.
+ * Notes:         The pointer is not drawn - a handheld has none - so the highlight stands for it.
+ *                An empty slot's static is drawn over a flat grey, the same as the captures show.
+ */
+
+/** An empty slot's static: WM4K's four frames, cycling while the live build runs. */
+function Static({ box }: { box: Box }) {
+  const live = useInteractive()
+  const { animate } = useScreen()
+  const [frame, setFrame] = useState(0)
+  useEffect(() => {
+    if (!live || !animate) return
+    const id = setInterval(() => setFrame((f) => (f + 1) % 4), MOTION.staticFrame)
+    return () => clearInterval(id)
+  }, [live, animate])
+  return <Img src={menuImg(`static-${frame}`)} box={box} style={{ opacity: 0.1 }} />
+}
+
+function Slot({ slot, box, focused }: { slot: number; box: Box; focused: boolean }) {
+  const id = GRID[slot]
+  const inner: Box = { x: 0, y: 0, w: box.w, h: box.h }
+  return (
+    <div
+      className="wii-slot"
+      data-slot={slot}
+      style={{
+        ...abs(box),
+        borderRadius: TILE.radius,
+        overflow: 'hidden',
+        background: id ? '#ffffff' : '#eeefef',
+        boxShadow: focused
+          ? `inset 0 0 0 3px ${PALETTE.cyan}, 0 0 6px ${PALETTE.cyanSoft}`
+          : `inset 0 0 0 2px ${PALETTE.tileEdge}`,
+      }}
+    >
+      {id ? <ChannelIcon id={id} box={inner} /> : <Static box={inner} />}
+      {/* The rim is drawn over the art, so a full-bleed icon still reads as a slot. */}
+      <div
+        style={{
+          ...abs(inner),
+          borderRadius: TILE.radius,
+          boxShadow: focused ? `inset 0 0 0 3px ${PALETTE.cyan}` : `inset 0 0 0 2px ${PALETTE.tileEdge}`,
+        }}
+      />
+    </div>
+  )
+}
+
+/**
+ * The bar's top edge: flat under the buttons, dipping in the middle round the clock. `closed` runs
+ * it round the bottom of the screen, for the fill; the cyan line follows only the edge itself.
+ */
+export function barPath(closed = true): string {
+  const { top, dip, dipFrom, dipTo, curve } = BAR
+  const edge = [
+    `M 0 ${top}`,
+    `L ${dipFrom - curve} ${top}`,
+    `C ${dipFrom - curve / 3} ${top}, ${dipFrom - curve / 3} ${dip}, ${dipFrom + curve / 2} ${dip}`,
+    `L ${dipTo - curve / 2} ${dip}`,
+    `C ${dipTo + curve / 3} ${dip}, ${dipTo + curve / 3} ${top}, ${dipTo + curve} ${top}`,
+    `L ${W} ${top}`,
+  ]
+  return (closed ? [...edge, `L ${W} ${H}`, `L 0 ${H}`, 'Z'] : edge).join(' ')
+}
+
+function RoundButton({ cx, cy, d, focused, children }: { cx: number; cy: number; d: number; focused: boolean; children: ReactNode }) {
+  const size = focused ? d + 6 : d
+  return (
+    <div
+      className="wii-round"
+      data-focused={focused || undefined}
+      style={{
+        ...abs({ x: cx - size / 2, y: cy - size / 2, w: size, h: size }),
+        borderRadius: '50%',
+        background: 'radial-gradient(circle at 50% 35%, #ffffff 0%, #eef0f1 55%, #d6dadd 100%)',
+        border: `${focused ? 4 : 3}px solid ${focused ? PALETTE.cyan : PALETTE.cyanSoft}`,
+        boxShadow: focused ? `0 0 10px ${PALETTE.cyanSoft}` : '0 2px 4px rgba(0,0,0,0.15)',
+        boxSizing: 'border-box',
+      }}
+    >
+      {children}
+    </div>
+  )
+}
+
+export function Bar({ focus }: { focus: Focus }) {
+  const on = (item: 'wii' | 'sd' | 'mail') => focus.area === 'bar' && focus.item === item
+  const wiiInner = WII_BUTTON.d - 12
+  return (
+    <>
+      <svg className="wii-bar" width={W} height={H} style={{ position: 'absolute', left: 0, top: 0 }}>
+        <defs>
+          <linearGradient id="wii-bar-fill" x1="0" y1="0" x2="0" y2="1">
+            <stop offset={BAR.top / H} stopColor={PALETTE.bar} />
+            <stop offset="1" stopColor={PALETTE.barLow} />
+          </linearGradient>
+        </defs>
+        <path d={barPath()} fill="url(#wii-bar-fill)" />
+        <path d={barPath(false)} fill="none" stroke={PALETTE.cyan} strokeWidth={3} />
+      </svg>
+      <RoundButton cx={WII_BUTTON.cx} cy={WII_BUTTON.cy} d={WII_BUTTON.d} focused={on('wii')}>
+        <Img src={menuImg('wii-button')} box={{ x: 3, y: 3, w: wiiInner, h: wiiInner }} style={{ opacity: 0.7 }} />
+      </RoundButton>
+      <Img src={menuImg(on('sd') ? 'sd-lit' : 'sd')} box={SD_BUTTON} />
+      <RoundButton cx={MAIL_BUTTON.cx} cy={MAIL_BUTTON.cy} d={MAIL_BUTTON.d} focused={on('mail')}>
+        <Img src={menuImg('mail')} box={{ x: (MAIL_BUTTON.d - 6 - 44) / 2, y: 20, w: 44, h: 30 }} />
+      </RoundButton>
+      <Clock cx={CLOCK_BOX.cx} cy={CLOCK_BOX.cy} hour={CLOCK.hour} minute={CLOCK.minute} pm={CLOCK.pm} digit={CLOCK_BOX.digit} />
+      <Text box={{ x: 0, y: DATE_Y, w: W, h: 34 }} size={30} weight={700} color={PALETTE.clock}>
+        {DATE_LABEL}
+      </Text>
+      {on('wii') ? <Bubble x={WII_BUTTON.cx - 12} y={WII_BUTTON.cy - WII_BUTTON.d / 2 - 44} label="Wii Options" /> : null}
+      {on('sd') ? <Bubble x={SD_BUTTON.x - 20} y={SD_BUTTON.y - 46} label="SD Card Menu" /> : null}
+      {on('mail') ? <Bubble x={MAIL_BUTTON.cx - 190} y={MAIL_BUTTON.cy - MAIL_BUTTON.d / 2 - 44} label="Wii Message Board" /> : null}
+    </>
+  )
+}
+
+/** The Wii Menu: the grid strip, its arrows, and the bar. */
+export function Menu({ page, focus }: { page: number; focus: Focus }) {
+  const { animate } = useScreen()
+  const focusedSlot = focus.area === 'grid' ? page * PER_PAGE + focus.slot : -1
+  // Every page is laid out side by side; the strip slides so the current page is in place. Slots
+  // more than one page away are never on screen, so only the neighbours are drawn.
+  const slots = GRID.map((_, i) => i).filter((i) => Math.abs(Math.floor(i / PER_PAGE) - page) <= 1)
+  const bubbleAt = focus.area === 'grid' ? tileBox(focus.slot) : null
+  return (
+    <div className="wii-menu-screen" style={{ ...abs({ x: 0, y: 0, w: W, h: H }), background: `linear-gradient(${PALETTE.ground} 60%, ${PALETTE.groundLow})` }}>
+      <div
+        className="wii-strip"
+        data-page={page}
+        style={{
+          ...abs({ x: 0, y: 0, w: W, h: H }),
+          transform: `translateX(${-page * PAGE_W}px)`,
+          transition: motion(animate, [{ property: 'transform', duration: MOTION.pageTurn, easing: 'easeOutCubic' }]),
+        }}
+      >
+        {slots.map((i) => {
+          const p = Math.floor(i / PER_PAGE)
+          const b = tileBox(i % PER_PAGE)
+          return <Slot key={i} slot={i} box={{ ...b, x: b.x + p * PAGE_W }} focused={i === focusedSlot} />
+        })}
+      </div>
+      {page > 0 ? <Img src={menuImg('arrow-left')} box={{ x: ARROW.leftCx - ARROW.size / 2, y: ARROW.cy - ARROW.size / 2, w: ARROW.size, h: ARROW.size }} /> : null}
+      {page < PAGES - 1 ? <Img src={menuImg('arrow-right')} box={{ x: ARROW.rightCx - ARROW.size / 2, y: ARROW.cy - ARROW.size / 2, w: ARROW.size, h: ARROW.size }} /> : null}
+      <Bar focus={focus} />
+      {bubbleAt && GRID[focusedSlot] ? <Bubble x={bubbleAt.x + 10} y={bubbleAt.y + bubbleAt.h + 8} label={CHANNELS[GRID[focusedSlot]!].title} /> : null}
+    </div>
+  )
+}

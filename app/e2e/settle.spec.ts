@@ -24,6 +24,7 @@ const PAIRS: Record<string, string> = {
   tortos: 'systems',
   neostation: 'systems',
   'ds-style': 'home',
+  'wii-menu': 'health',
   'example-cfw': 'main-menu',
 }
 

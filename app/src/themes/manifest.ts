@@ -10,6 +10,7 @@ import { SIMPLEOS_MANIFEST } from './simpleos/manifest'
 import { TORTOS_MANIFEST } from './tortos/manifest'
 import { SLOT_MANIFEST } from './slot/manifest'
 import { VITRO_MANIFEST } from './vitrolauncher/manifest'
+import { WII_MENU_MANIFEST } from './wii-menu/manifest'
 
 /**
  * What screens exist, as plain data.
@@ -38,6 +39,7 @@ export const SCREEN_MANIFEST: readonly ScreenManifestEntry[] = [
   ...TORTOS_MANIFEST,
   ...NEOSTATION_MANIFEST,
   ...DS_STYLE_MANIFEST,
+  ...WII_MENU_MANIFEST,
   ...EXAMPLE_MANIFEST,
 ]
 
