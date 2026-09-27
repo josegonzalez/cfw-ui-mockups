@@ -1,0 +1,25 @@
+/* DS Style's 8x12 bitmap face, rebuilt as a TTF by docs/themes/ds-style/reference/extract-assets.py.
+   At 36px one font pixel is three device pixels, so every edge lands on a whole pixel. */
+@font-face {
+  font-family: 'DS Style Bitmap';
+  src: url('./assets/fonts/DSStyleBitmap.ttf') format('truetype');
+  font-display: block;
+}
+
+.ds-style {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.ds-text {
+  font-family: 'DS Style Bitmap';
+  font-size: 36px;
+  line-height: 36px;
+  white-space: pre;
+  font-synthesis: none;
+  -webkit-font-smoothing: none;
+  font-smooth: never;
+  font-kerning: none;
+}

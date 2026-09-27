@@ -35,6 +35,7 @@ const PREVIEWS: Array<{ slug: string; route: string; selector?: string }> = [
   { slug: 'simpleos', route: 'simpleos/rg-ds/home', selector: '[data-panel="bottom"]' },
   { slug: 'tortos', route: 'tortos/trimui-brick/games' },
   { slug: 'neostation', route: 'neostation/odin2-mini/games' },
+  { slug: 'ds-style', route: 'ds-style/rg-sp/games' },
   { slug: 'example-cfw', route: 'example-cfw/rg35xx/main-menu' },
 ]
 
