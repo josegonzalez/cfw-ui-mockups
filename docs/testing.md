@@ -123,6 +123,12 @@ the Vitest invariants described above.## Playwright
 Run with `npm run test:e2e`; `npm run test:e2e:update` rewrites the baselines. The baselines are
 the regression gate: a change that leaves every number right and the screen wrong still fails.
 
+Locally the specs run against the dev server. CI runs them against a production build under
+`vite preview`, in five shards: every test opens a fresh browser context, and against the dev
+server that meant fetching the whole unbundled module graph again for every one of them.
+`E2E_PREVIEW=1` does the same locally. The screen checks share one page load per route, as steps
+of one test, for the same reason.
+
 | Spec | What it asserts |
 | --- | --- |
 | `baseline.spec.ts` | A screenshot of every route against a stored baseline |
