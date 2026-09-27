@@ -123,7 +123,7 @@ inference from the docs.
 | Two output panels, one application across both | no - one global window and renderer (`apostrophe.h:4680, 4699`) | no - one window on display 0 (`window.go:34, 83`) |
 | Touch input | absent - `FINGERDOWN`, `TouchFinger`, `MOUSEBUTTONDOWN` zero-hit | absent - same |
 | Per-texture scale mode (nearest for pixel art) | no - bilinear hinted globally (`apostrophe.h:4696`); `SetTextureScaleMode` zero-hit | no - `SetTextureScaleMode` zero-hit; SDL's default nearest for everything |
-| Textured geometry (arbitrary vertex quads, for per-card perspective) | absent - `RenderGeometry`, `Vertex` and `RenderCopyEx` zero-hit | absent - same |
+| Textured geometry (arbitrary vertex quads, for per-card perspective) | absent - `RenderGeometry`, `Vertex` and `RenderCopyEx` zero-hit | absent - `RenderGeometry` and `Vertex` zero-hit; `CopyEx` only rotates the internal display canvas (`internal/window.go:247`) |
 | Additive blending | absent - `BLENDMODE_BLEND` and `NONE` only | absent - same |
 
 Two details worth recording:
@@ -715,6 +715,62 @@ Maps today:
   - The scrolling title is clipped to its column: Apostrophe clips, gabagool does not.
 - **Input.** Held-direction repeat (350ms, then 100ms) and the MENU + VOL chord are both frameworks'
   input layers.
+
+### Wii Menu
+
+Full spec: [`themes/wii-menu/reference/source-notes.md`](themes/wii-menu/reference/source-notes.md).
+
+> Assessed from recordings of System Menu 4.3U and the WM4K texture pack - the Wii Menu is closed.
+> Built as `app/src/themes/wii-menu/`; [`porting/wii-menu.md`](porting/wii-menu.md) records the
+> deviations. Checked against Apostrophe at `5ed3f74` and gabagool at `895f493`.
+
+The screens are simple to draw - flat fills, pills, textures, one family of text - but nearly every
+one is one thing moving over another: a preview growing out of a grid slot, a HOME Menu sliding over
+whatever is showing, a page of channels sliding past its neighbours. The composition blocker and the
+missing animation system are most of the gap.
+
+Missing from both frameworks:
+
+- **A paged grid that slides.** Four pages of 4x3 slots side by side, the neighbouring pages' edge
+  columns showing, sliding 512px in 334ms. Grid and tween are both absent.
+- **A panel that grows out of a slot.** The preview scales from the 120x90 slot to 585x439 while the
+  grid fades to black, then reverses on Wii Menu. That is a composed panel drawn scaled, which needs
+  render to texture: Apostrophe never calls `SetRenderTarget`, and gabagool only internally. The
+  panel also clips its banner to rounded corners; `RenderSetClipRect` is rectangular in Apostrophe
+  and zero-hit in gabagool, and a rounded clip is zero-hit in both.
+- **Overlays over a live screen.** The HOME Menu over the Wii Menu or a running channel, the name
+  bubble over the grid, the SD Card Menu's About dialog and "No Miis have been registered" over
+  their screens. The dim itself is no gap - both fill with alpha (`ap_fade_draw`,
+  `include/apostrophe.h:712`; `pkg/gabagool/list.go:191`) - but keeping anything drawn beneath it
+  is the composition blocker.
+- **Motion on named curves, several tracks at once, some looping.** The HOME Menu's bars slide in
+  217ms while the screen dims, Settings pages slide 283ms, empty slots cycle four static frames and
+  the Health & Safety prompt pulses. Named curves and looping tracks are zero-hit in both.
+- **Text from 10px to 38px in three weights**, one family. Both have six fixed tiers, and Apostrophe
+  loads every face bold.
+
+Not on this list:
+- **The Settings pages.** Each is one whole image per state, so a port shows an image. They are WebP
+  here; Apostrophe initialises PNG and JPEG only (`include/apostrophe.h:4556`), so a port would ship
+  PNG.
+- **The bar's curved edge and the gradients.** Bezier and polygon fills are zero-hit in both, but
+  both can be images.
+- **Tinted textures.** The clock, mail icon and Nintendo Channel name are tinted in the images.
+
+Maps today:
+
+- **Screen changes from black.** Every screen but the preview fades up from black, which is
+  `ap_fade_begin_in` and `ap_fade_draw` (`include/apostrophe.h:691, 712`) - linear, where the port
+  eases out. gabagool's router hard-cuts.
+- **Settings lists.** Four items and Back is `ap_list` (`include/apostrophe_widgets.h:117`) or
+  gabagool's `List` (`pkg/gabagool/list.go:149`).
+- **Pick-one pages.** Sound, TV Resolution and the rest choose one of two or three, the shape of
+  `ap_selection` (`include/apostrophe_widgets.h:228`) or `SelectionMessage`
+  (`pkg/gabagool/selection_message.go:66`), though the Wii shows them full-screen with Back and
+  Confirm.
+- **Yes and No.** Wii System Update is `ap_confirmation` (`include/apostrophe_widgets.h:213`) or
+  `ConfirmationMessage` (`pkg/gabagool/confirmation_message.go:63`).
+- **Input.** D-pad focus and the shoulder buttons are both frameworks' input layers.
 
 ## What a port would have to add
 
