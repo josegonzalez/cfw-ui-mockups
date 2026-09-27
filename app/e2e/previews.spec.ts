@@ -30,6 +30,7 @@ const PREVIEWS: Array<{ slug: string; route: string; selector?: string }> = [
    * preview, and the card crops that to a strip of hinge; the grid is what reads as SimpleOS.
    */
   { slug: 'simpleos', route: 'simpleos/rg-ds/home', selector: '[data-panel="bottom"]' },
+  { slug: 'tortos', route: 'tortos/trimui-brick/games' },
   { slug: 'example-cfw', route: 'example-cfw/rg35xx/main-menu' },
 ]
 

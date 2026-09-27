@@ -1,0 +1,18 @@
+/*
+ * TortOS's one font: Josefin Sans Regular, which it ships as `res/fonts/menu.ttf` and draws every
+ * word in at five sizes. Its vertical metrics are ascent 750, descent 250 and no line gap, so a
+ * line box exactly as tall as the font size is where SDL_ttf draws a surface.
+ */
+@font-face {
+  font-family: 'TortOS Josefin Sans';
+  src: url('./assets/fonts/JosefinSans-Regular.ttf') format('truetype');
+  font-display: block;
+}
+
+.tortos {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  font-synthesis: none;
+  isolation: isolate;
+}

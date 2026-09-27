@@ -1,0 +1,94 @@
+TortOS on-screen strings, from ericreinsmidt/TortOS v1.0-3-g9b9c342.
+%s, %d are the source's own format specifiers.
+
+== Shelf (src/main.c) ==
+%d game / %d games / %d album / %d albums
+no games in Roms/%s
+%d / %d
+No games found
+Put ROMs in Roms/<System>/ on the card
+one folder per system, named as in systems.cfg
+needs Bios/syscard3.pce
+
+== TortOS menu (src/sys_menu.c:79-143), heading "TortOS" ==
+Play Time
+Wi-Fi                  <ssid> | connecting | not connected | off
+Bluetooth              <device> | not connected
+Audio Output           auto (speaker|wired|bluetooth) | <destination>
+Over The Hare          needs Wi-Fi
+Auto Off               never | 30s | 1m | 2m | 5m | 10m
+UI Theme               Plain Jane | Fancy Pants
+UI Direction           Horizontal | Vertical | Cubic
+Box Art                needs Wi-Fi
+Cheevos                <user> | sign in
+ScreenScraper          <user> | sign in | not in this build
+Controls
+About TortOS
+
+== System menu (src/sys_menu.c:26-76), heading = system name ==
+Games <n> / Core <core> / Sort By <sort> / Display Mode <mode> / Box Art / Rescan Folder
+Favorites: Games / Sort By
+Muse: Albums / Sort By (Artist | Album) / Album Art / Rescan Folder
+Sort By: Name | Play Time | Last Played | Recently Added      (src/sort.h:44-47)
+Display Mode: Stretch | Aspect | Integer | Integer tall | Overscale | Fill | Native 1:1   (src/main.c:122-130)
+
+== Wi-Fi (src/wifi_menu.c) ==
+Wi-Fi  on | off
+<ssid>  strong | good | weak   + " - connected" | " - saved" | " - open"   ("saved" before a scan)
+Turn Wi-Fi on to scan / No networks found / Scanning... / Y: rescan   X: forget / Y: rescan
+Turning Wi-Fi on... / Wi-Fi did not come up / Connecting... / Connected to %s / Could not connect to %s
+Forget %s? / Forget %s? You are connected to it and will lose the network.
+Forget / Cancel / Forgot %s / Could not forget %s
+
+== Bluetooth (src/bt_menu.c) ==
+Bluetooth  no adapter | on | off;  <device>  connected | paired | in range
+A: turn on at the next boot / A: turn on / Searching... / Y: search
+A: turn off   Y: search / A: disconnect   Y: search   X: forget
+A: connect   Y: search   X: forget / A: pair   Y: search
+
+== Play Time (src/main.c:5783) ==
+All Time | This Year | This Month | This Week | Today      value "<duration> · N launch(es)"
+N launch(es)  ·  longest <duration>  ·  <ago>[  ·  N lost]
+A: go    Y: by system    L/R: window  /  A: go    Y: by game    L/R: window
+Nothing played yet
+durations: never | Ns | Nm Ns | Nh Nm;  ages: today | yesterday | Nd ago | Nw ago | Nmo ago
+
+== About TortOS ==
+Version / Address (no address yet | not connected) / Battery (N%[ charging] | unknown) / Awake for (%uh %02um)
+
+== Controls (src/controls.c), heading "Controls: <page>" ==
+Moving | On the shelf | In a game | In Muse | Anywhere;  footer "Left/Right: more"
+* Genesis and SNES: not turbo
+
+== Over The Hare ==
+heading "<address>\nPIN <pin>";  Browsers (waiting | 1 connected | N connected);
+Transferred ("X in / Y out" | nothing yet); Now;  Wi-Fi went away / Could not start / Scanning...
+
+== Box Art ==
+heading "Box Art\n<now | problem | Done | starting>";  Systems "a of b";
+Art "x found, y missing, z already";  B to stop / B to close;  No network
+one game: fetching | found | replaced | not found | not found, kept the old one
+
+== Sign-in ==
+RetroAchievements User / ScreenScraper User / Password
+Not on a network. Connect Wi-Fi first. / This build has no ScreenScraper key.
+Signing in... / Signed in as %s / Sign-in failed
+
+== Keyboard (src/keyboard.c) ==
+A type / B delete / X shift|unshift / Y symbols|letters / L/R cursor / START done / MENU cancel / space
+
+== Game details (src/game_menu.c) ==
+Synopsis (none) / Year / Genre / Cheevos ("E/N, P/T points" | none) / Get Box Art | Replace Box Art (needs Wi-Fi)
+
+== Achievements ==
+heading "<title>\nE/N cheevos   P/T points";  detail: <description> | The set carries no description.
+Points / Status (Earned | Not earned);  toast "Unlocked  -  N point(s)"
+
+== In-game ==
+Continue / Save / Load / Display <mode> / Cheevos ("E / T" | none) / Reset / Quit
+Save to / Load from / Auto / Slot N / Empty / "—" under an empty slot when saving
+
+== Muse ==
+tracks heading "<album>\n<artist>";  playing | paused;  "[Paused: ]<title>  -  <artist>   m:ss / m:ss"
+N of M / Paused / Stopped / -m:ss / Next: %s
+A: pause    L1/R1: track    Left/Right: seek    Y: mode   (A: play when paused)

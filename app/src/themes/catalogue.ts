@@ -7,6 +7,7 @@ import vitrolauncherPreview from '../assets/previews/vitrolauncher.png'
 import nextuiPreview from '../assets/previews/nextui.png'
 import slotPreview from '../assets/previews/slot.png'
 import simpleosPreview from '../assets/previews/simpleos.png'
+import tortosPreview from '../assets/previews/tortos.png'
 import exampleCfwPreview from '../assets/previews/example-cfw.png'
 
 /**
@@ -181,6 +182,29 @@ export const THEMES: readonly ThemeEntry[] = [
     fonts: ['SimpleOS 8x8'],
     ported: true,
     docPath: 'docs/themes/simpleos.md',
+  },
+  {
+    slug: 'tortos',
+    name: 'TortOS',
+    author: 'ericreinsmidt',
+    kind: 'Custom firmware for the TrimUI Brick',
+    summary:
+      'A launcher that is a shelf: a coverflow of consoles, then of one console\'s games, that can be stood on end or folded into a cube. Every other screen - settings, game details, achievements, Muse the music player - is one panel drawn over it.',
+    highlights: [
+      'A coverflow whose cards turn in perspective and reflect onto one floor',
+      'Cubic: two axes on one surface, each turn a quarter of a cube',
+      'Every menu one panel, with a highlight that chases the cursor',
+    ],
+    preview: tortosPreview,
+    previewAlt: 'TortOS games shelf: Chrono Trigger centred in a coverflow of SNES games, its neighbours turned away',
+    accent: '#3dd6ff',
+    // One palette. What a player switches is the card art and which way the shelf runs.
+    swatches: [],
+    views: 30,
+    devices: ['trimui-brick'],
+    fonts: ['Josefin Sans'],
+    ported: true,
+    docPath: 'docs/themes/tortos.md',
   },
   {
     slug: 'example-cfw',

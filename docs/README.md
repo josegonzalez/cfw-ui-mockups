@@ -38,10 +38,11 @@ inventory, alongside the reference material extracted from its upstream source.
 | NextUI | [themes/nextui.md](themes/nextui.md) | [themes/nextui/reference/](themes/nextui/reference/) |
 | slot | [themes/slot.md](themes/slot.md) | [themes/slot/reference/](themes/slot/reference/) |
 | SimpleOS | [themes/simpleos.md](themes/simpleos.md) | [themes/simpleos/reference/](themes/simpleos/reference/) |
+| TortOS | [themes/tortos.md](themes/tortos.md) | [themes/tortos/reference/](themes/tortos/reference/) |
 | Example OS | [themes/example-cfw.md](themes/example-cfw.md) | none - it is a scaffold, not a reproduction |
 
 Pages still carrying a status banner describe the original mockups; each is rewritten for the
-React implementation as its theme is ported. All seven sets above are ported.
+React implementation as its theme is ported. All eight sets above are ported.
 
 **[themes/example-cfw.md](themes/example-cfw.md) is the template for adding a theme.** It is
 ported, and it documents what a theme is made of and how to start a new one.
@@ -52,7 +53,8 @@ What the React implementation does differently from what it reproduces: every de
 deliberate deviation, and how each was verified. For the four sets that had one, the comparison is
 against the original vanilla-JS mockup; NextUI was built from firmware source directly, so its page
 compares against that. SimpleOS has no source to read, so its page compares against the release
-trailer and what was recovered from the binary.
+trailer and what was recovered from the binary. TortOS was built from its C source, so its page
+compares against that and the reference frames the source repo ships.
 
 - [porting/elementerial.md](porting/elementerial.md)
 - [porting/playstation-x.md](porting/playstation-x.md)
@@ -60,6 +62,7 @@ trailer and what was recovered from the binary.
 - [porting/nextui.md](porting/nextui.md)
 - [porting/slot.md](porting/slot.md)
 - [porting/simpleos.md](porting/simpleos.md)
+- [porting/tortos.md](porting/tortos.md)
 - [porting/example-cfw.md](porting/example-cfw.md)
 
-All seven sets are ported, so this list is complete.
+All eight sets are ported, so this list is complete.
