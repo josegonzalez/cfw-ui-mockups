@@ -110,6 +110,7 @@ inference from the docs.
 | Clip / scissor | yes, 12 sites | `SetClipRect` never called |
 | Arbitrary font sizes and families | 6 fixed tiers, one family, forced bold; accepts a caller's `TTF_Font*` | 6 fixed tiers, one typeface, no public arbitrary-size open |
 | Font line-height metrics | not exposed | not exposed |
+| Italic, and a regular weight beside bold | no - `TTF_STYLE_ITALIC` zero-hit; every font set bold at load (`apostrophe.h:1415`) | no - `italic` zero-hit; embedded Bold faces, no style call |
 | SVG | no | `oksvg`, but only inside `ProcessMessage` |
 | WebP | no - `IMG_INIT_PNG \| IMG_INIT_JPG` | effectively no - see below |
 | Animated GIF | `IMG_LoadAnimation` never referenced | absent |
@@ -544,6 +545,97 @@ Maps today:
 - Held-button repeat (300ms, then 90ms) is both frameworks' input layer. TortOS has no chords to
   ask for.
 
+### NeoStation
+
+Full spec: [`themes/neostation/reference/source-notes.md`](themes/neostation/reference/source-notes.md).
+
+> Assessed from the Flutter source, `misobadev/neostation-frontend` at `d9bece5`. Built as
+> `app/src/themes/neostation/`; [`porting/neostation.md`](porting/neostation.md) records the
+> deviations. Checked against Apostrophe at `5ed3f74` and gabagool at `895f493`.
+
+The first set written against a retained-mode toolkit. Everything is laid out in units of a 640x480
+design size and scaled to the screen, in one face at dozens of sizes, in 14 switchable Material
+colour schemes. Its screens are the tab bar floating over a tab's content, with a dialog, menu or
+panel over both. So it asks for the composition model first and a drawing layer second. It is
+also the only set with italic text.
+
+Missing from both frameworks:
+
+- **A header over every tab, and dialogs over a live screen.** The header floats over the tab
+  content (`lib/screens/app_screen.dart:713-736`). Every dialog is `showDialog` over the screen
+  behind it, with a black 0.54 barrier. The Options menu is anchored to its card, with a submenu
+  beside it. This is the modal-composition blocker: both frameworks clear the frame for each
+  screen.
+- **A tab bar.** A glass pill of icon tabs with a highlight that slides 160ms `easeInOut`, cycled by
+  the bumpers across whichever tabs Settings leaves visible (`lib/widgets/header.dart:365, 605`).
+  The `tab` and `Tab` hits in both are tables (`include/apostrophe_widgets.h:285-288`,
+  `pkg/gabagool/detail.go:205`). Neither has one.
+- **A grid with a spanning cell.** The Recent card fills the top-left 3x2 block of the systems grid,
+  and moves step off it by its edge. A focus box slides between cards 256ms `fastOutSlowIn`
+  (`my_systems_grid.dart:1311`). This is the grid row; the only grid in either is the colour
+  picker's (`pkg/gabagool/color_picker.go:16-17`).
+- **A carousel with depth.** `NativeCarousel` falls off in scale and opacity per page from the
+  centre, 0.6 at the centre losing 1.0 per page to a floor of 0.1 (`lib/widgets/native_carousel.dart:19-32`),
+  with a chip bar under it. This is the carousel row, absent in gabagool and a row of text pills in
+  Apostrophe.
+- **Cubic Bézier curves and concurrent tracks.** The source's curves are Flutter's: `easeOutQuart`,
+  `fastOutSlowIn` (`Cubic(0.4, 0, 0.2, 1)`), `easeInOutCubic` and `easeOutCubic`, among others.
+  `bezier` and `cubic` are zero-hit in both. The grid's focus box moves and resizes on one clock,
+  and a carousel page moves and fades on one. Both frameworks animate at most one property of one
+  widget.
+- **Arbitrary sizes and an icon font.** Anta opens at every `.r` size the source names, times the
+  device's text scale. The icons are Material Symbols drawn by codepoint at 12 to 48 units. Both
+  frameworks fix six tiers.
+- **Italic.** The scraper's estimate, its thread states and its idle slots are `FontStyle.italic`
+  (`scraping_content.dart:294, 518, 532`), synthesised from Anta's one upright face. `italic` and
+  `TTF_STYLE_ITALIC` are zero-hit in both. Apostrophe sets every font bold at load
+  (`include/apostrophe.h:1415`), and gabagool embeds Bold faces with no style call
+  (`pkg/gabagool/internal/fonts_nextui.go:7-10`). So neither can draw a regular weight beside a
+  bold one either.
+- **Tinted glyphs.** Every button glyph, system logo and bumper is a monochrome image drawn in a
+  theme colour (`Image.asset(color:)`, `lib/widgets/core_footer.dart:203-205`). `SetColorMod` is
+  zero-hit in both. Apostrophe's `SetTextureAlphaMod` calls are its own status sprites only
+  (`include/apostrophe.h:2559, 2625, 4039, 4182`).
+- **A theme that is a colour scheme.** 14 built-in themes, each a Material `ColorScheme` of some
+  thirty roles plus a corner-radius tier, switched at runtime from Settings (`lib/themes/*_theme.dart`).
+  Both frameworks' themes are NextUI's seven colours.
+- **Shadows and gradients.** `BoxShadow` sits under every pill (`core_footer.dart:176`). A
+  `LinearGradient` fades the fanart into the list (`lib/screens/game_screen/my_games_list.dart:975`),
+  and 16 files draw one. `shadow` and `gradient` are zero-hit in both.
+- **WebP.** All 111 system logos are `.webp` (`assets/images/logos/`). Apostrophe initialises PNG
+  and JPG only, and gabagool's `INIT_WEBP` is the nominal flag recorded above.
+- **Clipped scrolling panes.** The games list, the details card, dropdowns and the settings pages
+  each scroll inside a clip. Apostrophe clips (the Clip / scissor row); `SetClipRect` is zero-hit in
+  gabagool.
+
+The glass is not on this list: NeoGlass's blur is off by default and draws a flat tint without it
+(`lib/widgets/neo_glass.dart:119-120`), and its rim is web-only here. Video, the music card's
+shaders and downloaded art packs are not reproduced, so they are not asked for.
+
+Maps today:
+
+- The header's clock and battery are both frameworks' status bars. Apostrophe draws a battery
+  sprite (`ap_draw_status_bar`, `include/apostrophe.h:4213`). gabagool has a 12- or 24-hour clock
+  (`pkg/gabagool/status_bar.go:12-17`), which is NeoStation's "Use 12-Hour Clock".
+- Every footer of button hints is `ap_draw_footer` (`include/apostrophe.h:3322`) or gabagool's
+  `FooterHelpItem`. Every confirm - Logout, Delete, Confirm Exit - is `ap_confirmation`
+  (`include/apostrophe_widgets.h:213`) or `ConfirmationMessage`
+  (`pkg/gabagool/confirmation_message.go:63`).
+- The scan bar, the storage meters and the scraper's stat bars are `ap_draw_progress_bar`
+  (`include/apostrophe.h:3073`). gabagool draws one only inside its download screen
+  (`pkg/gabagool/download.go:119-143`).
+- Settings' toggle and value rows are `ap_options_list` or `OptionsList`
+  (`pkg/gabagool/option_list.go:254`). Game info's metadata and description are the shape of
+  gabagool's `DetailScreen` sections (`pkg/gabagool/detail.go:164-182`).
+- Pills, rounded rects and the step indicator's circles are native in both (`ap_draw_pill`,
+  `ap_draw_circle`, `include/apostrophe.h:2610, 2658`).
+- Held-button repeat is both frameworks' input layer: Apostrophe's 300ms then 100ms
+  (`include/apostrophe.h:133-134`) against the source's 300ms then 80ms. Select + A and Select + Y
+  are chords, which both detect (`AP_COMBO_CHORD`, `include/apostrophe.h:342`;
+  `pkg/gabagool/combo.go:14`).
+- Text is measured to lay out the header, and wrapped and ellipsised in every panel, which both
+  frameworks' text primitives do.
+
 ## What a port would have to add
 
 Common to both, and in rough dependency order:
@@ -551,15 +643,17 @@ Common to both, and in rough dependency order:
 1. A compositor or scene layer that lets widgets coexist on one screen, replacing the
    blocking-modal model.
 2. A time-based tween system with named easing curves - at minimum easeOutQuint, easeOut,
-   exponential ease-out, linear, smoothstep and smootherstep - supporting per-property durations,
-   per-property delays, concurrent tracks, and restart-on-event. Alongside it, a **velocity-carrying
+   exponential ease-out, linear, smoothstep and smootherstep, and cubic Béziers for Flutter's curves
+   such as `fastOutSlowIn` - supporting per-property durations, per-property delays, concurrent
+   tracks, and restart-on-event. Alongside it, a **velocity-carrying
    integrator**: slot's shelf is a critically damped spring with no duration at all, and a tween
    system cannot express one.
 3. Render-to-texture as a public facility, for screen transitions, blur and TortOS's cube,
    with textured geometry and additive blending beside it.
 4. Image fit modes (contain with box-shrink-to-image, cover with centre crop, stretch,
    derive-one-axis-from-aspect) with public alpha and tint.
-5. Arbitrary font sizes and families, with the face's line metrics exposed.
+5. Arbitrary font sizes and families, with the face's line metrics exposed, and italic and regular
+   as well as bold.
 6. A grid and a carousel.
 7. A data-driven theme and layout format, rather than 7 or 8 colours and compiled-in integer
    literals.
