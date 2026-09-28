@@ -10,6 +10,7 @@ import simpleosPreview from '../assets/previews/simpleos.png'
 import tortosPreview from '../assets/previews/tortos.png'
 import neostationPreview from '../assets/previews/neostation.png'
 import dsStylePreview from '../assets/previews/ds-style.png'
+import wiiMenuPreview from '../assets/previews/wii-menu.png'
 import exampleCfwPreview from '../assets/previews/example-cfw.png'
 
 /**
@@ -251,6 +252,29 @@ export const THEMES: readonly ThemeEntry[] = [
     fonts: ['DS Style 8x12 bitmap'],
     ported: true,
     docPath: 'docs/themes/ds-style.md',
+  },
+  {
+    slug: 'wii-menu',
+    name: 'Wii Menu',
+    author: 'Nintendo',
+    kind: 'Console system menu, System Menu 4.3U',
+    summary:
+      'The Wii\'s own menu as System Menu 4.3U draws it: four pages of channels in a 4x3 grid over a seven-segment clock, channel previews that grow out of their slot, the HOME Menu, Wii Settings, the SD Card Menu and the Wii Message Board. Built from captures of the console and the WM4K texture pack.',
+    highlights: [
+      'Laid out 1:1 in the Wii\'s 608x456 frame, inside the 640x480 signal the console sends',
+      'Wii Settings shown from WM4K\'s whole-page textures, one for every focus and choice',
+      'Channel previews grow out of their grid slot and shrink back into it',
+    ],
+    preview: wiiMenuPreview,
+    previewAlt: 'The Wii Menu: the stock channels in a 4x3 grid, the Disc Channel highlighted, the clock reading 9:12 PM',
+    accent: '#34bee6',
+    // One look, with nothing to switch between.
+    swatches: [],
+    views: 45,
+    devices: ['rg35xx'],
+    fonts: ['M PLUS 1p, for Rodin NTLG'],
+    ported: true,
+    docPath: 'docs/themes/wii-menu.md',
   },
   {
     slug: 'example-cfw',

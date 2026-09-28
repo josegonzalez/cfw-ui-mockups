@@ -38,7 +38,7 @@ which is the source XML transcribed:
 
 | Field | Meaning |
 | --- | --- |
-| `property` | The channel: `opacity`, `offsetX`, `offsetY`, `x`, `y`, `scale`, `zIndex` |
+| `property` | The channel: `opacity`, `offsetX`, `offsetY`, `x`, `y`, `scale`, `scaleX`, `zIndex` |
 | `from` / `to` | Endpoints. Length channels are fractions of screen width or height |
 | `begin` / `duration` | Milliseconds. With `autoreverse`, `duration` is **one leg** |
 | `mode` | A named easing curve |
@@ -52,7 +52,7 @@ A **storyboard** is a bundle of tracks keyed by event: `open`, `activateNext`, `
 
 A track with `from` but no `to` animates to the element's *authored* value. Because authored
 position is expressed as left/top rather than as a transform, that value is always the
-channel's identity - 0 for offsets, 1 for opacity and scale. That is what `CHANNELS[].rest` is,
+channel's identity - 0 for offsets, 1 for opacity, scale and scaleX. That is what `CHANNELS[].rest` is,
 and why it is per-channel rather than per-element.
 
 ## The pipeline
@@ -132,9 +132,12 @@ recomposes them:
 ```css
 .px-anim {
   transform: translate(var(--px-x), var(--px-y)) translate(var(--px-ox), var(--px-oy))
-    scale(var(--px-sc));
+    scale(var(--px-sc)) scaleX(var(--px-scx));
 }
 ```
+
+`scaleX` stretches only horizontally, after `scale`, for something turning edge-on about its
+vertical axis - the Wii Menu's Disc Channel icon.
 
 The `@property` registration is load-bearing. Without it a custom property is an untyped string,
 the browser cannot interpolate it, and every animation snaps between keyframes instead of

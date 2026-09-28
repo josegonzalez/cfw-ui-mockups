@@ -9,6 +9,7 @@ import { simpleosRoutes } from './simpleos/routes'
 import { tortosRoutes } from './tortos/routes'
 import { slotRoutes } from './slot/routes'
 import { vitroRoutes } from './vitrolauncher/routes'
+import { wiiMenuRoutes } from './wii-menu/routes'
 
 /**
  * Every screen in the application.
@@ -25,5 +26,6 @@ export const ROUTES: readonly ScreenRoute[] = [
   ...tortosRoutes(),
   ...neostationRoutes(),
   ...dsStyleRoutes(),
+  ...wiiMenuRoutes(),
   ...exampleRoutes(),
 ]

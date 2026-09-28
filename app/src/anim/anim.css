@@ -36,9 +36,14 @@
   inherits: false;
   initial-value: 1;
 }
+@property --px-scx {
+  syntax: '<number>';
+  inherits: false;
+  initial-value: 1;
+}
 
 .px-anim {
   transform: translate(var(--px-x), var(--px-y)) translate(var(--px-ox), var(--px-oy))
-    scale(var(--px-sc));
+    scale(var(--px-sc)) scaleX(var(--px-scx));
   will-change: transform, opacity;
 }

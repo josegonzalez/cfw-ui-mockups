@@ -20,6 +20,8 @@ export const CHANNELS: Record<Channel, { readonly axis: 'w' | 'h' | null; readon
     x: { axis: 'w', rest: 0 },
     y: { axis: 'h', rest: 0 },
     scale: { axis: null, rest: 1 },
+    // Horizontal only, on top of `scale`: a card or disc turning edge-on about its vertical axis.
+    scaleX: { axis: null, rest: 1 },
     zIndex: { axis: null, rest: 0 },
   }
 

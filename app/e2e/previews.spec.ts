@@ -36,6 +36,7 @@ const PREVIEWS: Array<{ slug: string; route: string; selector?: string }> = [
   { slug: 'tortos', route: 'tortos/trimui-brick/games' },
   { slug: 'neostation', route: 'neostation/odin2-mini/games' },
   { slug: 'ds-style', route: 'ds-style/rg-sp/games' },
+  { slug: 'wii-menu', route: 'wii-menu/rg35xx/menu' },
   { slug: 'example-cfw', route: 'example-cfw/rg35xx/main-menu' },
 ]
 

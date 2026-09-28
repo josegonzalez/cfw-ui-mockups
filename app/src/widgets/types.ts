@@ -19,6 +19,7 @@ export type ThemeSlug =
   | 'tortos'
   | 'neostation'
   | 'ds-style'
+  | 'wii-menu'
 
 /**
  * A capability a simple renderer may not have.

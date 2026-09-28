@@ -1,0 +1,63 @@
+/* M PLUS 1p, the stand-in for the Wii's Rodin NTLG, cut to Latin by
+   docs/themes/wii-menu/reference/build-fonts.sh. */
+@font-face {
+  font-family: 'M PLUS 1p';
+  src: url('./assets/fonts/MPLUS1p-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-display: block;
+}
+@font-face {
+  font-family: 'M PLUS 1p';
+  src: url('./assets/fonts/MPLUS1p-Medium.woff2') format('woff2');
+  font-weight: 500;
+  font-display: block;
+}
+@font-face {
+  font-family: 'M PLUS 1p';
+  src: url('./assets/fonts/MPLUS1p-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-display: block;
+}
+
+/* The 640x480 signal: black, with the Wii's 608x456 frame inside it (layout.ts). */
+.wii-menu {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  isolation: isolate;
+  background: #000;
+}
+
+.wii-frame {
+  position: absolute;
+  overflow: hidden;
+}
+
+.wii-menu img {
+  display: block;
+  user-select: none;
+}
+
+.wii-text {
+  font-family: 'M PLUS 1p', sans-serif;
+  font-synthesis: none;
+}
+
+/* The preview's big outlined title, as the Mii Channel's banner draws it. */
+.wii-outline {
+  -webkit-text-stroke: 2px #9fcfd6;
+}
+
+/* The circled A the Health & Safety prompt uses. */
+.wii-circled {
+  display: inline-block;
+  width: 1.05em;
+  height: 1.05em;
+  line-height: 0.98em;
+  border: 2px solid currentColor;
+  border-radius: 50%;
+  font-size: 0.8em;
+  text-align: center;
+  vertical-align: 0.1em;
+  box-sizing: border-box;
+}
