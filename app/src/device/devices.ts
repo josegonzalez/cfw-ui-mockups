@@ -21,6 +21,10 @@ export type DeviceSlug =
   | 'trimui-brick'
   | 'rg-ds'
   | 'odin2-mini'
+  | 'miyoo-a30'
+  | 'miyoo-flip'
+  | 'miyoo-mini-v4'
+  | 'miniloong-pocket1'
 
 /** The four first-class panel classes. `other` covers the odd sizes. */
 export type ResolutionClass = '640x480' | '1280x720' | '720x720' | 'other'
@@ -46,8 +50,8 @@ interface ShellCommon {
    * far harder than the other three, and that asymmetry is most of its silhouette.
    */
   readonly radius: number | readonly [number, number, number, number]
-  /** Analog sticks. */
-  readonly sticks: 0 | 2
+  /** Analog sticks. One is a left stick alone, below the pad, as the A30 and Pocket 1 have. */
+  readonly sticks: 0 | 1 | 2
   /** A collar around each stick, which some devices make a feature of. */
   readonly stickRing?: 'rgb' | 'light' | undefined
   /** Body gradient, dark to darker. */
@@ -86,7 +90,8 @@ export type ShellLayout = 'chin' | 'flanking' | 'console' | 'clamshell'
  * `pair` is Select and Start side by side on one moulded pad; `select` and `start` are one round
  * button each, split across the two grips; `function` is a lone system button.
  *
- * `round-pair` is Select and Start as two separate round buttons on one grip, and `menu-pair` is
+ * `round-pair` is Select and Start as two separate round buttons on one grip, `round-stack` the same
+ * two one above the other, and `menu-pair` is
  * the system button beside a second round key the input map has no button for - the RG DS puts
  * one of each at the foot of its grips. The second key is moulding, not a control: it is drawn so
  * the grip reads right, and it cannot be pressed because there is nothing for it to press.
@@ -99,6 +104,7 @@ export type AuxKind =
   | 'function'
   | 'round-pair'
   | 'menu-pair'
+  | 'round-stack'
 
 /**
  * A console's video output rather than a handheld.
@@ -135,6 +141,11 @@ export interface ChinShell extends ShellCommon {
   readonly shoulders2?: boolean | undefined
   /** A speaker grille in the bottom-right corner. */
   readonly speakerGrille?: boolean | undefined
+  /**
+   * A hinge barrel across the top of the chin: a clamshell with one panel, whose lid is the panel's
+   * own bezel and whose base is the chin. The Miyoo Flip folds this way.
+   */
+  readonly hinge?: boolean | undefined
 }
 
 export interface FlankingShell extends ShellCommon {
@@ -167,6 +178,11 @@ export interface FlankingShell extends ShellCommon {
    * either way: only where it is drawn changes.
    */
   readonly faces?: 'xbox' | undefined
+  /**
+   * Whether the pad sits in a round plate. Bodies with their small buttons at the bottom have one
+   * unless their photograph shows otherwise, as the Miyoo A30's does.
+   */
+  readonly padDisc?: boolean | undefined
   readonly aux: {
     readonly position: 'top' | 'bottom'
     readonly left: AuxKind
@@ -261,6 +277,10 @@ const BODY = {
   indigo: ['#6b62aa', '#4c4483'],
   /** The RG DS turquoise, sampled from its reference photograph. */
   turquoise: ['#64d2dd', '#57c8d4'],
+  /** The Miyoo A30's brushed gold face, sampled from its reference photograph. */
+  gold: ['#ddc9a4', '#bea77f'],
+  /** The Miyoo Flip's white, sampled from its reference photograph. */
+  white: ['#f3f3f1', '#d8d8d4'],
 } as const satisfies Record<string, readonly [string, string]>
 
 /** Printed-name colours. Pale bodies need dark ink; the default grey vanishes on them. */
@@ -660,6 +680,115 @@ export const DEVICES: Record<DeviceSlug, Device> = {
       hinge: 190,
       body: BODY.turquoise,
       ink: INK.teal,
+    },
+  },
+  'miyoo-a30': {
+    slug: 'miyoo-a30',
+    label: 'Miyoo A30',
+    w: 640,
+    h: 480,
+    aspect: '4:3',
+    resolutionClass: '640x480',
+    viewScale: 0.66,
+    /*
+     * Matched to a reference photograph (`docs/themes/spruceos/reference/devices/miyoo-a30.jpg`).
+     *
+     * A landscape slab in the Famicom's gold and red: the pad high on the left over a single stick,
+     * the faces high on the right over Select and Start stacked one above the other. The red trim
+     * around the panel and the body's edge is not drawn.
+     */
+    shell: {
+      layout: 'flanking',
+      bezel: { top: 74, side: 8, bottom: 60 },
+      radius: 56,
+      sticks: 1,
+      gripWidth: 0.56,
+      padDisc: false,
+      aux: { position: 'bottom', left: 'none', right: 'round-stack' },
+      body: BODY.gold,
+      ink: INK.dark,
+    },
+  },
+  'miyoo-flip': {
+    slug: 'miyoo-flip',
+    label: 'Miyoo Flip',
+    w: 640,
+    h: 480,
+    aspect: '4:3',
+    resolutionClass: '640x480',
+    viewScale: 0.8,
+    /*
+     * Matched to a reference photograph of the white model
+     * (`docs/themes/spruceos/reference/devices/miyoo-flip.jpg`).
+     *
+     * A vertical clamshell with one panel, in the lid. The base below the hinge carries the Menu
+     * button at the top, the pad and faces, then two sticks with Select and Start between them. A
+     * chin body with a hinge drawn across its top, which is the body open; the fold is not drawn.
+     */
+    shell: {
+      layout: 'chin',
+      bezel: { top: 72, side: 36, bottom: 62 },
+      radius: [30, 30, 44, 44],
+      sticks: 2,
+      controlScale: 2,
+      chinExtra: 150,
+      menuButton: true,
+      hinge: true,
+      body: BODY.white,
+      ink: INK.dark,
+    },
+  },
+  'miyoo-mini-v4': {
+    slug: 'miyoo-mini-v4',
+    label: 'Miyoo Mini v4',
+    w: 752,
+    h: 560,
+    aspect: '4:3',
+    resolutionClass: 'other',
+    viewScale: 1,
+    /*
+     * Matched to a reference photograph of the grey colourway
+     * (`docs/themes/spruceos/reference/devices/miyoo-mini-v4.webp`).
+     *
+     * The Miyoo Mini's body around a larger 752x560 panel, which now leaves a thin bezel at the
+     * sides: Menu above Select and Start, faces right, speaker grille in the swept corner.
+     */
+    shell: {
+      layout: 'chin',
+      bezel: { top: 22, side: 14, bottom: 14 },
+      radius: [26, 26, 130, 26],
+      sticks: 0,
+      controlScale: 1.55,
+      chinExtra: 130,
+      menuButton: true,
+      speakerGrille: true,
+      body: BODY.khaki,
+      ink: INK.dark,
+    },
+  },
+  'miniloong-pocket1': {
+    slug: 'miniloong-pocket1',
+    label: 'MiniLoong Pocket 1',
+    w: 960,
+    h: 720,
+    aspect: '4:3',
+    resolutionClass: 'other',
+    viewScale: 0.6,
+    /*
+     * Matched to a reference photograph (`docs/themes/spruceos/reference/devices/miniloong-pocket1.jpg`).
+     *
+     * A black landscape body with a 4:3 panel: the pad high on the left over one light-collared
+     * stick and the Menu button, the faces high on the right over Select and Start stacked.
+     */
+    shell: {
+      layout: 'flanking',
+      bezel: { top: 34, side: 8, bottom: 34 },
+      radius: 130,
+      sticks: 1,
+      stickRing: 'light',
+      gripWidth: 0.39,
+      aux: { position: 'bottom', left: 'function', right: 'round-stack' },
+      body: BODY.charcoal,
     },
   },
 }

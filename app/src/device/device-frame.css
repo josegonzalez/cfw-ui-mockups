@@ -839,3 +839,38 @@
   left: auto;
   right: 10%;
 }
+
+/* --- stacked aux and a one-panel hinge ------------------------------------ */
+
+/* Select over Start, two round buttons stacked on one grip (Miyoo A30, MiniLoong Pocket 1). */
+.aux-stack {
+  display: grid;
+  gap: calc(var(--grip-w) * 0.05);
+}
+
+.grip--right .grip__aux:has(.aux-stack) {
+  left: 38%;
+}
+
+/*
+ * The hinge of a clamshell with one panel: a barrel across the top of the base, the lid above it
+ * being the panel's own bezel. Drawn in the chin's top edge, so the controls sit below it.
+ */
+.device__chin[data-hinge] {
+  --hinge-h: calc(34px * var(--control-scale, 1));
+}
+
+.device__chin[data-hinge] .device__controls {
+  padding-top: calc(var(--hinge-h) + var(--ctl-pad));
+}
+
+.device__hinge {
+  position: absolute;
+  left: 14%;
+  right: 14%;
+  top: 0;
+  height: var(--hinge-h);
+  border-radius: 0 0 12px 12px;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.1), rgba(255, 255, 255, 0.35) 45%, rgba(0, 0, 0, 0.12));
+  box-shadow: 0 3px 5px rgba(0, 0, 0, 0.18);
+}
