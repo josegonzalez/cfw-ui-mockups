@@ -21,6 +21,10 @@ for it.
 | `trimui-brick`      | Trimui Brick                  | 1024x768   | 4:3    | other     |
 | `rg-ds`             | Anbernic RG DS                | 640x480    | 4:3    | 640x480   |
 | `odin2-mini`        | AYN Odin 2 Mini               | 1920x1080  | 16:9   | other     |
+| `miyoo-a30`         | Miyoo A30                     | 640x480    | 4:3    | 640x480   |
+| `miyoo-flip`        | Miyoo Flip                    | 640x480    | 4:3    | 640x480   |
+| `miyoo-mini-v4`     | Miyoo Mini v4                 | 752x560    | 4:3    | other     |
+| `miniloong-pocket1` | MiniLoong Pocket 1            | 960x720    | 4:3    | other     |
 
 Every resolution above is confirmed. The RG DS has **two** 640x480 panels, one in the lid and one
 in the base; the resolution column is per panel. SimpleOS's own splash bitmaps are 640x480 each,
@@ -76,6 +80,10 @@ different spacing:
 | `trimui-brick` | chin | - | yes | Boxy, tight corners, lower body as deep as the panel |
 | `rg-ds` | clamshell | 2 | yes | Turquoise, a panel in each half, speaker grilles on the lid - see below |
 | `odin2-mini` | flanking | 2 | yes | Slim 16:9 slab, sticks staggered as on an Xbox pad, two round buttons at each grip's foot - see below |
+| `miyoo-a30` | flanking | 1 | yes | Famicom gold, one stick under the pad, Select and Start stacked on the right - see below |
+| `miyoo-flip` | chin | 2 | yes | White vertical clamshell, one panel in the lid, a hinge across the top of the base - see below |
+| `miyoo-mini-v4` | chin | - | yes | The Miyoo Mini's khaki body around a larger panel, thin side bezels |
+| `miniloong-pocket1` | flanking | 1 | yes | Black, one stick under the pad beside a Menu button, Select and Start stacked on the right |
 
 **These are stylised silhouettes, not technical drawings.** They exist so the devices are
 distinguishable at a glance. The shell is mockup chrome and sits outside the portable widget
@@ -125,6 +133,14 @@ works unchanged; a theme draws into them through `Panels`, which gives it each p
 640x480 surface. The hinge gap is part of that element and is left see-through, so the body shows
 in it. Unlike `rg-sp`, the hinge is drawn, because on this device the second half is not empty
 plastic - it carries a panel.
+
+`miyoo-a30`, `miyoo-flip`, `miyoo-mini-v4` and `miniloong-pocket1` were added for spruceOS, and
+their reference photographs are kept with that set, at `docs/themes/spruceos/reference/devices/`.
+The A30 and the Pocket 1 have a single stick, the left one below the pad, which is what `sticks: 1`
+draws; both stack Select over Start on the right grip, the `round-stack` aux. The A30's red trim,
+around the panel and along the body's edge, is not drawn. The Miyoo Flip is a vertical clamshell
+with one panel, in the lid: its shell is a chin body with a hinge barrel across the top of the base
+(the `hinge` flag), which is the device open. Like `rg-sp`, the fold itself is not drawn.
 
 The RG28XX correction went further than the shell. It was recorded as a 640x480 panel rotated into
 a 480x640 portrait, and the photograph shows a landscape device with the panel the right way up -

@@ -11,6 +11,7 @@ import tortosPreview from '../assets/previews/tortos.png'
 import neostationPreview from '../assets/previews/neostation.png'
 import dsStylePreview from '../assets/previews/ds-style.png'
 import wiiMenuPreview from '../assets/previews/wii-menu.png'
+import spruceosPreview from '../assets/previews/spruceos.png'
 import exampleCfwPreview from '../assets/previews/example-cfw.png'
 
 /**
@@ -275,6 +276,42 @@ export const THEMES: readonly ThemeEntry[] = [
     fonts: ['M PLUS 1p, for Rodin NTLG'],
     ported: true,
     docPath: 'docs/themes/wii-menu.md',
+  },
+  {
+    slug: 'spruceos',
+    name: 'spruceOS',
+    author: 'spruceUI',
+    kind: 'Custom firmware, with its own launcher PyUI',
+    summary:
+      'spruceOS\'s launcher, PyUI, in its default SPRUCE theme, on every device spruceOS runs on that has a body here - seven panels from 640x480 to 1280x720. A main menu of four icons, a grid of systems, game lists in four views, Apps, Settings and the Game Switcher.',
+    highlights: [
+      'Every still held to a frame PyUI itself rendered, on the same device',
+      'Laid out per panel from the theme\'s own images and config, as PyUI lays it out',
+      'Each device\'s own rows: its apps, Bluetooth, Wi-Fi, Reboot, and popups where it has them',
+    ],
+    preview: spruceosPreview,
+    previewAlt: 'spruceOS on the Miyoo A30: the GB list with Kirby\'s Dream Land selected beside its box art',
+    accent: '#d65d0e',
+    // One theme, with nothing to switch between.
+    swatches: [],
+    views: 35,
+    devices: [
+      'miyoo-a30',
+      'miyoo-flip',
+      'miyoo-mini',
+      'miyoo-mini-v4',
+      'trimui-brick',
+      'trimui-smart-pro',
+      'rg35xx',
+      'rg40xx',
+      'rg34xx',
+      'rg28xx',
+      'rg-cubexx',
+      'miniloong-pocket1',
+    ],
+    fonts: ['nunwen (Nunito with WenQuanYi Micro Hei)'],
+    ported: true,
+    docPath: 'docs/themes/spruceos.md',
   },
   {
     slug: 'example-cfw',

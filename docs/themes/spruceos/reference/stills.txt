@@ -1,0 +1,45 @@
+# Every reference still: slug | buttons pressed from boot | environment for the harness | overrides.
+# Buttons: u d l r = D-pad, a b x y, q w = L1 R1, 1 2 = L2 R2, s = START, e = SELECT, m = MENU.
+# The main menu is reached by wrapping left from its first entry, so one sequence reaches the same
+# entry whether or not Recents leads the row (it does at 1280x720): l = Settings, ll = Apps,
+# lll = Games, llll = Favorites. Settings rows below Tasks are reached the same way, upward from the
+# first row, because Bluetooth adds a row on some devices.
+# Environment: GS_TRIGGER=1 starts in the Game Switcher, as after holding MENU in a game;
+# BOXART_PROMPT=1 lets the one-time box-art prompt show.
+# Overrides: device=buttons, for a device that reaches the same screen another way. At 1280x720
+# Recents is on the main menu (its config sets `recentsEnabled`), so the MENU popup has no Recents row.
+main-menu||
+main-games|lll|
+main-apps|ll|
+main-settings|l|
+main-popup|m|
+main-popup-down|md|
+games|llla|
+games-row2|lllad|
+system-popup|lllam|
+game-list|lllaa|
+game-list-down|lllaad|
+game-list-grid|lllaae|
+game-list-icons|lllaaee|
+game-list-carousel|lllaaeee|
+game-popup|lllaam|
+game-config|lllaax|
+boxart-prompt|lllaa|BOXART_PROMPT=1
+favorites|lllla|
+recents|mdda||trimui-smart-pro=a
+search-keyboard|ma|
+apps|lla|
+apps-down|llad|
+apps-popup|llam|
+settings|la|
+settings-bottom|lau|
+settings-power|laa|
+settings-theme-settings|lauuuuuua|
+settings-sound|lauuuuua|
+settings-additional|lauuuua|
+settings-animation|lauuuuada|
+settings-tasks|lauuua|
+settings-about|lauua|
+game-switcher||GS_TRIGGER=1
+game-switcher-next|r|GS_TRIGGER=1
+game-switcher-popup|m|GS_TRIGGER=1

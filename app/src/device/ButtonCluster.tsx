@@ -119,6 +119,13 @@ function Aux({ kind }: { kind: AuxKind }) {
           <ClusterButton button="start" className="aux-button" label="start" />
         </div>
       )
+    case 'round-stack':
+      return (
+        <div className="aux-stack">
+          <ClusterButton button="select" className="aux-button" label="select" />
+          <ClusterButton button="start" className="aux-button" label="start" />
+        </div>
+      )
     case 'menu-pair':
       return (
         <div className="aux-duo">
@@ -162,10 +169,11 @@ export function Grip({
 
       {/* The pad is seated in a round plate only on the bodies whose photographs show one. */}
       <div className="grip__primary">
-        {left ? <Dpad disc={!auxTop} /> : <Faces layout={shell.layout === 'flanking' ? shell.faces : undefined} />}
+        {left ? <Dpad disc={!auxTop && (shell.layout !== 'flanking' || shell.padDisc !== false)} /> : <Faces layout={shell.layout === 'flanking' ? shell.faces : undefined} />}
       </div>
 
-      {shell.sticks === 2 ? (
+      {/* A lone stick is the left one, below the pad. */}
+      {shell.sticks === 2 || (shell.sticks === 1 && left) ? (
         <div className="grip__stick">
           <Stick ring={shell.stickRing} />
         </div>
@@ -188,7 +196,9 @@ export function ButtonCluster({ shell }: { shell: ChinShell }) {
      * Without the split, a cluster scaled below 1 lays out taller than its chin and squeezes the
      * screen above it, and one scaled above 1 spills out of the body.
      */
-    <div className="device__chin">
+    <div className="device__chin" data-hinge={shell.hinge || undefined}>
+      {/* The barrel a one-panel clamshell folds on, across the top of its base. */}
+      {shell.hinge ? <div className="device__hinge" aria-hidden="true" /> : null}
       <div className="device__controls" data-sticks={shell.sticks || undefined}>
         <div className="device__shoulders">
           <div className="device__shoulder-pair">

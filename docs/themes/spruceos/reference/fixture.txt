@@ -1,0 +1,21 @@
+# The sample library: one line per game, system folder (under Roms/) | file name | lists it is on.
+# Lists: fav = Favorites, recent = Recents, gs = the Game Switcher. Each list keeps the order of
+# the lines here, newest first. make-fixture.py builds the card from this file.
+GB|Tetris.gb|recent,gs
+GB|Pokemon Red.gb|fav
+GB|Kirby's Dream Land.gb|
+GBA|Metroid Fusion.gba|fav,recent,gs
+GBA|Advance Wars.gba|
+GBA|Golden Sun.gba|recent
+FC|Super Mario Bros..nes|fav
+FC|The Legend of Zelda.nes|recent,gs
+FC|Mega Man 2.nes|
+SFC|Super Metroid.sfc|fav,recent,gs
+SFC|Chrono Trigger.sfc|
+SFC|F-Zero.sfc|
+MD|Sonic the Hedgehog.md|recent
+MD|Streets of Rage 2.md|
+MD|Gunstar Heroes.md|
+PS|Castlevania - Symphony of the Night.chd|fav
+PS|Crash Bandicoot.chd|
+PS|Spyro the Dragon.chd|

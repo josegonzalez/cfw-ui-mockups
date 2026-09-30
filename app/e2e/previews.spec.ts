@@ -37,6 +37,7 @@ const PREVIEWS: Array<{ slug: string; route: string; selector?: string }> = [
   { slug: 'neostation', route: 'neostation/odin2-mini/games' },
   { slug: 'ds-style', route: 'ds-style/rg-sp/games' },
   { slug: 'wii-menu', route: 'wii-menu/rg35xx/menu' },
+  { slug: 'spruceos', route: 'spruceos/miyoo-a30/game-list' },
   { slug: 'example-cfw', route: 'example-cfw/rg35xx/main-menu' },
 ]
 
