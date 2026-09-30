@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 130 118" width="130" height="118">
+  <defs>
+    <linearGradient id="body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#eceef4"/>
+      <stop offset="0.6" stop-color="#d4d7e2"/>
+      <stop offset="1" stop-color="#b3b7c8"/>
+    </linearGradient>
+    <linearGradient id="slot" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#9ea3c4"/>
+      <stop offset="1" stop-color="#c4c8dc"/>
+    </linearGradient>
+  </defs>
+  <path d="M34 6 C20 6 8 18 5 40 C2 62 4 92 14 108 C20 117 34 116 40 104 C46 92 50 86 65 86 C80 86 84 92 90 104 C96 116 110 117 116 108 C126 92 128 62 125 40 C122 18 110 6 96 6 Z" fill="url(#body)" stroke="#a9adbf" stroke-width="1.5"/>
+  <path d="M42 4 L88 4 C94 4 96 8 96 14 L96 58 C96 64 92 68 86 68 L44 68 C38 68 34 64 34 58 L34 14 C34 8 36 4 42 4 Z" fill="url(#slot)" stroke="#8f94b4" stroke-width="1.5"/>
+  <rect x="44" y="12" width="42" height="30" rx="2" fill="#8d97a6" stroke="#6e7788" stroke-width="1"/>
+  <circle cx="24" cy="36" r="13" fill="#e8e9ee" stroke="#a3a7b8" stroke-width="1.5"/>
+  <circle cx="24" cy="36" r="8" fill="#b7bac8"/>
+  <path d="M18 64 h8 v-8 h8 v8 h8 v8 h-8 v8 h-8 v-8 h-8 Z" fill="#c2c5d2" stroke="#9a9eb2" stroke-width="1.2"/>
+  <circle cx="99" cy="44" r="6" fill="#e4c62c"/>
+  <circle cx="110" cy="34" r="6" fill="#3fae4c"/>
+  <circle cx="121" cy="44" r="6" fill="#5460d4"/>
+  <circle cx="110" cy="54" r="6" fill="#d8342c"/>
+  <path d="M65 78 L71 90 L59 90 Z" fill="#a8adc0" stroke="#9095ab" stroke-width="1"/>
+</svg>

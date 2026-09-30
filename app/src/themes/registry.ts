@@ -1,6 +1,7 @@
 import type { ScreenRoute } from '../routes'
 import { elementerialRoutes } from './elementerial/routes'
 import { exampleRoutes } from './example-cfw/routes'
+import { dreamcastBiosRoutes } from './dreamcast-bios/routes'
 import { dsStyleRoutes } from './ds-style/routes'
 import { neostationRoutes } from './neostation/routes'
 import { nextuiRoutes } from './nextui/routes'
@@ -29,5 +30,6 @@ export const ROUTES: readonly ScreenRoute[] = [
   ...dsStyleRoutes(),
   ...wiiMenuRoutes(),
   ...spruceosRoutes(),
+  ...dreamcastBiosRoutes(),
   ...exampleRoutes(),
 ]

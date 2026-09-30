@@ -21,6 +21,7 @@ export type ThemeSlug =
   | 'ds-style'
   | 'wii-menu'
   | 'spruceos'
+  | 'dreamcast-bios'
 
 /**
  * A capability a simple renderer may not have.

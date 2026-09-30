@@ -9,6 +9,7 @@ for it.
 | ------------------- | ----------------------------- | ---------- | ------ | --------- |
 | `rg35xx`            | Anbernic RG35XX / Plus / H    | 640x480    | 4:3    | 640x480   |
 | `n64`               | Nintendo 64 (video output)    | 640x480    | 4:3    | 640x480   |
+| `dreamcast`         | Sega Dreamcast (video output) | 640x480    | 4:3    | 640x480   |
 | `rg40xx`            | Anbernic RG40XX H / V         | 640x480    | 4:3    | 640x480   |
 | `miyoo-mini`        | Miyoo Mini / Mini Plus        | 640x480    | 4:3    | 640x480   |
 | `rg28xx`            | Anbernic RG28XX               | 640x480    | 4:3    | 640x480   |
@@ -68,6 +69,7 @@ different spacing:
 | --- | --- | --- | --- | --- |
 | `rg35xx` | chin | - | yes | Warm grey, large controls, one corner swept away, speaker grille |
 | `n64` | console | - | n/a | A CRT-ish surround and nothing else - see below |
+| `dreamcast` | console | - | n/a | The same surround as `n64` - see below |
 | `rg40xx` | flanking | 2 | yes | The CubeXX body around a 4:3 panel, ring-lit sticks |
 | `miyoo-mini` | chin | - | yes | Khaki, panel edge to edge across the top, swept corner |
 | `rg28xx` | flanking | - | yes | Wide grips, no sticks, both small buttons on the left |
@@ -106,6 +108,8 @@ hardware rather than reproducing it. That is what the `console` shell layout is 
 The panel is 640x480 with a 32x24 overscan margin the menu never draws into, so the theme's own
 visible area is 576x432 inset from the corner. A screen that fills the panel edge to edge is wrong
 for this device even though the numbers look right.
+
+`dreamcast` is the second console and has no photograph to find for the same reason: the BIOS menu renders to a television, and the pad whose buttons it names is not in the picture. Unlike the flashcart menu it draws edge to edge - its sky and top bar reach every edge of the 640x480 frame, and only its text keeps clear of the border - so there is no overscan inset to lay out inside.
 
 `rg-sp` is a vertical clamshell - the Game Boy Advance SP's shape - and the shell here is a chin
 body, which is what the device is when it is open: panel above, controls below. The hinge and the

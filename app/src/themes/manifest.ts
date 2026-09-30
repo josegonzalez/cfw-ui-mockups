@@ -2,6 +2,7 @@ import type { DeviceSlug } from '../device/devices'
 import type { ThemeSlug } from '../widgets/types'
 import { ELEMENTERIAL_MANIFEST } from './elementerial/manifest'
 import { EXAMPLE_MANIFEST } from './example-cfw/manifest'
+import { DREAMCAST_BIOS_MANIFEST } from './dreamcast-bios/manifest'
 import { DS_STYLE_MANIFEST } from './ds-style/manifest'
 import { NEOSTATION_MANIFEST } from './neostation/manifest'
 import { NEXTUI_MANIFEST } from './nextui/manifest'
@@ -42,6 +43,7 @@ export const SCREEN_MANIFEST: readonly ScreenManifestEntry[] = [
   ...DS_STYLE_MANIFEST,
   ...WII_MENU_MANIFEST,
   ...SPRUCEOS_MANIFEST,
+  ...DREAMCAST_BIOS_MANIFEST,
   ...EXAMPLE_MANIFEST,
 ]
 

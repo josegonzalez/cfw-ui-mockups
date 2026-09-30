@@ -13,6 +13,7 @@ export type DeviceSlug =
   | 'rg28xx'
   | 'trimui-smart-pro'
   | 'n64'
+  | 'dreamcast'
   | 'rg-sp'
   | 'rg-cubexx'
   | 'rg34xx'
@@ -317,6 +318,31 @@ export const DEVICES: Record<DeviceSlug, Device> = {
      *
      * The panel is 640x480 with a 32x24 overscan margin the menu never draws into, which is why
      * the theme's own visible area is 576x432 inset from the corner.
+     */
+    shell: {
+      layout: 'console',
+      sticks: 0,
+      bezel: { top: 26, side: 26, bottom: 26 },
+      radius: [18, 18, 18, 18],
+      body: BODY.slate,
+      ink: INK.light,
+    },
+  },
+  dreamcast: {
+    slug: 'dreamcast',
+    label: 'Sega Dreamcast (video output)',
+    w: 640,
+    h: 480,
+    aspect: '4:3',
+    resolutionClass: '640x480',
+    viewScale: 1.3,
+    /*
+     * A console, like `n64`: the BIOS menu renders to a television, and the pad whose buttons it
+     * names is not part of the picture.
+     *
+     * Unlike the flashcart menu, the BIOS draws edge to edge - its sky and top bar run to every
+     * edge of the 640x480 frame, and only its text keeps clear of the border - so there is no
+     * overscan inset to lay out inside.
      */
     shell: {
       layout: 'console',

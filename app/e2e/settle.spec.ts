@@ -26,6 +26,7 @@ const PAIRS: Record<string, string> = {
   'ds-style': 'home',
   'wii-menu': 'health',
   spruceos: 'main-menu',
+  'dreamcast-bios': 'main',
   'example-cfw': 'main-menu',
 }
 

@@ -12,6 +12,7 @@ import neostationPreview from '../assets/previews/neostation.png'
 import dsStylePreview from '../assets/previews/ds-style.png'
 import wiiMenuPreview from '../assets/previews/wii-menu.png'
 import spruceosPreview from '../assets/previews/spruceos.png'
+import dreamcastBiosPreview from '../assets/previews/dreamcast-bios.png'
 import exampleCfwPreview from '../assets/previews/example-cfw.png'
 
 /**
@@ -312,6 +313,29 @@ export const THEMES: readonly ThemeEntry[] = [
     fonts: ['nunwen (Nunito with WenQuanYi Micro Hei)'],
     ported: true,
     docPath: 'docs/themes/spruceos.md',
+  },
+  {
+    slug: 'dreamcast-bios',
+    name: 'Dreamcast BIOS',
+    author: 'Sega',
+    kind: 'Console system menu, boot ROM v1.01d',
+    summary:
+      'The menu the Dreamcast boots to with no disc in: Play, File, Music and Settings over a sky it renders live, the memory card manager, the CD player and every Settings box. Its textures, its system font and its strings are decoded from the boot ROM itself.',
+    highlights: [
+      'Textures, font and strings decoded from the boot ROM by a script you run on your own dump',
+      'The system font rebuilt as two faces, fill and outline, stacked as the menu draws them',
+      'A live sky as a shader, with the same function drawn on the CPU as its fallback',
+    ],
+    preview: dreamcastBiosPreview,
+    previewAlt: 'The Dreamcast BIOS main menu: the controller, memory card, note and alarm clock over a blue sky, Play focused',
+    accent: '#e0632a',
+    // One look, with nothing to switch between.
+    swatches: [],
+    views: 20,
+    devices: ['dreamcast'],
+    fonts: ['The Dreamcast BIOS system font'],
+    ported: true,
+    docPath: 'docs/themes/dreamcast-bios.md',
   },
   {
     slug: 'example-cfw',

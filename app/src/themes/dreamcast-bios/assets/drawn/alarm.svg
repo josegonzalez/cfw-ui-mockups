@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 116 108" width="116" height="108">
+  <defs>
+    <radialGradient id="ring" cx="0.4" cy="0.35" r="0.7">
+      <stop offset="0" stop-color="#f06850"/>
+      <stop offset="1" stop-color="#c8281e"/>
+    </radialGradient>
+    <linearGradient id="bell" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f0c838"/>
+      <stop offset="1" stop-color="#c89a18"/>
+    </linearGradient>
+  </defs>
+  <path d="M8 26 C8 10 22 2 36 6 L28 18 Z" fill="url(#bell)" stroke="#a8800e" stroke-width="1"/>
+  <path d="M80 6 C94 2 108 10 108 26 L88 18 Z" fill="url(#bell)" stroke="#a8800e" stroke-width="1"/>
+  <rect x="96" y="54" width="12" height="16" rx="2" fill="url(#bell)" stroke="#a8800e" stroke-width="1"/>
+  <circle cx="56" cy="60" r="46" fill="url(#ring)" stroke="#b0221a" stroke-width="1.5"/>
+  <circle cx="56" cy="60" r="33" fill="#e8d8b8" stroke="#c8b898" stroke-width="1"/>
+  <path d="M56 60 L36 40" stroke="#d8261c" stroke-width="9" stroke-linecap="round"/>
+  <path d="M56 60 L82 44" stroke="#d8261c" stroke-width="9" stroke-linecap="round"/>
+  <circle cx="56" cy="60" r="5" fill="#b81c14"/>
+</svg>
