@@ -125,6 +125,7 @@ inference from the docs.
 | Per-texture scale mode (nearest for pixel art) | no - bilinear hinted globally (`apostrophe.h:4696`); `SetTextureScaleMode` zero-hit | no - `SetTextureScaleMode` zero-hit; SDL's default nearest for everything |
 | Textured geometry (arbitrary vertex quads, for per-card perspective) | absent - `RenderGeometry`, `Vertex` and `RenderCopyEx` zero-hit | absent - `RenderGeometry` and `Vertex` zero-hit; `CopyEx` only rotates the internal display canvas (`internal/window.go:247`) |
 | Additive blending | absent - `BLENDMODE_BLEND` and `NONE` only | absent - same |
+| Hold versus tap on one button (a timed hold opening something else) | absent - the only press timing is the power key's long press, in its own thread (`include/apostrophe.h:4406-4425`) | absent - the only hold is `InputCapture`'s, for binding a button (`pkg/gabagool/input_capture.go:36`) |
 
 Two details worth recording:
 
@@ -776,6 +777,63 @@ Maps today:
   `ConfirmationMessage` (`pkg/gabagool/confirmation_message.go:63`).
 - **Input.** D-pad focus and the shoulder buttons are both frameworks' input layers.
 
+### spruceOS
+
+Full spec: [`themes/spruceos/reference/source-notes.md`](themes/spruceos/reference/source-notes.md).
+
+> Assessed from spruceOS at `2b7bc4a79` - its launcher PyUI, Python on the same SDL2 renderer both
+> frameworks use. Built as `app/src/themes/spruceos/`; [`porting/spruceos.md`](porting/spruceos.md)
+> records the deviations. Checked against Apostrophe at `5ed3f74` and gabagool at `895f493`.
+
+The closest set yet to what the frameworks already are: an SDL2 launcher on the same devices -
+the TrimUI Smart Pro and Brick, the Miyoo Flip - drawn from flat images and one family of text, with
+little motion. The gap is the layout it takes from its theme on seven panels, two grids, and popups
+over a frozen screen.
+
+Missing from both frameworks:
+
+- **Layout from the theme's images, per panel.** SPRUCE ships a config, a skin and icons for each of
+  seven panels from 640x480 to 1280x720, and PyUI sizes everything from them: a row is as tall as
+  `bg-list-s.png`, the top bar as tall as `bg-title.png`, fonts from 18 to 40px. Both frameworks take
+  seven colours and two paths and no layout (see the matrix), and six fixed font tiers.
+- **Grids.** The main menu is one row of icons that wraps as a ring; Games and a game list's grid
+  view are two rows with a selection image behind the focus. Grid is absent in both.
+- **Popups over a frozen screen.** MENU opens a list over a copy of the screen beneath, with the bars
+  redrawn over it. Each framework's widget owns the whole screen and its event loop, which is the
+  composition blocker.
+- **A MENU hold as well as a tap.** A tap opens the popup; held past 300ms, the Game Switcher opens
+  from any screen. Apostrophe's only press timing is the power key's long press in its own thread
+  (`include/apostrophe.h:4406-4425`); gabagool's only hold is `InputCapture`'s, for binding a button
+  (`pkg/gabagool/input_capture.go:36`).
+- **Fit and centre-crop.** Box art is fitted to its box, and a game grid's cells centre-crop it;
+  Apostrophe stretches (`ap_draw_image`, `include/apostrophe.h:600`) and gabagool fits with no
+  option, and `zoom`, `cover` and `crop` are zero-hit in both. The selection bar is drawn cropped to
+  where the picture starts, which `ap_draw_image` has no source rectangle for.
+- **Two slides.** The Game Switcher slides its pictures a screen's width or height in 300ms, and the
+  carousel view slides each slot to its neighbour's place and size; there is no tween in either.
+- **PyUI's marquee.** The focused name rotates a character per redraw after a second. gabagool
+  scrolls long list text by pixels with a pause at the ends (`pkg/gabagool/list.go:41-42, 75-76`),
+  which is a marquee but not this one; `marquee` is zero-hit in Apostrophe.
+
+Not on this list:
+
+- **The top bar.** A clock, battery and Wi-Fi are `ap_status_bar_opts` (`include/apostrophe.h:306-311`)
+  and gabagool's `StatusBarOptions` (`pkg/gabagool/status_bar.go:53`), though SPRUCE draws its own
+  icons and puts the title between them.
+- **The bottom bar.** SPRUCE's hint glyphs are transparent, so it is a plain strip.
+
+Maps today:
+
+- **Settings.** A label with a value cycled by LEFT and RIGHT is `ap_options_list`
+  (`include/apostrophe_widgets.h:170`) or `OptionsList` (`pkg/gabagool/option_list.go:254`).
+- **Rom Search.** The keyboard is `ap_keyboard` (`include/apostrophe_widgets.h:186`) or `Keyboard`
+  (`pkg/gabagool/keyboard.go:715`).
+- **The power prompt.** `ap_confirmation` (`include/apostrophe_widgets.h:213`) or
+  `ConfirmationMessage` (`pkg/gabagool/confirmation_message.go:63`).
+- **Plain lists.** Apps without their icons, and Tasks, are `ap_list` (`include/apostrophe_widgets.h:117`)
+  or `List` (`pkg/gabagool/list.go:149`).
+- **Input.** D-pad focus, shoulders paging and held-button repeat are both frameworks' input layers.
+
 ## What a port would have to add
 
 Common to both, and in rough dependency order:
@@ -799,6 +857,7 @@ Common to both, and in rough dependency order:
 7. A data-driven theme and layout format, rather than 7 or 8 colours and compiled-in integer
    literals.
 8. A video decode path.
+9. A timed hold as its own input, distinct from a tap on the same button, for spruceOS's MENU.
 
 That is a new rendering, layout and animation layer. What is worth taking from these projects
 under their MIT licences is the input abstraction, the resolution scaling helpers and the text
