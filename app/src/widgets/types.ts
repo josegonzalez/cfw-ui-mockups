@@ -20,6 +20,7 @@ export type ThemeSlug =
   | 'neostation'
   | 'ds-style'
   | 'wii-menu'
+  | 'spruceos'
 
 /**
  * A capability a simple renderer may not have.

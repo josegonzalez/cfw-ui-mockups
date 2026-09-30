@@ -1,0 +1,2842 @@
+{
+ "1024x768": {
+  "config": {
+   "author": "tenlevels",
+   "batteryPercentage": {
+    "color": "#EBDBB2",
+    "font": "nunwen.ttf",
+    "size": 28
+   },
+   "bindOverMiyooTheme": true,
+   "currentpage": {
+    "color": "#EBDBB2",
+    "font": "nunwen.ttf",
+    "size": 35
+   },
+   "description": "spruce theme for a30",
+   "displayVolumeNumbers": true,
+   "fullScreenGridGameMenuResizeType": "FIT",
+   "grid": {
+    "color": "#7C6F64",
+    "font": "nunwen.ttf",
+    "grid1x4": 40,
+    "grid3x4": 28,
+    "selectedcolor": "#FBF1C7"
+   },
+   "hint": {
+    "color": "#EBDBB2",
+    "font": "nunwen.ttf",
+    "size": 40
+   },
+   "list": {
+    "color": "#FBF1C7",
+    "font": "nunwen.ttf",
+    "selectedcolor": "#FBF1C7",
+    "size": 38
+   },
+   "mainMenuColCount": 4,
+   "mainMenuTitle": "",
+   "name": "Spruce",
+   "recentsEnabled": false,
+   "setTopBarTextToGameSelection": true,
+   "title": {
+    "color": "#EBDBB2",
+    "font": "nunwen.ttf",
+    "size": 40
+   },
+   "topBarInitialXOffset": 96,
+   "total": {
+    "color": "#D65D0E",
+    "font": "nunwen.ttf",
+    "size": 35
+   }
+  },
+  "h": 768,
+  "sizes": {
+   "icons/app/backup": [
+    112,
+    112
+   ],
+   "icons/app/bootlogo": [
+    112,
+    112
+   ],
+   "icons/app/ereader": [
+    112,
+    112
+   ],
+   "icons/app/file": [
+    112,
+    112
+   ],
+   "icons/app/firmwareupdate": [
+    112,
+    112
+   ],
+   "icons/app/gallery": [
+    112,
+    112
+   ],
+   "icons/app/gamelist": [
+    112,
+    112
+   ],
+   "icons/app/iconfresh": [
+    112,
+    112
+   ],
+   "icons/app/moonlight": [
+    112,
+    112
+   ],
+   "icons/app/portmaster": [
+    112,
+    112
+   ],
+   "icons/app/ppsspp": [
+    112,
+    112
+   ],
+   "icons/app/random": [
+    112,
+    112
+   ],
+   "icons/app/restore": [
+    112,
+    112
+   ],
+   "icons/app/retroarch": [
+    112,
+    112
+   ],
+   "icons/app/rtc": [
+    112,
+    112
+   ],
+   "icons/app/scraper": [
+    112,
+    112
+   ],
+   "icons/app/songo": [
+    128,
+    128
+   ],
+   "icons/app/themegallery": [
+    112,
+    112
+   ],
+   "icons/app/updater": [
+    112,
+    112
+   ],
+   "icons/app/usb": [
+    112,
+    112
+   ],
+   "icons/fc": [
+    192,
+    208
+   ],
+   "icons/gb": [
+    192,
+    208
+   ],
+   "icons/gba": [
+    192,
+    208
+   ],
+   "icons/md": [
+    192,
+    208
+   ],
+   "icons/ps": [
+    192,
+    208
+   ],
+   "icons/sel/fc": [
+    192,
+    208
+   ],
+   "icons/sel/gb": [
+    192,
+    208
+   ],
+   "icons/sel/gba": [
+    192,
+    208
+   ],
+   "icons/sel/md": [
+    192,
+    208
+   ],
+   "icons/sel/ps": [
+    192,
+    208
+   ],
+   "icons/sel/sfc": [
+    192,
+    208
+   ],
+   "icons/sfc": [
+    192,
+    208
+   ],
+   "skin/background": [
+    1024,
+    768
+   ],
+   "skin/bg-btn-01-f": [
+    80,
+    80
+   ],
+   "skin/bg-game-item-f": [
+    246,
+    271
+   ],
+   "skin/bg-grid-s": [
+    249,
+    280
+   ],
+   "skin/bg-list-l": [
+    1024,
+    144
+   ],
+   "skin/bg-list-s": [
+    1024,
+    96
+   ],
+   "skin/bg-list-s2": [
+    512,
+    96
+   ],
+   "skin/bg-pop-menu-4": [
+    512,
+    400
+   ],
+   "skin/bg-title": [
+    1024,
+    96
+   ],
+   "skin/grid-game-selected": [
+    224,
+    224
+   ],
+   "skin/ic-app-f": [
+    160,
+    224
+   ],
+   "skin/ic-app-n": [
+    160,
+    224
+   ],
+   "skin/ic-collection-f": [
+    160,
+    224
+   ],
+   "skin/ic-collection-n": [
+    160,
+    224
+   ],
+   "skin/ic-favorite-f": [
+    160,
+    224
+   ],
+   "skin/ic-favorite-mark": [
+    64,
+    64
+   ],
+   "skin/ic-favorite-n": [
+    160,
+    224
+   ],
+   "skin/ic-game-f": [
+    160,
+    224
+   ],
+   "skin/ic-game-n": [
+    160,
+    224
+   ],
+   "skin/ic-recent-f": [
+    160,
+    224
+   ],
+   "skin/ic-recent-n": [
+    160,
+    224
+   ],
+   "skin/ic-setting-f": [
+    160,
+    224
+   ],
+   "skin/ic-setting-n": [
+    160,
+    224
+   ],
+   "skin/icon-volume-00": [
+    76,
+    76
+   ],
+   "skin/icon-volume-01": [
+    76,
+    76
+   ],
+   "skin/icon-volume-02": [
+    76,
+    76
+   ],
+   "skin/icon-volume-03": [
+    76,
+    76
+   ],
+   "skin/icon-volume-04": [
+    76,
+    76
+   ],
+   "skin/icon-volume-05": [
+    76,
+    76
+   ],
+   "skin/icon-volume-06": [
+    76,
+    76
+   ],
+   "skin/icon-volume-07": [
+    76,
+    76
+   ],
+   "skin/icon-volume-08": [
+    76,
+    76
+   ],
+   "skin/icon-volume-09": [
+    76,
+    76
+   ],
+   "skin/icon-volume-10": [
+    76,
+    76
+   ],
+   "skin/icon-volume-11": [
+    76,
+    76
+   ],
+   "skin/icon-volume-12": [
+    76,
+    76
+   ],
+   "skin/icon-volume-13": [
+    76,
+    76
+   ],
+   "skin/icon-volume-14": [
+    76,
+    76
+   ],
+   "skin/icon-volume-15": [
+    76,
+    76
+   ],
+   "skin/icon-volume-16": [
+    76,
+    76
+   ],
+   "skin/icon-volume-17": [
+    76,
+    76
+   ],
+   "skin/icon-volume-18": [
+    76,
+    76
+   ],
+   "skin/icon-volume-19": [
+    76,
+    76
+   ],
+   "skin/icon-volume-20": [
+    76,
+    76
+   ],
+   "skin/icon-wifi-locked": [
+    48,
+    48
+   ],
+   "skin/icon-wifi-signal-01": [
+    64,
+    64
+   ],
+   "skin/icon-wifi-signal-02": [
+    64,
+    64
+   ],
+   "skin/icon-wifi-signal-03": [
+    64,
+    64
+   ],
+   "skin/icon-wifi-signal-04": [
+    64,
+    64
+   ],
+   "skin/power-0pct-icon": [
+    64,
+    64
+   ],
+   "skin/power-20pct-icon": [
+    64,
+    64
+   ],
+   "skin/power-50pct-icon": [
+    64,
+    64
+   ],
+   "skin/power-80pct-icon": [
+    64,
+    64
+   ],
+   "skin/power-full-icon": [
+    64,
+    64
+   ],
+   "skin/tips-bar-bg": [
+    1024,
+    96
+   ]
+  },
+  "w": 1024
+ },
+ "1280x720": {
+  "config": {
+   "author": "tenlevels",
+   "batteryPercentage": {
+    "color": "#EBDBB2",
+    "font": "nunwen.ttf",
+    "size": 27
+   },
+   "bindOverMiyooTheme": true,
+   "currentpage": {
+    "color": "#EBDBB2",
+    "font": "nunwen.ttf",
+    "size": 33
+   },
+   "description": "spruce theme for a30",
+   "displayVolumeNumbers": true,
+   "fullScreenGridGameMenuResizeType": "FIT",
+   "grid": {
+    "color": "#7C6F64",
+    "font": "nunwen.ttf",
+    "grid1x4": 37,
+    "grid3x4": 27,
+    "selectedcolor": "#FBF1C7"
+   },
+   "hint": {
+    "color": "#EBDBB2",
+    "font": "nunwen.ttf",
+    "size": 37
+   },
+   "list": {
+    "color": "#FBF1C7",
+    "font": "nunwen.ttf",
+    "selectedcolor": "#FBF1C7",
+    "size": 36
+   },
+   "mainMenuColCount": 5,
+   "mainMenuTitle": "",
+   "name": "Spruce",
+   "recentsEnabled": true,
+   "setTopBarTextToGameSelection": true,
+   "title": {
+    "color": "#EBDBB2",
+    "font": "nunwen.ttf",
+    "size": 37
+   },
+   "topBarInitialXOffset": 90,
+   "total": {
+    "color": "#D65D0E",
+    "font": "nunwen.ttf",
+    "size": 33
+   }
+  },
+  "h": 720,
+  "sizes": {
+   "icons/app/backup": [
+    105,
+    105
+   ],
+   "icons/app/bootlogo": [
+    105,
+    105
+   ],
+   "icons/app/ereader": [
+    105,
+    105
+   ],
+   "icons/app/file": [
+    105,
+    105
+   ],
+   "icons/app/firmwareupdate": [
+    105,
+    105
+   ],
+   "icons/app/gallery": [
+    105,
+    105
+   ],
+   "icons/app/gamelist": [
+    105,
+    105
+   ],
+   "icons/app/iconfresh": [
+    105,
+    105
+   ],
+   "icons/app/moonlight": [
+    105,
+    105
+   ],
+   "icons/app/portmaster": [
+    105,
+    105
+   ],
+   "icons/app/ppsspp": [
+    105,
+    105
+   ],
+   "icons/app/random": [
+    105,
+    105
+   ],
+   "icons/app/restore": [
+    105,
+    105
+   ],
+   "icons/app/retroarch": [
+    105,
+    105
+   ],
+   "icons/app/rtc": [
+    105,
+    105
+   ],
+   "icons/app/scraper": [
+    105,
+    105
+   ],
+   "icons/app/songo": [
+    128,
+    128
+   ],
+   "icons/app/themegallery": [
+    105,
+    105
+   ],
+   "icons/app/updater": [
+    105,
+    105
+   ],
+   "icons/app/usb": [
+    105,
+    105
+   ],
+   "icons/fc": [
+    180,
+    195
+   ],
+   "icons/gb": [
+    180,
+    195
+   ],
+   "icons/gba": [
+    180,
+    195
+   ],
+   "icons/md": [
+    180,
+    195
+   ],
+   "icons/ps": [
+    180,
+    195
+   ],
+   "icons/sel/fc": [
+    180,
+    195
+   ],
+   "icons/sel/gb": [
+    180,
+    195
+   ],
+   "icons/sel/gba": [
+    180,
+    195
+   ],
+   "icons/sel/md": [
+    180,
+    195
+   ],
+   "icons/sel/ps": [
+    180,
+    195
+   ],
+   "icons/sel/sfc": [
+    180,
+    195
+   ],
+   "icons/sfc": [
+    180,
+    195
+   ],
+   "skin/background": [
+    960,
+    720
+   ],
+   "skin/bg-btn-01-f": [
+    75,
+    75
+   ],
+   "skin/bg-game-item-f": [
+    231,
+    255
+   ],
+   "skin/bg-grid-s": [
+    234,
+    264
+   ],
+   "skin/bg-list-l": [
+    1280,
+    135
+   ],
+   "skin/bg-list-s": [
+    1280,
+    90
+   ],
+   "skin/bg-list-s2": [
+    480,
+    90
+   ],
+   "skin/bg-pop-menu-4": [
+    480,
+    375
+   ],
+   "skin/bg-title": [
+    1280,
+    90
+   ],
+   "skin/grid-game-selected": [
+    210,
+    210
+   ],
+   "skin/ic-app-f": [
+    150,
+    210
+   ],
+   "skin/ic-app-n": [
+    150,
+    210
+   ],
+   "skin/ic-collection-f": [
+    150,
+    210
+   ],
+   "skin/ic-collection-n": [
+    150,
+    210
+   ],
+   "skin/ic-favorite-f": [
+    150,
+    210
+   ],
+   "skin/ic-favorite-mark": [
+    60,
+    60
+   ],
+   "skin/ic-favorite-n": [
+    150,
+    210
+   ],
+   "skin/ic-game-f": [
+    150,
+    210
+   ],
+   "skin/ic-game-n": [
+    150,
+    210
+   ],
+   "skin/ic-recent-f": [
+    150,
+    210
+   ],
+   "skin/ic-recent-n": [
+    150,
+    210
+   ],
+   "skin/ic-setting-f": [
+    150,
+    210
+   ],
+   "skin/ic-setting-n": [
+    150,
+    210
+   ],
+   "skin/icon-volume-00": [
+    72,
+    72
+   ],
+   "skin/icon-volume-01": [
+    72,
+    72
+   ],
+   "skin/icon-volume-02": [
+    72,
+    72
+   ],
+   "skin/icon-volume-03": [
+    72,
+    72
+   ],
+   "skin/icon-volume-04": [
+    72,
+    72
+   ],
+   "skin/icon-volume-05": [
+    72,
+    72
+   ],
+   "skin/icon-volume-06": [
+    72,
+    72
+   ],
+   "skin/icon-volume-07": [
+    72,
+    72
+   ],
+   "skin/icon-volume-08": [
+    72,
+    72
+   ],
+   "skin/icon-volume-09": [
+    72,
+    72
+   ],
+   "skin/icon-volume-10": [
+    72,
+    72
+   ],
+   "skin/icon-volume-11": [
+    72,
+    72
+   ],
+   "skin/icon-volume-12": [
+    72,
+    72
+   ],
+   "skin/icon-volume-13": [
+    72,
+    72
+   ],
+   "skin/icon-volume-14": [
+    72,
+    72
+   ],
+   "skin/icon-volume-15": [
+    72,
+    72
+   ],
+   "skin/icon-volume-16": [
+    72,
+    72
+   ],
+   "skin/icon-volume-17": [
+    72,
+    72
+   ],
+   "skin/icon-volume-18": [
+    72,
+    72
+   ],
+   "skin/icon-volume-19": [
+    72,
+    72
+   ],
+   "skin/icon-volume-20": [
+    72,
+    72
+   ],
+   "skin/icon-wifi-locked": [
+    45,
+    45
+   ],
+   "skin/icon-wifi-signal-01": [
+    60,
+    60
+   ],
+   "skin/icon-wifi-signal-02": [
+    60,
+    60
+   ],
+   "skin/icon-wifi-signal-03": [
+    60,
+    60
+   ],
+   "skin/icon-wifi-signal-04": [
+    60,
+    60
+   ],
+   "skin/power-0pct-icon": [
+    60,
+    60
+   ],
+   "skin/power-20pct-icon": [
+    60,
+    60
+   ],
+   "skin/power-50pct-icon": [
+    60,
+    60
+   ],
+   "skin/power-80pct-icon": [
+    60,
+    60
+   ],
+   "skin/power-full-icon": [
+    60,
+    60
+   ],
+   "skin/tips-bar-bg": [
+    1280,
+    90
+   ]
+  },
+  "w": 1280
+ },
+ "640x480": {
+  "config": {
+   "author": "tenlevels",
+   "batteryPercentage": {
+    "color": "#EBDBB2",
+    "font": "nunwen.ttf",
+    "size": 18
+   },
+   "bindOverMiyooTheme": true,
+   "currentpage": {
+    "color": "#EBDBB2",
+    "font": "nunwen.ttf",
+    "size": 22
+   },
+   "description": "spruce theme for a30",
+   "displayVolumeNumbers": true,
+   "fullScreenGridGameMenuResizeType": "FIT",
+   "grid": {
+    "color": "#7C6F64",
+    "font": "nunwen.ttf",
+    "grid1x4": 25,
+    "grid3x4": 18,
+    "selectedcolor": "#FBF1C7"
+   },
+   "hint": {
+    "color": "#EBDBB2",
+    "font": "nunwen.ttf",
+    "size": 25
+   },
+   "list": {
+    "color": "#FBF1C7",
+    "font": "nunwen.ttf",
+    "selectedcolor": "#FBF1C7",
+    "size": 24
+   },
+   "mainMenuTitle": "",
+   "name": "Spruce",
+   "recentsEnabled": false,
+   "setTopBarTextToGameSelection": true,
+   "title": {
+    "color": "#EBDBB2",
+    "font": "nunwen.ttf",
+    "size": 25
+   },
+   "topBarInitialXOffset": 60,
+   "total": {
+    "color": "#D65D0E",
+    "font": "nunwen.ttf",
+    "size": 22
+   }
+  },
+  "h": 480,
+  "sizes": {
+   "icons/app/backup": [
+    70,
+    70
+   ],
+   "icons/app/bootlogo": [
+    70,
+    70
+   ],
+   "icons/app/ereader": [
+    70,
+    70
+   ],
+   "icons/app/file": [
+    70,
+    70
+   ],
+   "icons/app/firmwareupdate": [
+    70,
+    70
+   ],
+   "icons/app/gallery": [
+    70,
+    70
+   ],
+   "icons/app/gamelist": [
+    70,
+    70
+   ],
+   "icons/app/iconfresh": [
+    70,
+    70
+   ],
+   "icons/app/moonlight": [
+    70,
+    70
+   ],
+   "icons/app/portmaster": [
+    70,
+    70
+   ],
+   "icons/app/ppsspp": [
+    70,
+    70
+   ],
+   "icons/app/random": [
+    70,
+    70
+   ],
+   "icons/app/restore": [
+    70,
+    70
+   ],
+   "icons/app/retroarch": [
+    70,
+    70
+   ],
+   "icons/app/rtc": [
+    70,
+    70
+   ],
+   "icons/app/scraper": [
+    70,
+    70
+   ],
+   "icons/app/songo": [
+    128,
+    128
+   ],
+   "icons/app/themegallery": [
+    70,
+    70
+   ],
+   "icons/app/updater": [
+    70,
+    70
+   ],
+   "icons/app/usb": [
+    70,
+    70
+   ],
+   "icons/fc": [
+    120,
+    130
+   ],
+   "icons/gb": [
+    120,
+    130
+   ],
+   "icons/gba": [
+    120,
+    130
+   ],
+   "icons/md": [
+    120,
+    130
+   ],
+   "icons/ps": [
+    120,
+    130
+   ],
+   "icons/sel/fc": [
+    120,
+    130
+   ],
+   "icons/sel/gb": [
+    120,
+    130
+   ],
+   "icons/sel/gba": [
+    120,
+    130
+   ],
+   "icons/sel/md": [
+    120,
+    130
+   ],
+   "icons/sel/ps": [
+    120,
+    130
+   ],
+   "icons/sel/sfc": [
+    120,
+    130
+   ],
+   "icons/sfc": [
+    120,
+    130
+   ],
+   "skin/background": [
+    640,
+    480
+   ],
+   "skin/bg-btn-01-f": [
+    50,
+    50
+   ],
+   "skin/bg-game-item-f": [
+    154,
+    170
+   ],
+   "skin/bg-grid-s": [
+    156,
+    176
+   ],
+   "skin/bg-list-l": [
+    640,
+    90
+   ],
+   "skin/bg-list-s": [
+    640,
+    60
+   ],
+   "skin/bg-list-s2": [
+    320,
+    60
+   ],
+   "skin/bg-pop-menu-4": [
+    320,
+    250
+   ],
+   "skin/bg-title": [
+    640,
+    60
+   ],
+   "skin/grid-game-selected": [
+    140,
+    140
+   ],
+   "skin/ic-app-f": [
+    100,
+    140
+   ],
+   "skin/ic-app-n": [
+    100,
+    140
+   ],
+   "skin/ic-collection-f": [
+    100,
+    140
+   ],
+   "skin/ic-collection-n": [
+    100,
+    140
+   ],
+   "skin/ic-favorite-f": [
+    100,
+    140
+   ],
+   "skin/ic-favorite-mark": [
+    40,
+    40
+   ],
+   "skin/ic-favorite-n": [
+    100,
+    140
+   ],
+   "skin/ic-game-f": [
+    100,
+    140
+   ],
+   "skin/ic-game-n": [
+    100,
+    140
+   ],
+   "skin/ic-recent-f": [
+    100,
+    140
+   ],
+   "skin/ic-recent-n": [
+    100,
+    140
+   ],
+   "skin/ic-setting-f": [
+    100,
+    140
+   ],
+   "skin/ic-setting-n": [
+    100,
+    140
+   ],
+   "skin/icon-volume-00": [
+    48,
+    48
+   ],
+   "skin/icon-volume-01": [
+    48,
+    48
+   ],
+   "skin/icon-volume-02": [
+    48,
+    48
+   ],
+   "skin/icon-volume-03": [
+    48,
+    48
+   ],
+   "skin/icon-volume-04": [
+    48,
+    48
+   ],
+   "skin/icon-volume-05": [
+    48,
+    48
+   ],
+   "skin/icon-volume-06": [
+    48,
+    48
+   ],
+   "skin/icon-volume-07": [
+    48,
+    48
+   ],
+   "skin/icon-volume-08": [
+    48,
+    48
+   ],
+   "skin/icon-volume-09": [
+    48,
+    48
+   ],
+   "skin/icon-volume-10": [
+    48,
+    48
+   ],
+   "skin/icon-volume-11": [
+    48,
+    48
+   ],
+   "skin/icon-volume-12": [
+    48,
+    48
+   ],
+   "skin/icon-volume-13": [
+    48,
+    48
+   ],
+   "skin/icon-volume-14": [
+    48,
+    48
+   ],
+   "skin/icon-volume-15": [
+    48,
+    48
+   ],
+   "skin/icon-volume-16": [
+    48,
+    48
+   ],
+   "skin/icon-volume-17": [
+    48,
+    48
+   ],
+   "skin/icon-volume-18": [
+    48,
+    48
+   ],
+   "skin/icon-volume-19": [
+    48,
+    48
+   ],
+   "skin/icon-volume-20": [
+    48,
+    48
+   ],
+   "skin/icon-wifi-locked": [
+    30,
+    30
+   ],
+   "skin/icon-wifi-signal-01": [
+    40,
+    40
+   ],
+   "skin/icon-wifi-signal-02": [
+    40,
+    40
+   ],
+   "skin/icon-wifi-signal-03": [
+    40,
+    40
+   ],
+   "skin/icon-wifi-signal-04": [
+    40,
+    40
+   ],
+   "skin/power-0pct-icon": [
+    40,
+    40
+   ],
+   "skin/power-20pct-icon": [
+    40,
+    40
+   ],
+   "skin/power-50pct-icon": [
+    40,
+    40
+   ],
+   "skin/power-80pct-icon": [
+    40,
+    40
+   ],
+   "skin/power-full-icon": [
+    40,
+    40
+   ],
+   "skin/tips-bar-bg": [
+    640,
+    60
+   ]
+  },
+  "w": 640
+ },
+ "720x480": {
+  "config": {
+   "author": "tenlevels",
+   "batteryPercentage": {
+    "color": "#EBDBB2",
+    "font": "nunwen.ttf",
+    "size": 18
+   },
+   "bindOverMiyooTheme": true,
+   "currentpage": {
+    "color": "#EBDBB2",
+    "font": "nunwen.ttf",
+    "size": 22
+   },
+   "description": "spruce theme for a30",
+   "displayVolumeNumbers": true,
+   "fullScreenGridGameMenuResizeType": "FIT",
+   "gameSelectionViewType": "TEXT_AND_IMAGE",
+   "grid": {
+    "color": "#7C6F64",
+    "font": "nunwen.ttf",
+    "grid1x4": 25,
+    "grid3x4": 18,
+    "selectedcolor": "#FBF1C7"
+   },
+   "hint": {
+    "color": "#EBDBB2",
+    "font": "nunwen.ttf",
+    "size": 25
+   },
+   "list": {
+    "color": "#FBF1C7",
+    "font": "nunwen.ttf",
+    "selectedcolor": "#FBF1C7",
+    "size": 24
+   },
+   "mainMenuColCount": 4,
+   "mainMenuTitle": "",
+   "name": "Spruce",
+   "recentsEnabled": false,
+   "setTopBarTextToGameSelection": true,
+   "showBottomBar": true,
+   "title": {
+    "color": "#EBDBB2",
+    "font": "nunwen.ttf",
+    "size": 25
+   },
+   "topBarInitialXOffset": 60,
+   "total": {
+    "color": "#D65D0E",
+    "font": "nunwen.ttf",
+    "size": 22
+   }
+  },
+  "h": 480,
+  "sizes": {
+   "icons/app/backup": [
+    70,
+    70
+   ],
+   "icons/app/bootlogo": [
+    70,
+    70
+   ],
+   "icons/app/ereader": [
+    70,
+    70
+   ],
+   "icons/app/file": [
+    70,
+    70
+   ],
+   "icons/app/firmwareupdate": [
+    70,
+    70
+   ],
+   "icons/app/gallery": [
+    70,
+    70
+   ],
+   "icons/app/gamelist": [
+    70,
+    70
+   ],
+   "icons/app/iconfresh": [
+    70,
+    70
+   ],
+   "icons/app/moonlight": [
+    70,
+    70
+   ],
+   "icons/app/portmaster": [
+    70,
+    70
+   ],
+   "icons/app/ppsspp": [
+    70,
+    70
+   ],
+   "icons/app/random": [
+    70,
+    70
+   ],
+   "icons/app/restore": [
+    70,
+    70
+   ],
+   "icons/app/retroarch": [
+    70,
+    70
+   ],
+   "icons/app/rtc": [
+    70,
+    70
+   ],
+   "icons/app/scraper": [
+    70,
+    70
+   ],
+   "icons/app/songo": [
+    128,
+    128
+   ],
+   "icons/app/themegallery": [
+    70,
+    70
+   ],
+   "icons/app/updater": [
+    70,
+    70
+   ],
+   "icons/app/usb": [
+    70,
+    70
+   ],
+   "icons/fc": [
+    120,
+    130
+   ],
+   "icons/gb": [
+    120,
+    130
+   ],
+   "icons/gba": [
+    120,
+    130
+   ],
+   "icons/md": [
+    120,
+    130
+   ],
+   "icons/ps": [
+    120,
+    130
+   ],
+   "icons/sel/fc": [
+    120,
+    130
+   ],
+   "icons/sel/gb": [
+    120,
+    130
+   ],
+   "icons/sel/gba": [
+    120,
+    130
+   ],
+   "icons/sel/md": [
+    120,
+    130
+   ],
+   "icons/sel/ps": [
+    120,
+    130
+   ],
+   "icons/sel/sfc": [
+    120,
+    130
+   ],
+   "icons/sfc": [
+    120,
+    130
+   ],
+   "skin/background": [
+    720,
+    480
+   ],
+   "skin/bg-btn-01-f": [
+    50,
+    50
+   ],
+   "skin/bg-game-item-f": [
+    154,
+    170
+   ],
+   "skin/bg-grid-s": [
+    156,
+    176
+   ],
+   "skin/bg-list-l": [
+    720,
+    90
+   ],
+   "skin/bg-list-s": [
+    720,
+    60
+   ],
+   "skin/bg-list-s2": [
+    320,
+    60
+   ],
+   "skin/bg-pop-menu-4": [
+    320,
+    250
+   ],
+   "skin/bg-title": [
+    720,
+    60
+   ],
+   "skin/grid-game-selected": [
+    140,
+    140
+   ],
+   "skin/ic-app-f": [
+    100,
+    140
+   ],
+   "skin/ic-app-n": [
+    100,
+    140
+   ],
+   "skin/ic-collection-f": [
+    100,
+    140
+   ],
+   "skin/ic-collection-n": [
+    100,
+    140
+   ],
+   "skin/ic-favorite-f": [
+    100,
+    140
+   ],
+   "skin/ic-favorite-mark": [
+    40,
+    40
+   ],
+   "skin/ic-favorite-n": [
+    100,
+    140
+   ],
+   "skin/ic-game-f": [
+    100,
+    140
+   ],
+   "skin/ic-game-n": [
+    100,
+    140
+   ],
+   "skin/ic-recent-f": [
+    100,
+    140
+   ],
+   "skin/ic-recent-n": [
+    100,
+    140
+   ],
+   "skin/ic-setting-f": [
+    100,
+    140
+   ],
+   "skin/ic-setting-n": [
+    100,
+    140
+   ],
+   "skin/icon-volume-00": [
+    48,
+    48
+   ],
+   "skin/icon-volume-01": [
+    48,
+    48
+   ],
+   "skin/icon-volume-02": [
+    48,
+    48
+   ],
+   "skin/icon-volume-03": [
+    48,
+    48
+   ],
+   "skin/icon-volume-04": [
+    48,
+    48
+   ],
+   "skin/icon-volume-05": [
+    48,
+    48
+   ],
+   "skin/icon-volume-06": [
+    48,
+    48
+   ],
+   "skin/icon-volume-07": [
+    48,
+    48
+   ],
+   "skin/icon-volume-08": [
+    48,
+    48
+   ],
+   "skin/icon-volume-09": [
+    48,
+    48
+   ],
+   "skin/icon-volume-10": [
+    48,
+    48
+   ],
+   "skin/icon-volume-11": [
+    48,
+    48
+   ],
+   "skin/icon-volume-12": [
+    48,
+    48
+   ],
+   "skin/icon-volume-13": [
+    48,
+    48
+   ],
+   "skin/icon-volume-14": [
+    48,
+    48
+   ],
+   "skin/icon-volume-15": [
+    48,
+    48
+   ],
+   "skin/icon-volume-16": [
+    48,
+    48
+   ],
+   "skin/icon-volume-17": [
+    48,
+    48
+   ],
+   "skin/icon-volume-18": [
+    48,
+    48
+   ],
+   "skin/icon-volume-19": [
+    48,
+    48
+   ],
+   "skin/icon-volume-20": [
+    48,
+    48
+   ],
+   "skin/icon-wifi-locked": [
+    30,
+    30
+   ],
+   "skin/icon-wifi-signal-01": [
+    40,
+    40
+   ],
+   "skin/icon-wifi-signal-02": [
+    40,
+    40
+   ],
+   "skin/icon-wifi-signal-03": [
+    40,
+    40
+   ],
+   "skin/icon-wifi-signal-04": [
+    40,
+    40
+   ],
+   "skin/power-0pct-icon": [
+    40,
+    40
+   ],
+   "skin/power-20pct-icon": [
+    40,
+    40
+   ],
+   "skin/power-50pct-icon": [
+    40,
+    40
+   ],
+   "skin/power-80pct-icon": [
+    40,
+    40
+   ],
+   "skin/power-full-icon": [
+    40,
+    40
+   ],
+   "skin/tips-bar-bg": [
+    720,
+    60
+   ]
+  },
+  "w": 720
+ },
+ "720x720": {
+  "config": {
+   "author": "tenlevels",
+   "batteryPercentage": {
+    "color": "#EBDBB2",
+    "font": "nunwen.ttf",
+    "size": 20
+   },
+   "bindOverMiyooTheme": true,
+   "currentpage": {
+    "color": "#EBDBB2",
+    "font": "nunwen.ttf",
+    "size": 24
+   },
+   "description": "spruce theme for a30",
+   "displayVolumeNumbers": true,
+   "fullScreenGridGameMenuResizeType": "FIT",
+   "gameSelectionViewType": "TEXT_AND_IMAGE",
+   "grid": {
+    "color": "#7C6F64",
+    "font": "nunwen.ttf",
+    "grid1x4": 28,
+    "grid3x4": 20,
+    "selectedcolor": "#FBF1C7"
+   },
+   "hint": {
+    "color": "#EBDBB2",
+    "font": "nunwen.ttf",
+    "size": 28
+   },
+   "list": {
+    "color": "#FBF1C7",
+    "font": "nunwen.ttf",
+    "selectedcolor": "#FBF1C7",
+    "size": 27
+   },
+   "mainMenuColCount": 4,
+   "mainMenuTitle": "",
+   "name": "Spruce",
+   "recentsEnabled": false,
+   "setTopBarTextToGameSelection": true,
+   "showBottomBar": true,
+   "title": {
+    "color": "#EBDBB2",
+    "font": "nunwen.ttf",
+    "size": 28
+   },
+   "topBarInitialXOffset": 67,
+   "total": {
+    "color": "#D65D0E",
+    "font": "nunwen.ttf",
+    "size": 24
+   }
+  },
+  "h": 720,
+  "sizes": {
+   "icons/app/backup": [
+    78,
+    78
+   ],
+   "icons/app/bootlogo": [
+    78,
+    78
+   ],
+   "icons/app/ereader": [
+    78,
+    78
+   ],
+   "icons/app/file": [
+    78,
+    78
+   ],
+   "icons/app/firmwareupdate": [
+    78,
+    78
+   ],
+   "icons/app/gallery": [
+    78,
+    78
+   ],
+   "icons/app/gamelist": [
+    78,
+    78
+   ],
+   "icons/app/iconfresh": [
+    78,
+    78
+   ],
+   "icons/app/moonlight": [
+    78,
+    78
+   ],
+   "icons/app/portmaster": [
+    78,
+    78
+   ],
+   "icons/app/ppsspp": [
+    78,
+    78
+   ],
+   "icons/app/random": [
+    78,
+    78
+   ],
+   "icons/app/restore": [
+    78,
+    78
+   ],
+   "icons/app/retroarch": [
+    78,
+    78
+   ],
+   "icons/app/rtc": [
+    78,
+    78
+   ],
+   "icons/app/scraper": [
+    78,
+    78
+   ],
+   "icons/app/songo": [
+    128,
+    128
+   ],
+   "icons/app/themegallery": [
+    78,
+    78
+   ],
+   "icons/app/updater": [
+    78,
+    78
+   ],
+   "icons/app/usb": [
+    78,
+    78
+   ],
+   "icons/fc": [
+    134,
+    146
+   ],
+   "icons/gb": [
+    134,
+    146
+   ],
+   "icons/gba": [
+    134,
+    146
+   ],
+   "icons/md": [
+    134,
+    146
+   ],
+   "icons/ps": [
+    134,
+    146
+   ],
+   "icons/sel/fc": [
+    134,
+    146
+   ],
+   "icons/sel/gb": [
+    134,
+    146
+   ],
+   "icons/sel/gba": [
+    134,
+    146
+   ],
+   "icons/sel/md": [
+    134,
+    146
+   ],
+   "icons/sel/ps": [
+    134,
+    146
+   ],
+   "icons/sel/sfc": [
+    134,
+    146
+   ],
+   "icons/sfc": [
+    134,
+    146
+   ],
+   "skin/background": [
+    720,
+    720
+   ],
+   "skin/bg-btn-01-f": [
+    56,
+    56
+   ],
+   "skin/bg-game-item-f": [
+    173,
+    190
+   ],
+   "skin/bg-grid-s": [
+    175,
+    197
+   ],
+   "skin/bg-list-l": [
+    720,
+    101
+   ],
+   "skin/bg-list-s": [
+    720,
+    67
+   ],
+   "skin/bg-list-s2": [
+    357,
+    67
+   ],
+   "skin/bg-pop-menu-4": [
+    359,
+    281
+   ],
+   "skin/bg-title": [
+    720,
+    67
+   ],
+   "skin/grid-game-selected": [
+    157,
+    157
+   ],
+   "skin/ic-app-f": [
+    112,
+    156
+   ],
+   "skin/ic-app-n": [
+    112,
+    156
+   ],
+   "skin/ic-collection-f": [
+    112,
+    156
+   ],
+   "skin/ic-collection-n": [
+    112,
+    156
+   ],
+   "skin/ic-favorite-f": [
+    112,
+    156
+   ],
+   "skin/ic-favorite-mark": [
+    45,
+    45
+   ],
+   "skin/ic-favorite-n": [
+    112,
+    156
+   ],
+   "skin/ic-game-f": [
+    112,
+    156
+   ],
+   "skin/ic-game-n": [
+    112,
+    156
+   ],
+   "skin/ic-recent-f": [
+    112,
+    156
+   ],
+   "skin/ic-recent-n": [
+    112,
+    156
+   ],
+   "skin/ic-setting-f": [
+    112,
+    156
+   ],
+   "skin/ic-setting-n": [
+    112,
+    156
+   ],
+   "skin/icon-volume-00": [
+    54,
+    54
+   ],
+   "skin/icon-volume-01": [
+    54,
+    54
+   ],
+   "skin/icon-volume-02": [
+    54,
+    54
+   ],
+   "skin/icon-volume-03": [
+    54,
+    54
+   ],
+   "skin/icon-volume-04": [
+    54,
+    54
+   ],
+   "skin/icon-volume-05": [
+    54,
+    54
+   ],
+   "skin/icon-volume-06": [
+    54,
+    54
+   ],
+   "skin/icon-volume-07": [
+    54,
+    54
+   ],
+   "skin/icon-volume-08": [
+    54,
+    54
+   ],
+   "skin/icon-volume-09": [
+    54,
+    54
+   ],
+   "skin/icon-volume-10": [
+    54,
+    54
+   ],
+   "skin/icon-volume-11": [
+    54,
+    54
+   ],
+   "skin/icon-volume-12": [
+    54,
+    54
+   ],
+   "skin/icon-volume-13": [
+    54,
+    54
+   ],
+   "skin/icon-volume-14": [
+    54,
+    54
+   ],
+   "skin/icon-volume-15": [
+    54,
+    54
+   ],
+   "skin/icon-volume-16": [
+    54,
+    54
+   ],
+   "skin/icon-volume-17": [
+    54,
+    54
+   ],
+   "skin/icon-volume-18": [
+    54,
+    54
+   ],
+   "skin/icon-volume-19": [
+    54,
+    54
+   ],
+   "skin/icon-volume-20": [
+    54,
+    54
+   ],
+   "skin/icon-wifi-locked": [
+    33,
+    33
+   ],
+   "skin/icon-wifi-signal-01": [
+    45,
+    45
+   ],
+   "skin/icon-wifi-signal-02": [
+    45,
+    45
+   ],
+   "skin/icon-wifi-signal-03": [
+    45,
+    45
+   ],
+   "skin/icon-wifi-signal-04": [
+    45,
+    45
+   ],
+   "skin/power-0pct-icon": [
+    45,
+    45
+   ],
+   "skin/power-20pct-icon": [
+    45,
+    45
+   ],
+   "skin/power-50pct-icon": [
+    45,
+    45
+   ],
+   "skin/power-80pct-icon": [
+    45,
+    45
+   ],
+   "skin/power-full-icon": [
+    45,
+    45
+   ],
+   "skin/tips-bar-bg": [
+    720,
+    67
+   ]
+  },
+  "w": 720
+ },
+ "752x560": {
+  "config": {
+   "author": "tenlevels",
+   "batteryPercentage": {
+    "color": "#EBDBB2",
+    "font": "nunwen.ttf",
+    "size": 21
+   },
+   "bindOverMiyooTheme": true,
+   "currentpage": {
+    "color": "#EBDBB2",
+    "font": "nunwen.ttf",
+    "size": 25
+   },
+   "description": "spruce theme for a30",
+   "displayVolumeNumbers": true,
+   "fullScreenGridGameMenuResizeType": "FIT",
+   "gameSelectionViewType": "TEXT_AND_IMAGE",
+   "grid": {
+    "color": "#7C6F64",
+    "font": "nunwen.ttf",
+    "grid1x4": 29,
+    "grid3x4": 21,
+    "selectedcolor": "#FBF1C7"
+   },
+   "hint": {
+    "color": "#EBDBB2",
+    "font": "nunwen.ttf",
+    "size": 29
+   },
+   "list": {
+    "color": "#FBF1C7",
+    "font": "nunwen.ttf",
+    "selectedcolor": "#FBF1C7",
+    "size": 28
+   },
+   "mainMenuColCount": 4,
+   "mainMenuTitle": "",
+   "name": "Spruce",
+   "recentsEnabled": false,
+   "setTopBarTextToGameSelection": true,
+   "showBottomBar": true,
+   "title": {
+    "color": "#EBDBB2",
+    "font": "nunwen.ttf",
+    "size": 29
+   },
+   "topBarInitialXOffset": 70,
+   "total": {
+    "color": "#D65D0E",
+    "font": "nunwen.ttf",
+    "size": 25
+   }
+  },
+  "h": 560,
+  "sizes": {
+   "icons/app/backup": [
+    81,
+    81
+   ],
+   "icons/app/bootlogo": [
+    81,
+    81
+   ],
+   "icons/app/ereader": [
+    81,
+    81
+   ],
+   "icons/app/file": [
+    81,
+    81
+   ],
+   "icons/app/firmwareupdate": [
+    81,
+    81
+   ],
+   "icons/app/gallery": [
+    81,
+    81
+   ],
+   "icons/app/gamelist": [
+    81,
+    81
+   ],
+   "icons/app/iconfresh": [
+    81,
+    81
+   ],
+   "icons/app/moonlight": [
+    81,
+    81
+   ],
+   "icons/app/portmaster": [
+    81,
+    81
+   ],
+   "icons/app/ppsspp": [
+    81,
+    81
+   ],
+   "icons/app/random": [
+    81,
+    81
+   ],
+   "icons/app/restore": [
+    81,
+    81
+   ],
+   "icons/app/retroarch": [
+    81,
+    81
+   ],
+   "icons/app/rtc": [
+    81,
+    81
+   ],
+   "icons/app/scraper": [
+    81,
+    81
+   ],
+   "icons/app/songo": [
+    128,
+    128
+   ],
+   "icons/app/themegallery": [
+    81,
+    81
+   ],
+   "icons/app/updater": [
+    81,
+    81
+   ],
+   "icons/app/usb": [
+    81,
+    81
+   ],
+   "icons/fc": [
+    139,
+    151
+   ],
+   "icons/gb": [
+    139,
+    151
+   ],
+   "icons/gba": [
+    139,
+    151
+   ],
+   "icons/md": [
+    139,
+    151
+   ],
+   "icons/ps": [
+    139,
+    151
+   ],
+   "icons/sel/fc": [
+    139,
+    151
+   ],
+   "icons/sel/gb": [
+    139,
+    151
+   ],
+   "icons/sel/gba": [
+    139,
+    151
+   ],
+   "icons/sel/md": [
+    139,
+    151
+   ],
+   "icons/sel/ps": [
+    139,
+    151
+   ],
+   "icons/sel/sfc": [
+    139,
+    151
+   ],
+   "icons/sfc": [
+    139,
+    151
+   ],
+   "skin/background": [
+    746,
+    559
+   ],
+   "skin/bg-btn-01-f": [
+    57,
+    57
+   ],
+   "skin/bg-game-item-f": [
+    179,
+    197
+   ],
+   "skin/bg-grid-s": [
+    181,
+    205
+   ],
+   "skin/bg-list-l": [
+    752,
+    105
+   ],
+   "skin/bg-list-s": [
+    752,
+    70
+   ],
+   "skin/bg-list-s2": [
+    373,
+    69
+   ],
+   "skin/bg-pop-menu-4": [
+    372,
+    291
+   ],
+   "skin/bg-title": [
+    752,
+    70
+   ],
+   "skin/grid-game-selected": [
+    163,
+    163
+   ],
+   "skin/ic-app-f": [
+    115,
+    162
+   ],
+   "skin/ic-app-n": [
+    115,
+    162
+   ],
+   "skin/ic-collection-f": [
+    115,
+    162
+   ],
+   "skin/ic-collection-n": [
+    115,
+    162
+   ],
+   "skin/ic-favorite-f": [
+    115,
+    162
+   ],
+   "skin/ic-favorite-mark": [
+    46,
+    46
+   ],
+   "skin/ic-favorite-n": [
+    115,
+    162
+   ],
+   "skin/ic-game-f": [
+    115,
+    162
+   ],
+   "skin/ic-game-n": [
+    115,
+    162
+   ],
+   "skin/ic-recent-f": [
+    115,
+    162
+   ],
+   "skin/ic-recent-n": [
+    115,
+    162
+   ],
+   "skin/ic-setting-f": [
+    115,
+    162
+   ],
+   "skin/ic-setting-n": [
+    115,
+    162
+   ],
+   "skin/icon-volume-00": [
+    56,
+    56
+   ],
+   "skin/icon-volume-01": [
+    56,
+    56
+   ],
+   "skin/icon-volume-02": [
+    56,
+    56
+   ],
+   "skin/icon-volume-03": [
+    56,
+    56
+   ],
+   "skin/icon-volume-04": [
+    56,
+    56
+   ],
+   "skin/icon-volume-05": [
+    56,
+    56
+   ],
+   "skin/icon-volume-06": [
+    56,
+    56
+   ],
+   "skin/icon-volume-07": [
+    56,
+    56
+   ],
+   "skin/icon-volume-08": [
+    56,
+    56
+   ],
+   "skin/icon-volume-09": [
+    56,
+    56
+   ],
+   "skin/icon-volume-10": [
+    56,
+    56
+   ],
+   "skin/icon-volume-11": [
+    56,
+    56
+   ],
+   "skin/icon-volume-12": [
+    56,
+    56
+   ],
+   "skin/icon-volume-13": [
+    56,
+    56
+   ],
+   "skin/icon-volume-14": [
+    56,
+    56
+   ],
+   "skin/icon-volume-15": [
+    56,
+    56
+   ],
+   "skin/icon-volume-16": [
+    56,
+    56
+   ],
+   "skin/icon-volume-17": [
+    56,
+    56
+   ],
+   "skin/icon-volume-18": [
+    56,
+    56
+   ],
+   "skin/icon-volume-19": [
+    56,
+    56
+   ],
+   "skin/icon-volume-20": [
+    56,
+    56
+   ],
+   "skin/icon-wifi-locked": [
+    35,
+    35
+   ],
+   "skin/icon-wifi-signal-01": [
+    46,
+    46
+   ],
+   "skin/icon-wifi-signal-02": [
+    46,
+    46
+   ],
+   "skin/icon-wifi-signal-03": [
+    46,
+    46
+   ],
+   "skin/icon-wifi-signal-04": [
+    46,
+    46
+   ],
+   "skin/power-0pct-icon": [
+    46,
+    46
+   ],
+   "skin/power-20pct-icon": [
+    46,
+    46
+   ],
+   "skin/power-50pct-icon": [
+    46,
+    46
+   ],
+   "skin/power-80pct-icon": [
+    46,
+    46
+   ],
+   "skin/power-full-icon": [
+    46,
+    46
+   ],
+   "skin/tips-bar-bg": [
+    752,
+    70
+   ]
+  },
+  "w": 752
+ },
+ "960x720": {
+  "config": {
+   "author": "tenlevels",
+   "batteryPercentage": {
+    "color": "#EBDBB2",
+    "font": "nunwen.ttf",
+    "size": 27
+   },
+   "bindOverMiyooTheme": true,
+   "currentpage": {
+    "color": "#EBDBB2",
+    "font": "nunwen.ttf",
+    "size": 33
+   },
+   "description": "spruce theme for a30",
+   "displayVolumeNumbers": true,
+   "fullScreenGridGameMenuResizeType": "FIT",
+   "grid": {
+    "color": "#7C6F64",
+    "font": "nunwen.ttf",
+    "grid1x4": 37,
+    "grid3x4": 27,
+    "selectedcolor": "#FBF1C7"
+   },
+   "hint": {
+    "color": "#EBDBB2",
+    "font": "nunwen.ttf",
+    "size": 37
+   },
+   "list": {
+    "color": "#FBF1C7",
+    "font": "nunwen.ttf",
+    "selectedcolor": "#FBF1C7",
+    "size": 36
+   },
+   "mainMenuColCount": 4,
+   "mainMenuTitle": "",
+   "name": "Spruce",
+   "recentsEnabled": false,
+   "setTopBarTextToGameSelection": true,
+   "title": {
+    "color": "#EBDBB2",
+    "font": "nunwen.ttf",
+    "size": 37
+   },
+   "topBarInitialXOffset": 90,
+   "total": {
+    "color": "#D65D0E",
+    "font": "nunwen.ttf",
+    "size": 33
+   }
+  },
+  "h": 720,
+  "sizes": {
+   "icons/app/backup": [
+    105,
+    105
+   ],
+   "icons/app/bootlogo": [
+    105,
+    105
+   ],
+   "icons/app/ereader": [
+    105,
+    105
+   ],
+   "icons/app/file": [
+    105,
+    105
+   ],
+   "icons/app/firmwareupdate": [
+    105,
+    105
+   ],
+   "icons/app/gallery": [
+    105,
+    105
+   ],
+   "icons/app/gamelist": [
+    105,
+    105
+   ],
+   "icons/app/iconfresh": [
+    105,
+    105
+   ],
+   "icons/app/moonlight": [
+    105,
+    105
+   ],
+   "icons/app/portmaster": [
+    105,
+    105
+   ],
+   "icons/app/ppsspp": [
+    105,
+    105
+   ],
+   "icons/app/random": [
+    105,
+    105
+   ],
+   "icons/app/restore": [
+    105,
+    105
+   ],
+   "icons/app/retroarch": [
+    105,
+    105
+   ],
+   "icons/app/rtc": [
+    105,
+    105
+   ],
+   "icons/app/scraper": [
+    105,
+    105
+   ],
+   "icons/app/songo": [
+    128,
+    128
+   ],
+   "icons/app/themegallery": [
+    105,
+    105
+   ],
+   "icons/app/updater": [
+    105,
+    105
+   ],
+   "icons/app/usb": [
+    105,
+    105
+   ],
+   "icons/fc": [
+    180,
+    195
+   ],
+   "icons/gb": [
+    180,
+    195
+   ],
+   "icons/gba": [
+    180,
+    195
+   ],
+   "icons/md": [
+    180,
+    195
+   ],
+   "icons/ps": [
+    180,
+    195
+   ],
+   "icons/sel/fc": [
+    180,
+    195
+   ],
+   "icons/sel/gb": [
+    180,
+    195
+   ],
+   "icons/sel/gba": [
+    180,
+    195
+   ],
+   "icons/sel/md": [
+    180,
+    195
+   ],
+   "icons/sel/ps": [
+    180,
+    195
+   ],
+   "icons/sel/sfc": [
+    180,
+    195
+   ],
+   "icons/sfc": [
+    180,
+    195
+   ],
+   "skin/background": [
+    960,
+    720
+   ],
+   "skin/bg-btn-01-f": [
+    75,
+    75
+   ],
+   "skin/bg-game-item-f": [
+    231,
+    255
+   ],
+   "skin/bg-grid-s": [
+    234,
+    264
+   ],
+   "skin/bg-list-l": [
+    960,
+    135
+   ],
+   "skin/bg-list-s": [
+    960,
+    90
+   ],
+   "skin/bg-list-s2": [
+    480,
+    90
+   ],
+   "skin/bg-pop-menu-4": [
+    480,
+    375
+   ],
+   "skin/bg-title": [
+    960,
+    90
+   ],
+   "skin/grid-game-selected": [
+    210,
+    210
+   ],
+   "skin/ic-app-f": [
+    150,
+    210
+   ],
+   "skin/ic-app-n": [
+    150,
+    210
+   ],
+   "skin/ic-collection-f": [
+    150,
+    210
+   ],
+   "skin/ic-collection-n": [
+    150,
+    210
+   ],
+   "skin/ic-favorite-f": [
+    150,
+    210
+   ],
+   "skin/ic-favorite-mark": [
+    60,
+    60
+   ],
+   "skin/ic-favorite-n": [
+    150,
+    210
+   ],
+   "skin/ic-game-f": [
+    150,
+    210
+   ],
+   "skin/ic-game-n": [
+    150,
+    210
+   ],
+   "skin/ic-recent-f": [
+    150,
+    210
+   ],
+   "skin/ic-recent-n": [
+    150,
+    210
+   ],
+   "skin/ic-setting-f": [
+    150,
+    210
+   ],
+   "skin/ic-setting-n": [
+    150,
+    210
+   ],
+   "skin/icon-volume-00": [
+    72,
+    72
+   ],
+   "skin/icon-volume-01": [
+    72,
+    72
+   ],
+   "skin/icon-volume-02": [
+    72,
+    72
+   ],
+   "skin/icon-volume-03": [
+    72,
+    72
+   ],
+   "skin/icon-volume-04": [
+    72,
+    72
+   ],
+   "skin/icon-volume-05": [
+    72,
+    72
+   ],
+   "skin/icon-volume-06": [
+    72,
+    72
+   ],
+   "skin/icon-volume-07": [
+    72,
+    72
+   ],
+   "skin/icon-volume-08": [
+    72,
+    72
+   ],
+   "skin/icon-volume-09": [
+    72,
+    72
+   ],
+   "skin/icon-volume-10": [
+    72,
+    72
+   ],
+   "skin/icon-volume-11": [
+    72,
+    72
+   ],
+   "skin/icon-volume-12": [
+    72,
+    72
+   ],
+   "skin/icon-volume-13": [
+    72,
+    72
+   ],
+   "skin/icon-volume-14": [
+    72,
+    72
+   ],
+   "skin/icon-volume-15": [
+    72,
+    72
+   ],
+   "skin/icon-volume-16": [
+    72,
+    72
+   ],
+   "skin/icon-volume-17": [
+    72,
+    72
+   ],
+   "skin/icon-volume-18": [
+    72,
+    72
+   ],
+   "skin/icon-volume-19": [
+    72,
+    72
+   ],
+   "skin/icon-volume-20": [
+    72,
+    72
+   ],
+   "skin/icon-wifi-locked": [
+    45,
+    45
+   ],
+   "skin/icon-wifi-signal-01": [
+    60,
+    60
+   ],
+   "skin/icon-wifi-signal-02": [
+    60,
+    60
+   ],
+   "skin/icon-wifi-signal-03": [
+    60,
+    60
+   ],
+   "skin/icon-wifi-signal-04": [
+    60,
+    60
+   ],
+   "skin/power-0pct-icon": [
+    60,
+    60
+   ],
+   "skin/power-20pct-icon": [
+    60,
+    60
+   ],
+   "skin/power-50pct-icon": [
+    60,
+    60
+   ],
+   "skin/power-80pct-icon": [
+    60,
+    60
+   ],
+   "skin/power-full-icon": [
+    60,
+    60
+   ],
+   "skin/tips-bar-bg": [
+    960,
+    90
+   ]
+  },
+  "w": 960
+ }
+}

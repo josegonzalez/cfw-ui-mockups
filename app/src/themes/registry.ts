@@ -8,6 +8,7 @@ import { playstationXRoutes } from './playstation-x/routes'
 import { simpleosRoutes } from './simpleos/routes'
 import { tortosRoutes } from './tortos/routes'
 import { slotRoutes } from './slot/routes'
+import { spruceosRoutes } from './spruceos/routes'
 import { vitroRoutes } from './vitrolauncher/routes'
 import { wiiMenuRoutes } from './wii-menu/routes'
 
@@ -27,5 +28,6 @@ export const ROUTES: readonly ScreenRoute[] = [
   ...neostationRoutes(),
   ...dsStyleRoutes(),
   ...wiiMenuRoutes(),
+  ...spruceosRoutes(),
   ...exampleRoutes(),
 ]

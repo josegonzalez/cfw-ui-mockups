@@ -25,6 +25,7 @@ const PAIRS: Record<string, string> = {
   neostation: 'systems',
   'ds-style': 'home',
   'wii-menu': 'health',
+  spruceos: 'main-menu',
   'example-cfw': 'main-menu',
 }
 

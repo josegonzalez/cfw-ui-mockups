@@ -1,0 +1,35 @@
+/* nunwen.ttf, the SPRUCE theme's own face, subset to Latin by
+   docs/themes/spruceos/reference/extract-assets.py. */
+@font-face {
+  font-family: 'Nunwen';
+  src: url('./assets/fonts/nunwen-latin.woff2') format('woff2');
+  font-display: block;
+}
+
+.spruceos {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  isolation: isolate;
+  background: #282828;
+}
+
+.spruceos img {
+  display: block;
+}
+
+/* One line of SDL_ttf text: never wrapped, spaces kept, kerned as SDL_ttf kerns. SDL_ttf's blended
+   text is greyscale coverage, which the browser's default smoothing on macOS draws heavier. */
+.spruce-text {
+  font-family: 'Nunwen';
+  white-space: pre;
+  font-synthesis: none;
+  font-kerning: normal;
+  -webkit-font-smoothing: antialiased;
+}
+
+.spruceos__away {
+  position: absolute;
+  inset: 0;
+  background: #000;
+}
