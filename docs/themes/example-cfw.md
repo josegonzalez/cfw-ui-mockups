@@ -117,7 +117,8 @@ narrowly.
 3. Fill `data.ts` with the real on-screen strings. Do not invent labels.
 4. Write `layout.ts` from the source's own layout definitions, as fractions of the screen.
 5. Write one view component per screen, each opening with a PORTING NOTES block.
-6. List the screens in `manifest.ts` and mount them in `routes.tsx`.
+6. List the screens in `manifest.ts` and mount them in `routes.tsx`. Tag every static screen with
+   its `types` and `elements` from [views.md](../views.md), and give the live build `LIVE_TAGS`.
 7. Register the theme's routes in `app/src/themes/registry.ts`.
 8. Add it to `app/src/themes/manifest.ts` and to the catalogue in `app/src/themes/catalogue.ts`.
 9. Copy this page to `docs/themes/<slug>.md` and fill it in, and record every deviation from the

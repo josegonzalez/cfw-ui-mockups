@@ -1,5 +1,6 @@
 import type { DeviceSlug } from '../../device/devices'
 import type { ScreenManifestEntry } from '../manifest'
+import { LIVE_TAGS, type ScreenTags } from '../taxonomy'
 import type { Seed } from './machine'
 
 export const WII_MENU_DEVICES: readonly DeviceSlug[] = ['rg35xx']
@@ -8,6 +9,61 @@ export interface WiiScreenDef {
   readonly slug: string
   readonly title: string
   readonly seed: Seed
+}
+
+const CHANNEL: ScreenTags = { types: ['apps'], elements: ['artwork-panel'] }
+const SETTINGS_LIST: ScreenTags = { types: ['settings'], elements: ['list'] }
+const SETTINGS_PAGE: ScreenTags = { types: ['settings'], elements: ['list', 'page-indicator'] }
+const MENU: ScreenTags = { types: ['home'], elements: ['grid', 'status-bar', 'page-indicator'] }
+const BOARD: ScreenTags = { types: ['messages'], elements: ['list', 'page-indicator'] }
+
+/** What each still is for and built from, keyed by screen slug. */
+export const WII_MENU_TAGS: Record<string, ScreenTags> = {
+  health: { types: ['boot'], elements: ['text-block'] },
+  menu: MENU,
+  'menu-page-2': MENU,
+  'menu-page-4': MENU,
+  'menu-wii-options': MENU,
+  'menu-sd-card': MENU,
+  'menu-message-board': MENU,
+  'preview-disc': CHANNEL,
+  'preview-mii': CHANNEL,
+  'preview-photo': CHANNEL,
+  'preview-shop': CHANNEL,
+  'preview-forecast': CHANNEL,
+  'preview-news': CHANNEL,
+  'preview-internet': CHANNEL,
+  'preview-votes': CHANNEL,
+  'preview-cmoc': CHANNEL,
+  'preview-nintendo': CHANNEL,
+  'preview-start': CHANNEL,
+  home: { types: ['in-game-menu'], elements: ['popup-menu', 'status-bar'] },
+  'home-channel': { types: ['in-game-menu'], elements: ['popup-menu', 'status-bar'] },
+  'home-channel-wii-menu': { types: ['in-game-menu'], elements: ['popup-menu', 'status-bar'] },
+  'wii-options': { types: ['settings'], elements: ['grid'] },
+  'data-management': { types: ['file-manager'], elements: ['grid'] },
+  settings: SETTINGS_PAGE,
+  'settings-2': SETTINGS_PAGE,
+  'settings-3': SETTINGS_PAGE,
+  'settings-sound': SETTINGS_LIST,
+  'settings-screen': SETTINGS_LIST,
+  'settings-widescreen': SETTINGS_LIST,
+  'settings-tv-resolution': SETTINGS_LIST,
+  'settings-burn-in': SETTINGS_LIST,
+  'settings-calendar': { types: ['settings', 'date-time'], elements: ['list'] },
+  'settings-sensor-bar': SETTINGS_LIST,
+  'settings-sensor-bar-position': SETTINGS_LIST,
+  'settings-update': { types: ['settings'], elements: ['dialog'] },
+  'sd-card-menu': { types: ['file-manager'], elements: ['grid', 'page-indicator'] },
+  'sd-about': { types: ['help'], elements: ['dialog', 'grid'] },
+  'sd-about-2': { types: ['help'], elements: ['dialog', 'grid'] },
+  board: BOARD,
+  'board-calendar': { types: ['messages', 'date-time'], elements: ['grid'] },
+  'board-create': { types: ['messages'], elements: ['list'] },
+  'board-memo': { types: ['messages'], elements: ['popup-menu'] },
+  'board-letter': { types: ['messages'], elements: ['dialog'] },
+  'board-address-book': { types: ['messages'], elements: ['list'] },
+  'board-posted': BOARD,
 }
 
 /**
@@ -63,12 +119,13 @@ export const WII_MENU_SCREENS: readonly WiiScreenDef[] = [
 ]
 
 export const WII_MENU_MANIFEST: readonly ScreenManifestEntry[] = WII_MENU_DEVICES.flatMap((device) => [
-  { theme: 'wii-menu' as const, device, screen: 'interactive', title: 'Interactive', interactive: true },
+  { theme: 'wii-menu' as const, device, screen: 'interactive', title: 'Interactive', interactive: true, ...LIVE_TAGS },
   ...WII_MENU_SCREENS.map((s) => ({
     theme: 'wii-menu' as const,
     device,
     screen: s.slug,
     title: s.title,
     interactive: false,
+    ...WII_MENU_TAGS[s.slug]!,
   })),
 ])

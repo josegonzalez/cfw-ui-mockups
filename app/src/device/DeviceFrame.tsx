@@ -31,7 +31,7 @@ export interface DeviceFrameProps {
   readonly renderMode?: RenderMode
   /** Overrides the device's default viewing zoom. Never visible inside the screen. */
   readonly scale?: number
-  /** Hides the bezel and controls, leaving a bare screen. Used by the screenshot specs. */
+  /** Hides the bezel and controls, leaving a bare screen. Used by the views page's tiles. */
   readonly bare?: boolean
   readonly children: ReactNode
 }
@@ -73,7 +73,7 @@ export function DeviceFrame({
   renderMode,
   sound,
   scale,
-  bare = false,
+  bare: bareProp,
   children,
 }: DeviceFrameProps) {
   /*
@@ -85,6 +85,7 @@ export function DeviceFrame({
   const motion = animate ?? overrides.animate ?? true
   const mode = renderMode ?? overrides.renderMode ?? 'web'
   const audible = interactive && (sound ?? overrides.sound ?? true)
+  const bare = bareProp ?? overrides.bare ?? false
 
   const info = getDevice(device)
   const shell = info.shell
@@ -115,8 +116,16 @@ export function DeviceFrame({
     '--body-ink': shell.ink ?? '#8b8d93',
   } as CSSProperties
 
+  /*
+   * Without the viewport there is nothing above `.device__screen` to set its size from, so a
+   * bare screen carries its own - otherwise it collapses to the width of whatever holds it.
+   */
+  const bareStyle = bare
+    ? ({ '--screen-w': info.w, '--screen-h': screenH, '--panel-h': `${info.h}px` } as CSSProperties)
+    : undefined
+
   const screen = (
-    <div className="device__screen">
+    <div className="device__screen" style={bareStyle}>
       <div className="screen" data-screen={device}>
         {children}
       </div>

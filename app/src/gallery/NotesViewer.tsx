@@ -146,7 +146,7 @@ export function NotesViewer({ path }: NotesViewerProps) {
     <main className="notes">
       <div className="notes__bar">
         <a className="gal-btn" href="#">
-          All screens
+          All sets
         </a>
         <span className="notes__path">{path}</span>
         <a className="gal-btn notes__raw" href={`${import.meta.env.BASE_URL}${path}`}>

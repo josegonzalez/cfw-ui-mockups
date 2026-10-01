@@ -73,6 +73,11 @@ are.
   the colour and its opacity are fitted to the recording's focused buttons.
 - **Only heard sounds play.** The ROM's `error` and `sequence-4` are never heard in the recording, so
   a press that changes nothing is silent rather than guessing at one.
+- **A still lets go of WebGL after its one frame.** The sky and the menu models draw a still's
+  frame on a canvas that is never shown, copy it onto the 2D canvas that is, and release the
+  context (`app/src/render/stillGl.ts`). The views page puts every settings still on one page, and
+  past the browser's limit on live contexts the earliest tiles lost their sky and their models
+  while the later ones kept them. A live build still draws straight to its GL canvas.
 
 ## Not reproduced
 

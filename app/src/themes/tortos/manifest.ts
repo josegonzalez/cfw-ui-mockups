@@ -1,5 +1,6 @@
 import type { DeviceSlug } from '../../device/devices'
 import type { ScreenManifestEntry } from '../manifest'
+import { LIVE_TAGS, type ScreenTags } from '../taxonomy'
 import type { Seed } from './machine'
 
 /**
@@ -8,8 +9,40 @@ import type { Seed } from './machine'
  */
 export const TORTOS_DEVICES: readonly DeviceSlug[] = ['trimui-brick']
 
+export type TortosSlug =
+  | 'systems'
+  | 'systems-plain'
+  | 'systems-vertical'
+  | 'games'
+  | 'games-vertical'
+  | 'favorites'
+  | 'cubic'
+  | 'no-games'
+  | 'tortos-menu'
+  | 'system-menu'
+  | 'wifi'
+  | 'bluetooth'
+  | 'play-time'
+  | 'controls'
+  | 'about'
+  | 'hare'
+  | 'box-art'
+  | 'keyboard'
+  | 'confirm'
+  | 'notice'
+  | 'game-info'
+  | 'synopsis'
+  | 'cheevos'
+  | 'cheevo'
+  | 'game-menu'
+  | 'save'
+  | 'load'
+  | 'muse'
+  | 'muse-tracks'
+  | 'now-playing'
+
 export interface TortosScreenDef {
-  readonly slug: string
+  readonly slug: TortosSlug
   readonly title: string
   readonly seed: Seed
 }
@@ -87,7 +120,40 @@ export const TORTOS_SCREENS: readonly TortosScreenDef[] = [
   { slug: 'now-playing', title: 'Now Playing', seed: { stack: ['muse', 'muse-tracks', 'now-playing'], cursor: { MUSE: 4 }, now: LITTLE_VOICE, sel: { 'muse-tracks': 0 } } },
 ]
 
+export const TORTOS_SCREEN_TAGS: Record<TortosSlug, ScreenTags> = {
+  'systems': { types: ['system-list'], elements: ['carousel', 'artwork-panel'] },
+  'systems-plain': { types: ['system-list'], elements: ['carousel', 'artwork-panel'] },
+  'systems-vertical': { types: ['system-list'], elements: ['carousel', 'artwork-panel'] },
+  'games': { types: ['game-list'], elements: ['carousel', 'artwork-panel'] },
+  'games-vertical': { types: ['game-list'], elements: ['carousel', 'artwork-panel'] },
+  'favorites': { types: ['collection', 'game-list'], elements: ['carousel', 'artwork-panel'] },
+  'cubic': { types: ['game-list'], elements: ['carousel', 'artwork-panel'] },
+  'no-games': { types: ['empty-state'], elements: ['text-block'] },
+  'tortos-menu': { types: ['settings'], elements: ['popup-menu', 'list'] },
+  'system-menu': { types: ['settings'], elements: ['popup-menu', 'list'] },
+  'wifi': { types: ['network'], elements: ['popup-menu', 'list', 'hint-bar'] },
+  'bluetooth': { types: ['network'], elements: ['popup-menu', 'list', 'hint-bar'] },
+  'play-time': { types: ['collection'], elements: ['popup-menu', 'list', 'hint-bar'] },
+  'controls': { types: ['controls'], elements: ['popup-menu', 'list'] },
+  'about': { types: ['about'], elements: ['popup-menu', 'list'] },
+  'hare': { types: ['network', 'file-manager'], elements: ['popup-menu', 'list'] },
+  'box-art': { types: ['settings'], elements: ['popup-menu', 'list'] },
+  'keyboard': { types: ['network'], elements: ['keyboard', 'hint-bar'] },
+  'confirm': { types: ['network'], elements: ['dialog', 'popup-menu', 'list'] },
+  'notice': { types: ['loading'], elements: ['toast', 'popup-menu'] },
+  'game-info': { types: ['game-details'], elements: ['popup-menu', 'list'] },
+  'synopsis': { types: ['game-details'], elements: ['popup-menu', 'text-block'] },
+  'cheevos': { types: ['achievements'], elements: ['popup-menu', 'list'] },
+  'cheevo': { types: ['achievements'], elements: ['popup-menu'] },
+  'game-menu': { types: ['in-game-menu'], elements: ['popup-menu', 'list'] },
+  'save': { types: ['save-states'], elements: ['carousel', 'page-indicator', 'artwork-panel'] },
+  'load': { types: ['save-states'], elements: ['carousel', 'page-indicator', 'artwork-panel'] },
+  'muse': { types: ['media-player'], elements: ['carousel', 'artwork-panel'] },
+  'muse-tracks': { types: ['media-player'], elements: ['popup-menu', 'list'] },
+  'now-playing': { types: ['media-player'], elements: ['artwork-panel', 'progress-bar', 'hint-bar'] },
+}
+
 export const TORTOS_MANIFEST: readonly ScreenManifestEntry[] = TORTOS_DEVICES.flatMap((device) => [
-  { theme: 'tortos' as const, device, screen: 'interactive', title: 'Interactive', interactive: true },
-  ...TORTOS_SCREENS.map((s) => ({ theme: 'tortos' as const, device, screen: s.slug, title: s.title, interactive: false })),
+  { theme: 'tortos' as const, device, screen: 'interactive', title: 'Interactive', interactive: true, ...LIVE_TAGS },
+  ...TORTOS_SCREENS.map((s) => ({ theme: 'tortos' as const, device, screen: s.slug, title: s.title, interactive: false, ...TORTOS_SCREEN_TAGS[s.slug] })),
 ])

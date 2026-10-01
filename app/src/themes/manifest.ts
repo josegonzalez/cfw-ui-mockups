@@ -1,5 +1,6 @@
 import type { DeviceSlug } from '../device/devices'
 import type { ThemeSlug } from '../widgets/types'
+import type { ScreenTags } from './taxonomy'
 import { ELEMENTERIAL_MANIFEST } from './elementerial/manifest'
 import { EXAMPLE_MANIFEST } from './example-cfw/manifest'
 import { DREAMCAST_BIOS_MANIFEST } from './dreamcast-bios/manifest'
@@ -21,7 +22,7 @@ import { WII_MENU_MANIFEST } from './wii-menu/manifest'
  * the Playwright suite, a future index generator - can read it without pulling in the
  * application. The renderers live in `registry.ts` alongside the components they mount.
  */
-export interface ScreenManifestEntry {
+export interface ScreenManifestEntry extends ScreenTags {
   readonly theme: ThemeSlug
   readonly device: DeviceSlug
   /** Screen slug, unique within a theme. */
@@ -29,6 +30,8 @@ export interface ScreenManifestEntry {
   readonly title: string
   /** The theme's live, navigable build rather than a static snapshot. */
   readonly interactive: boolean
+  // `types` and `elements` come from `ScreenTags`: what the screen is for and what it is built
+  // from, so the same view can be lined up across sets. See `taxonomy.ts`.
 }
 
 export const SCREEN_MANIFEST: readonly ScreenManifestEntry[] = [

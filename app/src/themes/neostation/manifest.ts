@@ -1,5 +1,6 @@
 import type { DeviceSlug } from '../../device/devices'
 import type { ScreenManifestEntry } from '../manifest'
+import { LIVE_TAGS, type ScreenTags } from '../taxonomy'
 import type { Seed } from './machine'
 import { SCAN_POSE } from './wizard'
 
@@ -164,6 +165,70 @@ export const NEOSTATION_SCREENS: readonly NeoScreenDef[] = [
   },
 ]
 
+const TAB_CHROME = ['tabs', 'status-bar'] as const
+
+/**
+ * What each still is, by slug. The same on both devices. Tab screens draw the header's tab strip
+ * and clock/battery pill; the games list is a route over the whole app and draws neither.
+ */
+export const NEOSTATION_TAGS: Record<string, ScreenTags> = {
+  systems: { types: ['system-list'], elements: ['grid', ...TAB_CHROME, 'hint-bar'] },
+  'systems-year': { types: ['system-list'], elements: ['grid', ...TAB_CHROME, 'hint-bar'] },
+  games: { types: ['game-list'], elements: ['list', 'artwork-panel', 'tabs', 'hint-bar'] },
+  'game-info': { types: ['game-details', 'game-list'], elements: ['list', 'artwork-panel', 'tabs', 'hint-bar'] },
+  'game-achievements': {
+    types: ['achievements', 'game-details'],
+    elements: ['list', 'grid', 'artwork-panel', 'tabs', 'hint-bar'],
+  },
+  'games-valentine': { types: ['game-list'], elements: ['list', 'artwork-panel', 'tabs', 'hint-bar'] },
+  'games-abyss': { types: ['game-list'], elements: ['list', 'artwork-panel', 'tabs', 'hint-bar'] },
+  'games-retro': { types: ['game-list'], elements: ['list', 'artwork-panel', 'tabs', 'hint-bar'] },
+  'games-grid': { types: ['game-list'], elements: ['grid', 'artwork-panel', 'hint-bar'] },
+  'games-carousel': { types: ['game-list'], elements: ['carousel', 'artwork-panel', 'hint-bar'] },
+  'game-dropdown': { types: ['game-list'], elements: ['list', 'popup-menu', 'artwork-panel', 'tabs', 'hint-bar'] },
+  'game-menu': { types: ['game-list'], elements: ['list', 'popup-menu', 'artwork-panel', 'tabs', 'hint-bar'] },
+  'game-settings': { types: ['settings', 'game-details'], elements: ['dialog', 'tabs', 'list', 'toggle', 'hint-bar'] },
+  'game-scraping': { types: ['settings', 'game-details'], elements: ['dialog', 'tabs', 'list', 'toggle', 'hint-bar'] },
+  'game-manage': { types: ['settings', 'game-details'], elements: ['dialog', 'tabs', 'list', 'toggle', 'hint-bar'] },
+  launch: { types: ['loading'], elements: ['dialog', 'artwork-panel'] },
+  random: { types: ['game-list'], elements: ['dialog', 'list', 'artwork-panel'] },
+  'android-apps': { types: ['apps'], elements: ['grid', ...TAB_CHROME, 'hint-bar'] },
+  search: { types: ['search'], elements: ['list', ...TAB_CHROME] },
+  'search-filters': { types: ['search'], elements: ['list', ...TAB_CHROME] },
+  'search-results': { types: ['search'], elements: ['list', ...TAB_CHROME] },
+  achievements: { types: ['achievements'], elements: ['list', ...TAB_CHROME] },
+  'achievements-login': { types: ['achievements'], elements: [...TAB_CHROME] },
+  neosync: { types: ['network', 'file-manager'], elements: ['list', ...TAB_CHROME] },
+  'neosync-saves': { types: ['file-manager', 'network'], elements: ['list', ...TAB_CHROME] },
+  'neosync-plans': { types: ['network'], elements: ['list', ...TAB_CHROME] },
+  'neosync-login': { types: ['network'], elements: [...TAB_CHROME] },
+  scraper: { types: ['settings', 'network'], elements: ['list', 'toggle', ...TAB_CHROME] },
+  'scraper-running': { types: ['loading', 'settings'], elements: ['progress-bar', 'grid', ...TAB_CHROME] },
+  'scraper-region': { types: ['settings'], elements: ['list', ...TAB_CHROME] },
+  'scraper-systems': { types: ['settings'], elements: ['list', 'toggle', ...TAB_CHROME] },
+  'scraper-login': { types: ['network', 'settings'], elements: [...TAB_CHROME] },
+  romm: { types: ['network'], elements: [...TAB_CHROME] },
+  settings: { types: ['settings'], elements: ['list', 'toggle', ...TAB_CHROME] },
+  'settings-general': { types: ['settings'], elements: ['list', 'toggle', 'slider', ...TAB_CHROME] },
+  'settings-directories': { types: ['settings', 'file-manager'], elements: ['list', ...TAB_CHROME] },
+  'settings-themes': { types: ['settings', 'appearance'], elements: ['list', ...TAB_CHROME] },
+  'settings-about': { types: ['about'], elements: ['list', ...TAB_CHROME] },
+  'settings-exit': { types: ['power', 'settings'], elements: ['list', 'dialog', ...TAB_CHROME] },
+  wizard: { types: ['setup'], elements: ['page-indicator'] },
+  'wizard-permissions': { types: ['setup'], elements: ['page-indicator'] },
+  'wizard-rom': { types: ['setup'], elements: ['page-indicator'] },
+  'wizard-scan': { types: ['setup', 'loading'], elements: ['page-indicator', 'progress-bar'] },
+  'wizard-esde': { types: ['setup'], elements: ['page-indicator'] },
+  'wizard-art': { types: ['setup'], elements: ['page-indicator'] },
+  splash: { types: ['boot', 'loading'], elements: ['progress-bar'] },
+  'systems-carousel': { types: ['system-list'], elements: ['carousel', ...TAB_CHROME, 'hint-bar'] },
+  'view-dropdown': { types: ['system-list'], elements: ['grid', 'popup-menu', ...TAB_CHROME, 'hint-bar'] },
+  'context-menu': { types: ['system-list'], elements: ['grid', 'popup-menu', ...TAB_CHROME, 'hint-bar'] },
+  'system-settings': { types: ['settings'], elements: ['dialog', 'tabs', 'list', 'toggle', 'hint-bar'] },
+  'system-emulators': { types: ['settings'], elements: ['dialog', 'tabs', 'list', 'hint-bar'] },
+  notifications: { types: ['messages'], elements: ['list', 'popup-menu', ...TAB_CHROME] },
+}
+
 /** The stills that exist on `device`. */
 export const screensFor = (device: DeviceSlug): readonly NeoScreenDef[] =>
   NEOSTATION_SCREENS.filter((s) => !s.devices || s.devices.includes(device))
@@ -175,6 +240,7 @@ export const NEOSTATION_MANIFEST: readonly ScreenManifestEntry[] = NEOSTATION_DE
     screen: 'interactive',
     title: 'Interactive',
     interactive: true,
+    ...LIVE_TAGS,
   },
   ...screensFor(device).map((s) => ({
     theme: 'neostation' as const,
@@ -182,5 +248,6 @@ export const NEOSTATION_MANIFEST: readonly ScreenManifestEntry[] = NEOSTATION_DE
     screen: s.slug,
     title: s.title,
     interactive: false,
+    ...NEOSTATION_TAGS[s.slug]!,
   })),
 ])

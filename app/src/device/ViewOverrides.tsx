@@ -18,6 +18,11 @@ export interface ViewOverrides {
   readonly renderMode?: RenderMode | undefined
   /** `false` mutes a live build. */
   readonly sound?: boolean | undefined
+  /**
+   * Drops the bezel. Set by the views page, which lines up a dozen sets' screens as tiles and
+   * would otherwise be comparing a dozen device bodies. Never read from the URL.
+   */
+  readonly bare?: boolean | undefined
 }
 
 const ViewOverridesContext = createContext<ViewOverrides>({})

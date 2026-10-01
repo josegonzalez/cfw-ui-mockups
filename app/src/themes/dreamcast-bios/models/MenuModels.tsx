@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useScreen } from '../../../device/ScreenContext'
 import { useWebEffects } from '../../../render/RenderModeProvider'
+import { bakeStillGl, stillGlCanvas } from '../../../render/stillGl'
 import { bios } from '../assets'
 import { abs } from '../views/parts'
 import { createSceneGl } from './gl'
@@ -44,7 +45,8 @@ export function ModelScene({ items: drawn, moving, reflect = false }: { items: (
   const cpuCanvas = useRef<HTMLCanvasElement>(null)
   const images = useRef(new Map<string, HTMLImageElement>())
   const [glReady, setGlReady] = useState(false)
-  const useGl = webEffects && glReady
+  // A still shows the CPU canvas whichever drew it: its GL frame is copied there (`stillGl.ts`).
+  const useGl = webEffects && glReady && animate
   const names = useMemo(
     () => [...new Set(items(null).flatMap((i) => i.model.parts.flatMap((p) => {
       const n = textureOf(i, p.texture)
@@ -60,7 +62,9 @@ export function ModelScene({ items: drawn, moving, reflect = false }: { items: (
     const cpu = cpuCanvas.current?.getContext('2d')
     const models = [...new Set(items(null).map((i) => i.model))]
     const imgs = new Map(names.map((n) => [n, images.current.get(n)!]))
-    const scene = webEffects && glCanvas.current ? createSceneGl(glCanvas.current, models, imgs) : null
+    const height = reflect ? SCREEN.reflecting : SCREEN.h
+    const glTarget = animate ? glCanvas.current : stillGlCanvas(SCREEN.w, height)
+    const scene = webEffects && glTarget ? createSceneGl(glTarget, models, imgs) : null
     setGlReady(scene !== null)
     const cpuTextures = new Map<string, Texels>()
     if (!scene) for (const [n, img] of imgs) {
@@ -73,7 +77,11 @@ export function ModelScene({ items: drawn, moving, reflect = false }: { items: (
       else if (cpu) drawSceneCpu(cpu, list, cpuTextures)
     }
     draw(null)
-    if (!animate || !moving) return () => scene?.dispose()
+    if (!animate) {
+      if (scene && glTarget && cpu) bakeStillGl(glTarget, cpu)
+      return () => scene?.dispose()
+    }
+    if (!moving) return () => scene?.dispose()
     let raf = 0
     let start: number | null = null
     const tick = (ts: number) => {
@@ -86,7 +94,7 @@ export function ModelScene({ items: drawn, moving, reflect = false }: { items: (
       cancelAnimationFrame(raf)
       scene?.dispose()
     }
-  }, [webEffects, items, moving, animate, ready, names])
+  }, [webEffects, items, moving, animate, ready, names, reflect])
 
   const height = reflect ? SCREEN.reflecting : SCREEN.h
   const box = abs({ x: 0, y: 0, w: SCREEN.w, h: height })

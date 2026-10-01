@@ -108,7 +108,7 @@ describe('NotesViewer', () => {
     mockFetch('# Title')
     render(<NotesViewer path="docs/README.md" />)
 
-    expect(screen.getByRole('link', { name: 'All screens' })).toHaveAttribute('href', '#')
+    expect(screen.getByRole('link', { name: 'All sets' })).toHaveAttribute('href', '#')
     expect(screen.getByRole('link', { name: 'View raw' })).toHaveAttribute('href', '/docs/README.md')
   })
 })

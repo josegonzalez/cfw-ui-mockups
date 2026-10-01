@@ -1,9 +1,12 @@
 import type { CSSProperties } from 'react'
 import { DEVICES } from '../device/devices'
 import { SCREEN_MANIFEST, screenId } from '../themes/manifest'
+import { SCREEN_TYPES } from '../themes/taxonomy'
+import { viewsHref } from '../themes/views'
 import { THEMES, catalogueTotals, type ThemeEntry } from '../themes/catalogue'
 import { Hero } from './hero/Hero'
 import { NOTES_PREFIX } from './NotesViewer'
+import { FacetCard } from './ViewsPage'
 import './gallery.css'
 import './hero/hero.css'
 
@@ -122,25 +125,20 @@ export function Landing() {
           </div>
         </section>
 
-        <section className="gal__section" aria-labelledby="screens-heading">
+        <section className="gal__section" aria-labelledby="views-heading">
           <div className="gal__section-head">
-            <h2 className="gal__section-title" id="screens-heading">
-              Every screen
+            <h2 className="gal__section-title" id="views-heading">
+              Compare views
             </h2>
-            <span className="gal__section-note">
-              Enumerated from the route registry, so nothing can go missing
-            </span>
+            <span className="gal__section-note">The same screen, as each set draws it</span>
+            <a className="gal__section-link" href={viewsHref()}>
+              Browse every view
+            </a>
           </div>
 
-          <div className="gal__screens">
-            {SCREEN_MANIFEST.map((screen) => (
-              <a className="gal-screen-link" key={screenId(screen)} href={`#${screenId(screen)}`}>
-                <span>
-                  {THEMES.find((t) => t.slug === screen.theme)?.name ?? screen.theme} ·{' '}
-                  {screen.title}
-                </span>
-                <span className="gal-screen-link__meta">{screen.device}</span>
-              </a>
+          <div className="gal-facet-cards">
+            {Object.keys(SCREEN_TYPES).map((slug) => (
+              <FacetCard key={slug} facet="type" slug={slug} />
             ))}
           </div>
         </section>
