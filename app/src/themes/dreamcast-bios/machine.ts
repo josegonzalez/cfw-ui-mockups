@@ -72,6 +72,11 @@ export interface State {
   /** The CD player: whether a disc is in, and what it is doing. */
   readonly player: Player
   /**
+   * The hidden 3D mode, which a game's save unlocks: a deep-sea scenery that reflects the models, the
+   * models drawn solid, and a visualiser behind a playing disc (from 146s in the recording).
+   */
+  readonly realMode: boolean
+  /**
    * The screen showing is fading out for this stack. The BIOS takes no input until it is up.
    */
   readonly pending: readonly View[] | null
@@ -97,6 +102,10 @@ export interface Seed {
   readonly boot?: boolean
   /** An audio CD in the drive, for Music. */
   readonly disc?: boolean
+  /** The hidden 3D mode. */
+  readonly realMode?: boolean
+  /** Seconds of the CD playing after the presses, so a still can be posed partway into a track. */
+  readonly seconds?: number
 }
 
 /** The seed alphabet: one letter per button, so a still reads as the presses that pose it. */
@@ -125,6 +134,7 @@ export function initialState(seed: Seed = {}): State {
     marked: [],
     repeat: 0,
     player: { disc: seed.disc ?? false, state: 'stopped', track: 1, elapsed: 0 },
+    realMode: seed.realMode ?? false,
     pending: null,
   }
   for (const ch of seed.events ?? '') {
@@ -132,6 +142,7 @@ export function initialState(seed: Seed = {}): State {
     if (!button) throw new Error(`Dreamcast BIOS seed: unknown letter ${ch}`)
     s = settle(reduce(s, button))
   }
+  for (let i = 0; i < (seed.seconds ?? 0); i++) s = tickPlayer(s)
   return s
 }
 

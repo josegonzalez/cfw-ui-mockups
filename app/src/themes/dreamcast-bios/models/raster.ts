@@ -1,4 +1,4 @@
-import { SCREEN, matrices, shade, type Item } from './scene'
+import { SCREEN, matrices, shade, textureOf, type Item } from './scene'
 
 /** A texture's pixels, for sampling on the CPU. */
 export interface Texels {
@@ -36,14 +36,18 @@ function sample(t: Texels, u: number, v: number, out: number[]) {
  * the nearest texel and has no antialiasing, which is how it differs from the shader.
  */
 export function drawSceneCpu(ctx: CanvasRenderingContext2D, items: readonly Item[], textures: ReadonlyMap<string, Texels>) {
-  const { w, h } = SCREEN
+  const { w } = SCREEN
+  const h = ctx.canvas.height
   const img = ctx.createImageData(w, h)
   const px = img.data
   const depth = new Float32Array(w * h).fill(Infinity)
   const tex = [1, 1, 1, 1]
 
-  for (const { model: m, pose, view, alpha: itemAlpha } of items) {
-    const { clip, normal } = matrices(pose, view)
+  for (const item of items) {
+    const { model: m, pose, view, alpha: itemAlpha, tint } = item
+    const { clip, normal } = matrices(pose, view, h)
+    // A mirrored item's front faces wind the other way on screen.
+    const facing = (view.sy ?? 1) < 0 ? 1 : -1
     const n = m.positions.length / 3
     const sx = new Float32Array(n)
     const sy = new Float32Array(n)
@@ -69,7 +73,8 @@ export function drawSceneCpu(ctx: CanvasRenderingContext2D, items: readonly Item
       ev[i] = 0.5 - (wy / len) * 0.5
     }
     for (const part of m.parts) {
-      const t = part.texture ? textures.get(part.texture) : undefined
+      const name = textureOf(item, part.texture)
+      const t = name ? textures.get(name) : undefined
       const uvAt = (v: number, i: number) => (part.env ? (i === 0 ? eu[v]! : ev[v]!) : (m.uvs?.[v * 2 + i] ?? 0))
       for (let k = part.start; k < part.start + part.count; k += 3) {
         const a = m.indices[k]!
@@ -77,7 +82,7 @@ export function drawSceneCpu(ctx: CanvasRenderingContext2D, items: readonly Item
         const c = m.indices[k + 2]!
         // Counter-clockwise on screen, with y down, is a negative area: anything else faces away.
         const area = (sx[b]! - sx[a]!) * (sy[c]! - sy[a]!) - (sx[c]! - sx[a]!) * (sy[b]! - sy[a]!)
-        if (area >= 0) continue
+        if (area * facing <= 0) continue
         const x0 = Math.max(0, Math.floor(Math.min(sx[a]!, sx[b]!, sx[c]!)))
         const x1 = Math.min(w - 1, Math.ceil(Math.max(sx[a]!, sx[b]!, sx[c]!)))
         const y0 = Math.max(0, Math.floor(Math.min(sy[a]!, sy[b]!, sy[c]!)))
@@ -96,7 +101,8 @@ export function drawSceneCpu(ctx: CanvasRenderingContext2D, items: readonly Item
             const col = (v: number, ch: number) => m.colors[v * 4 + ch]! / 255
             if (t) sample(t, w0 * uvAt(a, 0) + w1 * uvAt(b, 0) + w2 * uvAt(c, 0), w0 * uvAt(a, 1) + w1 * uvAt(b, 1) + w2 * uvAt(c, 1), tex)
             else tex.fill(1)
-            const l = part.lit ? w0 * lit[a]! + w1 * lit[b]! + w2 * lit[c]! : 1
+            // An environment map is the light it reflects, so it is not lit again.
+            const l = part.lit && !part.env ? w0 * lit[a]! + w1 * lit[b]! + w2 * lit[c]! : 1
             const alpha = (w0 * col(a, 3) + w1 * col(b, 3) + w2 * col(c, 3)) * tex[3]! * itemAlpha
             if (alpha <= 0) continue
             depth[p] = z
@@ -105,7 +111,8 @@ export function drawSceneCpu(ctx: CanvasRenderingContext2D, items: readonly Item
             const under = px[o + 3]! / 255
             const outA = alpha + under * (1 - alpha)
             for (let ch = 0; ch < 3; ch++) {
-              const src = (w0 * col(a, ch) + w1 * col(b, ch) + w2 * col(c, ch)) * tex[ch]! * l * 255
+              const base = tint ? tint[ch]! : w0 * col(a, ch) + w1 * col(b, ch) + w2 * col(c, ch)
+              const src = base * tex[ch]! * l * 255
               px[o + ch] = outA ? (src * alpha + px[o + ch]! * under * (1 - alpha)) / outA : 0
             }
             px[o + 3] = outA * 255

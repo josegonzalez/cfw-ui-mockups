@@ -909,7 +909,9 @@ Missing from both frameworks:
 - **3D models, lit, translucent and moving.** The main menu's four models are the ROM's own meshes -
   656 vertices for the controller - drawn with depth, per-vertex light and alpha, the focused one
   following its 60-frame motion of position, rotation and scale (`models/`). The CD player's disc is
-  textured as well, its back environment-mapped, and it turns and tips while it plays. Both frameworks draw
+  textured as well, its back environment-mapped, and it turns and tips while it plays. The CD
+  player's buttons are model trees whose motion moves a node and its child together, and the hidden
+  3D mode draws every model again as its reflection. Both frameworks draw
   only rectangles and textures: `RenderGeometry` and `Vertex` are zero-hit in both (the textured
   geometry row above), and neither has a depth buffer (`DEPTH_TEST`, `zbuffer` and `depth_buffer`
   are zero-hit in both). A port could pre-render each model's 60

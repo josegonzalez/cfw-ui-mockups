@@ -14,7 +14,7 @@ export interface DreamcastScreenDef {
  * The stills. Each is posed by pressing buttons from power-on, in `machine.ts`'s letters, with every
  * transition settled. `main` is where the live build starts, and its settle pair.
  */
-export const DREAMCAST_BIOS_SCREENS: readonly DreamcastScreenDef[] = [
+const NORMAL: readonly DreamcastScreenDef[] = [
   { slug: 'main', title: 'Main menu', seed: {} },
   { slug: 'main-settings', title: 'Main menu, Settings', seed: { events: 'rd' } },
   { slug: 'boot', title: 'Power-on', seed: { boot: true } },
@@ -38,6 +38,21 @@ export const DREAMCAST_BIOS_SCREENS: readonly DreamcastScreenDef[] = [
   { slug: 'music-repeat', title: 'Music, repeat one', seed: { events: 'darra' } },
   { slug: 'music-disc', title: 'Music, with disc', seed: { disc: true, events: 'da' } },
   { slug: 'music-disc-playing', title: 'Music, with disc, playing', seed: { disc: true, events: 'daa' } },
+
+]
+
+/**
+ * Every still again in the hidden 3D mode, `<slug>-3d`, but power-on, which comes before any save is
+ * read; and the visualiser, which only that mode has, four seconds into a track.
+ */
+export const DREAMCAST_BIOS_SCREENS: readonly DreamcastScreenDef[] = [
+  ...NORMAL,
+  ...NORMAL.filter((s) => s.slug !== 'boot').map((s) => ({
+    slug: `${s.slug}-3d`,
+    title: `${s.title}, hidden 3D mode`,
+    seed: { ...s.seed, realMode: true },
+  })),
+  { slug: 'music-disc-visualizer-3d', title: 'Music, with disc, visualiser, hidden 3D mode', seed: { realMode: true, disc: true, events: 'daa', seconds: 4 } },
 ]
 
 export const DREAMCAST_BIOS_MANIFEST: readonly ScreenManifestEntry[] = DREAMCAST_BIOS_DEVICES.flatMap((device) => [

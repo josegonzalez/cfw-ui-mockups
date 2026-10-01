@@ -37,7 +37,7 @@ export function discPose(flat: boolean, spinning: boolean, tipping: boolean, t: 
 }
 
 /** The CD in the drive: upright and turning while stopped, lying back and spinning while it plays. */
-export function Disc({ state }: { state: 'stopped' | 'playing' | 'paused' }) {
+export function Disc({ state, reflect = false }: { state: 'stopped' | 'playing' | 'paused'; reflect?: boolean }) {
   const flat = state !== 'stopped'
   // Tipping over plays only when the disc changes, never when it first appears.
   const [shown, setShown] = useState(flat)
@@ -51,5 +51,5 @@ export function Disc({ state }: { state: 'stopped' | 'playing' | 'paused' }) {
     (t: number | null): Item[] => [{ model: DISC, pose: discPose(flat, spinning, tipping, t), view: VIEW, alpha: 1 }],
     [flat, spinning, tipping],
   )
-  return <ModelScene items={items} moving />
+  return <ModelScene items={items} moving reflect={reflect} />
 }

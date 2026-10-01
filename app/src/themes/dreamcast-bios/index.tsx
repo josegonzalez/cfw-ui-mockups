@@ -34,6 +34,8 @@ import { Music } from './views/Music'
 import { CardsSet, Deleted, NoDisc } from './views/NoDisc'
 import { AutoStartBox, CardClockBox, ClockBox, LanguageBox, SettingsList, SoundBox } from './views/Settings'
 import { abs } from './views/parts'
+import { REAL_MODE_VIEW } from './layout'
+import { RealModeView } from './views/parts'
 import './dreamcast-bios.css'
 
 export type DreamcastBiosProps = Seed
@@ -52,7 +54,7 @@ function Screen({ s, v }: { s: State; v: View }) {
     case 'boot-clock':
       return <ClockBox focus={v.focus} draft={v.draft} boot />
     case 'main':
-      return <MainMenu focus={s.main} clock={formatClock(s.clock)} />
+      return <MainMenu focus={s.main} clock={formatClock(s.clock)} realMode={s.realMode} />
     case 'no-disc':
       return <NoDisc />
     case 'settings':
@@ -62,7 +64,7 @@ function Screen({ s, v }: { s: State; v: View }) {
     case 'files':
       return <FileList focus={v.focus} files={filesOf(s)} marked={s.marked} confirm={confirmOf(s)} />
     case 'music':
-      return <Music focus={v.focus} repeat={s.repeat} player={s.player} />
+      return <Music focus={v.focus} repeat={s.repeat} player={s.player} realMode={s.realMode} />
     default:
       return null
   }
@@ -170,9 +172,9 @@ export function DreamcastBios(seed: DreamcastBiosProps) {
   const screen = screenOf(state.stack)
   const leaving = state.pending !== null
   return (
-    <div className="dreamcast-bios" data-theme="dreamcast-bios" data-view={v.kind}>
+    <div className="dreamcast-bios" data-theme="dreamcast-bios" data-view={v.kind} data-real-mode={state.realMode || undefined}>
       {/* Power-on is grey with no sky; the sky comes in as the screen after it starts to fade up. */}
-      {booting && state.pending === null ? null : <Sky />}
+      {booting && state.pending === null ? null : <Sky scenery={state.realMode ? 'deep' : 'open'} />}
       {/* The fade out only: the new screen comes back at once and its own storyboard fades it up. */}
       <div
         style={{
@@ -182,7 +184,14 @@ export function DreamcastBios(seed: DreamcastBiosProps) {
         }}
       >
         <Animated key={screenKey(state.stack)} storyboard={FADE_IN} event="open" style={abs({ x: 0, y: 0, w: W, h: H })}>
-          <Screen s={state} v={screen} />
+          {/*
+            The hidden 3D mode's camera draws every screen smaller. The main menu and Music place
+            their own, as the recording shows them, the top bar staying put; the screens it never
+            shows in the mode are drawn smaller about their middle. The boot logo has no mode yet.
+          */}
+          <RealModeView on={state.realMode && !['main', 'music', 'boot'].includes(screen.kind)} origin={REAL_MODE_VIEW.unseen}>
+            <Screen s={state} v={screen} />
+          </RealModeView>
           {/* Every box open over the screen, oldest first: one box can open over another. */}
           {state.stack.filter(isDialog).map((d, i) => (
             <Dialog key={`${i}:${d.kind}`} s={state} v={d} />

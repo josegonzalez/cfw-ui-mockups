@@ -5,9 +5,9 @@ import { bios } from '../assets'
 import { abs } from '../views/parts'
 import { createSceneGl } from './gl'
 import { drawSceneCpu, texels, type Texels } from './raster'
-import { MAIN_ALPHA, MAIN_VIEW, SCREEN, poseAt, type Item, type ModelData } from './scene'
+import { MAIN_ALPHA, MAIN_VIEW, SCREEN, poseAt, reflected, textureOf, type Item, type ModelData } from './scene'
 
-const files = import.meta.glob<ModelData>('../assets/models/*.json', { eager: true, import: 'default' })
+const files = import.meta.glob<ModelData>('../assets/models/**/*.json', { eager: true, import: 'default' })
 
 /** A model decoded from the ROM, by the name `extract-assets.py` gives it. */
 export function model(name: string): ModelData {
@@ -32,7 +32,12 @@ export const MAIN_MODELS: readonly ModelData[] = ['controller', 'vmu', 'note', '
  * as a hidden image too, so whatever waits for a page's images to load waits for these, and the scene
  * is drawn once they have.
  */
-export function ModelScene({ items, moving }: { items: (t: number | null) => readonly Item[]; moving: boolean }) {
+export function ModelScene({ items: drawn, moving, reflect = false }: { items: (t: number | null) => readonly Item[]; moving: boolean; reflect?: boolean }) {
+  // In the hidden 3D mode the water reflects every model, drawn first so the models stand over it.
+  const items = useCallback((t: number | null) => {
+    const list = drawn(t)
+    return reflect ? [...list.map(reflected), ...list] : list
+  }, [drawn, reflect])
   const { animate } = useScreen()
   const webEffects = useWebEffects()
   const glCanvas = useRef<HTMLCanvasElement>(null)
@@ -41,7 +46,10 @@ export function ModelScene({ items, moving }: { items: (t: number | null) => rea
   const [glReady, setGlReady] = useState(false)
   const useGl = webEffects && glReady
   const names = useMemo(
-    () => [...new Set(items(null).flatMap((i) => i.model.parts.flatMap((p) => (p.texture ? [p.texture] : []))))].sort(),
+    () => [...new Set(items(null).flatMap((i) => i.model.parts.flatMap((p) => {
+      const n = textureOf(i, p.texture)
+      return n ? [n] : []
+    })))].sort(),
     [items],
   )
   const [loaded, setLoaded] = useState<ReadonlySet<string>>(() => new Set())
@@ -80,7 +88,8 @@ export function ModelScene({ items, moving }: { items: (t: number | null) => rea
     }
   }, [webEffects, items, moving, animate, ready, names])
 
-  const box = abs({ x: 0, y: 0, w: SCREEN.w, h: SCREEN.h })
+  const height = reflect ? SCREEN.reflecting : SCREEN.h
+  const box = abs({ x: 0, y: 0, w: SCREEN.w, h: height })
   return (
     <>
       {names.map((n) => (
@@ -95,8 +104,8 @@ export function ModelScene({ items, moving }: { items: (t: number | null) => rea
           onLoad={() => setLoaded((s) => new Set(s).add(n))}
         />
       ))}
-      <canvas ref={glCanvas} width={SCREEN.w} height={SCREEN.h} data-models="gl" style={{ ...box, display: useGl ? 'block' : 'none' }} />
-      <canvas ref={cpuCanvas} width={SCREEN.w} height={SCREEN.h} data-models="cpu" style={{ ...box, display: useGl ? 'none' : 'block' }} />
+      <canvas ref={glCanvas} width={SCREEN.w} height={height} data-models="gl" style={{ ...box, display: useGl ? 'block' : 'none' }} />
+      <canvas ref={cpuCanvas} width={SCREEN.w} height={height} data-models="cpu" style={{ ...box, display: useGl ? 'none' : 'block' }} />
     </>
   )
 }
@@ -105,11 +114,17 @@ export function ModelScene({ items, moving }: { items: (t: number | null) => rea
  * The main menu's four models, each where its own transform in the ROM puts it. The focused one plays
  * the BIOS's own focus motion for it, round and round; the others rest.
  */
-export function MenuModels({ focus }: { focus: number }) {
+export function MenuModels({ focus, realMode }: { focus: number; realMode: boolean }) {
   const items = useCallback(
     (t: number | null): Item[] =>
-      MAIN_MODELS.map((m, i) => ({ model: m, pose: poseAt(m, i === focus ? t : null), view: MAIN_VIEW, alpha: MAIN_ALPHA })),
-    [focus],
+      MAIN_MODELS.map((m, i) => ({
+        model: m,
+        pose: poseAt(m, i === focus ? t : null),
+        view: MAIN_VIEW,
+        // The 3D mode draws its models solid (`frames/main-3d.png`).
+        alpha: realMode ? 1 : MAIN_ALPHA,
+      })),
+    [focus, realMode],
   )
-  return <ModelScene items={items} moving />
+  return <ModelScene items={items} moving reflect={realMode} />
 }

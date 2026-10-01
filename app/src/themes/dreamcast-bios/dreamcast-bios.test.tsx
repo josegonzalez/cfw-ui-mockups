@@ -254,6 +254,13 @@ describe('Dreamcast BIOS CD player', () => {
     expect(atEnd(2)).toMatchObject({ state: 'playing', track: 1, elapsed: 0 })
   })
 
+  it('poses a still partway into a track, and the hidden 3D mode from its seed', () => {
+    const s = initialState({ realMode: true, disc: true, events: 'daa', seconds: 4 })
+    expect(s.realMode).toBe(true)
+    expect(s.player).toMatchObject({ state: 'playing', track: 1, elapsed: 4 })
+    expect(initialState().realMode).toBe(false)
+  })
+
   it('does nothing but repeat with no disc in', () => {
     const s = press(menu(), 'down', 'a')
     expect(press(s, 'a')).toEqual(s)
@@ -321,8 +328,14 @@ describe('Dreamcast BIOS stills', () => {
       'music-repeat': 'music',
       'music-disc': 'music',
       'music-disc-playing': 'music',
+      'music-disc-visualizer-3d': 'music',
     }
-    for (const s of DREAMCAST_BIOS_SCREENS) expect(view(s.slug).kind, s.slug).toBe(kinds[s.slug])
+    for (const s of DREAMCAST_BIOS_SCREENS) expect(view(s.slug).kind, s.slug).toBe(kinds[s.slug.replace(/-3d$/, '')] ?? kinds[s.slug])
+    // Every 3D still is its normal one in the hidden 3D mode.
+    for (const s of DREAMCAST_BIOS_SCREENS.filter((x) => x.slug.endsWith('-3d'))) {
+      expect(initialState(s.seed).realMode, s.slug).toBe(true)
+    }
+    expect(DREAMCAST_BIOS_SCREENS.some((s) => s.slug === 'boot-3d')).toBe(false)
     expect(initialState({ events: 'rd' }).main).toBe(3)
     expect(initialState({ events: 'darra' }).repeat).toBe(1)
     expect(view('file-all-menu')).toMatchObject({ all: true })

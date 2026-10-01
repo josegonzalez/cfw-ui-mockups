@@ -1,4 +1,4 @@
-import { LIGHT, matrices, type Item, type ModelData } from './scene'
+import { LIGHT, matrices, textureOf, type Item, type ModelData } from './scene'
 
 /**
  * The scene in WebGL: every model's triangles, lit per vertex as `scene.ts` lights them, textured
@@ -14,16 +14,19 @@ uniform mat4 m;
 uniform mat3 nm;
 uniform vec3 l;
 uniform float amb;
+uniform float dif;
 uniform float alpha;
 uniform float lit;
 uniform float env;
+uniform float tintOn;
+uniform vec3 tint;
 varying vec4 col;
 varying vec2 tuv;
 void main() {
   gl_Position = m * vec4(p, 1.0);
   vec3 wn = normalize(nm * n);
-  float s = lit > 0.5 ? min(amb + (1.0 - amb) * max(dot(wn, l), 0.0), 1.0) : 1.0;
-  col = vec4(c.rgb * s, c.a * alpha);
+  float s = lit > 0.5 ? min(amb + dif * max(dot(wn, l), 0.0), 1.0) : 1.0;
+  col = vec4((tintOn > 0.5 ? tint : c.rgb) * s, c.a * alpha);
   // An environment map is looked up by the surface's facing: a sphere map, centred on the viewer.
   tuv = env > 0.5 ? vec2(wn.x * 0.5 + 0.5, 0.5 - wn.y * 0.5) : uv;
 }
@@ -113,7 +116,7 @@ export function createSceneGl(
     glTextures.set(name, t)
   }
   const at = { p: gl.getAttribLocation(prog, 'p'), n: gl.getAttribLocation(prog, 'n'), c: gl.getAttribLocation(prog, 'c'), uv: gl.getAttribLocation(prog, 'uv') }
-  const u = Object.fromEntries(['m', 'nm', 'l', 'amb', 'alpha', 'lit', 'env', 'tex', 'hasTex'].map((k) => [k, gl.getUniformLocation(prog, k)]))
+  const u = Object.fromEntries(['m', 'nm', 'l', 'amb', 'alpha', 'lit', 'env', 'tex', 'hasTex', 'tintOn', 'tint', 'dif'].map((k) => [k, gl.getUniformLocation(prog, k)]))
   const [lx, ly, lz] = LIGHT.dir
   const ll = Math.hypot(lx, ly, lz)
   const attrib = (loc: number, b: WebGLBuffer, size: number, type: number, normalized = false) => {
@@ -135,26 +138,33 @@ export function createSceneGl(
       gl.useProgram(prog)
       gl.uniform3f(u.l!, lx / ll, ly / ll, lz / ll)
       gl.uniform1f(u.amb!, LIGHT.ambient)
+      gl.uniform1f(u.dif!, LIGHT.diffuse)
       gl.uniform1i(u.tex!, 0)
       gl.activeTexture(gl.TEXTURE0)
       for (const item of items) {
         const mesh = meshes.get(item.model)
         if (!mesh) continue
-        const { clip, normal } = matrices(item.pose, item.view)
+        const { clip, normal } = matrices(item.pose, item.view, canvas.height)
+        // A mirrored item's front faces wind the other way on screen.
+        gl.frontFace((item.view.sy ?? 1) < 0 ? gl.CW : gl.CCW)
         gl.uniformMatrix4fv(u.m!, false, clip)
         gl.uniformMatrix3fv(u.nm!, false, normal)
         gl.uniform1f(u.alpha!, item.alpha)
+        gl.uniform1f(u.tintOn!, item.tint ? 1 : 0)
+        if (item.tint) gl.uniform3f(u.tint!, item.tint[0], item.tint[1], item.tint[2])
         attrib(at.p, mesh.pos, 3, gl.FLOAT)
         attrib(at.n, mesh.nrm, 3, gl.FLOAT)
         attrib(at.c, mesh.col, 4, gl.UNSIGNED_BYTE, true)
         attrib(at.uv, mesh.uv, 2, gl.FLOAT)
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, mesh.idx)
         for (const part of item.model.parts) {
-          const t = part.texture ? glTextures.get(part.texture) : undefined
+          const name = textureOf(item, part.texture)
+          const t = name ? glTextures.get(name) : undefined
           gl.uniform1f(u.hasTex!, t ? 1 : 0)
           if (t) gl.bindTexture(gl.TEXTURE_2D, t)
           gl.uniform1f(u.env!, part.env ? 1 : 0)
-          gl.uniform1f(u.lit!, part.lit ? 1 : 0)
+          // An environment map is the light it reflects, so it is not lit again.
+          gl.uniform1f(u.lit!, part.lit && !part.env ? 1 : 0)
           gl.drawElements(gl.TRIANGLES, part.count, gl.UNSIGNED_SHORT, part.start * 2)
         }
       }

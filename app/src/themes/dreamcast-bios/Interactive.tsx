@@ -32,6 +32,9 @@ function ChromeKeys({ onAction }: { onAction: (action: string) => void }) {
 export function DreamcastBiosInteractive({ device }: { device: DeviceSlug }) {
   const [screen, setScreen] = useState(DEFAULT_SCREEN)
   const [sound, setSound] = useState(true)
+  // The hidden 3D mode, over whatever the live build starts from: a save that unlocks it is a
+  // property of the console, not of a screen.
+  const [realMode, setRealMode] = useState(false)
   const onAction = useCallback((action: string) => setScreen((prev) => applyChromeAction(prev, action)), [])
   const def = DREAMCAST_BIOS_SCREENS.find((s) => s.slug === screen) ?? DREAMCAST_BIOS_SCREENS[0]!
   const groups: SubsetGroup[] = [
@@ -41,6 +44,15 @@ export function DreamcastBiosInteractive({ device }: { device: DeviceSlug }) {
       current: screen,
       options: DREAMCAST_BIOS_SCREENS.map((s) => ({ value: s.slug, label: s.title })),
       onSelect: (value) => setScreen(value),
+    },
+    {
+      title: 'Mode',
+      current: realMode ? '3d' : 'normal',
+      options: [
+        { value: 'normal', label: 'Normal' },
+        { value: '3d', label: 'Hidden 3D' },
+      ],
+      onSelect: (value) => setRealMode(value === '3d'),
     },
     {
       title: 'Sound',
@@ -56,7 +68,7 @@ export function DreamcastBiosInteractive({ device }: { device: DeviceSlug }) {
     <>
       <DeviceFrame device={device} sound={sound}>
         <ChromeKeys onAction={onAction} />
-        <DreamcastBios key={def.slug} {...def.seed} />
+        <DreamcastBios key={`${def.slug}:${realMode}`} {...def.seed} realMode={realMode || (def.seed.realMode ?? false)} />
       </DeviceFrame>
       <SubsetPanel groups={groups} />
     </>

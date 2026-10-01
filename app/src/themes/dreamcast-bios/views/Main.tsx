@@ -22,16 +22,17 @@ import type { MainItem } from '../machine'
 import { MenuModels } from '../models/MenuModels'
 import { PALETTE } from '../palette'
 import { S } from '../strings'
-import { Text, TopBar, abs } from './parts'
+import { RealModeView, Text, TopBar, abs } from './parts'
 
 const ITEMS = ['play', 'file', 'music', 'settings'] as const
 
-export function MainMenu({ focus, clock }: { focus: MainItem; clock: string }) {
+export function MainMenu({ focus, clock, realMode }: { focus: MainItem; clock: string; realMode: boolean }) {
   return (
     <>
       <TopBar clock={clock} />
+      <RealModeView on={realMode}>
       {/* The models sit behind the pills, which overlap them (`main.png`, the clock and Settings). */}
-      <MenuModels focus={focus} />
+      <MenuModels focus={focus} realMode={realMode} />
       {ITEMS.map((item, i) => {
         const { pill } = MAIN[item]
         const colours = PALETTE.pill[item]
@@ -53,6 +54,7 @@ export function MainMenu({ focus, clock }: { focus: MainItem; clock: string }) {
           </div>
         )
       })}
+      </RealModeView>
     </>
   )
 }

@@ -10,12 +10,49 @@
  */
 export type Rgb = readonly [number, number, number]
 
+export interface Palette {
+  readonly top: Rgb
+  readonly mid: Rgb
+  readonly low: Rgb
+  /** The drifting clouds - in the deep sea, the light from above. */
+  readonly cloud: Rgb
+  /** The disc of cloud turning low down - in the deep sea, the water's swirl. */
+  readonly band: Rgb
+  /** How strongly each shows. */
+  readonly cloudAmount: number
+  readonly bandAmount: number
+}
+
+/**
+ * The two sceneries. `open` is the sky the menu has out of the box (`frames/main.png`); `deep` is the
+ * hidden 3D mode's sea (`frames/main-3d.png`): `#3db4d4` at the top, `#0f6a9e` midway, `#0f3d7c`
+ * at the bottom, the light from above paler than the water, and its swirl darker, not brighter.
+ */
+export const SCENERY = {
+  open: {
+    top: [0xbc / 255, 0xdb / 255, 0xe8 / 255],
+    mid: [0x87 / 255, 0xa6 / 255, 0xd6 / 255],
+    low: [0x50 / 255, 0x70 / 255, 0xc9 / 255],
+    cloud: [0xe6 / 255, 0xef / 255, 0xf8 / 255],
+    band: [0xc4 / 255, 0xd6 / 255, 0xf4 / 255],
+    cloudAmount: 0.6,
+    bandAmount: 1,
+  },
+  deep: {
+    top: [0x3d / 255, 0xb4 / 255, 0xd4 / 255],
+    mid: [0x0f / 255, 0x6a / 255, 0x9e / 255],
+    low: [0x0f / 255, 0x3d / 255, 0x7c / 255],
+    cloud: [0x6c / 255, 0xc8 / 255, 0xe4 / 255],
+    band: [0x0a / 255, 0x2c / 255, 0x5c / 255],
+    cloudAmount: 0.45,
+    bandAmount: 0.5,
+  },
+} as const satisfies Record<string, Palette>
+
+export type Scenery = keyof typeof SCENERY
+
+/** The motion both sceneries share. */
 export const SKY = {
-  top: [0xbc / 255, 0xdb / 255, 0xe8 / 255] as Rgb,
-  mid: [0x87 / 255, 0xa6 / 255, 0xd6 / 255] as Rgb,
-  low: [0x50 / 255, 0x70 / 255, 0xc9 / 255] as Rgb,
-  cloud: [0xe6 / 255, 0xef / 255, 0xf8 / 255] as Rgb,
-  band: [0xc4 / 255, 0xd6 / 255, 0xf4 / 255] as Rgb,
   /** The band's centre, as a fraction of the frame, and how much flatter it is than it is wide. */
   centre: [0.5, 0.71] as const,
   squash: 5,
@@ -54,28 +91,28 @@ function fbm(x: number, y: number): number {
 }
 
 /** The sky's colour at `(u, v)` - fractions of the frame, v down - at `t` seconds. */
-export function skyAt(u: number, v: number, t: number): [number, number, number] {
+export function skyAt(u: number, v: number, t: number, p: Palette = SCENERY.open): [number, number, number] {
   const lo = smoothstep(0.45, 1, v)
   const hi = smoothstep(0, 0.5, v)
-  const col = [0, 1, 2].map((i) => mix(mix(SKY.top[i]!, SKY.mid[i]!, hi), SKY.low[i]!, lo)) as [number, number, number]
+  const col = [0, 1, 2].map((i) => mix(mix(p.top[i]!, p.mid[i]!, hi), p.low[i]!, lo)) as [number, number, number]
 
-  const cloud = smoothstep(0.4, 0.75, fbm(u * 1.8 + t * SKY.drift * 10, v * 2.4)) * 0.6 * Math.max(0, 1.2 - v)
-  for (let i = 0; i < 3; i++) col[i] = mix(col[i]!, SKY.cloud[i]!, cloud)
+  const cloud = smoothstep(0.4, 0.75, fbm(u * 1.8 + t * SKY.drift * 10, v * 2.4)) * p.cloudAmount * Math.max(0, 1.2 - v)
+  for (let i = 0; i < 3; i++) col[i] = mix(col[i]!, p.cloud[i]!, cloud)
 
   const dx = u - SKY.centre[0]
   const dy = (v - SKY.centre[1]) * SKY.squash
   const r = Math.hypot(dx, dy)
   const a = Math.atan2(dy, dx)
   const swirl = fbm(a * 1.2 + r * 2.5 - t * SKY.turn, r * 3)
-  const band = smoothstep(0.46, 0.3, r) * (0.35 + 0.6 * smoothstep(0.3, 0.7, swirl))
-  for (let i = 0; i < 3; i++) col[i] = mix(col[i]!, SKY.band[i]!, band)
+  const band = smoothstep(0.46, 0.3, r) * (0.35 + 0.6 * smoothstep(0.3, 0.7, swirl)) * p.bandAmount
+  for (let i = 0; i < 3; i++) col[i] = mix(col[i]!, p.band[i]!, band)
   return col
 }
 
 const glVec = (c: Rgb) => `vec3(${c.map((x) => x.toFixed(4)).join(',')})`
 
-/** `skyAt` in GLSL. Kept line for line with the TypeScript above. */
-export const FRAG = `
+/** `skyAt` in GLSL, for a palette. Kept line for line with the TypeScript above. */
+export const frag = (p: Palette) => `
 precision highp float;
 uniform vec2 res;
 uniform float t;
@@ -96,16 +133,16 @@ void main() {
   vec2 uv = gl_FragCoord.xy / res;
   float u = uv.x;
   float v = 1.0 - uv.y;
-  vec3 col = mix(mix(${glVec(SKY.top)}, ${glVec(SKY.mid)}, smoothstep(0.0, 0.5, v)), ${glVec(SKY.low)}, smoothstep(0.45, 1.0, v));
-  float cloud = smoothstep(0.4, 0.75, fbm(vec2(u * 1.8 + t * ${(SKY.drift * 10).toFixed(4)}, v * 2.4))) * 0.6 * max(0.0, 1.2 - v);
-  col = mix(col, ${glVec(SKY.cloud)}, cloud);
+  vec3 col = mix(mix(${glVec(p.top)}, ${glVec(p.mid)}, smoothstep(0.0, 0.5, v)), ${glVec(p.low)}, smoothstep(0.45, 1.0, v));
+  float cloud = smoothstep(0.4, 0.75, fbm(vec2(u * 1.8 + t * ${(SKY.drift * 10).toFixed(4)}, v * 2.4))) * ${p.cloudAmount.toFixed(3)} * max(0.0, 1.2 - v);
+  col = mix(col, ${glVec(p.cloud)}, cloud);
   float dx = u - ${SKY.centre[0].toFixed(3)};
   float dy = (v - ${SKY.centre[1].toFixed(3)}) * ${SKY.squash.toFixed(3)};
   float r = length(vec2(dx, dy));
   float a = atan(dy, dx);
   float swirl = fbm(vec2(a * 1.2 + r * 2.5 - t * ${SKY.turn.toFixed(4)}, r * 3.0));
-  float band = smoothstep(0.46, 0.3, r) * (0.35 + 0.6 * smoothstep(0.3, 0.7, swirl));
-  col = mix(col, ${glVec(SKY.band)}, band);
+  float band = smoothstep(0.46, 0.3, r) * (0.35 + 0.6 * smoothstep(0.3, 0.7, swirl)) * ${p.bandAmount.toFixed(3)};
+  col = mix(col, ${glVec(p.band)}, band);
   gl_FragColor = vec4(col, 1.0);
 }
 `

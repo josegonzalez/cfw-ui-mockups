@@ -21,6 +21,17 @@ export const BAR = { h: 62 } as const
 export const LOGO: Box = { x: 30, y: 29, w: 136, h: 34 }
 export const CLOCK = { right: 612, y: 38 } as const
 
+/**
+ * The hidden 3D mode's camera sits further back: on the main menu and Music, everything under the
+ * top bar is drawn at 0.875 of its size about (320, -80) - `x' = 320 + 0.875 (x - 320)` and
+ * `y' = 0.875 y - 10` place the pills, readouts, disc and buttons of `frames/main-3d.png` and
+ * `music-3d.png` from their places out of it. The recording never opens Settings or File in it, so
+ * those - and the boxes and screens it never shows in it - are drawn smaller about the screen's
+ * middle (`unseen`), and their models are not reflected: their slates and boxes are flat, and a
+ * reflection of their icons alone reads as a fault.
+ */
+export const REAL_MODE_VIEW = { scale: 0.875, origin: [320, -80], unseen: [320, 240] } as const
+
 /** The main menu's label pills. Its models are placed by their own transforms (`models/scene.ts`). */
 export const MAIN = {
   play: { pill: { x: 205, y: 202, w: 114, h: 42 } },
@@ -34,7 +45,6 @@ export const BACK_SIZE = 56
 export const BACK = {
   settings: { x: 94, y: 372 },
   file: { x: 50, y: 366 },
-  music: { x: 72, y: 380 },
 } as const
 
 /** Settings: four rows, the last with a second field under it for the memory-card clock. */
@@ -46,9 +56,12 @@ export const SETTINGS = {
   labelRight: 224,
   icon: { x: 58, w: 40 },
   value: { x: 258, w: 354, inset: 4 },
-  /** The memory-card clock's field, and the slate that runs down behind it. */
+  /**
+   * The memory-card clock's field, and the slate that runs down behind it from under the Other row;
+   * the two slates are drawn as one shape (`OtherSlate` in `views/Settings.tsx`).
+   */
   adjust: { x: 258, y: 338, w: 354, h: 86 },
-  adjustBacking: { x: 190, y: 286, w: 426, h: 144 },
+  adjustBacking: { x: 190, y: 338, w: 426, h: 92 },
 } as const
 
 /**
@@ -126,14 +139,27 @@ export const FILES = {
   deleted: { box: { x: 75, y: 144, w: 485, h: 240 }, title: [187], blob: { cx: 320, cy: 299 } },
 } as const
 
-/** Music (`music-empty.png`): the two readouts and the transport row. */
+/**
+ * Music (`music-empty.png`): where the ROM's models go. Each is the BIOS's own model at the origin of
+ * its own space, placed in code; the port places each by its model origin's pixel and the pixels a
+ * model unit takes, fitted to the frames by correlation. The digits are the ROM's 3D figures at
+ * half the scale of everything else.
+ */
 export const MUSIC = {
-  track: { cx: 140, cy: 104 },
-  time: { cx: 500, cy: 104 },
-  lozenge: { w: 156, h: 30 },
-  /** The readouts' figures: 29 pixels apart in TIME, 46 in TRACK. */
-  digits: { y: 132, advance: 29, trackPitch: 46 },
-  buttons: { cx: [185, 275, 365, 455, 545], cy: 408, w: 84, h: 40 },
+  lozenge: { track: { x: 141, y: 105 }, time: { x: 501, y: 105.25 }, ppu: 11.7 },
+  digits: {
+    y: 158.6,
+    ppu: 5.8,
+    /** TRACK's two figures. */
+    track: [119.5, 160.0],
+    /** TIME's minutes, right-aligned to the colon - a third figure goes left of the two - and seconds. */
+    minutes: [446.75, 481.25],
+    seconds: [523.25, 558.0],
+    colon: { x: 502.75, y: 147.1 },
+  },
+  /** The transport, left to right: previous, stop, play/pause, next, repeat. */
+  buttons: { x: [185, 275, 364.75, 454.5, 544.5], y: 408, ppu: 11.0 },
+  back: { x: 100.5, y: 407.25, ppu: 11.3 },
   /** A disc in the drive: its rim's diameter and centre (`music-disc.png`, `music-disc-playing.png`). */
   disc: { cx: 320, cy: 240, d: 244 },
 } as const

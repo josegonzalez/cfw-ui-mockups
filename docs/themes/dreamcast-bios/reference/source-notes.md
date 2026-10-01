@@ -53,6 +53,30 @@ are into the recording `c69qVhS_WOU` (see `README.md`); frames are in `frames/`.
 - **The disc on screen** (`music-disc.png`, `music-disc-playing.png`): its rim 244 pixels across
   about (320, 240); lying back while playing, 0.39 as tall as it is wide. Stopped, the readouts show
   the disc's track count and its total length (275s).
+- **Texture lists.** The BIOS keeps an `NJS_TEXLIST` per object in a table at `0x6f25c`, indexed as
+  the object table at `0x6f3c0` and the motion table at `0x6f524` are. Each name entry points at a
+  record whose first word points at the texture's GBIX header, 16 bytes before its PVRT chunk
+  (`bios_models.texlist`). The disc's first entry is empty: the BIOS gives it the label of the disc
+  in the drive.
+- **The CD player's models.** Objects 8-12 are the transport buttons (next, play/pause, repeat,
+  previous, stop: their icons, over a body environment-mapped with `clouds`), 13 and 14 the TIME and
+  TRACK lozenges, 0 BACK; the readouts' figures are `0x4f384`-`0x539f0` and the colon `0x53de0`. All
+  sit at the origin of their own space; each is placed where correlation with `music-empty.png`,
+  `music-disc.png` and `music-disc-playing.png` puts it (`MUSIC` in `layout.ts`).
+- **The transport's focus.** Motions 8-12 are the buttons' own: 30 keys, three nodes - the icon
+  scaling to 0.90 and back, its child the body scaling to 1.2 across and swinging 8 degrees each way.
+  The recording's focused icon goes from 11.0 to 10.05 pixels a unit while its body widens from 82 to
+  90 pixels, a cycle a second (43-52s). Their nodes' evalflags mark scale as unit, so the decoder
+  applies a channel a motion keys whatever the flags say. The body's green is set in code: focused it
+  measures (128, 213, 177) against (87, 140, 205).
+- **BACK.** Its tree is a frame with the `back` texture, then a red swirl (`#ff2600`) and a yellow
+  ring; unfocused only the frame draws, and focused the swirl and the ring, the ring blinking 0.27 s
+  on and off.
+- **The hidden 3D mode** (`main-3d.png` 157s, `music-3d.png` 290.5s): the sea runs `#3db4d4` at the
+  top, `#0f6a9e` midway, `#0f3d7c` at the bottom. A point at screen y reflects at `492 - 0.32 y` at
+  about 0.3 of its alpha. Everything under the top bar is drawn at 0.875 of its size about (320, -80).
+  Its models are solid. Playing, its visualiser takes the corners from `#1194bd` to `#10232a` by four
+  seconds in (`visualizer-early.png` 295s, `visualizer.png` 297s).
 - **The models' speed.** The focused controller rocks one way at 34.0s, 35.0s and 36.0s: a cycle a
   second, its 60 keys at the console's 60 Hz.
 - **The models' light and alpha.** The controller's red and blue at 200,180 in `frames/main.png`,

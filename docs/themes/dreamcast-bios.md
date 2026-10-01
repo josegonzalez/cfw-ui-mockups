@@ -17,8 +17,9 @@ Implemented at `app/src/themes/dreamcast-bios/`. Mode: **reproduce** throughout.
 ## Screens
 
 The primary deliverable is the interactive route, which opens on the main menu; start it from
-Power-on to hear the boot sound. 23 stills are provided, each posed by pressing buttons from
-power-on, two of them with an audio CD in the drive.
+Power-on to hear the boot sound. 46 stills are provided, each posed by pressing buttons from
+power-on - some with an audio CD in the drive. Every one but power-on comes again in the BIOS's
+hidden 3D mode as `<slug>-3d`, and the mode has one of its own, the visualiser.
 
 | Screen | Stills |
 | --- | --- |
@@ -28,6 +29,7 @@ power-on, two of them with an audio CD in the drive.
 | Settings | `settings`, `settings-language`, `settings-clock`, `settings-sound`, `settings-auto-start`, `settings-card-clock`, `settings-cards-set` |
 | File | `file-cards`, `file-list`, `file-menu`, `file-all-menu`, `file-delete`, `file-deleted`, `file-destination` |
 | Music | `music`, `music-repeat`, `music-disc`, `music-disc-playing` |
+| Hidden 3D mode | every still above but `boot`, as `<slug>-3d`; and `music-disc-visualizer-3d` |
 
 The memory card in controller A holds the nine saves the recording shows, with its block counts;
 the other seven sockets are empty. There is no disc in, except in Music's two disc stills, which have
@@ -63,6 +65,9 @@ user supplies, refuses any ROM whose hash it does not know, and writes:
   ROM's models too; the BIOS places those in code, so the port fits each to its measured box. So is
   the CD player's disc: a label quad whose texture's alpha rounds it, an edge, a hub, and a back
   environment-mapped with the ROM's iridescent texture, so the data side shimmers as it turns.
+  The rest of the CD player is the ROM's models as well - the TRACK and TIME lozenges, the readouts'
+  3D figures, BACK and the five transport buttons - drawn node by node, as the BIOS's object tree
+  has them, each with the texture list the BIOS's own table at `0x6f25c` gives it.
 
 ## Geometry
 
@@ -91,6 +96,9 @@ lays out 1:1 in it with nothing inset. Every box is measured from the reference 
 | A stopped disc turns about its upright axis | a turn every 3.2 s | 261-262.7s |
 | Playing, it lies back 67 degrees and spins in its own plane | a turn a second | 266-270s |
 | It tips over between the two | 0.6 s | 262.8-263.4s |
+| A focused transport button's own motion from the ROM: its icon shrinks as its body widens and swings | 30 keys a second, round and round | 43-52s |
+| Focused BACK's yellow ring blinks | 0.27 s on, 0.27 s off | 43-52s |
+| The hidden 3D mode's visualiser darkens the screen and gathers its haze | over 4.5 s | 293-297s |
 
 The sky never stops: screens come and go over it. It is a shader, with the same function drawn on
 the CPU at a quarter of the resolution as its fallback; a still draws it at t = 0. The main menu's
@@ -100,6 +108,19 @@ fallback (`models/`) - and a still draws them at rest, which is frame 0 of every
 The models are drawn orthographically, at 11.6 pixels a unit centred on world (0, 1), where the
 ROM's own transforms put them over the capture's; lit mostly ambient; and at 0.65 of their
 materials' alpha, which the capture's colours against the sky give.
+
+## The hidden 3D mode
+
+A save of Puyo Puyo Fever unlocks a mode of the BIOS the recording shows from 146s: the sky becomes
+a deep sea, whose water reflects what stands over it, the main menu's models are drawn solid, and
+the whole screen under the top bar is drawn a little smaller, as by a camera further back. While a
+disc plays, the screen darkens and a haze of coloured light gathers round the disc and turns - the
+visualiser, which only this mode has. The port has the mode as a seed (`realMode`), a still of
+every screen in it, and a Mode switch in the live build; it does not have the mode's free camera.
+
+The recording shows the mode on the main menu and Music only. Every other screen takes the mode's
+sea and its smaller view, drawn about the screen's middle; their models are not reflected, as their
+slates and boxes are flat and would not be.
 
 ## Colour
 
@@ -156,8 +177,8 @@ BACK, drawn on the screens that have one, does what B does.
 | `machine.ts` | the view stack and every button as a pure reducer, and the sound each press makes |
 | `layout.ts`, `palette.ts`, `motion.ts` | geometry, colours and durations, each with where it was measured |
 | `library.ts`, `strings.ts`, `assets.ts` | the clock, the saves, the ROM's strings and asset lookup |
-| `background/` | the sky: `sky.ts` holds the function in TypeScript and GLSL, `index.tsx` the render loop |
-| `models/` | the ROM's models: `scene.ts` the projection, transforms, light and motion sampling; `gl.ts` the shader; `raster.ts` the CPU fallback; `MenuModels.tsx` the render loop; `Disc.tsx` the CD player's disc |
+| `background/` | the sky: `sky.ts` holds the function and its two sceneries in TypeScript and GLSL, `index.tsx` the render loop; `Visualizer.tsx` the 3D mode's visualiser |
+| `models/` | the ROM's models: `scene.ts` the projection, transforms, light and motion sampling; `gl.ts` the shader; `raster.ts` the CPU fallback; `MenuModels.tsx` the render loop; `Disc.tsx` the CD player's disc; `MusicModels.tsx` the rest of the CD player |
 | `views/` | `Boot`, `Main`, `NoDisc`, `Settings`, `File`, `Music`, and `parts` |
 | `manifest.ts`, `routes.tsx`, `Interactive.tsx` | the stills and the live build |
 

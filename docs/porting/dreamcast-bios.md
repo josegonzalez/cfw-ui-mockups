@@ -62,14 +62,29 @@ are.
   gives one is not in the recording. The port uses the red, the NTSC console's.
 - **A paused disc lies still.** The recording never pauses; the port leaves a paused disc flat,
   not spinning.
+- **The visualiser is a reading, not the BIOS's.** The BIOS's follows the music, which the port
+  does not have; the port's darkens the screen and turns a haze of the recording's colours round
+  the disc, built up over the first seconds of a track.
+- **The repeat button shows its mode by its icon.** The port swaps the repeat button's icon for the
+  ROM's repeat-one and repeat-all textures. The ROM also has two smaller models wearing those
+  (`back_button_a/b`); the recording never changes the repeat mode, so where the BIOS uses them is
+  not known.
+- **A focused button's green is fitted.** The BIOS sets it in code over the model's own material, so
+  the colour and its opacity are fitted to the recording's focused buttons.
 - **Only heard sounds play.** The ROM's `error` and `sequence-4` are never heard in the recording, so
   a press that changes nothing is silent rather than guessing at one.
 
 ## Not reproduced
 
 - **A game disc.** Play with a disc checks and boots it; the port's Play has none.
-- **The CD player's visualiser,** which the recording shows behind a playing disc, and the music:
-  the port's audio CD has track lengths and nothing to play.
+- **The music:** the port's audio CD has track lengths and nothing to play.
+- **The hidden 3D mode's free camera,** which turns the whole menu in the recording (150-180s). The
+  port has the mode's look - the sea, the reflections, the solid models, the visualiser - but not
+  the camera.
+- **The hidden 3D mode on screens the recording never shows in it.** It shows the mode on the main
+  menu and Music only. The port gives every other screen the mode's sea and draws it at the mode's
+  smaller size about the screen's middle - the recording's origin for that size is set by the top bar
+  those two screens have - and does not reflect their models, whose slates and boxes are flat.
 - **The hidden 3D menu** a Puyo Puyo Fever save unlocks (from 146s in the recording), and the
   screensaver after ten minutes.
 - **Regions.** The PAL BIOS draws the swirl blue; the port is the NTSC menu the recording shows.

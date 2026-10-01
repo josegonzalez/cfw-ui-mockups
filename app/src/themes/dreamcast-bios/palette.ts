@@ -67,12 +67,6 @@ export const PALETTE = {
   port: '#48c05f',
   ghost: 'rgba(150, 170, 214, 0.38)',
 
-  /** Music: the cyan lozenges, green when focused, and the big grey digits - opaque, as the figures' face and halo overlap. */
-  lozenge: '#2f86b8',
-  lozengeCore: '#a8dcf0',
-  lozengeFocus: '#3cb860',
-  digits: '#8f9db5',
-
   /** BACK's frame, idle and focused (`frames/cards-back.png`). */
   backRim: '#3f4552',
   backRimFocus: '#e4e02c',

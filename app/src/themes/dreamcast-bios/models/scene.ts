@@ -16,6 +16,11 @@ export interface Transform {
   readonly ang: Vec3
   readonly scl: Vec3
   readonly zxy?: boolean
+  /**
+   * The whole of rotation and scale as one column-major 3x3, in place of `ang` and `scl`: what a node
+   * of a model tree comes to, its parents' transforms composed into its own.
+   */
+  readonly linear?: Mat3
 }
 
 /** A run of triangles that draw alike. */
@@ -44,12 +49,18 @@ export interface ModelData {
   /** In the model's own space. */
   readonly bounds: { readonly min: Vec3; readonly max: Vec3 }
   readonly rest: Transform
-  /** The motion the model plays while focused, one key a frame for its root - the main menu's four only. */
+  /**
+   * The motion the model plays while focused, one key a frame: as Euler channels for the main menu's
+   * models, or as whole matrices for a node of a tree, which its parents' keys move too.
+   */
   readonly motion: {
     readonly frames: number
+    /** Keys a second: 60, a key a vsync, unless the motion says otherwise. */
+    readonly fps?: number
     readonly pos: readonly Vec3[]
-    readonly ang: readonly Vec3[]
-    readonly scl: readonly Vec3[]
+    readonly ang?: readonly Vec3[]
+    readonly scl?: readonly Vec3[]
+    readonly linear?: readonly Mat3[]
   } | null
 }
 
@@ -61,6 +72,26 @@ export interface View {
   readonly ppu: number
   readonly ox: number
   readonly oy: number
+  /** Scales world y on screen: negative draws the model mirrored, as a reflection. */
+  readonly sy?: number
+}
+
+/**
+ * The hidden 3D mode's water reflects what is above it, upside down, squashed and faint: on screen, a
+ * point at y shows again at `492 - 0.32 y` (`frames/music-3d.png`: the buttons at 347 reflect at 382
+ * and the disc at 195 at 430; `main-3d.png` agrees), at about 0.3 of its alpha. The scene is drawn
+ * before the mode's 0.875 scale (`REAL_MODE_VIEW`), and under it that line is at 577.
+ */
+export const REFLECTION = { line: 577, squash: 0.32, alpha: 0.3 } as const
+
+/** An item's reflection in the 3D mode's water. */
+export function reflected(item: Item): Item {
+  const { view } = item
+  return {
+    ...item,
+    view: { ...view, oy: REFLECTION.line - REFLECTION.squash * view.oy, sy: -REFLECTION.squash * (view.sy ?? 1) },
+    alpha: item.alpha * REFLECTION.alpha,
+  }
 }
 
 /** One model drawn: where, at what pose, and how see-through. */
@@ -70,10 +101,20 @@ export interface Item {
   readonly view: View
   /** Multiplies the materials' alpha. */
   readonly alpha: number
+  /** Replaces the materials' colour, 0-1, as the BIOS does for a focused button's body. */
+  readonly tint?: readonly [number, number, number]
+  /** Draws a part with another texture than its own, by name: the repeat button's mode. */
+  readonly textures?: Readonly<Record<string, string>>
 }
 
-/** The screen every scene is drawn to, and the depth its world z is scaled into. */
-export const SCREEN = { w: 640, h: 480, depth: 50 } as const
+/** The texture a part of an item draws with. */
+export const textureOf = (item: Item, texture: string | null) => (texture ? (item.textures?.[texture] ?? texture) : null)
+
+/**
+ * The screen every scene is drawn to, and the depth its world z is scaled into. A scene that reflects
+ * is drawn taller than the screen, as the 3D mode's scale brings what is below it into view.
+ */
+export const SCREEN = { w: 640, h: 480, reflecting: 560, depth: 50 } as const
 
 /**
  * The main menu's view: 11.6 pixels a unit, world (0, 1) at the screen's centre, which puts the
@@ -97,11 +138,13 @@ export function fitView(m: ModelData, box: { x: number; y: number; w: number; h:
 }
 
 /**
- * The light: from the upper left and front, mostly ambient. Solving the main menu's controller's red
- * and blue against the sky behind it (`frames/main.png` at 200,180 over 110,180) gives a brightness
- * of about 0.76.
+ * The light: from the upper left and front. A face turned to the viewer comes out at about three
+ * quarters of its material's colour: solving the main menu's controller's red and blue against the
+ * sky behind it (`frames/main.png` at 200,180 over 110,180) gives 0.76, and Music's figures are their
+ * material's #b2d8ff at 0.71 (`music-empty.png`). So the light is an ambient floor and a diffuse
+ * share that brings a face to the viewer to about 0.75, and a face turned away darker.
  */
-export const LIGHT = { dir: [-0.4, 0.5, 1] as Vec3, ambient: 0.7 } as const
+export const LIGHT = { dir: [-0.4, 0.5, 1] as Vec3, ambient: 0.45, diffuse: 0.37 } as const
 
 /**
  * How see-through the main menu draws its models: the same solve gives an alpha of about 0.62 where
@@ -117,14 +160,19 @@ export const MOTION_FPS = 60
 export function poseAt(m: ModelData, t: number | null): Transform {
   if (t === null || !m.motion) return m.rest
   const { frames } = m.motion
-  const f = (t * MOTION_FPS) % frames
+  const f = (t * (m.motion.fps ?? MOTION_FPS)) % frames
   const i = Math.floor(f)
   const j = (i + 1) % frames
   const u = f - i
   const lerp = (a: Vec3, b: Vec3): Vec3 => [a[0] + (b[0] - a[0]) * u, a[1] + (b[1] - a[1]) * u, a[2] + (b[2] - a[2]) * u]
   // Angles cross 360 nowhere in these motions, so a plain lerp between neighbouring keys is enough.
-  const { pos, ang, scl } = m.motion
-  return { pos: lerp(pos[i]!, pos[j]!), ang: lerp(ang[i]!, ang[j]!), scl: lerp(scl[i]!, scl[j]!) }
+  const { pos, ang, scl, linear } = m.motion
+  if (linear) {
+    const a = linear[i]!
+    const b = linear[j]!
+    return { pos: lerp(pos[i]!, pos[j]!), ang: [0, 0, 0], scl: [1, 1, 1], linear: a.map((v, k) => v + (b[k]! - v) * u) as unknown as Mat3 }
+  }
+  return { pos: lerp(pos[i]!, pos[j]!), ang: lerp(ang![i]!, ang![j]!), scl: lerp(scl![i]!, scl![j]!) }
 }
 
 /** Column-major 3x3. */
@@ -149,26 +197,37 @@ export function rotation(ang: Vec3, zxy = false): Mat3 {
  * A transform as the matrix taking a model-space point to screen-space clip coordinates, and the
  * one taking its normals to world space (rotation over scale, renormalised where used).
  */
-export function matrices(t: Transform, view: View): { clip: Float32Array; normal: Float32Array } {
+export function matrices(t: Transform, view: View, h: number = SCREEN.h): { clip: Float32Array; normal: Float32Array } {
   const r = rotation(t.ang, t.zxy)
   const s = t.scl
-  // model -> world: T * R * S
-  const m = [r[0] * s[0], r[1] * s[0], r[2] * s[0], r[3] * s[1], r[4] * s[1], r[5] * s[1], r[6] * s[2], r[7] * s[2], r[8] * s[2]]
+  // model -> world: T * R * S, or the node's own composed matrix
+  const m = t.linear ?? [r[0] * s[0], r[1] * s[0], r[2] * s[0], r[3] * s[1], r[4] * s[1], r[5] * s[1], r[6] * s[2], r[7] * s[2], r[8] * s[2]]
   const kx = view.ppu / (SCREEN.w / 2)
-  const ky = view.ppu / (SCREEN.h / 2)
+  const ky = (view.ppu * (view.sy ?? 1)) / (h / 2)
   const kz = -1 / SCREEN.depth
   // Where world (0, 0) lands, in clip space.
   const x0 = view.ox / (SCREEN.w / 2) - 1
-  const y0 = 1 - view.oy / (SCREEN.h / 2)
+  const y0 = 1 - view.oy / (h / 2)
   const clip = new Float32Array([
     m[0]! * kx, m[1]! * ky, m[2]! * kz, 0,
     m[3]! * kx, m[4]! * ky, m[5]! * kz, 0,
     m[6]! * kx, m[7]! * ky, m[8]! * kz, 0,
     t.pos[0] * kx + x0, t.pos[1] * ky + y0, t.pos[2] * kz, 1,
   ])
+  // Normals take the inverse transpose, which for T * R * S is R over S.
   const inv = [1 / s[0], 1 / s[1], 1 / s[2]]
-  const normal = new Float32Array([r[0] * inv[0]!, r[1] * inv[0]!, r[2] * inv[0]!, r[3] * inv[1]!, r[4] * inv[1]!, r[5] * inv[1]!, r[6] * inv[2]!, r[7] * inv[2]!, r[8] * inv[2]!])
+  const normal = t.linear
+    ? inverseTranspose(t.linear)
+    : new Float32Array([r[0] * inv[0]!, r[1] * inv[0]!, r[2] * inv[0]!, r[3] * inv[1]!, r[4] * inv[1]!, r[5] * inv[1]!, r[6] * inv[2]!, r[7] * inv[2]!, r[8] * inv[2]!])
   return { clip, normal }
+}
+
+/** A column-major 3x3's inverse transpose, for its normals; the cofactor matrix over the determinant. */
+function inverseTranspose(a: Mat3): Float32Array {
+  const [a0, a1, a2, a3, a4, a5, a6, a7, a8] = a
+  const c = [a4 * a8 - a5 * a7, a5 * a6 - a3 * a8, a3 * a7 - a4 * a6, a2 * a7 - a1 * a8, a0 * a8 - a2 * a6, a1 * a6 - a0 * a7, a1 * a5 - a2 * a4, a2 * a3 - a0 * a5, a0 * a4 - a1 * a3]
+  const det = a0 * c[0]! + a1 * c[1]! + a2 * c[2]! || 1
+  return new Float32Array(c.map((v) => v / det))
 }
 
 /** The light's brightness on a unit normal: ambient, plus the rest as diffuse. */
@@ -176,5 +235,5 @@ export function shade(nx: number, ny: number, nz: number): number {
   const [lx, ly, lz] = LIGHT.dir
   const ll = Math.hypot(lx, ly, lz)
   const d = Math.max(0, (nx * lx + ny * ly + nz * lz) / ll)
-  return Math.min(1, LIGHT.ambient + (1 - LIGHT.ambient) * d)
+  return Math.min(1, LIGHT.ambient + LIGHT.diffuse * d)
 }

@@ -1,7 +1,7 @@
 import type { CSSProperties, ReactNode } from 'react'
 import { Animated } from '../../../anim/Animated'
 import { bios } from '../assets'
-import { BACK_SIZE, BAR, CELL, CLOCK, DIALOG, LOGO, W, type Box } from '../layout'
+import { BACK_SIZE, BAR, CELL, CLOCK, DIALOG, H, LOGO, REAL_MODE_VIEW, W, type Box } from '../layout'
 import type { VmuFile } from '../library'
 import { BLINK, DIALOG_IN } from '../motion'
 import { PALETTE } from '../palette'
@@ -120,6 +120,17 @@ export function Lines({
         </Text>
       ))}
     </>
+  )
+}
+
+/** The hidden 3D mode's view of what is under the top bar, or nothing out of it. */
+export function RealModeView({ on, origin = REAL_MODE_VIEW.origin, children }: { on: boolean; origin?: readonly [number, number]; children: ReactNode }) {
+  if (!on) return <>{children}</>
+  const [ox, oy] = origin
+  return (
+    <div style={{ ...abs({ x: 0, y: 0, w: W, h: H }), transform: `scale(${REAL_MODE_VIEW.scale})`, transformOrigin: `${ox}px ${oy}px` }}>
+      {children}
+    </div>
   )
 }
 

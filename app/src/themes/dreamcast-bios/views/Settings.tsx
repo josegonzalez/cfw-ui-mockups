@@ -17,7 +17,7 @@
  *                carries only the English string table, so the menu stays in English.
  */
 import { useCallback, type ReactNode } from 'react'
-import { BACK, CELL, DIALOG, SETTINGS } from '../layout'
+import { BACK, CELL, DIALOG, H, SETTINGS, W } from '../layout'
 import { FIELD_CELLS, formatClock, type Clock } from '../library'
 import { CLOCK_CANCEL, CLOCK_SELECT, type Prefs } from '../machine'
 import { PALETTE } from '../palette'
@@ -56,20 +56,23 @@ export function SettingsList({ focus, prefs, clock }: { focus: number; prefs: Pr
     prefs.autoStart ? S.autoStartOn : S.autoStartOff,
   ]
   const { value, rowH } = SETTINGS
+  const last = SETTINGS.rows.length - 1
   return (
     <>
-      <div style={{ ...abs(SETTINGS.adjustBacking), background: PALETTE.row, borderRadius: 8 }} />
+      <OtherSlate />
       {SETTINGS.rows.map((y, i) => {
         return (
           <div key={i} data-row={i} data-focused={focus === i || undefined}>
             {/* Round at the left, where the icon sits; nearly square at the right, behind the field. */}
-            <div
-              style={{
-                ...abs({ x: SETTINGS.x, y, w: SETTINGS.w, h: rowH }),
-                background: PALETTE.row,
-                borderRadius: `${rowH / 2}px 8px 8px ${rowH / 2}px`,
-              }}
-            />
+            {i === last ? null : (
+              <div
+                style={{
+                  ...abs({ x: SETTINGS.x, y, w: SETTINGS.w, h: rowH }),
+                  background: PALETTE.row,
+                  borderRadius: `${rowH / 2}px 8px 8px ${rowH / 2}px`,
+                }}
+              />
+            )}
             <Text box={{ x: SETTINGS.labelRight - 200, y: y + (rowH - CELL.h) / 2, w: 200, h: CELL.h }} align="right">
               {S.settings[i]!.trim()}
             </Text>
@@ -87,6 +90,34 @@ export function SettingsList({ focus, prefs, clock }: { focus: number; prefs: Pr
       <SettingsIcons />
       <BackButton {...BACK.settings} focused={focus === 5} />
     </>
+  )
+}
+
+/**
+ * The Other row's slate and the slate under it, as one shape: round at the left like every row,
+ * square where the two meet, and rounded only at its outer corners. Two see-through boxes would show
+ * a seam where they touched, and darken where they overlapped.
+ */
+function OtherSlate() {
+  const { x, w, rowH, rows } = SETTINGS
+  const { x: bx, y: by, h: bh } = SETTINGS.adjustBacking
+  const top = rows[rows.length - 1]!
+  const r = rowH / 2
+  const right = x + w
+  const bottom = by + bh
+  const c = 8
+  const d = [
+    `M ${x + r} ${top}`,
+    `H ${right - c} Q ${right} ${top} ${right} ${top + c}`,
+    `V ${bottom - c} Q ${right} ${bottom} ${right - c} ${bottom}`,
+    `H ${bx + c} Q ${bx} ${bottom} ${bx} ${bottom - c}`,
+    `V ${top + rowH} H ${x + r}`,
+    `A ${r} ${r} 0 0 1 ${x + r} ${top} Z`,
+  ].join(' ')
+  return (
+    <svg width={W} height={H} style={{ position: 'absolute', left: 0, top: 0 }}>
+      <path d={d} fill={PALETTE.row} />
+    </svg>
   )
 }
 

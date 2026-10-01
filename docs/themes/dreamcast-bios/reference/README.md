@@ -35,6 +35,8 @@ time here is one read with the command above.
 | `no-disc.png` | 37.5s |
 | `music-empty.png` | 45.5s |
 | `music-disc-playing.png`, `music-disc.png` | 267.0s, 275.0s |
+| `main-3d.png`, `music-3d.png` | 157.0s, 290.5s |
+| `visualizer-early.png`, `visualizer.png` | 295.0s, 297.0s |
 | `settings-language.png`, `settings.png`, `settings-clock.png` | 58.5s, 69.5s, 72.5s |
 | `settings-sound.png`, `settings-other.png` | 78.5s, 85.5s |
 | `settings-vmu-clock.png`, `settings-vmu-done.png` | 95.5s, 98.5s |

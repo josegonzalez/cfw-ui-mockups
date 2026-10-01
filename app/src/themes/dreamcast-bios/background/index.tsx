@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useScreen } from '../../../device/ScreenContext'
 import { useWebEffects } from '../../../render/RenderModeProvider'
-import { FRAG, VERT, skyAt } from './sky'
+import { SCENERY, VERT, frag, skyAt, type Palette, type Scenery } from './sky'
 
 /** The fallback draws a pixel of sky per this many device pixels each way, then scales it up. */
 const FALLBACK_STEP = 4
@@ -23,12 +23,12 @@ function compile(gl: WebGLRenderingContext, type: number, src: string): WebGLSha
   return sh
 }
 
-function createSkyGl(canvas: HTMLCanvasElement): SkyGl | null {
+function createSkyGl(canvas: HTMLCanvasElement, palette: Palette): SkyGl | null {
   // preserveDrawingBuffer, so a still's single frame is still there when it is captured.
   const gl = canvas.getContext('webgl', { preserveDrawingBuffer: true, antialias: false })
   if (!gl) return null
   const vs = compile(gl, gl.VERTEX_SHADER, VERT)
-  const fs = compile(gl, gl.FRAGMENT_SHADER, FRAG)
+  const fs = compile(gl, gl.FRAGMENT_SHADER, frag(palette))
   const prog = gl.createProgram()
   if (!vs || !fs || !prog) return null
   gl.attachShader(prog, vs)
@@ -62,13 +62,13 @@ function createSkyGl(canvas: HTMLCanvasElement): SkyGl | null {
 }
 
 /** The fallback: `skyAt` on the CPU at a quarter of the resolution, smoothed up to the frame. */
-function drawSkyFallback(ctx: CanvasRenderingContext2D, low: HTMLCanvasElement, t: number) {
+function drawSkyFallback(ctx: CanvasRenderingContext2D, low: HTMLCanvasElement, t: number, palette: Palette) {
   const lctx = low.getContext('2d')
   if (!lctx) return
   const img = lctx.createImageData(low.width, low.height)
   for (let y = 0; y < low.height; y++) {
     for (let x = 0; x < low.width; x++) {
-      const [r, g, b] = skyAt((x + 0.5) / low.width, (y + 0.5) / low.height, t)
+      const [r, g, b] = skyAt((x + 0.5) / low.width, (y + 0.5) / low.height, t, palette)
       const i = (y * low.width + x) * 4
       img.data[i] = Math.round(r * 255)
       img.data[i + 1] = Math.round(g * 255)
@@ -82,7 +82,8 @@ function drawSkyFallback(ctx: CanvasRenderingContext2D, low: HTMLCanvasElement, 
 }
 
 /**
- * The sky behind every screen. It never stops or fades: screens come and go over it.
+ * The sky behind every screen - or in the hidden 3D mode, the sea. It never stops or fades: screens
+ * come and go over it.
  *
  * Deliberately outside the storyboard system, as Vitro Launcher's backgrounds are: it is a render
  * loop, not a timeline, so what stands in for settling is the clock - a still draws exactly one
@@ -90,7 +91,8 @@ function drawSkyFallback(ctx: CanvasRenderingContext2D, low: HTMLCanvasElement, 
  * WebGL, draws the same sky on the CPU at a quarter of the resolution. Which canvas shows follows
  * whether the GL context actually came up.
  */
-export function Sky() {
+export function Sky({ scenery = 'open' }: { scenery?: Scenery }) {
+  const palette = SCENERY[scenery]
   const { w, h, animate } = useScreen()
   const webEffects = useWebEffects()
   const glCanvas = useRef<HTMLCanvasElement>(null)
@@ -102,12 +104,12 @@ export function Sky() {
     const two = twoCanvas.current
     const ctx = two?.getContext('2d')
     if (!two || !ctx) return
-    const sky = webEffects && glCanvas.current ? createSkyGl(glCanvas.current) : null
+    const sky = webEffects && glCanvas.current ? createSkyGl(glCanvas.current, palette) : null
     setGlReady(sky !== null)
     const low = document.createElement('canvas')
     low.width = Math.round(w / FALLBACK_STEP)
     low.height = Math.round(h / FALLBACK_STEP)
-    const render = (t: number) => (sky ? sky.draw(t) : drawSkyFallback(ctx, low, t))
+    const render = (t: number) => (sky ? sky.draw(t) : drawSkyFallback(ctx, low, t, palette))
 
     render(0)
     if (!animate) return () => sky?.dispose()
@@ -143,7 +145,7 @@ export function Sky() {
       document.removeEventListener('visibilitychange', onVisibility)
       sky?.dispose()
     }
-  }, [w, h, animate, webEffects])
+  }, [w, h, animate, webEffects, palette])
 
   return (
     <>

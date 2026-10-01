@@ -593,20 +593,24 @@ def rot_z(b):
 
 
 def local_matrix(o, ang=None, pos=None, scl=None):
-    """Column-vector matrix for v' = M v (translate * rotate * scale)."""
+    """Column-vector matrix for v' = M v (translate * rotate * scale).
+
+    The UNIT flags only say the object's own value is the identity; a channel a motion keys still
+    applies - the Music buttons' icons are UNIT_SCL and their motion scales them."""
     f = o["evalflags"]
+    keyed = {"pos": pos is not None, "ang": ang is not None, "scl": scl is not None}
     pos = pos or o["pos"]
     ang = ang or o["ang"]
     scl = scl or o["scl"]
     m = mat_identity()
-    if not f & EVAL_UNIT_POS:
+    if keyed["pos"] or not f & EVAL_UNIT_POS:
         m = mat_mul(m, [[1, 0, 0, pos[0]], [0, 1, 0, pos[1]], [0, 0, 1, pos[2]], [0, 0, 0, 1]])
-    if not f & EVAL_UNIT_ANG:
+    if keyed["ang"] or not f & EVAL_UNIT_ANG:
         if f & EVAL_ZXY_ANG:  # vertex gets Z, then X, then Y
             m = mat_mul(m, mat_mul(rot_y(ang[1]), mat_mul(rot_x(ang[0]), rot_z(ang[2]))))
         else:  # vertex gets X, then Y, then Z
             m = mat_mul(m, mat_mul(rot_z(ang[2]), mat_mul(rot_y(ang[1]), rot_x(ang[0]))))
-    if not f & EVAL_UNIT_SCL:
+    if keyed["scl"] or not f & EVAL_UNIT_SCL:
         m = mat_mul(m, [[scl[0], 0, 0, 0], [0, scl[1], 0, 0], [0, 0, scl[2], 0], [0, 0, 0, 1]])
     return m
 
@@ -638,8 +642,13 @@ def _hex(c):
 
 # ------------------------------------------------------------------- flatten
 
-def flatten(root, name=None, include_siblings=False, apply_root_transform=False, motion=None):
+def flatten(root, name=None, include_siblings=False, apply_root_transform=False, motion=None, only=None):
     """Flatten one root tree to a triangle mesh in model space.
+
+    With `only`, an object's offset, the mesh is that one node's own geometry, in its own space: the
+    rest of the tree is still walked, because chunk material state carries on in draw order, but only
+    that node's triangles are kept.
+
 
     The root's own siblings are separate roots in the ROM layout we have seen,
     so by default only root + its children are walked; children's siblings are
@@ -768,12 +777,18 @@ def flatten(root, name=None, include_siblings=False, apply_root_transform=False,
                       "evalflags": "0x%x" % o["evalflags"], "pos": o["pos"], "ang": o["ang"],
                       "scl": o["scl"]})
         if md is not None and not o["evalflags"] & EVAL_HIDE:
+            keep = only is None or o["offset"] == only
+            vm = mat_identity() if only is not None and keep else m
             for vc in md["vertex_chunks"]:
                 for j, p in enumerate(vc["positions"]):
                     n = vc["normals"][j]
                     vbuf[vc["index_offset"] + j] = (
-                        xform_point(m, p), xform_normal(m, n) if n else None, vc["colors"][j])
+                        xform_point(vm, p), xform_normal(vm, n) if n else None, vc["colors"][j])
+            marks = [len(x) for x in (positions, normals, colors, indices, uvs, parts)]
             gstate["s"] = emit_polys(md["poly_chunks"], gstate["s"])
+            if not keep:
+                for x, n in zip((positions, normals, colors, indices, uvs, parts), marks):
+                    del x[n:]
         if o["child_data"] is not None and not o["evalflags"] & EVAL_BREAK:
             walk(o["child_data"], m, False)
         if o["sibling_data"] is not None and (include_siblings or not is_root):
@@ -920,3 +935,77 @@ if __name__ == "__main__":
             json.dump(mesh, f)
     with open("%s/_tables.json" % outdir, "w") as f:
         json.dump(info, f, indent=1)
+
+
+def tree_nodes(root):
+    """Every object in a root's tree, in Ninja's draw order - the order motions key their nodes in."""
+    out = []
+
+    def walk(o, is_root):
+        out.append(o)
+        if o["child_data"] is not None:
+            walk(o["child_data"], False)
+        if o["sibling_data"] is not None and not is_root:
+            walk(o["sibling_data"], False)
+
+    walk(root, True)
+    return out
+
+
+def node_world(root, frame_keys=None):
+    """Each node's world matrix, root at the origin, with its pos/ang/scl taken from `frame_keys`
+    ({node index: {"pos": [...], "ang": [...], "scl": [...]}}) where given."""
+    nodes = tree_nodes(root)
+    index = {o["offset"]: i for i, o in enumerate(nodes)}
+    out = {}
+
+    def walk(o, parent, is_root):
+        k = (frame_keys or {}).get(index[o["offset"]], {})
+        m = mat_mul(parent, local_matrix(o, ang=k.get("ang"), pos=k.get("pos"), scl=k.get("scl")))
+        out[o["offset"]] = m
+        if o["child_data"] is not None and not o["evalflags"] & EVAL_BREAK:
+            walk(o["child_data"], m, False)
+        if o["sibling_data"] is not None and not is_root:
+            walk(o["sibling_data"], parent, False)
+
+    walk(root, mat_identity(), True)
+    return out
+
+
+def keys_at(motion, frame):
+    """A motion's keys for every node at one frame, holding the last key before it."""
+    out = {}
+    for i, node in enumerate(motion["nodes"]):
+        k = {}
+        for ch, keys in node.items():
+            got = [x for x in keys if x[0] <= frame]
+            if got:
+                k[ch] = got[-1][1:]
+        out[i] = k
+    return out
+
+
+def motion_at(rom_bytes, table, index, root):
+    """The motion a motion table lists at `index`, for the tree under `root`, or None."""
+    rom = Rom(rom_bytes)
+    off = rom.off(rom.u32(table + 4 * index))
+    if off is None:
+        return None
+    return parse_motion(rom, off, len(tree_nodes(root)))
+
+
+def texlist(rom_bytes, table, index, texture_names):
+    """The texture list a texlist table gives the object at `index`: NJS_TEXLIST is (NJS_TEXNAME*,
+    count), each NJS_TEXNAME (filename*, attr, texaddr); here a filename points at a record whose
+    first word is the texture's GBIX header, 16 bytes before its PVRT chunk."""
+    rom = Rom(rom_bytes)
+    tl = rom.off(rom.u32(table + 4 * index))
+    if tl is None:
+        return []
+    names_at, n = rom.off(rom.u32(tl)), rom.u32(tl + 4)
+    out = []
+    for j in range(n):
+        rec = rom.off(rom.u32(names_at + 12 * j))
+        gbix = rom.off(rom.u32(rec)) if rec is not None else None
+        out.append(texture_names.get(gbix + 16) if gbix is not None else None)
+    return out

@@ -52,6 +52,7 @@ OUT = Path('app/src/themes/dreamcast-bios/assets/bios')
 FONTS = Path('app/src/themes/dreamcast-bios/assets/fonts')
 SOUNDS = Path('app/src/themes/dreamcast-bios/assets/sounds')
 MODELS = Path('app/src/themes/dreamcast-bios/assets/models')
+MUSIC = MODELS / 'music'
 
 # Root object -> name, for the models the port draws. The main menu's four are listed by the
 # BIOS's own object table at 0x6f3c0, and each sits where its item's pill is; the rest are named
@@ -71,12 +72,33 @@ MODEL_ROOTS = {
     0x6ABE8: 'disc',
 }
 
-# A model's texture ids index a texture list the BIOS sets in code, so each list is read off what
-# its parts are. The disc's: its label, a square whose alpha rounds it (the disc's front quad);
-# the iridescent data side, environment-mapped onto its back; and the hub's quarter ring, tiled
-# twice each way into a whole one by the hub's UVs. An audio CD has no label of its own; the port
-# gives it the ROM's red one, which is the NTSC console's.
-TEXLISTS = {'disc': ['disc-red', 'disc-surface', 'disc-rim']}
+# The BIOS's own tables: objects at 0x6f3c0, their texture lists at 0x6f25c and their motions at
+# 0x6f524, all indexed alike (`bios_models.texlist`, `motion_at`).
+OBJECT_TABLE, TEXLIST_TABLE, MOTION_TABLE = 0x6F3C0, 0x6F25C, 0x6F524
+
+# Root object -> its index in those tables, for the models whose texture lists the port reads.
+TABLE_INDEX = {0x6ABE8: 61}
+
+# The disc's label is the one texture its list leaves empty: the BIOS fills it from the disc in the
+# drive. An audio CD has no label of its own; the port gives it the ROM's red one, the NTSC console's.
+LABEL_FALLBACK = {'disc': 'disc-red'}
+
+# The CD player's models, drawn node by node: each node its own mesh, with its world transform at
+# rest and, for the transport's buttons, on every frame of the motion it plays while focused.
+# name -> (root, table index). The buttons are named by the icon their texture list gives them.
+MUSIC_MODELS = {
+    'button-next': (0x4B368, 8),
+    'button-play-pause': (0x4BD8C, 9),
+    'button-repeat': (0x4C7B0, 10),
+    'button-prev': (0x4D1D4, 11),
+    'button-stop': (0x4DBF8, 12),
+    'lozenge-time': (0x4E39C, 13),
+    'lozenge-track': (0x4EB40, 14),
+    'back': (0x4A6F4, 0),
+    **{f'digit-{d}': (root, None) for d, root in enumerate(
+        (0x4F384, 0x4F528, 0x4FB4C, 0x506B8, 0x509F8, 0x51260, 0x51E9C, 0x52040, 0x52DE0, 0x539F0))},
+    'digit-colon': (0x53DE0, None),
+}
 
 # Sequence -> name, by where the reference recording plays each one (times into c69qVhS_WOU, heard
 # in its own audio). The last two are never heard in it, and are written for completeness.
@@ -135,6 +157,9 @@ NAMES: dict[int, str] = {
     0x085340: 'disc-red',
     0x089B60: 'logo',
 }
+
+# PVRT offset -> name, for reading texture lists.
+TEXTURE_NAMES = NAMES
 
 # The focused BACK's swirl, sampled from `frames/cards-back.png`.
 BACK_RED = (223, 81, 66, 255)
@@ -289,6 +314,67 @@ def build_font(glyphs: dict[int, Pixels], family: str, path: Path) -> None:
     fb.save(str(path))
 
 
+def mesh_parts(mesh: dict, texlist: list) -> list:
+    return [
+        {
+            'start': part['start'],
+            'count': part['count'],
+            'texture': texlist[part['texid']] if part['texid'] is not None and part['texid'] < len(texlist) else None,
+            'env': 'env_mapping' in part['flags'],
+            'lit': 'ignore_light' not in part['flags'],
+        }
+        for part in mesh['parts']
+    ]
+
+
+def linear_of(m: list) -> list:
+    """A world matrix's 3x3, column-major, as the port's renderer takes it."""
+    return [round(m[r][c], 5) for c in range(3) for r in range(3)]
+
+
+def write_music_models(data: bytes) -> None:
+    """
+    Each node of the CD player's models as a model of its own, `<name>-<node>`: its mesh in its own
+    space, its world transform at rest, and - where the model has a focus motion - that transform on
+    every frame of it. A model is drawn by drawing its nodes, so a node's motion carries its children.
+    """
+    sc = bios_models.Scanner(data)
+    roots = {r['offset']: r for r in sc.find_roots()}
+    for name, (root_off, index) in MUSIC_MODELS.items():
+        root = roots[root_off]
+        texlist = bios_models.texlist(data, TEXLIST_TABLE, index, TEXTURE_NAMES) if index is not None else []
+        motion = bios_models.motion_at(data, MOTION_TABLE, index, root) if index is not None else None
+        rest = bios_models.node_world(root)
+        frames = [bios_models.node_world(root, bios_models.keys_at(motion, f)) for f in range(motion['frames'])] if motion else []
+        for k, node in enumerate(bios_models.tree_nodes(root)):
+            mesh = bios_models.flatten(root, name, only=node['offset'])
+            if not mesh['indices']:
+                continue
+            m = rest[node['offset']]
+            out = {
+                'name': f'{name}-{k}',
+                'root': mesh['root'],
+                'positions': [round(v, 5) for v in mesh['positions']],
+                'normals': [round(v, 4) for v in mesh['normals']],
+                'colors': mesh['colors'],
+                'indices': mesh['indices'],
+                'uvs': mesh['uvs'] if any(p['texid'] is not None for p in mesh['parts']) else None,
+                'parts': mesh_parts(mesh, texlist),
+                'bounds': mesh['bounds'],
+                'rest': {'pos': [round(m[i][3], 5) for i in range(3)], 'ang': [0, 0, 0], 'scl': [1, 1, 1], 'linear': linear_of(m)},
+                'motion': {
+                    'offset': motion['offset'],
+                    'frames': motion['frames'],
+                    # These motions key half a frame a vsync: 30 keys take a second (the recording, 43-52s).
+                    'fps': 30,
+                    'pos': [[round(w[node['offset']][i][3], 5) for i in range(3)] for w in frames],
+                    'linear': [linear_of(w[node['offset']]) for w in frames],
+                } if motion else None,
+            }
+            MUSIC.mkdir(parents=True, exist_ok=True)
+            (MUSIC / f'{name}-{k}.json').write_text(json.dumps(out, separators=(',', ':')) + '\n')
+
+
 def write_models(data: bytes) -> None:
     """
     Each model as the port draws it: its mesh in its own space, its resting transform, and - for the
@@ -321,17 +407,10 @@ def write_models(data: bytes) -> None:
                 'ang': track('ang', rest['ang_bams'], bams),
                 'scl': track('scl', rest['scl']),
             }
-        texlist = TEXLISTS.get(mesh['name'], [])
-        parts = [
-            {
-                'start': part['start'],
-                'count': part['count'],
-                'texture': texlist[part['texid']] if part['texid'] is not None else None,
-                'env': 'env_mapping' in part['flags'],
-                'lit': 'ignore_light' not in part['flags'],
-            }
-            for part in mesh['parts']
-        ]
+        root = int(mesh['root'], 16)
+        texlist = bios_models.texlist(data, TEXLIST_TABLE, TABLE_INDEX[root], TEXTURE_NAMES) if root in TABLE_INDEX else []
+        texlist = [n or LABEL_FALLBACK.get(mesh['name']) for n in texlist]
+        parts = mesh_parts(mesh, texlist)
         out = {
             'name': mesh['name'],
             'root': mesh['root'],
@@ -399,6 +478,7 @@ def main() -> None:
         (SOUNDS / f'{SEQUENCES.get(i, f"sequence-{i}")}.wav').write_bytes(wav)
 
     write_models(data)
+    write_music_models(data)
 
     glyphs = font_glyphs(data)
     build_font({c: bold(pixels(g)) for c, g in glyphs.items()}, 'Dreamcast BIOS Fill', FONTS / 'DreamcastBiosFill.ttf')

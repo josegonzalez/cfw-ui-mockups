@@ -1,14 +1,17 @@
 /**
  * PORTING NOTES
  * CFW: Sega Dreamcast BIOS menu   Devices: dreamcast
- * Source: closed; every texture on this screen is the boot ROM's own, and so is the disc's model;
- *         layout from recording c69qVhS_WOU (43-52s; with a disc, 260-275s)
+ * Source: closed; everything on this screen is the boot ROM's own models and textures; layout from
+ *         recording c69qVhS_WOU (43-52s; with a disc, 260-275s)
  * Mode: reproduce
  *
- * Layout:        TRACK and TIME on cyan lozenges top left and right, each over its readout in large
- *                grey figures; BACK and five transport buttons along the bottom (`frames/music-empty.png`).
- * Focus & selection: The focused lozenge turns green. Left and right move along the row, BACK
- *                included; no wrap. Default focus play/pause.
+ * Layout:        TRACK and TIME on the ROM's lozenge models top left and right, each over its
+ *                readout in the ROM's 3D figures; BACK and the five transport buttons along the
+ *                bottom (`frames/music-empty.png`), each placed where the frames put it
+ *                (`models/MusicModels.tsx`, `layout.ts`).
+ * Focus & selection: The focused button plays its own motion from the ROM and its body turns green;
+ *                BACK focused gains its red swirl and a blinking yellow ring. Left and right move
+ *                along the row, BACK included; no wrap. Default focus play/pause.
  * Buttons:       A presses the focused button; A on BACK, or B, returns to the main menu. With a
  *                disc in, play/pause plays and pauses, stop stops, previous and next change track,
  *                and repeat cycles off, one track, all tracks; with none, only repeat does anything.
@@ -18,58 +21,15 @@
  *                playing, the track and its time, counting up. With no disc they read 00 and
  *                00:00. The disc is the ROM's own model, with the ROM's red label - an audio CD
  *                has none of its own, and which label the BIOS gives one is not in the recording.
- *                The visualiser the recording shows behind a playing disc is not drawn.
+ *                In the hidden 3D mode a playing disc has the visualiser behind it
+ *                (`background/Visualizer.tsx`), and the water reflects the disc.
  */
-import { bios } from '../assets'
-import { BACK, CELL, MUSIC } from '../layout'
 import { AUDIO_CD, AUDIO_CD_TOTAL, formatTime } from '../library'
 import type { Player } from '../machine'
+import { Visualizer } from '../background/Visualizer'
 import { Disc } from '../models/Disc'
-import { PALETTE } from '../palette'
-import { BackButton, Img, Text, abs } from './parts'
-
-const BUTTONS = ['prev', 'stop', 'play-pause', 'next'] as const
-const REPEAT = ['repeat', 'repeat-one', 'repeat-all'] as const
-
-function Lozenge({ cx, cy, w, h, focused }: { cx: number; cy: number; w: number; h: number; focused?: boolean }) {
-  const edge = focused ? PALETTE.lozengeFocus : PALETTE.lozenge
-  return (
-    <div
-      style={{
-        ...abs({ x: cx - w / 2, y: cy - h / 2, w, h }),
-        borderRadius: '50%',
-        background: `radial-gradient(ellipse at center, ${PALETTE.lozengeCore} 0%, ${edge} 80%, ${edge} 100%)`,
-      }}
-    />
-  )
-}
-
-/**
- * A readout's figures: the system font drawn twice the size in grey, its halo in the same grey so
- * the strokes come out heavy. Each figure is placed on its own `pitch`, because TRACK's two sit
- * further apart than TIME's five: "00" spans 72 pixels and "00:00" 142 (`music-empty.png`).
- */
-function Readout({ cx, text, pitch }: { cx: number; text: string; pitch: number }) {
-  const h = CELL.h * 2
-  const x0 = cx - ((text.length - 1) * pitch) / 2
-  return (
-    <>
-      {[...text].map((ch, i) => (
-        <Text
-          key={i}
-          box={{ x: x0 + i * pitch - pitch / 2, y: MUSIC.digits.y, w: pitch, h }}
-          align="center"
-          scale={2}
-          advance={MUSIC.digits.advance}
-          fill={PALETTE.digits}
-          edge={PALETTE.digits}
-        >
-          {ch}
-        </Text>
-      ))}
-    </>
-  )
-}
+import { MusicModels } from '../models/MusicModels'
+import { RealModeView } from './parts'
 
 /** What the readouts show: the disc's count and length while stopped, the track and its time while playing. */
 function readouts(p: Player): [string, string] {
@@ -78,34 +38,19 @@ function readouts(p: Player): [string, string] {
   return [String(p.track).padStart(2, '0'), formatTime(p.elapsed)]
 }
 
-export function Music({ focus, repeat, player }: { focus: number; repeat: 0 | 1 | 2; player: Player }) {
-  const [trackText, timeText] = readouts(player)
-  const { track, time, lozenge, buttons } = MUSIC
+export function Music({ focus, repeat, player, realMode }: { focus: number; repeat: 0 | 1 | 2; player: Player; realMode: boolean }) {
+  const [track, time] = readouts(player)
   return (
     <>
-      {[
-        { at: track, label: 'label-track', value: trackText, pitch: MUSIC.digits.trackPitch },
-        { at: time, label: 'label-time', value: timeText, pitch: MUSIC.digits.advance },
-      ].map(({ at, label, value, pitch }) => (
-        <div key={label}>
-          <Lozenge cx={at.cx} cy={at.cy} w={lozenge.w} h={lozenge.h} />
-          <Img src={bios(label)} box={{ x: at.cx - 64, y: at.cy - 8, w: 128, h: 16 }} />
-          <Readout cx={at.cx} text={value} pitch={pitch} />
+      {/* The hidden 3D mode's visualiser, behind everything and over the whole screen, while a disc plays. */}
+      {realMode && player.state === 'playing' ? <Visualizer elapsed={player.elapsed} /> : null}
+      <RealModeView on={realMode}>
+        <div data-focus={focus} data-repeat={repeat}>
+          <MusicModels focus={focus} repeat={repeat} track={track} time={time} reflect={realMode} />
         </div>
-      ))}
-      {/* The disc is drawn over the readouts, as the recording's stands over TIME (275s). */}
-      {player.disc ? <Disc state={player.state} /> : null}
-      <BackButton {...BACK.music} focused={focus === 0} />
-      {[...BUTTONS, REPEAT[repeat]].map((name, i) => {
-        const cx = buttons.cx[i]!
-        const focused = focus === i + 1
-        return (
-          <div key={i} data-button={i === 4 ? 'repeat' : name} data-focused={focused || undefined}>
-            <Lozenge cx={cx} cy={buttons.cy} w={buttons.w} h={buttons.h} focused={focused} />
-            <Img src={bios(name)} box={{ x: cx - 16, y: buttons.cy - 16, w: 32, h: 32 }} />
-          </div>
-        )
-      })}
+        {/* The disc is drawn over the readouts, as the recording's stands over TIME (275s). */}
+        {player.disc ? <Disc state={player.state} reflect={realMode} /> : null}
+      </RealModeView>
     </>
   )
 }

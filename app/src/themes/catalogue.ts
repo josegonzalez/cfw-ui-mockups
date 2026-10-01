@@ -331,7 +331,7 @@ export const THEMES: readonly ThemeEntry[] = [
     accent: '#e0632a',
     // One look, with nothing to switch between.
     swatches: [],
-    views: 23,
+    views: 46,
     devices: ['dreamcast'],
     fonts: ['The Dreamcast BIOS system font'],
     ported: true,
