@@ -17,8 +17,8 @@ Implemented at `app/src/themes/dreamcast-bios/`. Mode: **reproduce** throughout.
 ## Screens
 
 The primary deliverable is the interactive route, which opens on the main menu; start it from
-Power-on to hear the boot sound. 21 stills are provided, each posed by pressing buttons from
-power-on.
+Power-on to hear the boot sound. 23 stills are provided, each posed by pressing buttons from
+power-on, two of them with an audio CD in the drive.
 
 | Screen | Stills |
 | --- | --- |
@@ -27,10 +27,11 @@ power-on.
 | Play | `no-disc` |
 | Settings | `settings`, `settings-language`, `settings-clock`, `settings-sound`, `settings-auto-start`, `settings-card-clock`, `settings-cards-set` |
 | File | `file-cards`, `file-list`, `file-menu`, `file-all-menu`, `file-delete`, `file-deleted`, `file-destination` |
-| Music | `music`, `music-repeat` |
+| Music | `music`, `music-repeat`, `music-disc`, `music-disc-playing` |
 
 The memory card in controller A holds the nine saves the recording shows, with its block counts;
-the other seven sockets are empty. There is no disc in.
+the other seven sockets are empty. There is no disc in, except in Music's two disc stills, which have
+an eight-track audio CD in the drive.
 
 ## What comes from the boot ROM
 
@@ -58,6 +59,10 @@ user supplies, refuses any ROM whose hash it does not know, and writes:
   [`bios_models.py`](dreamcast-bios/reference/bios_models.py) finds them through the BIOS's own
   object table at `0x6f3c0`, flattens each into one mesh, and pairs each with the 60-frame motion it
   plays while focused - the controller and clock rock, the memory card turns, the note bobs.
+  File's controller, memory card and empty-socket silhouette, and Settings' four row icons, are the
+  ROM's models too; the BIOS places those in code, so the port fits each to its measured box. So is
+  the CD player's disc: a label quad whose texture's alpha rounds it, an edge, a hub, and a back
+  environment-mapped with the ROM's iridescent texture, so the data side shimmers as it turns.
 
 ## Geometry
 
@@ -83,6 +88,9 @@ lays out 1:1 in it with nothing inset. Every box is measured from the reference 
 | A focused option's blob: yellow, then green | 200 ms each | 37.05-37.85s |
 | The focused model's own motion from the ROM, round and round | 60 frames at 60 Hz: 1 s | 34-36s, a cycle a second |
 | Power-on: the wordmark written in, then the swirl drawn, then held | 1.5-4s, 4.8-6s, to 9s | 0-9s |
+| A stopped disc turns about its upright axis | a turn every 3.2 s | 261-262.7s |
+| Playing, it lies back 67 degrees and spins in its own plane | a turn a second | 266-270s |
+| It tips over between the two | 0.6 s | 262.8-263.4s |
 
 The sky never stops: screens come and go over it. It is a shader, with the same function drawn on
 the CPU at a quarter of the resolution as its fallback; a still draws it at t = 0. The main menu's
@@ -149,7 +157,7 @@ BACK, drawn on the screens that have one, does what B does.
 | `layout.ts`, `palette.ts`, `motion.ts` | geometry, colours and durations, each with where it was measured |
 | `library.ts`, `strings.ts`, `assets.ts` | the clock, the saves, the ROM's strings and asset lookup |
 | `background/` | the sky: `sky.ts` holds the function in TypeScript and GLSL, `index.tsx` the render loop |
-| `models/` | the main menu's models: `scene.ts` the projection, transforms, light and motion sampling; `gl.ts` the shader; `raster.ts` the CPU fallback; `MenuModels.tsx` the render loop |
+| `models/` | the ROM's models: `scene.ts` the projection, transforms, light and motion sampling; `gl.ts` the shader; `raster.ts` the CPU fallback; `MenuModels.tsx` the render loop; `Disc.tsx` the CD player's disc |
 | `views/` | `Boot`, `Main`, `NoDisc`, `Settings`, `File`, `Music`, and `parts` |
 | `manifest.ts`, `routes.tsx`, `Interactive.tsx` | the stills and the live build |
 

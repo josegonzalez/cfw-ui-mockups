@@ -19,14 +19,45 @@
  *                empty socket is not in the recording, which only focuses A-1; the port brightens it.
  *                Copy stops at the destination picker - there is no second card to copy to.
  */
-import { drawn } from '../assets'
-import { BACK, CARDS, CELL, FILES } from '../layout'
+import { useCallback } from 'react'
+import { BACK, CARDS, CELL, FILES, type Box } from '../layout'
 import { CARD_BLOCKS, PORTS, type VmuFile } from '../library'
 import { Animated } from '../../../anim/Animated'
+import { ModelScene, model } from '../models/MenuModels'
+import { fitView, type Item, type ModelData } from '../models/scene'
 import { BLINK } from '../motion'
 import { PALETTE } from '../palette'
 import { S, asLatin1 } from '../strings'
-import { ADVANCE, BackButton, DialogBox, Img, Lines, Option, Text, VmuIcon, abs } from './parts'
+import { ADVANCE, BackButton, DialogBox, Lines, Option, Text, VmuIcon, abs } from './parts'
+
+const CONTROLLER = model('file-controller')
+const CARD = model('file-vmu')
+/** An empty socket: the card's flat silhouette, which the ROM keeps faint in its own material. */
+const SOCKET = model('file-vmu-backdrop')
+
+/**
+ * Where a card's screen is, in its model's own space: the upper half of its face, above the pad and
+ * buttons, which sit below y -1.5 (`file-vmu`'s vertex colours). The save's icon is drawn there.
+ */
+const SCREEN_AREA = { x0: -3, x1: 3, y0: -0.6, y1: 5.6 }
+
+/** A card's screen on the page, for a card drawn fitted to `box`. */
+function screenOf(box: Box): Box {
+  const { view } = fitView(CARD, box)
+  const cx = (CARD.bounds.max[0] + CARD.bounds.min[0]) / 2
+  const cy = (CARD.bounds.max[1] + CARD.bounds.min[1]) / 2
+  const x = view.ox + (SCREEN_AREA.x0 - cx) * view.ppu
+  const y = view.oy - (SCREEN_AREA.y1 - cy) * view.ppu
+  return { x, y, w: (SCREEN_AREA.x1 - SCREEN_AREA.x0) * view.ppu, h: (SCREEN_AREA.y1 - SCREEN_AREA.y0) * view.ppu }
+}
+
+/** Models placed in boxes, drawn as one scene; none of them moves. */
+function Models({ placed }: { placed: readonly { model: ModelData; box: Box; alpha?: number }[] }) {
+  const key = JSON.stringify(placed.map((p) => [p.model.name, p.box, p.alpha ?? 1]))
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- keyed on what is placed, not the array's identity
+  const items = useCallback((): Item[] => placed.map((p) => ({ model: p.model, ...fitView(p.model, p.box), alpha: p.alpha ?? 1 })), [key])
+  return <ModelScene items={items} moving={false} />
+}
 
 /** The card box: the socket's name, the used and free bar, and the free blocks. */
 function CardBox({ box, label, free }: { box: { x: number; y: number; w: number; h: number }; label: string; free: number | null }) {
@@ -52,16 +83,9 @@ function CardBox({ box, label, free }: { box: { x: number; y: number; w: number;
   )
 }
 
-/** A card, as the picker and the list draw it: the VMU, showing a save - the focused one in the list - on its screen. */
-function Card({ box, first }: { box: { x: number; y: number; w: number; h: number }; first: VmuFile | undefined }) {
-  const sx = box.w / 84
-  const sy = box.h / 114
-  return (
-    <div style={abs(box)}>
-      <Img src={drawn('vmu')} box={{ x: 0, y: 0, w: box.w, h: box.h }} />
-      {first ? <VmuIcon file={first} box={{ x: 12 * sx, y: 16 * sy, w: 60 * sx, h: 46 * sy }} blocks={false} /> : null}
-    </div>
-  )
+/** A save - the focused one in the list - on the screen of a card drawn in `box`. */
+function CardScreen({ box, file }: { box: Box; file: VmuFile | undefined }) {
+  return file ? <VmuIcon file={file} box={screenOf(box)} blocks={false} /> : null
 }
 
 export function CardPicker({ focus, purpose, files }: { focus: number | 'back'; purpose: 'browse' | 'copy'; files: readonly VmuFile[] }) {
@@ -75,7 +99,19 @@ export function CardPicker({ focus, purpose, files }: { focus: number | 'back'; 
       <div style={{ ...abs(header), background: PALETTE.header, borderRadius: '8px 8px 0 0' }} />
       <div style={{ ...abs(band), background: PALETTE.band }} />
       <Lines x={96} cy={lines.length === 1 ? 67 : 58} w={480} pitch={26} lines={lines} align="left" />
-      <Img src={drawn('controller')} box={{ x: column.x - 2, y: 104, w: 74, h: 66 }} />
+      <Models
+        placed={[
+          { model: CONTROLLER, box: { x: column.x - 2, y: 104, w: 74, h: 66 } },
+          ...PORTS.flatMap((_, i) =>
+            slot.map((s, k) => ({
+              model: i === 0 && k === 0 ? CARD : SOCKET,
+              box: { x: column.x + i * column.pitch - 4, y: s.y, w: column.w + 8, h: s.h },
+              // The recording only ever focuses A-1; an empty socket is brightened when focused.
+              alpha: i === 0 && k === 0 ? 1 : focus === i * 2 + k ? 1 : 0.6,
+            })),
+          ),
+        ]}
+      />
       {PORTS.map((p, i) => (
         <div key={p}>
           <div style={{ ...abs({ x: column.x + i * column.pitch, y: tab.y, w: column.w, h: tab.h }), background: PALETTE.band, borderRadius: '0 0 8px 8px' }} />
@@ -88,11 +124,7 @@ export function CardPicker({ focus, purpose, files }: { focus: number | 'back'; 
             const holdsCard = i === 0 && k === 0
             return (
               <div key={k} data-socket={`${p}-${k + 1}`} data-focused={focused || undefined}>
-                {holdsCard ? (
-                  <Card box={box} first={files[0]} />
-                ) : (
-                  <div style={{ ...abs(box), background: PALETTE.ghost, borderRadius: 14, opacity: focused ? 1 : 0.6 }} />
-                )}
+                {holdsCard ? <CardScreen box={box} file={files[0]} /> : null}
               </div>
             )
           })}
@@ -156,7 +188,8 @@ export function FileList({
       ) : (
         prompt.map((line, i) => <Lines key={i} x={header.x[i]!} cy={header.lines[i]!} w={headerBox.w} pitch={0} lines={[line]} align="left" />)
       )}
-      <Card box={vmu} first={focused ?? files[0]} />
+      <Models placed={[{ model: CARD, box: vmu }]} />
+      <CardScreen box={vmu} file={focused ?? files[0]} />
       <CardBox box={info} label="A-1" free={CARD_BLOCKS - used} />
       <BackButton {...BACK.file} focused={focus === 'back'} />
 

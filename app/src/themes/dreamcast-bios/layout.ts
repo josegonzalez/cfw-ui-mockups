@@ -134,6 +134,8 @@ export const MUSIC = {
   /** The readouts' figures: 29 pixels apart in TIME, 46 in TRACK. */
   digits: { y: 132, advance: 29, trackPitch: 46 },
   buttons: { cx: [185, 275, 365, 455, 545], cy: 408, w: 84, h: 40 },
+  /** A disc in the drive: its rim's diameter and centre (`music-disc.png`, `music-disc-playing.png`). */
+  disc: { cx: 320, cy: 240, d: 244 },
 } as const
 
 /**

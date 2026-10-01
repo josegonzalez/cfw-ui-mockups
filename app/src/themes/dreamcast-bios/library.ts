@@ -95,3 +95,13 @@ export const CARD_BLOCKS = 198
 /** The controller ports and their two expansion sockets; only A-1 holds a card. */
 export const PORTS = ['A', 'B', 'C', 'D'] as const
 export const CARD_SLOT = 0
+
+/**
+ * The audio CD in the drive, for Music with a disc in: its tracks' lengths in seconds. Stopped, the
+ * readouts show the track count and the total length, as the recording's do for its disc (275s).
+ */
+export const AUDIO_CD: readonly number[] = [212, 187, 241, 198, 263, 225, 174, 236]
+export const AUDIO_CD_TOTAL = AUDIO_CD.reduce((a, b) => a + b, 0)
+
+/** `MM:SS`, with as many minutes as it takes - the recording's disc runs to `122:04`. */
+export const formatTime = (seconds: number) => `${pad(Math.floor(seconds / 60))}:${pad(seconds % 60)}`

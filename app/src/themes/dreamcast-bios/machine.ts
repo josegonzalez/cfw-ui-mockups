@@ -1,5 +1,5 @@
 import type { Button } from '../../input/keymap'
-import { BOOT_CLOCK, CARD_BLOCKS, CARD_SLOT, CLOCK, CLOCK_FIELDS, FILES, type Clock, type VmuFile } from './library'
+import { AUDIO_CD, BOOT_CLOCK, CARD_BLOCKS, CARD_SLOT, CLOCK, CLOCK_FIELDS, FILES, type Clock, type VmuFile } from './library'
 
 /**
  * The BIOS menu as a pure reducer: a stack of views, the main menu's cursor, and what the console
@@ -69,10 +69,21 @@ export interface State {
   readonly marked: readonly string[]
   /** Off, one track, all tracks. */
   readonly repeat: 0 | 1 | 2
+  /** The CD player: whether a disc is in, and what it is doing. */
+  readonly player: Player
   /**
    * The screen showing is fading out for this stack. The BIOS takes no input until it is up.
    */
   readonly pending: readonly View[] | null
+}
+
+export interface Player {
+  readonly disc: boolean
+  readonly state: 'stopped' | 'playing' | 'paused'
+  /** 1-based; meaningful while playing or paused. */
+  readonly track: number
+  /** Seconds into the track. */
+  readonly elapsed: number
 }
 
 export const DEFAULT_PREFS: Prefs = { language: 1, stereo: true, autoStart: false }
@@ -84,6 +95,8 @@ export interface Seed {
   readonly firstBoot?: boolean
   /** Start at power-on, on the logo, rather than on the screen after it. */
   readonly boot?: boolean
+  /** An audio CD in the drive, for Music. */
+  readonly disc?: boolean
 }
 
 /** The seed alphabet: one letter per button, so a still reads as the presses that pose it. */
@@ -111,6 +124,7 @@ export function initialState(seed: Seed = {}): State {
     files: FILES.map((f) => f.id),
     marked: [],
     repeat: 0,
+    player: { disc: seed.disc ?? false, state: 'stopped', track: 1, elapsed: 0 },
     pending: null,
   }
   for (const ch of seed.events ?? '') {
@@ -409,9 +423,41 @@ function music(s: State, v: Extract<View, { kind: 'music' }>, button: Button): S
   if (button === 'left') return replace(s, { ...v, focus: clamp(v.focus - 1, 0, MUSIC_STOPS - 1) })
   if (button === 'right') return replace(s, { ...v, focus: clamp(v.focus + 1, 0, MUSIC_STOPS - 1) })
   if (button === 'b' || (button === 'a' && v.focus === 0)) return home(s)
+  if (button !== 'a') return s
+  if (v.focus === MUSIC_STOPS - 1) return { ...s, repeat: ((s.repeat + 1) % 3) as 0 | 1 | 2 }
   // With no disc in, the transport has nothing to play; only repeat keeps a setting.
-  if (button === 'a' && v.focus === MUSIC_STOPS - 1) return { ...s, repeat: ((s.repeat + 1) % 3) as 0 | 1 | 2 }
-  return s
+  const p = s.player
+  if (!p.disc) return s
+  const at = (player: Partial<Player>) => ({ ...s, player: { ...p, ...player } })
+  switch (v.focus) {
+    case 1:
+      // Back to the start of the track, or the track before if it has barely begun.
+      if (p.state === 'stopped') return s
+      return at({ track: p.elapsed < 3 ? Math.max(1, p.track - 1) : p.track, elapsed: 0 })
+    case 2:
+      return at({ state: 'stopped', track: 1, elapsed: 0 })
+    case MUSIC_PLAY:
+      return at({ state: p.state === 'playing' ? 'paused' : 'playing' })
+    case 4:
+      if (p.state === 'stopped') return s
+      return p.track < AUDIO_CD.length ? at({ track: p.track + 1, elapsed: 0 }) : at({ state: 'stopped', track: 1, elapsed: 0 })
+    default:
+      return s
+  }
+}
+
+/**
+ * A second of the CD playing. At a track's end the next one starts; at the disc's end it stops, unless
+ * repeat says otherwise - one track plays that track again, all tracks the disc from the first.
+ */
+export function tickPlayer(s: State): State {
+  const p = s.player
+  if (p.state !== 'playing') return s
+  if (p.elapsed + 1 < AUDIO_CD[p.track - 1]!) return { ...s, player: { ...p, elapsed: p.elapsed + 1 } }
+  if (s.repeat === 1) return { ...s, player: { ...p, elapsed: 0 } }
+  if (p.track < AUDIO_CD.length) return { ...s, player: { ...p, track: p.track + 1, elapsed: 0 } }
+  if (s.repeat === 2) return { ...s, player: { ...p, track: 1, elapsed: 0 } }
+  return { ...s, player: { ...p, state: 'stopped', track: 1, elapsed: 0 } }
 }
 
 /**

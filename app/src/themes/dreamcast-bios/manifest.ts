@@ -36,6 +36,8 @@ export const DREAMCAST_BIOS_SCREENS: readonly DreamcastScreenDef[] = [
   { slug: 'file-destination', title: 'File, copy destination', seed: { events: 'raaaa' } },
   { slug: 'music', title: 'Music', seed: { events: 'da' } },
   { slug: 'music-repeat', title: 'Music, repeat one', seed: { events: 'darra' } },
+  { slug: 'music-disc', title: 'Music, with disc', seed: { disc: true, events: 'da' } },
+  { slug: 'music-disc-playing', title: 'Music, with disc, playing', seed: { disc: true, events: 'daa' } },
 ]
 
 export const DREAMCAST_BIOS_MANIFEST: readonly ScreenManifestEntry[] = DREAMCAST_BIOS_DEVICES.flatMap((device) => [

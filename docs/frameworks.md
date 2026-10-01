@@ -908,7 +908,8 @@ Missing from both frameworks:
   picker is four ports of two sockets, and the main menu is 2x2. Grid is absent in both.
 - **3D models, lit, translucent and moving.** The main menu's four models are the ROM's own meshes -
   656 vertices for the controller - drawn with depth, per-vertex light and alpha, the focused one
-  following its 60-frame motion of position, rotation and scale (`models/`). Both frameworks draw
+  following its 60-frame motion of position, rotation and scale (`models/`). The CD player's disc is
+  textured as well, its back environment-mapped, and it turns and tips while it plays. Both frameworks draw
   only rectangles and textures: `RenderGeometry` and `Vertex` are zero-hit in both (the textured
   geometry row above), and neither has a depth buffer (`DEPTH_TEST`, `zbuffer` and `depth_buffer`
   are zero-hit in both). A port could pre-render each model's 60
@@ -921,9 +922,9 @@ Missing from both frameworks:
 
 Not on this list:
 
-- **The drawn icons.** File's controller and memory cards and the Settings icons are SVGs here.
-  Apostrophe has no SVG, and gabagool reaches `oksvg` only inside `ProcessMessage`
-  (`pkg/gabagool/process_message.go:406`), but each is one static picture a port would ship as PNG.
+- **The models that do not move.** File's controller and memory cards and Settings' icons are the
+  ROM's models as well, but drawn at rest: each is one static picture a port would ship as PNG,
+  so they need none of the path the main menu's moving models do.
 - **The blobs and lozenges.** A 46x36 ellipse, and Music's radial-gradient lozenges. `ellipse` and
   `radial` are zero-hit in both, but both can be images.
 - **Theming.** One look; nothing is switchable.

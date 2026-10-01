@@ -645,7 +645,9 @@ def flatten(root, name=None, include_siblings=False, apply_root_transform=False,
     so by default only root + its children are walked; children's siblings are
     always walked.
     """
-    positions, normals, colors, indices = [], [], [], []
+    positions, normals, colors, indices, uvs = [], [], [], [], []
+    # Runs of triangles that draw alike: a texture or none, and the strip's own flags.
+    parts = []
     materials = []
     flags = {"strip_flags": {}, "blend": set(), "textured": False, "vertex_colors": False,
              "eval_flags": set(), "cached_lists": 0}
@@ -676,6 +678,7 @@ def flatten(root, name=None, include_siblings=False, apply_root_transform=False,
                 continue
             if k == "texture":
                 flags["textured"] = True
+                state = dict(state, texid=c["texid"])
                 continue
             if k == "material":
                 state = dict(state)
@@ -702,6 +705,12 @@ def flatten(root, name=None, include_siblings=False, apply_root_transform=False,
                     flags["textured"] = True
                 d = state.get("diffuse", 0xFFFFFFFF)
                 mcol = [(d >> 16) & 0xFF, (d >> 8) & 0xFF, d & 0xFF, (d >> 24) & 0xFF]
+                # UVN coordinates are 1/256ths, UVH 1/1024ths (sa_tools PolyChunk.cs).
+                uv_scale = 1024.0 if c["type"] in (0x42, 0x45, 0x48, 0x4B) else 256.0
+                textured = bool(c["strips"] and c["strips"][0]["uvs"])
+                part = {"start": len(indices), "count": 0,
+                        "texid": state.get("texid") if textured or sf & 0x40 else None,
+                        "flags": [nm for bit, nm in STRIP_FLAG_NAMES if sf & bit]}
                 for s in c["strips"]:
                     base = len(positions) // 3
                     for j, vi in enumerate(s["indices"]):
@@ -717,6 +726,11 @@ def flatten(root, name=None, include_siblings=False, apply_root_transform=False,
                         else:
                             col = mcol
                         colors.extend(col)
+                        if s["uvs"]:
+                            u, v = s["uvs"][j]
+                            uvs.extend([u / uv_scale, v / uv_scale])
+                        else:
+                            uvs.extend([0.0, 0.0])
                     ln = len(s["indices"])
                     # sa_tools VertexData.cs: first triangle (0,1,2) unless the
                     # strip is reversed, then alternate. Checked against the
@@ -734,6 +748,9 @@ def flatten(root, name=None, include_siblings=False, apply_root_transform=False,
                             continue
                         _check_winding(positions, normals, tri, winding)
                         indices.extend(tri)
+                part["count"] = len(indices) - part["start"]
+                if part["count"]:
+                    parts.append(part)
                 continue
         return state
 
@@ -781,7 +798,7 @@ def flatten(root, name=None, include_siblings=False, apply_root_transform=False,
     return {"name": name or "obj_%x" % root["offset"], "root": "0x%x" % root["offset"],
             "positions": [round(x, 5) for x in positions],
             "normals": [round(x, 5) for x in normals],
-            "colors": colors, "indices": indices,
+            "colors": colors, "indices": indices, "uvs": [round(x, 5) for x in uvs], "parts": parts,
             "bounds": {"min": mn, "max": mx}, "materials": materials, "flags": flags}
 
 

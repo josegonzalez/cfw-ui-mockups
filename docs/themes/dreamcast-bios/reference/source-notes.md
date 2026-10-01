@@ -44,6 +44,15 @@ are into the recording `c69qVhS_WOU` (see `README.md`); frames are in `frames/`.
   clock at `0x44a9c`. Their motion table at `0x6f524` holds their focus motions, 60 frames each, a
   key every frame - paired to their roots because each motion's first keys are the root's own
   position and tilt. The decoder's docstring has the format.
+- **The disc.** Root `0x6abe8`: an untextured grey edge of radius 13.6; a 28x28 quad on its front
+  (texture 0, the label); two back surfaces environment-mapped (texture 1); and a hub square whose
+  UVs run 0-2 by -1-1 (texture 2). A model's texture ids index a list the BIOS sets in code, so the
+  list is read off the parts: the label is a 256x256 disc texture with a round alpha, the hub's
+  quarter-ring `disc-rim` tiles into a ring at those UVs, and `0x075920`'s iridescence is the data
+  side. Its motion is not in the ROM's motion tables; it is measured (`motion` in `Disc.tsx`).
+- **The disc on screen** (`music-disc.png`, `music-disc-playing.png`): its rim 244 pixels across
+  about (320, 240); lying back while playing, 0.39 as tall as it is wide. Stopped, the readouts show
+  the disc's track count and its total length (275s).
 - **The models' speed.** The focused controller rocks one way at 34.0s, 35.0s and 36.0s: a cycle a
   second, its 60 keys at the console's 60 Hz.
 - **The models' light and alpha.** The controller's red and blue at 200,180 in `frames/main.png`,

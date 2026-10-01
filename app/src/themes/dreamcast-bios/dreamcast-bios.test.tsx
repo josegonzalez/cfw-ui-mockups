@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest'
 import { DeviceFrame } from '../../device/DeviceFrame'
 import type { Button } from '../../input/keymap'
 import { DreamcastBios } from '.'
-import { BOOT_CLOCK, CARD_BLOCKS, CLOCK, FILES, formatClock } from './library'
+import { AUDIO_CD, BOOT_CLOCK, CARD_BLOCKS, CLOCK, FILES, formatClock } from './library'
 import {
   CLOCK_CANCEL,
   CLOCK_SELECT,
@@ -17,6 +17,7 @@ import {
   reduce,
   screenKey,
   settle,
+  tickPlayer,
   top,
   type State,
 } from './machine'
@@ -215,6 +216,50 @@ describe('Dreamcast BIOS machine', () => {
   })
 })
 
+describe('Dreamcast BIOS CD player', () => {
+  const music = () => press(initialState({ disc: true }), 'down', 'a')
+
+  it('plays, pauses and stops the disc from its transport', () => {
+    const s = music()
+    expect(s.player).toMatchObject({ disc: true, state: 'stopped' })
+    expect(press(s, 'a').player.state).toBe('playing')
+    expect(press(s, 'a', 'a').player.state).toBe('paused')
+    expect(press(s, 'a', 'left', 'a').player).toMatchObject({ state: 'stopped', track: 1, elapsed: 0 })
+  })
+
+  it('counts a playing track up a second at a time, and moves on at its end', () => {
+    let s = press(music(), 'a')
+    for (let i = 0; i < 5; i++) s = tickPlayer(s)
+    expect(s.player).toMatchObject({ track: 1, elapsed: 5 })
+    for (let i = 0; i < AUDIO_CD[0]!; i++) s = tickPlayer(s)
+    expect(s.player).toMatchObject({ track: 2, elapsed: 5 })
+    // A paused or stopped disc holds its time.
+    const paused = press(s, 'a')
+    expect(tickPlayer(paused)).toBe(paused)
+  })
+
+  it('changes track with previous and next while playing', () => {
+    const s = press(music(), 'a', 'right', 'a')
+    expect(s.player).toMatchObject({ track: 2, elapsed: 0 })
+    expect(press(s, 'left', 'left', 'a').player.track).toBe(1)
+  })
+
+  it("stops at the disc's end unless repeat says otherwise", () => {
+    const atEnd = (repeat: 0 | 1 | 2) => {
+      const s = press(music(), 'a')
+      return tickPlayer({ ...s, repeat, player: { ...s.player, track: AUDIO_CD.length, elapsed: AUDIO_CD.at(-1)! - 1 } }).player
+    }
+    expect(atEnd(0)).toMatchObject({ state: 'stopped', track: 1 })
+    expect(atEnd(1)).toMatchObject({ state: 'playing', track: AUDIO_CD.length, elapsed: 0 })
+    expect(atEnd(2)).toMatchObject({ state: 'playing', track: 1, elapsed: 0 })
+  })
+
+  it('does nothing but repeat with no disc in', () => {
+    const s = press(menu(), 'down', 'a')
+    expect(press(s, 'a')).toEqual(s)
+  })
+})
+
 describe('Dreamcast BIOS sounds', () => {
   /** The sound the last of `buttons` makes, after the rest have been pressed. */
   const cue = (...buttons: Button[]) => {
@@ -274,12 +319,17 @@ describe('Dreamcast BIOS stills', () => {
       'file-destination': 'cards',
       music: 'music',
       'music-repeat': 'music',
+      'music-disc': 'music',
+      'music-disc-playing': 'music',
     }
     for (const s of DREAMCAST_BIOS_SCREENS) expect(view(s.slug).kind, s.slug).toBe(kinds[s.slug])
     expect(initialState({ events: 'rd' }).main).toBe(3)
     expect(initialState({ events: 'darra' }).repeat).toBe(1)
     expect(view('file-all-menu')).toMatchObject({ all: true })
     expect(view('file-destination')).toMatchObject({ purpose: 'copy' })
+    const disc = (slug: string) => initialState(DREAMCAST_BIOS_SCREENS.find((s) => s.slug === slug)!.seed).player
+    expect(disc('music-disc')).toMatchObject({ disc: true, state: 'stopped' })
+    expect(disc('music-disc-playing')).toMatchObject({ disc: true, state: 'playing', track: 1, elapsed: 0 })
   })
 
   it.each(DREAMCAST_BIOS_SCREENS.map((s) => [s.slug, s] as const))('renders %s', (_, screen) => {

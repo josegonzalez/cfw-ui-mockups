@@ -53,9 +53,30 @@ FONTS = Path('app/src/themes/dreamcast-bios/assets/fonts')
 SOUNDS = Path('app/src/themes/dreamcast-bios/assets/sounds')
 MODELS = Path('app/src/themes/dreamcast-bios/assets/models')
 
-# Root object -> name, for the main menu's models: the BIOS's own object table at 0x6f3c0 lists
-# them, and each sits where its item's pill is (`bios_models.py`, `frames/main.png`).
-MAIN_MODELS = {0x4106C: 'controller', 0x46B3C: 'vmu', 0x428A4: 'note', 0x44A9C: 'clock'}
+# Root object -> name, for the models the port draws. The main menu's four are listed by the
+# BIOS's own object table at 0x6f3c0, and each sits where its item's pill is; the rest are named
+# by what they draw, matched to `frames/file-cards.png` and `settings.png` (`bios_models.py`).
+MODEL_ROOTS = {
+    0x4106C: 'controller',
+    0x46B3C: 'vmu',
+    0x428A4: 'note',
+    0x44A9C: 'clock',
+    0x58834: 'file-controller',
+    0x59B8C: 'file-vmu',
+    0x64784: 'file-vmu-backdrop',
+    0x6C9F8: 'settings-language',
+    0x6D3AC: 'settings-clock',
+    0x6DCE8: 'settings-sound',
+    0x6E820: 'settings-other',
+    0x6ABE8: 'disc',
+}
+
+# A model's texture ids index a texture list the BIOS sets in code, so each list is read off what
+# its parts are. The disc's: its label, a square whose alpha rounds it (the disc's front quad);
+# the iridescent data side, environment-mapped onto its back; and the hub's quarter ring, tiled
+# twice each way into a whole one by the hub's UVs. An audio CD has no label of its own; the port
+# gives it the ROM's red one, which is the NTSC console's.
+TEXLISTS = {'disc': ['disc-red', 'disc-surface', 'disc-rim']}
 
 # Sequence -> name, by where the reference recording plays each one (times into c69qVhS_WOU, heard
 # in its own audio). The last two are never heard in it, and are written for completeness.
@@ -101,6 +122,7 @@ NAMES: dict[int, str] = {
     0x077940: 'disc-blue',
     0x07C160: 'disc-rim',
     0x07C980: 'wordmark',
+    0x075920: 'disc-surface',
     0x07E9A0: 'next',
     0x07F1C0: 'play-pause',
     0x07F9E0: 'repeat',
@@ -269,25 +291,47 @@ def build_font(glyphs: dict[int, Pixels], family: str, path: Path) -> None:
 
 def write_models(data: bytes) -> None:
     """
-    Each main-menu model as the port draws it: its mesh in its own space, its resting transform, and
-    the 60-frame motion it plays while focused, every frame keyed. Angles are in degrees.
+    Each model as the port draws it: its mesh in its own space, its resting transform, and - for the
+    main menu's four - the 60-frame motion it plays while focused, every frame keyed. Angles are in
+    degrees. The File and Settings models carry no motion the decoder can pair with them, and the
+    BIOS places them in code, so their transforms are their own and the port places them.
     """
-    meshes, _ = bios_models.extract(data, MAIN_MODELS)
+    meshes, _ = bios_models.extract(data, MODEL_ROOTS)
     MODELS.mkdir(parents=True, exist_ok=True)
+    bams = 360 / 0x10000
     for mesh in meshes:
-        if mesh['name'] not in MAIN_MODELS.values():
+        if mesh['name'] not in MODEL_ROOTS.values():
             continue
         rest = mesh['flags']['root_transform']
-        motion = mesh['flags']['motion'][0]
-        # Only the root moves while a model is focused; its other nodes keep their poses.
-        keys = motion['nodes'][0]
-        frames = motion['frames']
+        motions = mesh['flags'].get('motion') or []
+        motion = None
+        if motions:
+            # Only the root moves while a model is focused; its other nodes keep their poses.
+            keys = motions[0]['nodes'][0]
+            frames = motions[0]['frames']
 
-        def track(channel: str, at_rest: list[float], scale: float = 1.0) -> list[list[float]]:
-            got = {k[0]: k[1:] for k in keys.get(channel, [])}
-            return [[round(v * scale, 4) for v in got.get(f, at_rest)] for f in range(frames)]
+            def track(channel: str, at_rest: list[float], scale: float = 1.0) -> list[list[float]]:
+                got = {k[0]: k[1:] for k in keys.get(channel, [])}
+                return [[round(v * scale, 4) for v in got.get(f, at_rest)] for f in range(frames)]
 
-        bams = 360 / 0x10000
+            motion = {
+                'offset': motions[0]['offset'],
+                'frames': frames,
+                'pos': track('pos', rest['pos']),
+                'ang': track('ang', rest['ang_bams'], bams),
+                'scl': track('scl', rest['scl']),
+            }
+        texlist = TEXLISTS.get(mesh['name'], [])
+        parts = [
+            {
+                'start': part['start'],
+                'count': part['count'],
+                'texture': texlist[part['texid']] if part['texid'] is not None else None,
+                'env': 'env_mapping' in part['flags'],
+                'lit': 'ignore_light' not in part['flags'],
+            }
+            for part in mesh['parts']
+        ]
         out = {
             'name': mesh['name'],
             'root': mesh['root'],
@@ -295,14 +339,11 @@ def write_models(data: bytes) -> None:
             'normals': [round(v, 4) for v in mesh['normals']],
             'colors': mesh['colors'],
             'indices': mesh['indices'],
+            'uvs': mesh['uvs'] if any(p['texture'] and not p['env'] for p in parts) else None,
+            'parts': parts,
+            'bounds': mesh['bounds'],
             'rest': {'pos': rest['pos'], 'ang': [round(a * bams, 4) for a in rest['ang_bams']], 'scl': rest['scl']},
-            'motion': {
-                'offset': motion['offset'],
-                'frames': frames,
-                'pos': track('pos', rest['pos']),
-                'ang': track('ang', rest['ang_bams'], bams),
-                'scl': track('scl', rest['scl']),
-            },
+            'motion': motion,
         }
         (MODELS / f'{mesh["name"]}.json').write_text(json.dumps(out, separators=(',', ':')) + '\n')
 

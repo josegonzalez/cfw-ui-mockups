@@ -20,6 +20,7 @@ import {
   reduce,
   screenKey,
   screenOf,
+  tickPlayer,
   top,
   type Seed,
   type State,
@@ -61,7 +62,7 @@ function Screen({ s, v }: { s: State; v: View }) {
     case 'files':
       return <FileList focus={v.focus} files={filesOf(s)} marked={s.marked} confirm={confirmOf(s)} />
     case 'music':
-      return <Music focus={v.focus} repeat={s.repeat} />
+      return <Music focus={v.focus} repeat={s.repeat} player={s.player} />
     default:
       return null
   }
@@ -142,6 +143,14 @@ export function DreamcastBios(seed: DreamcastBiosProps) {
       clearTimeout(id)
     }
   }, [live, animate, booting, play])
+
+  // The CD playing: a second at a time, on the live build's clock. A still holds its time.
+  const playing = state.player.state === 'playing'
+  useEffect(() => {
+    if (!live || !playing) return
+    const id = setInterval(() => setState(tickPlayer), 1000)
+    return () => clearInterval(id)
+  }, [live, playing])
 
   const pending = state.pending
   useEffect(() => {

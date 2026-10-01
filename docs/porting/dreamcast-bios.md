@@ -29,8 +29,10 @@ are.
   differently.
 - **The pills are flat.** The ROM has the main menu's label pills as models too; the port draws them
   as boxes, because they carry the labels, which are the ROM's strings in its font.
-- **File's controller and memory cards are drawn.** The ROM has them as models as well; the port
-  still draws them as SVGs.
+- **File's and Settings' models are placed by measurement.** The ROM keeps them at the origin of
+  their own space - the BIOS places them in code - so the port fits each to the box the capture puts
+  it in. The memory card's screen, where a save's icon shows, is the upper half of its face; the
+  icon itself is a placeholder.
 - **The sky is procedural.** The BIOS renders its sky and the swirl of cloud below the menu in 3D.
   The port draws a flat reading of what that produces - gradient, drifting clouds, a turning disc of
   cloud - as a shader. The ROM's own 64x64 cloud texture is decoded but not used: tiled flat, it
@@ -55,13 +57,19 @@ are.
   after 80 ms where the console holds a tail. It reads the sequences' volume, pan and modulation
   controllers by assumption rather than from the sound driver. The boot sound is the ROM's stream,
   decoded as it is.
+- **An audio CD wears the ROM's red label.** The recording's disc is a game disc, which carries its
+  own label; an audio CD has none, and which of the ROM's two - red and blue, by region - the BIOS
+  gives one is not in the recording. The port uses the red, the NTSC console's.
+- **A paused disc lies still.** The recording never pauses; the port leaves a paused disc flat,
+  not spinning.
 - **Only heard sounds play.** The ROM's `error` and `sequence-4` are never heard in the recording, so
   a press that changes nothing is silent rather than guessing at one.
 
 ## Not reproduced
 
-- **A disc.** Play with a disc checks and boots it, and Music with an audio CD spins the disc and
-  runs a visualiser. The port has no disc; the ROM's two disc textures are decoded but not drawn.
+- **A game disc.** Play with a disc checks and boots it; the port's Play has none.
+- **The CD player's visualiser,** which the recording shows behind a playing disc, and the music:
+  the port's audio CD has track lengths and nothing to play.
 - **The hidden 3D menu** a Puyo Puyo Fever save unlocks (from 146s in the recording), and the
   screensaver after ten minutes.
 - **Regions.** The PAL BIOS draws the swirl blue; the port is the NTSC menu the recording shows.

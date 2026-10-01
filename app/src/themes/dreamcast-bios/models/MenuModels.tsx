@@ -1,11 +1,11 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useScreen } from '../../../device/ScreenContext'
 import { useWebEffects } from '../../../render/RenderModeProvider'
-import { W, H } from '../layout'
+import { bios } from '../assets'
 import { abs } from '../views/parts'
 import { createSceneGl } from './gl'
-import { drawSceneCpu } from './raster'
-import { poseAt, type ModelData } from './scene'
+import { drawSceneCpu, texels, type Texels } from './raster'
+import { MAIN_ALPHA, MAIN_VIEW, SCREEN, poseAt, type Item, type ModelData } from './scene'
 
 const files = import.meta.glob<ModelData>('../assets/models/*.json', { eager: true, import: 'default' })
 
@@ -20,33 +20,52 @@ export function model(name: string): ModelData {
 export const MAIN_MODELS: readonly ModelData[] = ['controller', 'vmu', 'note', 'clock'].map(model)
 
 /**
- * The main menu's four models, drawn from the BIOS's own geometry, each where the BIOS puts it. The
- * focused one plays the BIOS's own focus motion for it, round and round; the others rest.
+ * A screen's models, drawn from the BIOS's own geometry into one canvas over the whole screen.
+ * `items` gives what to draw `t` seconds in, or at rest when `t` is null; the caller memoises it.
  *
- * The shader is the web-only capability: in fallback mode, or where WebGL does not come up, the
- * same scene is rasterised on the CPU (`raster.ts`), motion and all. Like the sky, this is a render
- * loop rather than a storyboard, so what stands in for settling is the clock - a still draws one
- * frame, every model at rest.
+ * The shader is the web-only capability: in fallback mode, or where WebGL does not come up, the same
+ * items are rasterised on the CPU (`raster.ts`), motion and all. Like the sky, this is a render loop
+ * rather than a storyboard, so what stands in for settling is the clock - a still draws one frame,
+ * at rest. A scene with nothing moving draws once.
+ *
+ * The textures the models' parts name are ROM textures from `assets/bios/`. Each is put in the page
+ * as a hidden image too, so whatever waits for a page's images to load waits for these, and the scene
+ * is drawn once they have.
  */
-export function MenuModels({ focus }: { focus: number }) {
+export function ModelScene({ items, moving }: { items: (t: number | null) => readonly Item[]; moving: boolean }) {
   const { animate } = useScreen()
   const webEffects = useWebEffects()
   const glCanvas = useRef<HTMLCanvasElement>(null)
   const cpuCanvas = useRef<HTMLCanvasElement>(null)
+  const images = useRef(new Map<string, HTMLImageElement>())
   const [glReady, setGlReady] = useState(false)
   const useGl = webEffects && glReady
+  const names = useMemo(
+    () => [...new Set(items(null).flatMap((i) => i.model.parts.flatMap((p) => (p.texture ? [p.texture] : []))))].sort(),
+    [items],
+  )
+  const [loaded, setLoaded] = useState<ReadonlySet<string>>(() => new Set())
+  const ready = names.every((n) => loaded.has(n))
 
   useEffect(() => {
+    if (!ready) return
     const cpu = cpuCanvas.current?.getContext('2d')
-    const scene = webEffects && glCanvas.current ? createSceneGl(glCanvas.current, MAIN_MODELS) : null
+    const models = [...new Set(items(null).map((i) => i.model))]
+    const imgs = new Map(names.map((n) => [n, images.current.get(n)!]))
+    const scene = webEffects && glCanvas.current ? createSceneGl(glCanvas.current, models, imgs) : null
     setGlReady(scene !== null)
+    const cpuTextures = new Map<string, Texels>()
+    if (!scene) for (const [n, img] of imgs) {
+      const px = texels(img)
+      if (px) cpuTextures.set(n, px)
+    }
     const draw = (t: number | null) => {
-      const poses = MAIN_MODELS.map((m, i) => poseAt(m, i === focus ? t : null))
-      if (scene) scene.draw(poses)
-      else if (cpu) drawSceneCpu(cpu, MAIN_MODELS, poses)
+      const list = items(t)
+      if (scene) scene.draw(list)
+      else if (cpu) drawSceneCpu(cpu, list, cpuTextures)
     }
     draw(null)
-    if (!animate) return () => scene?.dispose()
+    if (!animate || !moving) return () => scene?.dispose()
     let raf = 0
     let start: number | null = null
     const tick = (ts: number) => {
@@ -59,13 +78,38 @@ export function MenuModels({ focus }: { focus: number }) {
       cancelAnimationFrame(raf)
       scene?.dispose()
     }
-  }, [webEffects, focus, animate])
+  }, [webEffects, items, moving, animate, ready, names])
 
-  const box = abs({ x: 0, y: 0, w: W, h: H })
+  const box = abs({ x: 0, y: 0, w: SCREEN.w, h: SCREEN.h })
   return (
     <>
-      <canvas ref={glCanvas} width={W} height={H} data-models="gl" style={{ ...box, display: useGl ? 'block' : 'none' }} />
-      <canvas ref={cpuCanvas} width={W} height={H} data-models="cpu" style={{ ...box, display: useGl ? 'none' : 'block' }} />
+      {names.map((n) => (
+        <img
+          key={n}
+          alt=""
+          src={bios(n)}
+          style={{ display: 'none' }}
+          ref={(el) => {
+            if (el) images.current.set(n, el)
+          }}
+          onLoad={() => setLoaded((s) => new Set(s).add(n))}
+        />
+      ))}
+      <canvas ref={glCanvas} width={SCREEN.w} height={SCREEN.h} data-models="gl" style={{ ...box, display: useGl ? 'block' : 'none' }} />
+      <canvas ref={cpuCanvas} width={SCREEN.w} height={SCREEN.h} data-models="cpu" style={{ ...box, display: useGl ? 'none' : 'block' }} />
     </>
   )
+}
+
+/**
+ * The main menu's four models, each where its own transform in the ROM puts it. The focused one plays
+ * the BIOS's own focus motion for it, round and round; the others rest.
+ */
+export function MenuModels({ focus }: { focus: number }) {
+  const items = useCallback(
+    (t: number | null): Item[] =>
+      MAIN_MODELS.map((m, i) => ({ model: m, pose: poseAt(m, i === focus ? t : null), view: MAIN_VIEW, alpha: MAIN_ALPHA })),
+    [focus],
+  )
+  return <ModelScene items={items} moving />
 }

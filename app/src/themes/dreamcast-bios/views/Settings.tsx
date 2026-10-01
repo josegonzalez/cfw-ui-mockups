@@ -16,21 +16,37 @@
  *                strings do; Cancel has none. Choosing a language changes the setting, but the port
  *                carries only the English string table, so the menu stays in English.
  */
-import type { ReactNode } from 'react'
-import { drawn } from '../assets'
+import { useCallback, type ReactNode } from 'react'
 import { BACK, CELL, DIALOG, SETTINGS } from '../layout'
 import { FIELD_CELLS, formatClock, type Clock } from '../library'
 import { CLOCK_CANCEL, CLOCK_SELECT, type Prefs } from '../machine'
 import { PALETTE } from '../palette'
+import { ModelScene, model } from '../models/MenuModels'
+import { fitView, type Item } from '../models/scene'
 import { LANGUAGE_NAMES, S } from '../strings'
-import { ADVANCE, BackButton, DialogBox, Img, Lines, Option, Text, abs } from './parts'
+import { ADVANCE, BackButton, DialogBox, Lines, Option, Text, abs } from './parts'
 
+/** Each row's icon: the ROM's model for it, and the size it is drawn at in `frames/settings.png`. */
 const ICONS = [
-  { name: 'lips', w: 36, h: 22 },
-  { name: 'watch', w: 28, h: 28 },
-  { name: 'speaker', w: 32, h: 40 },
-  { name: 'question', w: 28, h: 40 },
+  { model: model('settings-language'), w: 36, h: 22 },
+  { model: model('settings-clock'), w: 36, h: 36 },
+  { model: model('settings-sound'), w: 32, h: 40 },
+  { model: model('settings-other'), w: 28, h: 40 },
 ] as const
+
+/** The rows' icons, the BIOS's own models, each fitted to its place in its row. */
+function SettingsIcons() {
+  const items = useCallback(
+    (): Item[] =>
+      ICONS.map((icon, i) => {
+        const y = SETTINGS.rows[i]!
+        const box = { x: SETTINGS.icon.x + (SETTINGS.icon.w - icon.w) / 2, y: y + (SETTINGS.rowH - icon.h) / 2, w: icon.w, h: icon.h }
+        return { model: icon.model, ...fitView(icon.model, box), alpha: 1 }
+      }),
+    [],
+  )
+  return <ModelScene items={items} moving={false} />
+}
 
 export function SettingsList({ focus, prefs, clock }: { focus: number; prefs: Prefs; clock: Clock }) {
   const values = [
@@ -44,7 +60,6 @@ export function SettingsList({ focus, prefs, clock }: { focus: number; prefs: Pr
     <>
       <div style={{ ...abs(SETTINGS.adjustBacking), background: PALETTE.row, borderRadius: 8 }} />
       {SETTINGS.rows.map((y, i) => {
-        const icon = ICONS[i]!
         return (
           <div key={i} data-row={i} data-focused={focus === i || undefined}>
             {/* Round at the left, where the icon sits; nearly square at the right, behind the field. */}
@@ -54,10 +69,6 @@ export function SettingsList({ focus, prefs, clock }: { focus: number; prefs: Pr
                 background: PALETTE.row,
                 borderRadius: `${rowH / 2}px 8px 8px ${rowH / 2}px`,
               }}
-            />
-            <Img
-              src={drawn(icon.name)}
-              box={{ x: SETTINGS.icon.x + (SETTINGS.icon.w - icon.w) / 2, y: y + (rowH - icon.h) / 2, w: icon.w, h: icon.h }}
             />
             <Text box={{ x: SETTINGS.labelRight - 200, y: y + (rowH - CELL.h) / 2, w: 200, h: CELL.h }} align="right">
               {S.settings[i]!.trim()}
@@ -73,6 +84,7 @@ export function SettingsList({ focus, prefs, clock }: { focus: number; prefs: Pr
           {S.adjustClock}
         </Field>
       </div>
+      <SettingsIcons />
       <BackButton {...BACK.settings} focused={focus === 5} />
     </>
   )
