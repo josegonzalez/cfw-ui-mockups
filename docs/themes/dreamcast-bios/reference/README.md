@@ -4,7 +4,8 @@ Where each file here came from. Everything was fetched and cut in a container, n
 
 | File | Source |
 | --- | --- |
-| `extract-assets.py` | Decodes the boot ROM's textures, system font and English strings into `app/src/themes/dreamcast-bios/assets/` and `strings-en.txt`. Run it on your own `dc_boot.bin`; the command is at the top of the script |
+| `extract-assets.py` | Decodes the boot ROM's textures, system font, English strings and sounds into `app/src/themes/dreamcast-bios/assets/` and `strings-en.txt`. Run it on your own `dc_boot.bin`; the command is at the top of the script |
+| `bios_sound.py` | Decodes the boot sound and renders the menu's sequences; `extract-assets.py` imports it |
 | `strings-en.txt` | The English string table, as the script reads it out of the ROM, one string a line |
 | `source-notes.md` | Every measured value, and every ROM offset, with where it came from |
 | `frames/*.png` | Frames of the recording, its 4:3 picture cut out of the 16:9 video and scaled to 640x480 |
@@ -13,7 +14,8 @@ Where each file here came from. Everything was fetched and cut in a container, n
 
 `c69qVhS_WOU` on YouTube: the menu on a real console set to English, from power-on through every
 screen, 1080p60, the console's 4:3 picture pillarboxed at x 248-1688. It was fetched with `yt-dlp`
-(format 312) and cut with `ffmpeg`, seeking after the input so each frame is the one at that time:
+(format 312, and format 140 for its audio, which places each sound) and cut with `ffmpeg`, seeking
+after the input so each frame is the one at that time:
 
 ```
 ffmpeg -i full1080.mp4 -ss <time> -frames:v 1 -vf "crop=1440:1080:248:0,scale=640:480:flags=area" <frame>.png
@@ -26,6 +28,7 @@ time here is one read with the command above.
 
 | Frame | Time |
 | --- | --- |
+| `boot-wordmark.png`, `boot-logo.png` | 2.5s, 7.0s |
 | `boot-clock.png`, `boot-clock-set.png` | 11.5s, 28.5s |
 | `main.png` | 33.5s |
 | `no-disc.png` | 37.5s |

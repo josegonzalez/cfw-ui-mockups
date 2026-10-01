@@ -26,6 +26,8 @@ export const MUSIC_PLAY = 3
 export const SOCKETS = 8
 
 export type View =
+  /** Power-on: the logo on grey, while the boot sound plays. It takes no input and moves on by itself. */
+  | { readonly kind: 'boot'; readonly next: View }
   | { readonly kind: 'boot-clock'; readonly focus: number; readonly draft: Clock }
   | { readonly kind: 'main' }
   | { readonly kind: 'no-disc' }
@@ -80,6 +82,8 @@ export interface Seed {
   readonly events?: string
   /** Power on with the clock lost, so the BIOS asks for it first (`frames/boot-clock.png`). */
   readonly firstBoot?: boolean
+  /** Start at power-on, on the logo, rather than on the screen after it. */
+  readonly boot?: boolean
 }
 
 /** The seed alphabet: one letter per button, so a still reads as the presses that pose it. */
@@ -98,8 +102,9 @@ export const LETTERS: Readonly<Record<string, Button>> = {
 }
 
 export function initialState(seed: Seed = {}): State {
+  const first: View = seed.firstBoot ? { kind: 'boot-clock', focus: 0, draft: BOOT_CLOCK } : { kind: 'main' }
   let s: State = {
-    stack: [seed.firstBoot ? { kind: 'boot-clock', focus: 0, draft: BOOT_CLOCK } : { kind: 'main' }],
+    stack: [seed.boot ? { kind: 'boot', next: first } : first],
     main: 0,
     prefs: DEFAULT_PREFS,
     clock: seed.firstBoot ? BOOT_CLOCK : CLOCK,
@@ -135,8 +140,18 @@ export function finishPending(s: State): State {
   return s.pending ? { ...s, stack: s.pending, pending: null } : s
 }
 
-/** Every transition finished: what a still shows, and what the root's clock arrives at. */
+/**
+ * Every transition finished: what a still shows, and what the root's clock arrives at. The boot
+ * logo is not a transition but a screen of its own, held until the root's clock ends it, so a still
+ * posed on it stays on it.
+ */
 export const settle = (s: State): State => finishPending(s)
+
+/** The logo has had its time: the screen after it fades up. */
+export function finishBoot(s: State): State {
+  const v = top(s)
+  return v.kind === 'boot' ? go(s, [v.next]) : s
+}
 
 export const filesOf = (s: State): VmuFile[] => FILES.filter((f) => s.files.includes(f.id))
 export const usedBlocks = (s: State) => filesOf(s).reduce((n, f) => n + f.blocks, 0)
@@ -165,10 +180,22 @@ export function stepClock(c: Clock, field: number, by: number): Clock {
   return { ...c, [f.key]: wrap(c[f.key] + by, f.min, f.max) }
 }
 
+/**
+ * One press. A press that moves nothing - the cursor against an edge, A on an empty socket - returns
+ * the state it was given, the same object, so the root can tell it was a press that did nothing and
+ * make no sound.
+ */
 export function reduce(s: State, button: Button): State {
+  const next = step(s, button)
+  return next === s || JSON.stringify(next) === JSON.stringify(s) ? s : next
+}
+
+function step(s: State, button: Button): State {
   if (s.pending) return s
   const v = top(s)
   switch (v.kind) {
+    case 'boot':
+      return s
     case 'boot-clock':
       return bootClock(s, v, button)
     case 'main':
@@ -385,4 +412,57 @@ function music(s: State, v: Extract<View, { kind: 'music' }>, button: Button): S
   // With no disc in, the transport has nothing to play; only repeat keeps a setting.
   if (button === 'a' && v.focus === MUSIC_STOPS - 1) return { ...s, repeat: ((s.repeat + 1) % 3) as 0 | 1 | 2 }
   return s
+}
+
+/**
+ * The sounds a press can make, named as `extract-assets.py` names the ROM's sequences. Each is one
+ * the reference recording plays where the port does; the ROM's other two are never heard in it,
+ * so nothing here plays them.
+ */
+export type Cue = 'cursor' | 'confirm' | 'back' | 'alert' | 'card-clock'
+
+/** Whether A, here, is the on-screen BACK - which sounds as B does. */
+function onBack(v: View): boolean {
+  switch (v.kind) {
+    case 'settings':
+      return v.focus === SETTINGS_BACK
+    case 'cards':
+    case 'files':
+      return v.focus === 'back'
+    case 'music':
+      return v.focus === 0
+    default:
+      return false
+  }
+}
+
+/**
+ * The sound a press makes, from the state before it and after it (times into the recording, as it
+ * sounds them). A press that changes nothing is silent.
+ *
+ * - The D-pad: the cursor (34.41s; every step of the clock editor, 13.8-28.9s). X and Y, which
+ *   the recording never presses, sound the same.
+ * - A that opens or chooses: confirm (36.65s, 56.17s, 133.59s), including dismissing a box (40.32s).
+ * - B, or A on BACK: back (52.71s, 141.83s).
+ * - Choosing Delete: the alert, as its warning opens (131.52s).
+ * - Opening the memory-card clock box: its own sound (93.45s).
+ */
+export function cueOf(prev: State, next: State, button: Button): Cue | null {
+  if (next === prev) return null
+  if (button === 'b') return 'back'
+  if (button !== 'a') return 'cursor'
+  const from = top(prev)
+  if (onBack(from)) return 'back'
+  const to = next.pending ? next.pending[next.pending.length - 1]! : top(next)
+  if (to.kind === 'delete' && from.kind === 'file-menu') return 'alert'
+  if (to.kind === 'card-clock' && from.kind === 'settings') return 'card-clock'
+  return 'confirm'
+}
+
+/**
+ * The sound a screen makes as it arrives, after the fade to it: the no-disc box's alert, which
+ * follows Play's confirm as the box comes up (36.88s).
+ */
+export function arrivalCue(v: View): Cue | null {
+  return v.kind === 'no-disc' ? 'alert' : null
 }

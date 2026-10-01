@@ -16,6 +16,8 @@ import type { RenderMode } from '../render/RenderModeProvider'
 export interface ViewOverrides {
   readonly animate?: boolean | undefined
   readonly renderMode?: RenderMode | undefined
+  /** `false` mutes a live build. */
+  readonly sound?: boolean | undefined
 }
 
 const ViewOverridesContext = createContext<ViewOverrides>({})
@@ -38,18 +40,20 @@ export function useViewOverrides(): ViewOverrides {
 /**
  * Read the overrides out of a query string.
  *
- * `?still=1` disables motion; `?mode=fallback` selects the degraded renderer. Both are mockup
- * harness controls with no counterpart in any firmware, which is why they are query parameters
- * rather than anything a theme can see.
+ * `?still=1` disables motion; `?mode=fallback` selects the degraded renderer; `?sound=off` mutes
+ * a live build. All are mockup harness controls with no counterpart in any firmware, which is why
+ * they are query parameters rather than anything a theme can see.
  */
 export function parseViewOverrides(search: string): ViewOverrides {
   const params = new URLSearchParams(search)
   const out: ViewOverrides = {}
   const still = params.get('still')
   const mode = params.get('mode')
+  const sound = params.get('sound')
   return {
     ...out,
     ...(still === '1' || still === 'true' ? { animate: false } : {}),
     ...(mode === 'fallback' || mode === 'web' ? { renderMode: mode } : {}),
+    ...(sound === 'off' || sound === '0' ? { sound: false } : {}),
   }
 }

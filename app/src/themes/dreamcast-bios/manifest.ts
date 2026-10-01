@@ -17,6 +17,7 @@ export interface DreamcastScreenDef {
 export const DREAMCAST_BIOS_SCREENS: readonly DreamcastScreenDef[] = [
   { slug: 'main', title: 'Main menu', seed: {} },
   { slug: 'main-settings', title: 'Main menu, Settings', seed: { events: 'rd' } },
+  { slug: 'boot', title: 'Power-on', seed: { boot: true } },
   { slug: 'boot-clock', title: 'First boot, clock', seed: { firstBoot: true } },
   { slug: 'no-disc', title: 'Play, no disc', seed: { events: 'a' } },
   { slug: 'settings', title: 'Settings', seed: { events: 'rda' } },

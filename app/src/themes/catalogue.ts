@@ -320,9 +320,9 @@ export const THEMES: readonly ThemeEntry[] = [
     author: 'Sega',
     kind: 'Console system menu, boot ROM v1.01d',
     summary:
-      'The menu the Dreamcast boots to with no disc in: Play, File, Music and Settings over a sky it renders live, the memory card manager, the CD player and every Settings box. Its textures, its system font and its strings are decoded from the boot ROM itself.',
+      'The menu the Dreamcast boots to with no disc in: power-on, then Play, File, Music and Settings over a sky it renders live, the memory card manager, the CD player and every Settings box. Its textures, its system font, its strings and its sounds are decoded from the boot ROM itself.',
     highlights: [
-      'Textures, font and strings decoded from the boot ROM by a script you run on your own dump',
+      'Textures, font, strings and sounds decoded from the boot ROM by a script you run on your own dump',
       'The system font rebuilt as two faces, fill and outline, stacked as the menu draws them',
       'A live sky as a shader, with the same function drawn on the CPU as its fallback',
     ],
@@ -331,7 +331,7 @@ export const THEMES: readonly ThemeEntry[] = [
     accent: '#e0632a',
     // One look, with nothing to switch between.
     swatches: [],
-    views: 20,
+    views: 21,
     devices: ['dreamcast'],
     fonts: ['The Dreamcast BIOS system font'],
     ported: true,

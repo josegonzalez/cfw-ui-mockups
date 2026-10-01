@@ -10,8 +10,8 @@ export const PALETTE = {
   bar: '#c2bec2',
   /** The date and time in the bar. */
   barInk: '#3a383c',
-  /** The boot screen's grey, before the menu fades up. */
-  boot: '#cbc9cb',
+  /** The power-on screen's grey (`boot-logo.png` at 60,60). */
+  boot: '#cdcdcd',
 
   /** The sky: pale cyan at the top, deep blue at the bottom (`main.png` at 320,80 and 320,470). */
   skyTop: '#bcdbe8',

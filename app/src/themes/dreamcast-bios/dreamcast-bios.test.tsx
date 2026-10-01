@@ -9,6 +9,9 @@ import {
   CLOCK_SELECT,
   MUSIC_PLAY,
   SETTINGS_BACK,
+  arrivalCue,
+  cueOf,
+  finishBoot,
   freeBlocks,
   initialState,
   reduce,
@@ -127,6 +130,17 @@ describe('Dreamcast BIOS machine', () => {
     expect(press(changed, 'b').clock).toEqual(CLOCK)
   })
 
+  it('holds the power-on logo, taking no input, until its clock hands over to the next screen', () => {
+    const boot = initialState({ boot: true })
+    expect(top(boot)).toEqual({ kind: 'boot', next: { kind: 'main' } })
+    // A still posed on it stays on it: the logo is a screen, not a transition to settle.
+    expect(settle(boot)).toBe(boot)
+    expect(reduce(boot, 'a')).toBe(boot)
+    expect(top(settle(finishBoot(boot))).kind).toBe('main')
+    const first = initialState({ boot: true, firstBoot: true })
+    expect(top(settle(finishBoot(first))).kind).toBe('boot-clock')
+  })
+
   it('asks for the clock at first boot, and Select alone carries on to the menu', () => {
     const boot = initialState({ firstBoot: true })
     expect(top(boot)).toMatchObject({ kind: 'boot-clock', focus: 0, draft: BOOT_CLOCK })
@@ -201,12 +215,47 @@ describe('Dreamcast BIOS machine', () => {
   })
 })
 
+describe('Dreamcast BIOS sounds', () => {
+  /** The sound the last of `buttons` makes, after the rest have been pressed. */
+  const cue = (...buttons: Button[]) => {
+    const prev = press(menu(), ...buttons.slice(0, -1))
+    return cueOf(prev, reduce(prev, buttons.at(-1)!), buttons.at(-1)!)
+  }
+
+  it('sounds the cursor, confirm and back as the recording does', () => {
+    expect(cue('right')).toBe('cursor')
+    expect(cue('right', 'down', 'a')).toBe('confirm')
+    expect(cue('right', 'down', 'a', 'b')).toBe('back')
+    // A on the on-screen BACK sounds as B.
+    expect(cue('down', 'a', 'left', 'left', 'left', 'a')).toBe('back')
+    // Every step of the clock editor is the cursor.
+    expect(cue('right', 'down', 'a', 'down', 'a', 'up')).toBe('cursor')
+  })
+
+  it('is silent when a press changes nothing', () => {
+    expect(cue('left')).toBeNull()
+    expect(cue('right', 'a', 'right', 'a')).toBeNull()
+  })
+
+  it('sounds the alert as Delete opens its warning, and its own sound for the memory-card clock', () => {
+    expect(cue('right', 'a', 'a', 'a', 'down', 'a')).toBe('alert')
+    expect(cue('right', 'down', 'a', 'down', 'down', 'down', 'down', 'a')).toBe('card-clock')
+  })
+
+  it("follows Play's confirm with the alert as the no-disc box arrives", () => {
+    expect(cue('a')).toBe('confirm')
+    expect(arrivalCue({ kind: 'no-disc' })).toBe('alert')
+    expect(arrivalCue({ kind: 'main' })).toBeNull()
+  })
+})
+
 describe('Dreamcast BIOS stills', () => {
   it('poses every still on the view its name says', () => {
     const view = (slug: string) => top(initialState(DREAMCAST_BIOS_SCREENS.find((s) => s.slug === slug)!.seed))
     const kinds: Record<string, string> = {
       main: 'main',
       'main-settings': 'main',
+      boot: 'boot',
       'boot-clock': 'boot-clock',
       'no-disc': 'no-disc',
       settings: 'settings',

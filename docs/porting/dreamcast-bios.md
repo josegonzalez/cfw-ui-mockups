@@ -37,11 +37,21 @@ pixels. So are its font and its every string. What cannot be extracted as a pict
 - **How a focused empty socket looks is a guess.** The recording only ever focuses A-1, which holds
   a card; the port brightens an empty socket's outline when it is focused.
 - **Copy stops at the destination picker.** There is one card, so there is nowhere to copy to.
+- **Power-on is approximated.** A red dot writes the wordmark in and traces the swirl; the port
+  wipes the wordmark in and grows a drawn swirl from its centre. The wordmark is the ROM's top-bar
+  texture darkened and scaled nearly three times, so its edges are softer and more stepped than the
+  smooth one the BIOS draws.
+- **The menu's sounds are rendered, not recorded.** The ROM holds them as note sequences, which
+  `bios_sound.py` plays through a model of the sound chip. It has no reverb, and its filter's cutoff
+  is fitted to the recording rather than emulated: the emulator's formula silences the cursor sound
+  after 80 ms where the console holds a tail. It reads the sequences' volume, pan and modulation
+  controllers by assumption rather than from the sound driver. The boot sound is the ROM's stream,
+  decoded as it is.
+- **Only heard sounds play.** The ROM's `error` and `sequence-4` are never heard in the recording, so
+  a press that changes nothing is silent rather than guessing at one.
 
 ## Not reproduced
 
-- **The boot animation.** The swirl drawing itself and the wordmark rising (1-9s) are not built;
-  the live build opens on the main menu, and on the first-boot clock from its own still.
 - **A disc.** Play with a disc checks and boots it, and Music with an audio CD spins the disc and
   runs a visualiser. The port has no disc; the ROM's two disc textures are decoded but not drawn.
 - **The hidden 3D menu** a Puyo Puyo Fever save unlocks (from 146s in the recording), and the
@@ -53,6 +63,9 @@ pixels. So are its font and its every string. What cannot be extracted as a pict
 - `dreamcast-bios.test.tsx` walks the reducer through every screen's buttons and renders every
   still; the e2e suite captures each still in web and fallback mode, runs the compositing guard and
   holds the live build, settled, to the `main` still.
+- Which sound each press makes was matched against the recording's own audio: onsets detected in its
+  audio track and each identified by correlation with the rendered sequences, at the times the
+  theme page lists.
 - Every still was rendered and put side by side with its reference frame at 640x480, and corrected
   until they agree: the text's advance and halo, each box's position and colours, the sky's band.
 - `extract-assets.py` was rerun against the ROM, and its output compared with the committed files.

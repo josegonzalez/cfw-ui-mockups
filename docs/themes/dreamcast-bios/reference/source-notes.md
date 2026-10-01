@@ -31,6 +31,17 @@ are into the recording `c69qVhS_WOU` (see `README.md`); frames are in `frames/`.
   `n`.
 - **BACK focused.** The texture's swirl is its only fully transparent area; focused, the menu fills
   it red, sampled `#df5142` (`frames/cards-back.png`).
+- **Sounds.** A package at `0x1a0000`: a 0x20-byte routine, then (offset, size) pairs at
+  `0x1a0020`, relative to the table, as many as its first offset / 8 - four. They are the sound
+  driver (`SDRV`, "Boot ROM" in its banner), an `SMLT` holding the program bank (`SMPB`) and the
+  sequence bank (`SMSB`, seven sequences), and the boot sound's two channels, `0x2b175` bytes each
+  of 4-bit ADPCM - 353,002 samples, 8.00s at 44.1 kHz. The formats are in `bios_sound.py`'s
+  docstring, after [dakrk/manatools](https://github.com/dakrk/manatools); the envelope arithmetic
+  follows Flycast's `core/hw/aica/sgc_if.cpp`.
+- **Which sound is which.** Onsets in the recording's audio track, identified by correlation with
+  the rendered sequences: the cursor at 34.41s and on every clock-editor step from 13.8s; confirm at
+  29.59s, 36.65s, 40.32s, 56.17s, 103.56s and 133.59s; back at 52.71s, 68.48s and 141.83s; the alert
+  at 36.88s and 131.52s; the memory-card clock at 93.45s. The boot sound starts at 0.47s.
 
 ## Measurements
 

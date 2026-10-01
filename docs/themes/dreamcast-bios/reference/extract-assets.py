@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Decode the textures the Dreamcast boot ROM carries for its menu.
+"""Decode the textures, font, strings and sounds the Dreamcast boot ROM carries for its menu.
 
 The boot ROM (`dc_boot.bin`, 2 MB) stores its menu textures as ordinary PowerVR `PVRT` chunks,
 packed back to back from 0x0728c0. A PVRT chunk is `PVRT`, a u32 length, a pixel-format byte, a
@@ -20,6 +20,10 @@ emboldened - each stroke doubled a pixel to the right - in white, over a dark ha
 all round (`frames/zoom-text.png`). So the font is rebuilt as two TTFs, the bold face and its halo,
 which the port stacks halo first.
 
+The menu's sounds are in the ROM too, from 0x1a0000: the boot jingle as a stereo ADPCM stream, and
+the menu's effects as sequences played through a small bank of looped tones. `bios_sound.py`, beside
+this script, decodes the one and renders the others; its docstring has the formats.
+
 Only a ROM whose hash is listed is accepted, so the names in NAMES keep meaning the same pictures.
 The ROM is not in this repository: run this against your own dump.
 
@@ -33,6 +37,7 @@ import struct
 import sys
 from pathlib import Path
 
+import bios_sound
 from fontTools.fontBuilder import FontBuilder
 from fontTools.pens.ttGlyphPen import TTGlyphPen
 from PIL import Image
@@ -40,6 +45,19 @@ from PIL import Image
 ROM = Path(sys.argv[1] if len(sys.argv) > 1 else '/bios/dc_boot.bin')
 OUT = Path('app/src/themes/dreamcast-bios/assets/bios')
 FONTS = Path('app/src/themes/dreamcast-bios/assets/fonts')
+SOUNDS = Path('app/src/themes/dreamcast-bios/assets/sounds')
+
+# Sequence -> name, by where the reference recording plays each one (times into c69qVhS_WOU, heard
+# in its own audio). The last two are never heard in it, and are written for completeness.
+SEQUENCES = {
+    0: 'cursor',  # every cursor move, and every change in the clock editor: 34.41s, 44.66-51.61s
+    1: 'confirm',  # A opening or choosing: 36.65s (Play), 56.17s (Settings), 133.59s (delete, Yes)
+    2: 'back',  # B, or BACK: 52.71s, 68.48s, 141.83s
+    3: 'alert',  # a box that warns opening: 36.88s (no disc), 131.52s (delete confirm)
+    4: 'sequence-4',  # never heard
+    5: 'card-clock',  # the memory-card clock box opening: 93.45s
+    6: 'error',  # never heard; the name is the one The Sounds Resource's rip gives it
+}
 STRINGS = Path('docs/themes/dreamcast-bios/reference/strings-en.txt')
 
 # The system font (`dc/biosfont.h`): the narrow table, then the wide one, then the Dreamcast icons.
@@ -86,10 +104,12 @@ NAMES: dict[int, str] = {
     0x089B60: 'logo',
 }
 
-# The focused BACK's swirl, sampled from `frames/file-dest.png`.
+# The focused BACK's swirl, sampled from `frames/cards-back.png`.
 BACK_RED = (223, 81, 66, 255)
+# The power-on wordmark's darkening, in percent: the texture's darkest grey, 49, to the capture's 8.
+WORDMARK_DARK = 16
 
-PIXEL = {0:'argb1555', 1: 'rgb565', 2: 'argb4444'}
+PIXEL = {0: 'argb1555', 1: 'rgb565', 2: 'argb4444'}
 POW2 = {8, 16, 32, 64, 128, 256, 512, 1024}
 
 
@@ -230,6 +250,9 @@ def build_font(glyphs: dict[int, Pixels], family: str, path: Path) -> None:
     fb.setupNameTable({'familyName': family, 'styleName': 'Regular'})
     fb.setupOS2(sTypoAscender=upm, sTypoDescender=0, sTypoLineGap=0, usWinAscent=upm, usWinDescent=0)
     fb.setupPost()
+    # The head table carries its build time; pin it, so the same ROM always builds the same bytes.
+    fb.font['head'].created = fb.font['head'].modified = 0
+    fb.font.recalcTimestamp = False
     path.parent.mkdir(parents=True, exist_ok=True)
     fb.save(str(path))
 
@@ -269,10 +292,25 @@ def main() -> None:
     red.alpha_composite(back)
     red.save(OUT / 'back-focus.png', optimize=True)
 
+    # Power-on draws the wordmark near-black on grey (`frames/boot-logo.png`); the texture is the
+    # top bar's grey one. Its antialiasing is in its greys, so it is darkened, not flattened.
+    mark = Image.open(OUT / 'wordmark.png').convert('RGBA')
+    px = mark.load()
+    for y in range(mark.height):
+        for x in range(mark.width):
+            r, g, b, a = px[x, y]
+            px[x, y] = (r * WORDMARK_DARK // 100, g * WORDMARK_DARK // 100, b * WORDMARK_DARK // 100, a)
+    mark.save(OUT / 'wordmark-dark.png', optimize=True)
+
+    SOUNDS.mkdir(parents=True, exist_ok=True)
+    (SOUNDS / 'boot.wav').write_bytes(bios_sound.boot_sound(data))
+    for i, wav in bios_sound.menu_sounds(data).items():
+        (SOUNDS / f'{SEQUENCES.get(i, f"sequence-{i}")}.wav').write_bytes(wav)
+
     glyphs = font_glyphs(data)
     build_font({c: bold(pixels(g)) for c, g in glyphs.items()}, 'Dreamcast BIOS Fill', FONTS / 'DreamcastBiosFill.ttf')
     build_font({c: halo(pixels(g)) for c, g in glyphs.items()}, 'Dreamcast BIOS Edge', FONTS / 'DreamcastBiosEdge.ttf')
-    print(f'{found} textures and {len(glyphs)} glyphs from boot ROM {KNOWN[digest]}')
+    print(f'{found} textures, {len(glyphs)} glyphs and {len(SEQUENCES) + 1} sounds from boot ROM {KNOWN[digest]}')
 
 
 if __name__ == '__main__':

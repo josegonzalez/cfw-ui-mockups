@@ -135,3 +135,12 @@ export const MUSIC = {
   digits: { y: 132, advance: 29, trackPitch: 46 },
   buttons: { cx: [185, 275, 365, 455, 545], cy: 408, w: 84, h: 40 },
 } as const
+
+/**
+ * Power-on (`boot-logo.png`): the swirl, and the ROM's wordmark texture at 2.88 times its 128x32 -
+ * its ink runs from texel 30 to 123, which lands "Dreamcast" on the capture's x 174 to 445.
+ */
+export const BOOT = {
+  swirl: { x: 230, y: 130, w: 180, h: 160 },
+  wordmark: { x: 88, y: 277, w: 369, h: 92 },
+} as const

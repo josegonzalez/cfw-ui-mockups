@@ -99,7 +99,11 @@ export interface AnimationSpec {
 export interface Storyboard {
   /** Loops the whole group, rather than any single track. */
   readonly repeat?: Repeat
-  /** Carried from the source for fidelity. Never played - these are silent mockups. */
+  /**
+   * Carried from the source for fidelity, and not played: the files it names are not in the repo.
+   * A theme that does play sound derives it from its own state and plays it through
+   * `audio/SoundProvider`, not from here.
+   */
   readonly sound?: string
   readonly animations: readonly AnimationSpec[]
 }

@@ -1,4 +1,5 @@
 import type { CSSProperties, ReactNode } from 'react'
+import { SoundProvider } from '../audio/SoundProvider'
 import { InputProvider } from '../input/InputProvider'
 import { RenderModeProvider, type RenderMode } from '../render/RenderModeProvider'
 import { ButtonCluster, Grip } from './ButtonCluster'
@@ -23,8 +24,10 @@ export interface DeviceFrameProps {
    * resting value, which is how a static snapshot is produced - not a separate build.
    */
   readonly animate?: boolean
-  /** Whether the keyboard and on-screen buttons are live. */
+  /** Whether the keyboard and on-screen buttons are live. A live build also plays its sounds. */
   readonly interactive?: boolean
+  /** `false` mutes a live build; a still is always silent. */
+  readonly sound?: boolean
   readonly renderMode?: RenderMode
   /** Overrides the device's default viewing zoom. Never visible inside the screen. */
   readonly scale?: number
@@ -68,6 +71,7 @@ export function DeviceFrame({
   animate,
   interactive = true,
   renderMode,
+  sound,
   scale,
   bare = false,
   children,
@@ -80,6 +84,7 @@ export function DeviceFrame({
   const overrides = useViewOverrides()
   const motion = animate ?? overrides.animate ?? true
   const mode = renderMode ?? overrides.renderMode ?? 'web'
+  const audible = interactive && (sound ?? overrides.sound ?? true)
 
   const info = getDevice(device)
   const shell = info.shell
@@ -122,40 +127,42 @@ export function DeviceFrame({
     <RenderModeProvider mode={mode}>
       <ScreenProvider device={device} animate={motion}>
         <InputProvider enabled={interactive}>
-          {bare ? (
-            screen
-          ) : (
-            <div className="device-viewport" style={viewportStyle} data-device={device}>
-              <div className="device" data-layout={shell.layout}>
-                {shell.layout === 'flanking' ? (
-                  <>
-                    <Grip side="left" shell={shell} />
-                    {screen}
-                    <Grip side="right" shell={shell} />
-                  </>
-                ) : shell.layout === 'chin' ? (
-                  <>
-                    {screen}
-                    <ButtonCluster shell={shell} />
-                  </>
-                ) : shell.layout === 'clamshell' ? (
-                  <>
-                    <ClamshellBody />
-                    <Grip side="left" shell={shell} />
-                    {screen}
-                    <Grip side="right" shell={shell} />
-                  </>
-                ) : (
-                  /*
-                   * A console draws its output to a television, so there is nothing to attach a
-                   * cluster to. The buttons its hint pills name are on a controller somewhere off
-                   * screen, and drawing one here would be inventing hardware.
-                   */
-                  screen
-                )}
+          <SoundProvider enabled={audible}>
+            {bare ? (
+              screen
+            ) : (
+              <div className="device-viewport" style={viewportStyle} data-device={device}>
+                <div className="device" data-layout={shell.layout}>
+                  {shell.layout === 'flanking' ? (
+                    <>
+                      <Grip side="left" shell={shell} />
+                      {screen}
+                      <Grip side="right" shell={shell} />
+                    </>
+                  ) : shell.layout === 'chin' ? (
+                    <>
+                      {screen}
+                      <ButtonCluster shell={shell} />
+                    </>
+                  ) : shell.layout === 'clamshell' ? (
+                    <>
+                      <ClamshellBody />
+                      <Grip side="left" shell={shell} />
+                      {screen}
+                      <Grip side="right" shell={shell} />
+                    </>
+                  ) : (
+                    /*
+                     * A console draws its output to a television, so there is nothing to attach a
+                     * cluster to. The buttons its hint pills name are on a controller somewhere off
+                     * screen, and drawing one here would be inventing hardware.
+                     */
+                    screen
+                  )}
+                </div>
               </div>
-            </div>
-          )}
+            )}
+          </SoundProvider>
         </InputProvider>
       </ScreenProvider>
     </RenderModeProvider>

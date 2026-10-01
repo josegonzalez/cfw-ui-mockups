@@ -21,6 +21,12 @@ export const MOTION = {
    * The period is an estimate: the turn is slow and small, and 20 frames a second does not pin it.
    */
   rock: { period: 1200, narrow: 0.86 },
+  /**
+   * Power-on, on grey (`frames/boot-logo.png`): the wordmark is written in left to right (1.5-4s,
+   * "Dr" at 2s and "Dreamc" at 3s), the swirl drawn after it (4.8-6s), and the whole held until
+   * the screen after it takes over (9s). The boot sound starts at 0.47s, heard in the recording.
+   */
+  boot: { sound: 470, wordmark: { begin: 1500, duration: 2500 }, swirl: { begin: 4800, duration: 1200 }, hold: 9000 },
 } as const
 
 /** The focused blob's yellow layer: on, off, repeating. A still shows it on. */

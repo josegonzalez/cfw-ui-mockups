@@ -25,9 +25,13 @@ function ChromeKeys({ onAction }: { onAction: (action: string) => void }) {
   return null
 }
 
-/** The live build. The panel seeds the menu and then stands back. */
+/**
+ * The live build. The panel seeds the menu and then stands back; it also mutes it, since a reader
+ * may want the screens without the BIOS's sounds.
+ */
 export function DreamcastBiosInteractive({ device }: { device: DeviceSlug }) {
   const [screen, setScreen] = useState(DEFAULT_SCREEN)
+  const [sound, setSound] = useState(true)
   const onAction = useCallback((action: string) => setScreen((prev) => applyChromeAction(prev, action)), [])
   const def = DREAMCAST_BIOS_SCREENS.find((s) => s.slug === screen) ?? DREAMCAST_BIOS_SCREENS[0]!
   const groups: SubsetGroup[] = [
@@ -38,10 +42,19 @@ export function DreamcastBiosInteractive({ device }: { device: DeviceSlug }) {
       options: DREAMCAST_BIOS_SCREENS.map((s) => ({ value: s.slug, label: s.title })),
       onSelect: (value) => setScreen(value),
     },
+    {
+      title: 'Sound',
+      current: sound ? 'on' : 'off',
+      options: [
+        { value: 'on', label: 'On' },
+        { value: 'off', label: 'Off' },
+      ],
+      onSelect: (value) => setSound(value === 'on'),
+    },
   ]
   return (
     <>
-      <DeviceFrame device={device}>
+      <DeviceFrame device={device} sound={sound}>
         <ChromeKeys onAction={onAction} />
         <DreamcastBios key={def.slug} {...def.seed} />
       </DeviceFrame>

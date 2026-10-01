@@ -1,12 +1,13 @@
 # Dreamcast BIOS
 
 Mockups of the menu the Sega Dreamcast boots to with no disc in, boot ROM v1.01d, on its 640x480
-video output. The main menu's four items over a sky the BIOS renders live; Play with no disc; the
-memory card manager; the CD player; Settings and every box it opens; and the clock the BIOS asks
-for when its battery has run down. Asked for in issue #14.
+video output. Power-on; the main menu's four items over a sky the BIOS renders live; Play with no
+disc; the memory card manager; the CD player; Settings and every box it opens; and the clock the
+BIOS asks for when its battery has run down - with the BIOS's own sounds. Asked for in issue #14.
 
 - Source: none - the BIOS is closed. Built from the boot ROM itself, which carries the menu's
-  textures, its system font and its strings, and from a recording of the menu on a real console
+  textures, its system font, its strings and its sounds, and from a recording of the menu on a real
+  console
 - Everything measured, and where from: [`reference/source-notes.md`](dreamcast-bios/reference/source-notes.md)
 - Where the reference material came from: [`reference/README.md`](dreamcast-bios/reference/README.md)
 - What changed in the React port: [`porting/dreamcast-bios.md`](../porting/dreamcast-bios.md)
@@ -15,13 +16,14 @@ Implemented at `app/src/themes/dreamcast-bios/`. Mode: **reproduce** throughout.
 
 ## Screens
 
-The primary deliverable is the interactive route, which opens on the main menu. 20 stills are
-provided, each posed by pressing buttons from power-on.
+The primary deliverable is the interactive route, which opens on the main menu; start it from
+Power-on to hear the boot sound. 21 stills are provided, each posed by pressing buttons from
+power-on.
 
 | Screen | Stills |
 | --- | --- |
 | Main menu | `main`, `main-settings` |
-| First boot | `boot-clock` |
+| Power-on | `boot`, `boot-clock` |
 | Play | `no-disc` |
 | Settings | `settings`, `settings-language`, `settings-clock`, `settings-sound`, `settings-auto-start`, `settings-card-clock`, `settings-cards-set` |
 | File | `file-cards`, `file-list`, `file-menu`, `file-all-menu`, `file-delete`, `file-deleted`, `file-destination` |
@@ -45,6 +47,10 @@ user supplies, refuses any ROM whose hash it does not know, and writes:
 - **The strings.** The English string table, from `0x323b8`, into
   [`strings-en.txt`](dreamcast-bios/reference/strings-en.txt). Every word on every screen is one
   of these, byte for byte, escapes and all.
+- **The sounds.** A package from `0x1a0000` holds the boot sound as a stereo stream of the sound
+  chip's 4-bit ADPCM, decoded as it is, and the menu's seven effects as note sequences over a bank
+  of tiny looped tones, which [`bios_sound.py`](dreamcast-bios/reference/bios_sound.py) renders
+  through a small model of the chip - its envelopes, filter and pan, without its reverb.
 
 The 3D models on the main menu - the controller, the memory card, the note and the alarm clock -
 are geometry in the ROM, not textures, and are redrawn.
@@ -72,6 +78,7 @@ lays out 1:1 in it with nothing inset. Every box is measured from the reference 
 | The next screen fades up | 100 ms | 36.9-37.0s |
 | A focused option's blob: yellow, then green | 200 ms each | 37.05-37.85s |
 | The focused model turns one way and the other | about 1200 ms | 36.0-36.65s |
+| Power-on: the wordmark written in, then the swirl drawn, then held | 1.5-4s, 4.8-6s, to 9s | 0-9s |
 
 The sky never stops: screens come and go over it. It is a shader, with the same function drawn on
 the CPU at a quarter of the resolution as its fallback; a still draws it at t = 0.
@@ -85,6 +92,24 @@ magenta for Settings, orange for Play, green for File.
 ## Fonts
 
 The BIOS system font, decoded from the ROM. Nothing stands in for it.
+
+## Sound
+
+Each press makes the sound the recording's own audio track has it make; a press that changes
+nothing is silent.
+
+| Sound | When | Heard at |
+| --- | --- | --- |
+| `cursor` | the D-pad, and every step of the clock editor | 34.41s, 13.8-28.9s |
+| `confirm` | A opening, choosing or dismissing | 36.65s, 40.32s, 56.17s |
+| `back` | B, or A on BACK | 52.71s, 141.83s |
+| `alert` | a warning box opening: no disc, after Play's confirm; Delete's confirmation | 36.88s, 131.52s |
+| `card-clock` | the memory-card clock box opening | 93.45s |
+| `boot` | power-on, 0.47s in | 0.47s |
+
+The ROM's two other sequences, `error` and `sequence-4`, are never heard in the recording, so
+nothing plays them. Only the live build makes sound; the panel's Sound switch, or `?sound=off`,
+mutes it.
 
 ## Input map
 
@@ -102,7 +127,7 @@ BACK, drawn on the screens that have one, does what B does.
 
 ## Assets
 
-`bios/` and `fonts/` are decoded from the boot ROM; `drawn/` is drawn for the port. Provenance is in
+`bios/`, `fonts/` and `sounds/` are decoded from the boot ROM; `drawn/` is drawn for the port. Provenance is in
 `app/src/themes/dreamcast-bios/assets/SOURCE.md`.
 
 ## Files
@@ -110,11 +135,11 @@ BACK, drawn on the screens that have one, does what B does.
 | File | Job |
 | --- | --- |
 | `index.tsx` | the root: state, the clock that finishes a screen's fade, the sky, the screen and the dialog over it |
-| `machine.ts` | the view stack and every button as a pure reducer |
+| `machine.ts` | the view stack and every button as a pure reducer, and the sound each press makes |
 | `layout.ts`, `palette.ts`, `motion.ts` | geometry, colours and durations, each with where it was measured |
 | `library.ts`, `strings.ts`, `assets.ts` | the clock, the saves, the ROM's strings and asset lookup |
 | `background/` | the sky: `sky.ts` holds the function in TypeScript and GLSL, `index.tsx` the render loop |
-| `views/` | `Main`, `NoDisc`, `Settings`, `File`, `Music`, and `parts` |
+| `views/` | `Boot`, `Main`, `NoDisc`, `Settings`, `File`, `Music`, and `parts` |
 | `manifest.ts`, `routes.tsx`, `Interactive.tsx` | the stills and the live build |
 
 No widget from the shared kit is used. The nearest are the list and dialog widgets, but the BIOS's
@@ -123,9 +148,9 @@ that would mean widening a widget until it stopped saying anything else.
 
 ## How it is checked
 
-- `dreamcast-bios.test.tsx` walks the machine through every screen's A and B, the grid, the clock
-  editor, deleting a save and the whole card, and the transport's repeat; checks the string escapes
-  and the Shift-JIS comments; and renders every still.
+- `dreamcast-bios.test.tsx` walks the machine through power-on and every screen's A and B, the
+  grid, the clock editor, deleting a save and the whole card, and the transport's repeat; checks the
+  sound each press makes, the string escapes and the Shift-JIS comments; and renders every still.
 - The usual e2e suite captures each still, web and fallback, runs the compositing guard, and holds
   the live build, settled, to the `main` still.
 - The stills were compared by eye, side by side with the frames in `reference/frames/`.

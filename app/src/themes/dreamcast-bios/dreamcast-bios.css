@@ -20,9 +20,12 @@
   isolation: isolate;
 }
 
+/* The PowerVR filters every texture bilinearly, so the ROM's textures are smooth when scaled, not
+   blocky as the screen's default is for pixel art. */
 .dreamcast-bios img {
   display: block;
   user-select: none;
+  image-rendering: auto;
 }
 
 .dc-text {
