@@ -16,6 +16,6 @@ test('gallery loads without console errors', async ({ page }) => {
 
   await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
   // Preview art is the one thing on this page that loads over the network.
-  await expect(page.locator('.gal-card__img').first()).toBeVisible()
+  await expect(page.locator('.gal-set__img').first()).toBeVisible()
   expect(errors).toEqual([])
 })

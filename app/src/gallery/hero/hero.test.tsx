@@ -8,7 +8,7 @@ import { catalogueTotals } from '../../themes/catalogue'
 
 function mountShowcase() {
   return render(
-    <DeviceFrame device="rg35xx" animate={false} interactive={false}>
+    <DeviceFrame device="rg40xx" animate={false} interactive={false}>
       <DeviceShowcase />
     </DeviceFrame>,
   )
@@ -26,6 +26,12 @@ describe('hero', () => {
   it('renders a real device frame rather than a picture of one', () => {
     const { container } = render(<Landing />)
     expect(container.querySelector('.hero__stage .screen')).not.toBeNull()
+  })
+
+  it('draws a horizontal handheld, with grips either side of the panel', () => {
+    const { container } = render(<Landing />)
+    expect(container.querySelector('.hero__stage [data-device="rg40xx"]')).not.toBeNull()
+    expect(container.querySelector('.hero__stage .device')).toHaveAttribute('data-layout', 'flanking')
   })
 
   it('does not let the frame capture the keyboard', () => {

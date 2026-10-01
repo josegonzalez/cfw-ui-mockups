@@ -1,6 +1,14 @@
 import { describe, expect, it } from 'vitest'
 import { SCREEN_MANIFEST, screenId, type ScreenManifestEntry } from './manifest'
-import { facetSummary, sameTypeElsewhere, screensFor, viewsHref, viewsTargetFromHash } from './views'
+import { SCREEN_TYPES } from './taxonomy'
+import {
+  coverage,
+  facetSummary,
+  sameTypeElsewhere,
+  screensFor,
+  viewsHref,
+  viewsTargetFromHash,
+} from './views'
 
 function entry(theme: string, device: string, screen: string): ScreenManifestEntry {
   const found = SCREEN_MANIFEST.find(
@@ -85,5 +93,28 @@ describe('sameTypeElsewhere', () => {
 
   it('offers nothing from a live build', () => {
     expect(sameTypeElsewhere(entry('example-cfw', 'rg35xx', 'interactive'))).toEqual([])
+  })
+})
+
+describe('coverage', () => {
+  it('has a column for every screen type', () => {
+    expect([...coverage().keys()].sort()).toEqual(Object.keys(SCREEN_TYPES).sort())
+  })
+
+  it("marks exactly the sets a type's comparison shows", () => {
+    for (const [slug, byTheme] of coverage()) {
+      expect([...byTheme.keys()], slug).toEqual(facetSummary('type', slug).themes)
+    }
+  })
+
+  it('points each cell at the first screen the comparison shows for that set', () => {
+    for (const [slug, byTheme] of coverage()) {
+      for (const [theme, cell] of byTheme) {
+        const first = screensFor('type', slug).find((s) => s.theme === theme)!
+        expect(screenId(cell), `${theme} ${slug}`).toBe(screenId(first))
+        expect(cell.interactive).toBe(false)
+        expect(cell.types).toContain(slug)
+      }
+    }
   })
 })

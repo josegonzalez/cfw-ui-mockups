@@ -201,3 +201,15 @@
     justify-self: center;
   }
 }
+
+/*
+ * The landscape body is about 565px wide at the frame's scale, and as the one fixed-width thing in
+ * a single-column grid it stretched that column past a phone's width, clipping the headline and
+ * the stat row along with it. `zoom` rather than `transform`, because zoom shrinks the box the
+ * grid sizes the column from, where a transform shrinks only what is painted.
+ */
+@media (max-width: 640px) {
+  .hero__stage {
+    zoom: 0.55;
+  }
+}

@@ -1,6 +1,6 @@
 import { useState, type CSSProperties } from 'react'
 import { DEVICES } from '../device/devices'
-import { THEMES } from '../themes/catalogue'
+import { themeAccent, themeName } from '../themes/catalogue'
 import { screenId } from '../themes/manifest'
 import { ROUTES } from '../themes/registry'
 import { findRoute } from '../routes'
@@ -12,23 +12,12 @@ import './gallery.css'
 /** Tiles are a fixed width so a still's scale is known before it is laid out. */
 const TILE_WIDTH = 288
 
-function themeName(slug: string): string {
-  return THEMES.find((t) => t.slug === slug)?.name ?? slug
-}
-
-function themeAccent(slug: string): string {
-  return THEMES.find((t) => t.slug === slug)?.accent ?? '#4cc9f0'
-}
-
 export interface FacetCardProps {
   readonly facet: Facet
   readonly slug: string
 }
 
-/**
- * One term as a card: what it means, which sets have it, and how many screens. Shared by the
- * views index and the landing page, so the two entry points say the same thing.
- */
+/** One term as a card: what it means, which sets have it, and how many screens. */
 export function FacetCard({ facet, slug }: FacetCardProps) {
   const term = facetTerms(facet)[slug]!
   const summary = facetSummary(facet, slug)

@@ -120,7 +120,8 @@ narrowly.
 6. List the screens in `manifest.ts` and mount them in `routes.tsx`. Tag every static screen with
    its `types` and `elements` from [views.md](../views.md), and give the live build `LIVE_TAGS`.
 7. Register the theme's routes in `app/src/themes/registry.ts`.
-8. Add it to `app/src/themes/manifest.ts` and to the catalogue in `app/src/themes/catalogue.ts`.
+8. Add it to `app/src/themes/manifest.ts` and to the catalogue in `app/src/themes/catalogue.ts`,
+   with the `group` from `THEME_GROUPS` that the landing page's filter puts it under.
 9. Copy this page to `docs/themes/<slug>.md` and fill it in, and record every deviation from the
    source in `docs/porting/<slug>.md`.
 10. Run `npm run test:e2e:update` to write the new screens' baselines, then look at them.

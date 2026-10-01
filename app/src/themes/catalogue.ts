@@ -25,12 +25,31 @@ import exampleCfwPreview from '../assets/previews/example-cfw.png'
  * Preview art is captured from the mockups by `e2e/previews.spec.ts` rather than drawn, so a
  * preview cannot flatter a screen that no longer looks like that.
  */
+
+/**
+ * What sort of thing a set reproduces, for the landing page's filter.
+ *
+ * Coarser than `kind`, which is free text: a theme is skinned onto someone else's frontend, a
+ * launcher is a frontend of its own, firmware is the whole OS, and a console menu is a system
+ * menu from a console that ships one.
+ */
+export const THEME_GROUPS = {
+  theme: 'Themes',
+  launcher: 'Launchers',
+  firmware: 'Firmware',
+  'console-menu': 'Console menus',
+  scaffold: 'Scaffold',
+} as const
+
+export type ThemeGroup = keyof typeof THEME_GROUPS
+
 export interface ThemeEntry {
   readonly slug: ThemeSlug
   readonly name: string
   /** Who made the firmware theme this reproduces. Absent for the fictional scaffold. */
   readonly author?: string
   readonly kind: string
+  readonly group: ThemeGroup
   readonly summary: string
   /** The two or three things that make this set distinctive. */
   readonly highlights: readonly string[]
@@ -56,6 +75,7 @@ export const THEMES: readonly ThemeEntry[] = [
     name: 'Elementerial',
     author: 'mluizvitor',
     kind: 'EmulationStation theme',
+    group: 'theme',
     summary:
       'Built around Android TV, with Material Design principles and the elementary OS palette. Eight ways to look at the same library, from a plain text list to a full-bleed cover carousel.',
     highlights: [
@@ -78,6 +98,7 @@ export const THEMES: readonly ThemeEntry[] = [
     name: 'PlayStation X',
     author: 'pajarorrojo',
     kind: 'Batocera EmulationStation theme',
+    group: 'theme',
     summary:
       'A reproduction of the PS3, PS4 and PS5 interfaces on a handheld, down to the character cutouts and the drifting background. The most animated set in the repo by a wide margin.',
     highlights: [
@@ -101,6 +122,7 @@ export const THEMES: readonly ThemeEntry[] = [
     name: 'Vitro Launcher',
     author: 'KevDoy',
     kind: 'Love2D launcher for muOS',
+    group: 'launcher',
     summary:
       'A home screen rather than a game browser. Three screens float on a live animated background, switched with the shoulder buttons through a frosted glass nav pill.',
     highlights: [
@@ -123,6 +145,7 @@ export const THEMES: readonly ThemeEntry[] = [
     name: 'NextUI',
     author: 'the N64FlashcartMenu project',
     kind: 'Nintendo 64 flashcart menu theme',
+    group: 'theme',
     summary:
       'A flashcart menu for the Nintendo 64, drawn to a television rather than a handheld screen. It borrows its look and its palette format from LoveRetro’s NextUI firmware, so palettes made for a handheld drop straight in.',
     highlights: [
@@ -147,6 +170,7 @@ export const THEMES: readonly ThemeEntry[] = [
     name: 'slot',
     author: 'BrandonKowalski',
     kind: 'Bespoke GBA frontend',
+    group: 'launcher',
     summary:
       'A single-system frontend for the Anbernic RG SP. Games are a carousel of cartridges; pick one and it is inserted into the slot, falling to the lip before the mechanism takes it.',
     highlights: [
@@ -170,6 +194,7 @@ export const THEMES: readonly ThemeEntry[] = [
     name: 'SimpleOS',
     author: 'boorngos',
     kind: 'DS frontend for the RG DS',
+    group: 'launcher',
     summary:
       'An overlay on Anbernic Linux that turns the RG DS into a DSi-style DS machine. A game grid on the bottom panel, the highlighted title on the top, and a quick menu inside DraStic that also switches between games.',
     highlights: [
@@ -193,6 +218,7 @@ export const THEMES: readonly ThemeEntry[] = [
     name: 'TortOS',
     author: 'ericreinsmidt',
     kind: 'Custom firmware for the TrimUI Brick',
+    group: 'firmware',
     summary:
       'A launcher that is a shelf: a coverflow of consoles, then of one console\'s games, that can be stood on end or folded into a cube. Every other screen - settings, game details, achievements, Muse the music player - is one panel drawn over it.',
     highlights: [
@@ -216,6 +242,7 @@ export const THEMES: readonly ThemeEntry[] = [
     name: 'NeoStation',
     author: 'misobadev',
     kind: 'Emulation frontend for Android, Linux, Windows and macOS',
+    group: 'launcher',
     summary:
       'A Flutter frontend laid out on a 640x480 design canvas and scaled to the screen. A tab bar of library, search, cloud saves, achievements, scraper, RomM and settings over a systems grid, with a games list whose details card carries art, game info and RetroAchievements.',
     highlights: [
@@ -238,6 +265,7 @@ export const THEMES: readonly ThemeEntry[] = [
     name: 'DS Style',
     author: 'FrankieT19',
     kind: 'Launcher for the Anbernic RG SP stock OS',
+    group: 'launcher',
     summary:
       'A Nintendo DS-inspired launcher, first made for the GBA, drawn at the GBA\'s 240x160 and shown at exactly 3x. A home screen of a recent game, Games and Apps, then lists and carousels of systems and games, all in an 8x12 bitmap font.',
     highlights: [
@@ -260,6 +288,7 @@ export const THEMES: readonly ThemeEntry[] = [
     name: 'Wii Menu',
     author: 'Nintendo',
     kind: 'Console system menu, System Menu 4.3U',
+    group: 'console-menu',
     summary:
       'The Wii\'s own menu as System Menu 4.3U draws it: four pages of channels in a 4x3 grid over a seven-segment clock, channel previews that grow out of their slot, the HOME Menu, Wii Settings, the SD Card Menu and the Wii Message Board. Built from captures of the console and the WM4K texture pack.',
     highlights: [
@@ -283,6 +312,7 @@ export const THEMES: readonly ThemeEntry[] = [
     name: 'spruceOS',
     author: 'spruceUI',
     kind: 'Custom firmware, with its own launcher PyUI',
+    group: 'firmware',
     summary:
       'spruceOS\'s launcher, PyUI, in its default SPRUCE theme, on every device spruceOS runs on that has a body here - seven panels from 640x480 to 1280x720. A main menu of four icons, a grid of systems, game lists in four views, Apps, Settings and the Game Switcher.',
     highlights: [
@@ -319,6 +349,7 @@ export const THEMES: readonly ThemeEntry[] = [
     name: 'Dreamcast BIOS',
     author: 'Sega',
     kind: 'Console system menu, boot ROM v1.01d',
+    group: 'console-menu',
     summary:
       'The menu the Dreamcast boots to with no disc in: power-on, then Play, File, Music and Settings over a sky it renders live, the memory card manager, the CD player and every Settings box. Its textures, its system font, its strings and its sounds are decoded from the boot ROM itself.',
     highlights: [
@@ -341,6 +372,7 @@ export const THEMES: readonly ThemeEntry[] = [
     slug: 'example-cfw',
     name: 'Example OS',
     kind: 'Scaffold reference',
+    group: 'scaffold',
     summary:
       'A fictional launcher, and the template for adding a real one. The smallest complete theme: two screens, one palette, no assets, and the only set that navigates between screens rather than swapping views in place.',
     highlights: [
@@ -360,6 +392,14 @@ export const THEMES: readonly ThemeEntry[] = [
     docPath: 'docs/themes/example-cfw.md',
   },
 ]
+
+export function themeName(slug: string): string {
+  return THEMES.find((t) => t.slug === slug)?.name ?? slug
+}
+
+export function themeAccent(slug: string): string {
+  return THEMES.find((t) => t.slug === slug)?.accent ?? '#4cc9f0'
+}
 
 /** Totals for the landing page, derived so they cannot drift from the catalogue. */
 export function catalogueTotals() {

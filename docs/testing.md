@@ -59,8 +59,9 @@ and the table in the device registry document.
 
 **The view vocabulary.** That every static screen has a type and the live build has none, that a
 screen is tagged the same on every device, that every term is used by some screen and documented
-in [views.md](views.md), and that the lookups the views page and the viewer bar make agree with
-the manifest (`taxonomy.test.ts`, `views.test.ts`).
+in [views.md](views.md), and that the lookups the views page, the viewer bar and the landing page's coverage matrix make agree
+with the manifest (`taxonomy.test.ts`, `views.test.ts`). Every catalogue group is used by some
+set, so no filter chip empties the page (`catalogue.test.ts`).
 
 **Portability discipline.** That the widget registry, the documentation pages and the stories
 cover the same set, and that any widget declaring a web-only effect also declares a fallback.
@@ -110,9 +111,9 @@ way and none of them found one any other way.
 | `compositing.spec.ts` | Nothing opaque covers the content - and that the check can fail |
 | `ds-style-reference.spec.ts` | Every DS Style still against a frame the launcher itself rendered, pixel for pixel - and that the check can fail |
 | `interaction.spec.ts` | Cursor traces through carousel, list and grid, plus the hold gestures |
-| `screens.spec.ts` | Zero console errors, something drawn inside the theme's root (or a root marked `data-screen-off`, for a screen dark on the device), controls inside the body, and every screen reachable from the landing page or a views page |
+| `screens.spec.ts` | Zero console errors, something drawn inside the theme's root (or a root marked `data-screen-off`, for a screen dark on the device), controls inside the body, every screen reachable from the landing page or a views page, and every link in the landing page's coverage matrix opening a screen or a comparison |
 | `views.spec.ts` | Every views page links its screens, every still on a crowded comparison has painted pixels and no WebGL context was dropped - and that the check can fail - and the viewer's "Same view in" jumps between sets |
-| `previews.spec.ts` | The landing page's card art, captured from the routes themselves - opt-in with `UPDATE_PREVIEWS=1`, since it writes committed files |
+| `previews.spec.ts` | The landing page's tile art, captured from the routes themselves - opt-in with `UPDATE_PREVIEWS=1`, since it writes committed files |
 
 The baselines are the whole regression gate. There is no A/B comparison against a prior
 implementation any more: the original vanilla-JS mockups have been removed, so a screen's
@@ -125,26 +126,19 @@ Bats does not apply - the deliverable contains no shell scripts.
 The Python scripts under `docs/themes/playstation-x/reference/checks/` are kept as source
 analysis tooling, not tests. They scrape the upstream XML theme, which is a separate checkout
 that is not present here, so they do not run as part of any suite. Their findings live on as
-the Vitest invariants described above.## Playwright
+the Vitest invariants described above.
+
+## Playwright
 
 Run with `npm run test:e2e`; `npm run test:e2e:update` rewrites the baselines. The baselines are
 the regression gate: a change that leaves every number right and the screen wrong still fails.
+[The specs](#the-specs) above lists what each one asserts.
 
 Locally the specs run against the dev server. CI runs them against a production build under
 `vite preview`, in five shards: every test opens a fresh browser context, and against the dev
 server that meant fetching the whole unbundled module graph again for every one of them.
 `E2E_PREVIEW=1` does the same locally. The screen checks share one page load per route, as steps
 of one test, for the same reason.
-
-| Spec | What it asserts |
-| --- | --- |
-| `baseline.spec.ts` | A screenshot of every route against a stored baseline |
-| `fallback.spec.ts` | The same stills again in the degraded renderer |
-| `settle.spec.ts` | A still is byte-identical to the live build with motion off |
-| `compositing.spec.ts` | Nothing opaque covers the content - and that the check can fail |
-| `ds-style-reference.spec.ts` | Every DS Style still against a frame the launcher itself rendered, pixel for pixel - and that the check can fail |
-| `interaction.spec.ts` | Cursor traces through carousel, list and grid, plus the hold gestures |
-| `screens.spec.ts` | Zero console errors, something drawn inside the theme's root (or a root marked `data-screen-off`, for a screen dark on the device), controls inside the body |
 
 ### Two things that had to be got right first
 

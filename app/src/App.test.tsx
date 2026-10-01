@@ -1,9 +1,11 @@
 import { render, screen, within } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { describe, expect, it } from 'vitest'
 import { App } from './App'
 import { SCREEN_MANIFEST, screenId } from './themes/manifest'
-import { THEMES, catalogueTotals } from './themes/catalogue'
+import { THEMES, THEME_GROUPS, catalogueTotals } from './themes/catalogue'
 import { SCREEN_TYPES, UI_ELEMENTS } from './themes/taxonomy'
+import { coverage } from './themes/views'
 
 function atHash(hash: string) {
   globalThis.location.hash = hash
@@ -17,17 +19,13 @@ describe('landing page', () => {
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(/handheld/i)
   })
 
-  it('shows a card per theme, with its preview and palette', () => {
+  it('shows a tile per set, with its preview', () => {
     render(<App />)
 
     for (const theme of THEMES) {
-      const card = screen.getByRole('article', { name: theme.name })
-      expect(within(card).getByAltText(theme.previewAlt)).toBeInTheDocument()
-      const palette = within(card).queryByRole('img', { name: `${theme.name} palette` })
-      // A set with no palette shows no strip, rather than an empty one.
-      if (theme.swatches.length > 0) expect(palette).toBeInTheDocument()
-      else expect(palette).not.toBeInTheDocument()
-      expect(within(card).getByText(theme.summary)).toBeInTheDocument()
+      const tile = screen.getByRole('article', { name: theme.name })
+      expect(within(tile).getByAltText(theme.previewAlt)).toBeInTheDocument()
+      expect(within(tile).getByText(theme.kind)).toBeInTheDocument()
     }
   })
 
@@ -37,17 +35,13 @@ describe('landing page', () => {
 
     for (const theme of THEMES) {
       if (!theme.author) continue
-      const card = screen.getByRole('article', { name: theme.name })
-      expect(within(card).getByText(`by ${theme.author}`)).toBeInTheDocument()
+      const tile = screen.getByRole('article', { name: theme.name })
+      expect(within(tile).getByText(`by ${theme.author}`)).toBeInTheDocument()
     }
-  })
 
-  it('marks which sets are rebuilt and which are still archived', () => {
-    render(<App />)
-
+    const footer = document.querySelector('footer')!
     for (const theme of THEMES) {
-      const card = screen.getByRole('article', { name: theme.name })
-      expect(within(card).getByText(theme.ported ? 'Interactive' : 'Archived')).toBeInTheDocument()
+      if (theme.author) expect(footer).toHaveTextContent(`${theme.name} by ${theme.author}`)
     }
   })
 
@@ -57,6 +51,7 @@ describe('landing page', () => {
 
     expect(screen.getByText(String(totals.views))).toBeInTheDocument()
     expect(screen.getByText(String(totals.devices))).toBeInTheDocument()
+    expect(screen.getByText(`${THEMES.length} of ${THEMES.length} shown`)).toBeInTheDocument()
   })
 
   it('links a live build of every set', () => {
@@ -72,44 +67,108 @@ describe('landing page', () => {
     }
   })
 
-  it('leads into the views page with a card per screen type', () => {
+  // Derived from the catalogue rather than naming a theme, so porting one does not turn a
+  // passing assertion into a stale one that has to be rewritten.
+
+  it("points each tile at its set's live build and notes", () => {
     render(<App />)
 
-    const section = screen.getByRole('heading', { name: 'Compare views' }).closest('section')!
-    expect(within(section).getByRole('link', { name: 'Browse every view' })).toHaveAttribute(
+    for (const theme of THEMES) {
+      const tile = screen.getByRole('article', { name: theme.name })
+      const live = SCREEN_MANIFEST.find((s) => s.theme === theme.slug && s.interactive)
+      expect(live).toBeDefined()
+      expect(within(tile).getByRole('link', { name: 'Live build' })).toHaveAttribute(
+        'href',
+        `#${screenId(live!)}`,
+      )
+      expect(within(tile).getByRole('link', { name: 'Notes' })).toHaveAttribute(
+        'href',
+        `#notes/${theme.docPath}`,
+      )
+    }
+  })
+
+  it('filters the sets by group, and "All" brings them back', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+    const filters = screen.getByRole('group', { name: 'Filter sets' })
+
+    for (const [group, label] of Object.entries(THEME_GROUPS)) {
+      await user.click(within(filters).getByRole('button', { name: label }))
+      expect(within(filters).getByRole('button', { name: label })).toHaveAttribute(
+        'aria-pressed',
+        'true',
+      )
+
+      const members = THEMES.filter((t) => t.group === group)
+      expect(screen.getAllByRole('article')).toHaveLength(members.length)
+      expect(screen.getByText(`${members.length} of ${THEMES.length} shown`)).toBeInTheDocument()
+    }
+
+    await user.click(within(filters).getByRole('button', { name: 'All' }))
+    expect(screen.getAllByRole('article')).toHaveLength(THEMES.length)
+  })
+
+  it('switches between browsing sets and comparing views, by click and by arrow key', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+
+    const sets = screen.getByRole('tab', { name: 'Browse by set' })
+    const views = screen.getByRole('tab', { name: 'Compare by view' })
+    expect(sets).toHaveAttribute('aria-selected', 'true')
+    expect(screen.queryByRole('table')).toBeNull()
+
+    await user.click(views)
+    expect(views).toHaveAttribute('aria-selected', 'true')
+    expect(screen.getByRole('tabpanel')).toContainElement(screen.getByRole('table'))
+    expect(screen.queryAllByRole('article')).toHaveLength(0)
+
+    await user.keyboard('{ArrowLeft}')
+    expect(sets).toHaveAttribute('aria-selected', 'true')
+    expect(sets).toHaveFocus()
+    expect(screen.queryByRole('table')).toBeNull()
+
+    await user.keyboard('{ArrowRight}')
+    expect(views).toHaveAttribute('aria-selected', 'true')
+    expect(views).toHaveFocus()
+  })
+
+  it('leads into the views page with a matrix column per screen type', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+    await user.click(screen.getByRole('tab', { name: 'Compare by view' }))
+
+    const table = screen.getByRole('table')
+    for (const [slug, term] of Object.entries(SCREEN_TYPES)) {
+      const header = within(table).getByRole('columnheader', { name: term.label })
+      expect(within(header).getByRole('link')).toHaveAttribute('href', `#views/type/${slug}`)
+    }
+    expect(screen.getByRole('link', { name: 'Compare by UI element' })).toHaveAttribute(
       'href',
       '#views',
     )
-    for (const [slug, term] of Object.entries(SCREEN_TYPES)) {
-      expect(within(section).getByRole('link', { name: new RegExp(`^${term.label}`) })).toHaveAttribute(
-        'href',
-        `#views/type/${slug}`,
-      )
+  })
+
+  it('marks every set and screen type pairing the manifest has, and only those', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+    await user.click(screen.getByRole('tab', { name: 'Compare by view' }))
+
+    const marks = document.querySelectorAll('a.gal-matrix__mark')
+    const expected = [...coverage().entries()].flatMap(([slug, byTheme]) =>
+      [...byTheme.values()].map((entry) => ({ slug, entry })),
+    )
+    expect(marks).toHaveLength(expected.length)
+
+    for (const { slug, entry } of expected) {
+      const name = `${THEMES.find((t) => t.slug === entry.theme)!.name} - ${SCREEN_TYPES[slug].label}`
+      expect(screen.getByRole('link', { name })).toHaveAttribute('href', `#${screenId(entry)}`)
     }
   })
 
   it('no longer lists every screen on the landing page', () => {
     render(<App />)
     expect(screen.queryByRole('heading', { name: 'Every screen' })).toBeNull()
-  })
-
-  // Derived from the catalogue rather than naming a theme, so porting one does not turn a
-  // passing assertion into a stale one that has to be rewritten.
-
-  it('points a ported theme at its live build', () => {
-    const ported = THEMES.filter((t) => t.ported)
-    expect(ported.length).toBeGreaterThan(0)
-    render(<App />)
-
-    for (const theme of ported) {
-      const card = screen.getByRole('article', { name: theme.name })
-      const live = SCREEN_MANIFEST.find((s) => s.theme === theme.slug && s.interactive)
-      expect(live).toBeDefined()
-      expect(within(card).getByRole('link', { name: /open the live build/i })).toHaveAttribute(
-        'href',
-        `#${screenId(live!)}`,
-      )
-    }
   })
 })
 

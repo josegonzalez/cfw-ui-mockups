@@ -187,21 +187,45 @@ test('every screen is reachable from the landing page or a views page', async ({
   }
 })
 
+/*
+ * The matrix is the landing page's way into the comparisons, and every cell in it is a link the
+ * reader is invited to press. A cell pointing at a route that does not exist would open the
+ * landing page again - indistinguishable from a click that did nothing.
+ */
+test('every link in the coverage matrix opens a screen or a comparison', async ({ page }) => {
+  await page.goto('/')
+  await page.getByRole('tab', { name: 'Compare by view' }).click()
+
+  const hrefs = await page
+    .locator('.gal-matrix a')
+    .evaluateAll((links) => links.map((a) => a.getAttribute('href')!))
+  expect(hrefs.length).toBeGreaterThan(0)
+
+  const routes = new Set(ROUTES.map((route) => `#${routeId(route)}`))
+  const comparisons = new Set(Object.keys(SCREEN_TYPES).map((slug) => viewsHref('type', slug)))
+  for (const href of hrefs) {
+    expect(routes.has(href) || comparisons.has(href), href).toBe(true)
+  }
+
+  // Every column header is a comparison, and the matrix links each one.
+  for (const href of comparisons) expect(hrefs).toContain(href)
+})
+
 test('every theme is represented with preview art that actually loads', async ({ page }) => {
   await page.goto('/')
 
   // Derived from the manifest rather than written in, and rather than from the catalogue -
   // which imports its preview art, and so cannot be loaded outside the bundler.
   const themes = new Set(ROUTES.map((route) => route.theme))
-  const cards = page.locator('.gal-card')
-  await expect(cards).toHaveCount(themes.size)
+  const tiles = page.locator('.gal-set')
+  await expect(tiles).toHaveCount(themes.size)
 
   /*
-   * The previews are `loading="lazy"`, which is right for the page and means a card below the fold
-   * never fetches its art until it is scrolled to. Unscrolled, every such card reported "never
+   * The previews are `loading="lazy"`, which is right for the page and means a tile below the fold
+   * never fetches its art until it is scrolled to. Unscrolled, every such tile reported "never
    * decoded" - a fault in this check, not in the art - so each one is brought into view first.
    */
-  for (const img of await page.locator('.gal-card__img').all()) {
+  for (const img of await page.locator('.gal-set__img').all()) {
     await img.scrollIntoViewIfNeeded()
   }
 
@@ -212,7 +236,7 @@ test('every theme is represented with preview art that actually loads', async ({
     .poll(
       () =>
         page
-          .locator('.gal-card__img')
+          .locator('.gal-set__img')
           .evaluateAll((imgs) =>
             imgs.filter((img) => !(img as HTMLImageElement).naturalWidth).map((img) => img.getAttribute('src')),
           ),
@@ -225,7 +249,7 @@ test('the notes open as a rendered page', async ({ page }) => {
   // These used to link straight at the `.md` file, which left it to the browser whether the
   // notes displayed, downloaded, or did nothing at all.
   await page.goto('/')
-  await page.locator('a.gal-btn', { hasText: 'Read the notes' }).first().click()
+  await page.locator('a.gal-set__link', { hasText: 'Notes' }).first().click()
 
   await expect(page).toHaveURL(/#notes\/docs\//)
   await expect(page.locator('.notes__body h1')).toBeVisible()
@@ -234,8 +258,8 @@ test('the notes open as a rendered page', async ({ page }) => {
 
 test('every notes page the landing links to exists', async ({ request }) => {
   /*
-   * Each card's "Read the notes" button opens a page out of `docs/`, which lives outside the Vite
-   * root and is mounted by a plugin. Nothing about a dead one is visible - the card renders
+   * Each tile's "Notes" link opens a page out of `docs/`, which lives outside the Vite
+   * root and is mounted by a plugin. Nothing about a dead one is visible - the tile renders
    * perfectly and the viewer opens empty - so the targets are fetched rather than assumed.
    */
   /*

@@ -199,174 +199,311 @@
   font-size: 13px;
 }
 
-/* --- theme cards --------------------------------------------------------- */
+/* --- browse: tabs, filters, set tiles, coverage matrix ------------------- */
 
-.gal__themes {
-  display: grid;
-  gap: 28px;
-  margin-top: 28px;
+.gal-tabs {
+  display: inline-flex;
+  gap: 4px;
+  margin-top: 24px;
+  padding: 4px;
+  border: 1px solid var(--gal-line);
+  border-radius: 12px;
+  background: var(--gal-surface);
 }
 
-.gal-card {
-  position: relative;
-  display: grid;
-  grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
-  gap: 0;
+.gal-tabs__tab {
+  padding: 9px 16px;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--gal-ink-2);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.gal-tabs__tab:hover {
+  color: var(--gal-ink);
+}
+
+.gal-tabs__tab[aria-selected='true'] {
+  background: color-mix(in srgb, var(--gal-neon) 18%, var(--gal-surface-2));
+  color: var(--gal-ink);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--gal-neon) 55%, transparent);
+}
+
+.gal-tabs__tab:focus-visible,
+.gal-filter__chip:focus-visible,
+.gal-set__link:focus-visible,
+.gal-matrix a:focus-visible {
+  outline: 2px solid var(--gal-neon);
+  outline-offset: 2px;
+}
+
+.gal-browse__panel {
+  margin-top: 20px;
+}
+
+.gal-browse__tools {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.gal-browse__count {
+  color: var(--gal-ink-3);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+
+.gal-filter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.gal-filter__chip {
+  padding: 6px 12px;
   border: 1px solid var(--gal-line);
-  border-radius: 18px;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--gal-ink-2);
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.gal-filter__chip:hover {
+  border-color: color-mix(in srgb, var(--gal-neon) 50%, transparent);
+}
+
+.gal-filter__chip[aria-pressed='true'] {
+  border-color: var(--gal-neon);
+  background: color-mix(in srgb, var(--gal-neon) 18%, transparent);
+  color: var(--gal-ink);
+}
+
+/* Every set at once: the point of the page is a quick view, so a tile is small on purpose. */
+.gal-sets {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 16px;
+  margin-top: 18px;
+}
+
+.gal-set {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--gal-line);
+  border-radius: 14px;
   background: var(--gal-surface);
   overflow: hidden;
 }
 
-@media (max-width: 780px) {
-  .gal-card {
-    grid-template-columns: 1fr;
-  }
-}
-
-/* A wash of the theme's own accent, so each card carries its subject's colour. */
-.gal-card__art {
-  position: relative;
+/* The set's own accent under its screenshot, so thirteen tiles read as thirteen firmwares. */
+.gal-set__art {
   display: grid;
   place-items: center;
-  min-height: 240px;
-  padding: 28px;
-  background:
-    radial-gradient(120% 100% at 50% 0%, rgb(255 255 255 / 6%), transparent 60%),
-    var(--card-accent-wash);
-  border-right: 1px solid var(--gal-line);
-}
-
-@media (max-width: 780px) {
-  .gal-card__art {
-    border-right: none;
-    border-bottom: 1px solid var(--gal-line);
-  }
-}
-
-/* The screenshot in a slim bezel, echoing the device frame the screens render in. */
-.gal-card__screen {
-  width: 100%;
-  max-width: 340px;
   aspect-ratio: 4 / 3;
-  padding: 6px;
-  border-radius: 10px;
-  background: linear-gradient(160deg, #2b2d31, #1b1c1f);
-  box-shadow:
-    inset 0 1px 0 rgb(255 255 255 / 6%),
-    0 18px 40px rgb(0 0 0 / 55%);
-}
-
-.gal-card__img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  border-radius: 5px;
   background: #000;
+  border-bottom: 3px solid var(--set-accent);
 }
 
-.gal-card__body {
-  padding: 28px 30px 30px;
-  min-width: 0;
+.gal-set__img {
+  display: block;
+  max-width: 100%;
+  max-height: 100%;
+  image-rendering: pixelated;
 }
 
-.gal-card__kicker {
+.gal-set__body {
   display: flex;
-  align-items: center;
-  gap: 10px;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 4px;
+  padding: 14px 16px 16px;
+}
+
+.gal-set__name {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.gal-set__kind,
+.gal-set__author,
+.gal-set__meta {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.gal-set__kind {
+  color: var(--gal-ink-2);
+}
+
+.gal-set__author {
   color: var(--gal-ink-3);
+}
+
+.gal-set__meta {
+  flex: 1 1 auto;
+  margin-top: 6px;
+  color: var(--gal-ink-3);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
 }
 
-.gal-card__name {
-  margin: 10px 0 0;
-  font-size: 27px;
-  font-weight: 750;
-  letter-spacing: -0.015em;
-}
-
-.gal-card__summary {
-  margin: 12px 0 0;
-  color: var(--gal-ink-2);
-  font-size: 15px;
-  line-height: 1.6;
-  text-wrap: pretty;
-}
-
-.gal-card__list {
-  margin: 18px 0 0;
-  padding: 0;
-  list-style: none;
-  display: grid;
-  gap: 8px;
-}
-
-.gal-card__list li {
-  position: relative;
-  padding-left: 20px;
-  color: var(--gal-ink-2);
-  font-size: 14px;
-  line-height: 1.5;
-}
-
-/* A pixel, not a bullet. */
-.gal-card__list li::before {
-  content: '';
-  position: absolute;
-  left: 2px;
-  top: 8px;
-  width: 6px;
-  height: 6px;
-  background: var(--card-accent);
-}
-
-.gal-card__meta {
+.gal-set__links {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 20px;
+  gap: 14px;
+  margin-top: 10px;
 }
 
-.gal-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 5px 10px;
-  border: 1px solid var(--gal-line);
-  border-radius: 7px;
-  background: var(--gal-surface-2);
+.gal-set__link {
   color: var(--gal-ink-2);
-  font-size: 12px;
-  font-weight: 500;
+  font-size: 13px;
+  text-decoration: none;
 }
 
-.gal-chip--status {
-  border-color: color-mix(in srgb, var(--card-accent) 45%, transparent);
+.gal-set__link:hover {
   color: var(--gal-ink);
+  text-decoration: underline;
 }
 
-.gal-swatches {
+.gal-set__link--primary {
+  color: var(--gal-neon);
+  font-weight: 700;
+}
+
+/*
+ * Sets down, screen types across. It is wider than a phone by nature, so it scrolls inside its
+ * own box - never the page - and keeps the set names pinned while it does.
+ */
+.gal-matrix {
+  overflow-x: auto;
+  border: 1px solid var(--gal-line);
+  border-radius: 14px;
+  background: var(--gal-surface);
+}
+
+.gal-matrix__table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.gal-matrix__caption {
+  padding: 14px 16px;
+  color: var(--gal-ink-3);
+  font-size: 13px;
+  text-align: left;
+}
+
+.gal-matrix__corner,
+.gal-matrix__set {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  background: var(--gal-surface);
+}
+
+.gal-matrix__type {
+  padding: 0 2px 10px;
+  vertical-align: bottom;
+  font-weight: 400;
+}
+
+/* Read bottom to top, as a column label on a chart is. */
+.gal-matrix__type a {
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  color: var(--gal-ink-2);
+  font-size: 12px;
+  white-space: nowrap;
+  text-decoration: none;
+}
+
+.gal-matrix__type a:hover {
+  color: var(--gal-neon);
+}
+
+.gal-matrix tbody tr {
+  border-top: 1px solid var(--gal-line);
+}
+
+.gal-matrix__set {
+  padding: 0 16px;
+  text-align: left;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.gal-matrix__set a {
   display: flex;
-  gap: 5px;
-  margin-top: 18px;
-}
-
-.gal-swatch {
-  width: 22px;
-  height: 22px;
-  border-radius: 5px;
-  border: 1px solid rgb(255 255 255 / 12%);
-}
-
-.gal-card__actions {
-  display: flex;
-  flex-wrap: wrap;
+  align-items: center;
   gap: 10px;
-  margin-top: 22px;
+  height: 40px;
+  color: var(--gal-ink);
+  font-size: 14px;
+  text-decoration: none;
+}
+
+.gal-matrix__set a:hover {
+  text-decoration: underline;
+}
+
+.gal-matrix__dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--set-accent);
+}
+
+.gal-matrix__views {
+  color: var(--gal-ink-3);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+  font-weight: 400;
+}
+
+.gal-matrix__cell {
+  padding: 0 2px;
+  text-align: center;
+}
+
+.gal-matrix__mark,
+.gal-matrix__none {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  vertical-align: middle;
+}
+
+.gal-matrix__mark {
+  background: var(--set-accent);
+}
+
+.gal-matrix__mark:hover {
+  box-shadow: 0 0 0 2px var(--gal-ink);
+}
+
+.gal-matrix__none {
+  border: 1px solid #1a1e2a;
+}
+
+/* Read by a screen reader, drawn as nothing. */
+.gal-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 
 /* --- buttons ------------------------------------------------------------- */
@@ -396,8 +533,8 @@
 }
 
 .gal-btn--primary {
-  border-color: color-mix(in srgb, var(--card-accent, var(--gal-neon)) 55%, transparent);
-  background: color-mix(in srgb, var(--card-accent, var(--gal-neon)) 16%, var(--gal-surface-2));
+  border-color: color-mix(in srgb, var(--gal-neon) 55%, transparent);
+  background: color-mix(in srgb, var(--gal-neon) 16%, var(--gal-surface-2));
 }
 
 .gal-btn:focus-visible {
@@ -405,7 +542,7 @@
   outline-offset: 2px;
 }
 
-/* --- compare views: facet cards ------------------------------------------ */
+/* --- section links and facet cards (the views page) --------------------- */
 
 .gal__section-link {
   margin-left: auto;
