@@ -126,6 +126,10 @@ inference from the docs.
 | Textured geometry (arbitrary vertex quads, for per-card perspective) | absent - `RenderGeometry`, `Vertex` and `RenderCopyEx` zero-hit | absent - `RenderGeometry` and `Vertex` zero-hit; `CopyEx` only rotates the internal display canvas (`internal/window.go:247`) |
 | Additive blending | absent - `BLENDMODE_BLEND` and `NONE` only | absent - same |
 | Hold versus tap on one button (a timed hold opening something else) | absent - the only press timing is the power key's long press, in its own thread (`include/apostrophe.h:4406-4425`) | absent - the only hold is `InputCapture`'s, for binding a button (`pkg/gabagool/input_capture.go:36`) |
+| Procedural background drawn every frame (a fragment shader, or a streaming texture for a CPU-drawn fallback) | absent - `shader` and `SDL_GL` zero-hit bar a demo string (`examples/demo/main.c:1286`); `TEXTUREACCESS_STREAMING`, `UpdateTexture` and `LockTexture` zero-hit | absent - `shader` and `SDL_GL` zero-hit; `TEXTUREACCESS_STREAMING`, `UpdateTexture` and `LockTexture` zero-hit |
+| Text drawn to a width other than its own (a horizontal squeeze) | not by `ap_draw_text`, which copies at the surface's size (`include/apostrophe.h:2675`); a caller can stretch its own texture with `ap_draw_image` (600) | no - the string texture is `RenderTextCached` in `internal/` (`internal/text_cache.go:42`), not public |
+| Colour runs inside one string | absent - `markup`, rich text and colour runs zero-hit | absent - same |
+| Sound effects (a short clip played on a press) | absent - `Mix_`, `SDL_mixer`, `OpenAudio` and `AudioStream` zero-hit | absent - the same four zero-hit; `INIT_AUDIO` is started and unused (`internal/sdl.go:15`) |
 
 Two details worth recording:
 
@@ -833,6 +837,119 @@ Maps today:
 - **Plain lists.** Apps without their icons, and Tasks, are `ap_list` (`include/apostrophe_widgets.h:117`)
   or `List` (`pkg/gabagool/list.go:149`).
 - **Input.** D-pad focus, shoulders paging and held-button repeat are both frameworks' input layers.
+
+### Dreamcast BIOS
+
+Full spec: [`themes/dreamcast-bios/reference/source-notes.md`](themes/dreamcast-bios/reference/source-notes.md).
+
+> Assessed from boot ROM v1.01d - its textures, font and strings - and a recording of the menu on a
+> real console; the BIOS is closed. Built as `app/src/themes/dreamcast-bios/`;
+> [`porting/dreamcast-bios.md`](porting/dreamcast-bios.md) records the deviations. Checked against
+> Apostrophe at `5ed3f74` and gabagool at `30cf8cf`.
+
+A console menu at 640x480 with one look and no theming. Its screens are flat boxes, blobs and one
+bitmap font, but none is ever drawn alone: every screen sits over a sky that never stops, fades out
+to it and back, and its dialogs stack one over another over the screen that opened them. So the gap
+is a render loop and the composition blocker first, and a text layer second.
+
+Missing from both frameworks:
+
+- **A background that never stops, under everything.** The sky is a live procedural function -
+  gradient, drifting cloud, a turning disc of cloud - drawn every frame as a GLSL shader, with the
+  same function on the CPU at a quarter of the resolution, smoothed up, as its declared fallback
+  (`background/sky.ts`, `background/index.tsx`). Neither framework has a shader path: `shader`,
+  `GLSL` and `SDL_GL` are zero-hit in both, bar a demo string in Apostrophe
+  (`examples/demo/main.c:1286`). Neither has a streaming texture to upload the fallback into -
+  `TEXTUREACCESS_STREAMING`, `UpdateTexture` and `LockTexture` are zero-hit in both - so a port
+  would create a texture from a surface every frame, as `ap_draw_text` already does for each string
+  (`include/apostrophe.h:2666-2682`). The upscale wants smoothing: Apostrophe hints bilinear globally
+  (`include/apostrophe.h:4695`), and gabagool's default nearest would show the quarter-resolution
+  pixels. As for Vitro Launcher, a screen that is never static defeats Apostrophe's dirty-frame idle
+  loop.
+- **Screens and dialogs over it, stacked.** Every screen is drawn over the sky, and each box opens
+  over the screen that asked, which stays drawn: the Language box over Settings' rows, "Set all
+  memory cards to / Date/Time of main console." over the memory-card clock box over Settings, "File
+  was deleted." over the file list. The root draws every open box, oldest first (`index.tsx`). Both
+  frameworks' screens clear the frame first - Apostrophe's `ap_confirmation` and `ap_selection`
+  open their render with `ap_draw_background()` (`include/apostrophe_widgets.h:2525, 2615`),
+  gabagool's with `renderer.Clear()` (`pkg/gabagool/selection_message.go:187-188`,
+  `confirmation_message.go:186`, `list.go:188`). This is the composition blocker, three deep.
+- **A fade to the sky rather than to black.** Leaving a screen, its contents fade out over the sky
+  in 100ms, the sky shows alone for 150ms, and the next screen fades up in 100ms; a dialog fades up
+  in 100ms. All are linear. The contents are translucent - the Settings rows at 0.72, the dialogs at
+  0.9, the models at 0.65 of their materials' alpha - so a screen has to fade as one composed layer, not element by element,
+  and the opacities nest: a blinking blob inside a dialog fading up inside a screen fading out.
+  Apostrophe's `ap_fade_draw` fills black over the frame (`include/apostrophe.h:712-721`);
+  gabagool's router hard-cuts, and `fade` is zero-hit in it. A layer's alpha needs render to texture
+  and `SetAlphaMod`: Apostrophe has neither, and gabagool has both only inside `internal/`
+  (`internal/helpers.go:382, 410`).
+- **Looping tracks with a resting value.** A focused option's blob blinks yellow over green, 200ms
+  each, forever - a step, not a fade (`BLINK`, `motion.ts`). The focused main-menu model plays its
+  own motion from the ROM, 60 keys a second, round and round. A still rests with the blob yellow
+  and every model at frame 0. The only blinks in either
+  framework are the keyboards' 500ms carets, hand-rolled inside the widget
+  (`include/apostrophe_widgets.h:1727-1732`; `pkg/gabagool/keyboard.go:75-76, 164`). Named curves and
+  looping tracks are zero-hit in both.
+- **Text squeezed to a width, in two stacked faces.** The system font is 1bpp on a 12-pixel cell,
+  rebuilt as two TTF faces - an emboldened fill and a halo a pixel wider - drawn one over the other.
+  Each run is squeezed horizontally to an advance that depends on where it is: 12, 11, 10.25 or 10
+  pixels a glyph (`ADVANCE`, `views/parts.tsx`). Apostrophe's `ap_draw_text` copies at the surface's
+  own size (`include/apostrophe.h:2675`), so a caller would render the string itself and stretch it
+  with `ap_draw_image(tex, x, y, w, h)` (600). gabagool's string texture comes from
+  `RenderTextCached` in `internal/` (`internal/text_cache.go:42`), which is not public. Apostrophe
+  also loads every face bold (`include/apostrophe.h:1415`), which would thicken the already
+  emboldened fill; as for SimpleOS, the caller would have to open it.
+- **Colour and icon runs inside one string.** The ROM's strings switch to yellow and back with
+  `\x16` / `\x17`, and name the pad's buttons with `\x01 n` icon glyphs, mid-line: "Select file(s)
+  and press Ⓐ Button." Both frameworks draw a string in one colour; `markup`, rich text and colour
+  runs are zero-hit in both. The icons are glyphs in the same face, so only the colour change needs
+  support.
+- **A grid.** The file list is an 8x3 grid of saves with ALL above it and BACK below, the card
+  picker is four ports of two sockets, and the main menu is 2x2. Grid is absent in both.
+- **3D models, lit, translucent and moving.** The main menu's four models are the ROM's own meshes -
+  656 vertices for the controller - drawn with depth, per-vertex light and alpha, the focused one
+  following its 60-frame motion of position, rotation and scale (`models/`). The CD player's disc is
+  textured as well, its back environment-mapped, and it turns and tips while it plays. The CD
+  player's buttons are model trees whose motion moves a node and its child together, and the hidden
+  3D mode draws every model again as its reflection. Both frameworks draw
+  only rectangles and textures: `RenderGeometry` and `Vertex` are zero-hit in both (the textured
+  geometry row above), and neither has a depth buffer (`DEPTH_TEST`, `zbuffer` and `depth_buffer`
+  are zero-hit in both). A port could pre-render each model's 60
+  frames as sprites - 240 images - trading memory for the missing path.
+- **Sound.** The BIOS sounds every press - the cursor, confirm, back, an alert as a warning opens -
+  and plays an eight-second boot sound at power-on, all decoded or rendered from its ROM into 16-bit
+  WAVs (`assets/sounds/`). Neither framework plays audio: `Mix_`, `SDL_mixer`, `OpenAudio` and
+  `AudioStream` are zero-hit in both. gabagool starts SDL's audio subsystem
+  (`pkg/gabagool/internal/sdl.go:15`) and never uses it.
+
+Not on this list:
+
+- **The models that do not move.** File's controller and memory cards and Settings' icons are the
+  ROM's models as well, but drawn at rest: each is one static picture a port would ship as PNG,
+  so they need none of the path the main menu's moving models do.
+- **The blobs and lozenges.** A 46x36 ellipse, and Music's radial-gradient lozenges. `ellipse` and
+  `radial` are zero-hit in both, but both can be images.
+- **Theming.** One look; nothing is switchable.
+
+Maps today:
+
+- **The Yes/No box.** Delete opens on No, which is `ap_confirmation`
+  (`include/apostrophe_widgets.h:213`) or `ConfirmationMessage`
+  (`pkg/gabagool/confirmation_message.go:63`), minus the list behind it.
+- **Pick-one boxes.** Language, Sound, Auto start and the file menu's Copy / Delete / Cancel choose
+  one of a short list, the shape of `ap_selection` (`include/apostrophe_widgets.h:228`) or
+  `SelectionMessage` (`pkg/gabagool/selection_message.go:66`). The BIOS, though, places each option
+  on a blob at a measured position, with a title that follows the focus.
+- **Picking saves together.** X and Y mark saves of one game to act on together. Both lists have a
+  multi-select mode - Apostrophe's `multi_select` (`include/apostrophe_widgets.h:87`), gabagool's
+  `MultiSelectButton` (`pkg/gabagool/list.go:45`) - though as a list with checkboxes, not a grid.
+- **Pills and rounded boxes.** The main menu's 114x42 pills are `ap_draw_pill`
+  (`include/apostrophe.h:591`), and the dialogs, fields and card box are rounded rects in both.
+- **PNG.** Every ROM texture is extracted as PNG, which both load (`include/apostrophe.h:4557`;
+  `pkg/gabagool/internal/window.go:169`).
+- **Input.** D-pad, A, B, X and Y are in both enums (`AP_BTN_X` / `AP_BTN_Y`,
+  `include/apostrophe.h:181-182`; `VirtualButtonX` / `VirtualButtonY`,
+  `pkg/gabagool/constants/constants.go:78-79`). There are no chords or holds to ask for.
 
 ## What a port would have to add
 

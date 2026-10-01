@@ -1,0 +1,51 @@
+/* The BIOS system font, rebuilt from the boot ROM by
+   docs/themes/dreamcast-bios/reference/extract-assets.py as two faces: its one-pixel strokes
+   emboldened, and a halo a pixel wider round them. The menu draws the bold face white over a dark
+   halo, so text is the two stacked. At 24px one font pixel is one device pixel. */
+@font-face {
+  font-family: 'Dreamcast BIOS Fill';
+  src: url('./assets/fonts/DreamcastBiosFill.ttf') format('truetype');
+  font-display: block;
+}
+@font-face {
+  font-family: 'Dreamcast BIOS Edge';
+  src: url('./assets/fonts/DreamcastBiosEdge.ttf') format('truetype');
+  font-display: block;
+}
+
+.dreamcast-bios {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+/* The PowerVR filters every texture bilinearly, so the ROM's textures are smooth when scaled, not
+   blocky as the screen's default is for pixel art. */
+.dreamcast-bios img {
+  display: block;
+  user-select: none;
+  image-rendering: auto;
+}
+
+.dc-text {
+  white-space: pre;
+  font-synthesis: none;
+  -webkit-font-smoothing: none;
+  font-kerning: none;
+}
+
+.dc-fill {
+  font-family: 'Dreamcast BIOS Fill';
+}
+
+.dc-edge {
+  font-family: 'Dreamcast BIOS Edge';
+}
+
+.dc-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}

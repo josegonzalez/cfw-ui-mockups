@@ -20,3 +20,4 @@ tmp/
 .idea/
 .vscode/
 *.swp
+__pycache__/

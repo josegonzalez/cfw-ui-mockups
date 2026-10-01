@@ -1,0 +1,128 @@
+# Dreamcast BIOS source notes
+
+Every value the port uses that was not decoded straight from the ROM, and where it came from. Times
+are into the recording `c69qVhS_WOU` (see `README.md`); frames are in `frames/`.
+
+## The boot ROM
+
+- **Version.** `dc_boot.bin` sha1 `8951d1bb219ab2ff8583033d2119c899cc81f18c` is v1.01d,
+  MPR-21931/MPR-21933, on [dreamcast.wiki/BIOS](https://dreamcast.wiki/BIOS). (The row after it on
+  that page, "v1.01d (hack)", is a Chinese translation with a different hash.)
+- **Textures.** 18 `PVRT` chunks from `0x0728c0` to `0x08bb68`; a header is trusted only when its
+  size is a power of two and its length matches its format. Five more `PVRT` byte runs, at
+  `0x024128` and from `0x0b8144`, fail that check - they are inside code.
+- **VQ.** A 2 KB codebook of 256 2x2 blocks, each block's texels in twiddled order, then one twiddled
+  index byte per block - so a 256x256 VQ texture is 18,440 bytes with its header, as both are.
+- **Font.** From `0x100020`: index 0 is the space and `!` is index 1, so a narrow glyph is at
+  `(code - 32) * 36` for 33-126 and `(code - 64) * 36` for 160-255. Wide glyphs start 288 narrow
+  cells in; JIS rows 16 and up start 658 wide cells after that; the Dreamcast icons start 7056 wide
+  cells in, the A button at icon 11 and X and Y at 15 and 16. All as KallistiOS's
+  [`dc/biosfont.h`](https://github.com/KallistiOS/KallistiOS/blob/master/kernel/arch/dreamcast/include/dc/biosfont.h)
+  lays them out; each was checked by decoding it - `A`, `R`, the A and X buttons, and 日 and 語.
+- **The font as drawn.** The glyphs are one-pixel strokes. On screen each stroke is two pixels wide
+  and white, with a dark halo a pixel wider all round (`frames/zoom-text.png`, "Language" and
+  "English"), so the fill face is the glyph with each lit pixel doubled to the right and the halo
+  face that grown by one pixel in every direction.
+- **Strings.** The English table runs from `0x323b8` (after the Shift-JIS Japanese one) to
+  `0x33074`, where the French one begins: NUL-terminated, padded to four bytes with `0xff`.
+  [madsonweb/SegaDreamcastBiosTextToPTBR](https://github.com/madsonweb/SegaDreamcastBiosTextToPTBR)
+  gives `0x32ad0` for English, which is partway in, at the language names. `\x16` and `\x17` switch
+  to and from yellow (`frames/file-list.png`, "Ⓐ Button." in yellow), and `\x01 n` is Dreamcast icon
+  `n`.
+- **BACK focused.** The texture's swirl is its only fully transparent area; focused, the menu fills
+  it red, sampled `#df5142` (`frames/cards-back.png`).
+- **Sounds.** A package at `0x1a0000`: a 0x20-byte routine, then (offset, size) pairs at
+  `0x1a0020`, relative to the table, as many as its first offset / 8 - four. They are the sound
+  driver (`SDRV`, "Boot ROM" in its banner), an `SMLT` holding the program bank (`SMPB`) and the
+  sequence bank (`SMSB`, seven sequences), and the boot sound's two channels, `0x2b175` bytes each
+  of 4-bit ADPCM - 353,002 samples, 8.00s at 44.1 kHz. The formats are in `bios_sound.py`'s
+  docstring, after [dakrk/manatools](https://github.com/dakrk/manatools); the envelope arithmetic
+  follows Flycast's `core/hw/aica/sgc_if.cpp`.
+- **Models.** Sega Ninja chunk models, the format X-Hax/sa_tools' `SAModel` library reads, mapped
+  at `0x8c000000` plus their ROM offset. The BIOS's object table at `0x6f3c0` lists the main menu's
+  roots: the controller at `0x4106c`, the memory card at `0x46b3c`, the note at `0x428a4` and the
+  clock at `0x44a9c`. Their motion table at `0x6f524` holds their focus motions, 60 frames each, a
+  key every frame - paired to their roots because each motion's first keys are the root's own
+  position and tilt. The decoder's docstring has the format.
+- **The disc.** Root `0x6abe8`: an untextured grey edge of radius 13.6; a 28x28 quad on its front
+  (texture 0, the label); two back surfaces environment-mapped (texture 1); and a hub square whose
+  UVs run 0-2 by -1-1 (texture 2). A model's texture ids index a list the BIOS sets in code, so the
+  list is read off the parts: the label is a 256x256 disc texture with a round alpha, the hub's
+  quarter-ring `disc-rim` tiles into a ring at those UVs, and `0x075920`'s iridescence is the data
+  side. Its motion is not in the ROM's motion tables; it is measured (`motion` in `Disc.tsx`).
+- **The disc on screen** (`music-disc.png`, `music-disc-playing.png`): its rim 244 pixels across
+  about (320, 240); lying back while playing, 0.39 as tall as it is wide. Stopped, the readouts show
+  the disc's track count and its total length (275s).
+- **Texture lists.** The BIOS keeps an `NJS_TEXLIST` per object in a table at `0x6f25c`, indexed as
+  the object table at `0x6f3c0` and the motion table at `0x6f524` are. Each name entry points at a
+  record whose first word points at the texture's GBIX header, 16 bytes before its PVRT chunk
+  (`bios_models.texlist`). The disc's first entry is empty: the BIOS gives it the label of the disc
+  in the drive.
+- **The CD player's models.** Objects 8-12 are the transport buttons (next, play/pause, repeat,
+  previous, stop: their icons, over a body environment-mapped with `clouds`), 13 and 14 the TIME and
+  TRACK lozenges, 0 BACK; the readouts' figures are `0x4f384`-`0x539f0` and the colon `0x53de0`. All
+  sit at the origin of their own space; each is placed where correlation with `music-empty.png`,
+  `music-disc.png` and `music-disc-playing.png` puts it (`MUSIC` in `layout.ts`).
+- **The transport's focus.** Motions 8-12 are the buttons' own: 30 keys, three nodes - the icon
+  scaling to 0.90 and back, its child the body scaling to 1.2 across and swinging 8 degrees each way.
+  The recording's focused icon goes from 11.0 to 10.05 pixels a unit while its body widens from 82 to
+  90 pixels, a cycle a second (43-52s). Their nodes' evalflags mark scale as unit, so the decoder
+  applies a channel a motion keys whatever the flags say. The body's green is set in code: focused it
+  measures (128, 213, 177) against (87, 140, 205).
+- **BACK.** Its tree is a frame with the `back` texture, then a red swirl (`#ff2600`) and a yellow
+  ring; unfocused only the frame draws, and focused the swirl and the ring, the ring blinking 0.27 s
+  on and off.
+- **The hidden 3D mode** (`main-3d.png` 157s, `music-3d.png` 290.5s): the sea runs `#3db4d4` at the
+  top, `#0f6a9e` midway, `#0f3d7c` at the bottom. A point at screen y reflects at `492 - 0.32 y` at
+  about 0.3 of its alpha. Everything under the top bar is drawn at 0.875 of its size about (320, -80).
+  Its models are solid. Playing, its visualiser takes the corners from `#1194bd` to `#10232a` by four
+  seconds in (`visualizer-early.png` 295s, `visualizer.png` 297s).
+- **The models' speed.** The focused controller rocks one way at 34.0s, 35.0s and 36.0s: a cycle a
+  second, its 60 keys at the console's 60 Hz.
+- **The models' light and alpha.** The controller's red and blue at 200,180 in `frames/main.png`,
+  solved against the sky beside it at 110,180, give a brightness of about 0.76 and an alpha of about
+  0.62, where its material's is 0.95.
+- **Which sound is which.** Onsets in the recording's audio track, identified by correlation with
+  the rendered sequences: the cursor at 34.41s and on every clock-editor step from 13.8s; confirm at
+  29.59s, 36.65s, 40.32s, 56.17s, 103.56s and 133.59s; back at 52.71s, 68.48s and 141.83s; the alert
+  at 36.88s and 131.52s; the memory-card clock at 93.45s. The boot sound starts at 0.47s.
+
+## Measurements
+
+Colours are 5x5 averages at the named point of a 640x480 frame; the recording is a capture over
+an analogue output, so each is the nearest flat colour, not a byte. Geometry is read off the same
+frames and is good to a pixel or two.
+
+- **Top bar** (`main.png`): 62 pixels, `#c2bec2`; logo at (30, 29) drawn 136x34; the clock ends at
+  x 612.
+- **Sky** (`main.png`, `music-empty.png`): `#bcdbe8` at the top, `#87a6d6` mid, `#5070c9` at the
+  bottom; the disc of cloud centred about y 340, from x 60 to 600.
+- **Text advance.** The first-boot box's "11/27/1998 00:00" spans 188 pixels (`boot-clock.png`);
+  a save's date 187 (`file-list.png`); the top bar's clock 173 (`main.png`); Settings' "Language" 88
+  (`settings.png`); its "Auto start 'OFF'" 162; the Language box's title 255 over 26 glyphs
+  (`settings-language.png`). Hence 12, 11, about 10.25 and 10 pixels a glyph.
+- **Main menu pills** (`main.png`): 114x42 at (205, 202), (427, 202), (205, 365), (427, 365); fills
+  `#a98a7a`, `#4f9a88`, `#3f90c8`, `#ae70b8`, each with a lighter 4-pixel rim.
+- **Settings** (`settings.png`): rows 52 high at y 54, 130, 209, 286; names right-aligned to 224;
+  fields from x 258, 354 wide; the focused field tan. BACK at (94, 372).
+- **Dialogs**: near-black at about 90%, a 4-pixel rim - magenta `#a8155e` in Settings
+  (`settings-language.png`), orange for Play (`no-disc.png`), green for File (`file-menu.png`).
+  Options sit on 46x36 blobs, `#2a6a2e`, the focused one blinking `#b3ab22`; each box's positions
+  are in `layout.ts` with the frame they were read from.
+- **The delete box opens on No** (`file-delete.png`), and after Yes "File was deleted." stands over
+  the list with a blob until pressed (`file-deleted.png`).
+- **Settings' memory-card clock**: after Select, "Set all memory cards to / Date/Time of main
+  console." (`settings-vmu-done.png`).
+- **The first-boot clock** reads 11/27/1998 00:00 until it is changed (`boot-clock.png`, 11.5s), with
+  the arrows over the month.
+- **The memory card**: 88 blocks used and 110 free (`file-list.png`), 83 and 115 after a 5-block save
+  is deleted (135s) - 198 in all.
+- **Motion**: see `motion.ts` and the theme page. Read at 20 frames a second from 36.0s: the menu
+  fades out over 36.65-36.75s, the sky alone until 36.9s, the no-disc box up by 37.0s; its blob
+  yellow and green 200 ms each from 37.05s.
+
+## Screens and the manual
+
+The US manual (manualslib 318214, pages 9-24) gives the buttons: the D-pad moves, A selects, B
+cancels or goes back; File's X and Y pick several files of one game; Music's repeat cycles off, one
+track, all tracks.

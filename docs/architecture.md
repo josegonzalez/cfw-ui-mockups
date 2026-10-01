@@ -8,6 +8,7 @@ One React application renders every screen in the repo. This describes how it is
 app/src/
   device/    the shell: bezel, screen box, button cluster, device registry, screen context
   input/     the key map, the input provider, the mockup-only subset keys
+  audio/     the sound provider
   anim/      the animation vocabulary, compiler, neutral timeline and web adapter
   layout/    geometry primitives: boxes, anchored boxes, grid metrics
   nav/       selection cursors
@@ -29,12 +30,13 @@ A screen is a device frame wrapped around theme content:
 </DeviceFrame>
 ```
 
-`DeviceFrame` establishes four things a screen needs and cannot decide for itself:
+`DeviceFrame` establishes five things a screen needs and cannot decide for itself:
 
 | Provider | Supplies |
 | --- | --- |
 | `ScreenProvider` | which device, its exact pixel size, and whether motion runs |
 | `InputProvider` | keyboard and on-screen button state |
+| `SoundProvider` | whether sound plays, and the one call that plays it |
 | `RenderModeProvider` | whether web-only effects may be used |
 | the bezel itself | the scaled shell and the clipped screen box |
 
@@ -136,6 +138,22 @@ window that loses focus mid-hold clears the held set, since the keyup will never
 
 Motion is declared as descriptors and compiled to a renderer-neutral timeline, with the Web
 Animations adapter as the only web-specific part. See [animation.md](animation.md).
+
+## Sound
+
+A theme decides which sound a moment calls for; it never plays one itself. The Dreamcast BIOS, the
+one set with sounds, derives a cue from each press - from the state before it and the state after -
+in its pure reducer, and its root hands the cue's file to `useSound().play`. Sound is therefore data
+in the same way motion is: a second renderer implements `play`, and every theme's choice of sound
+comes with it.
+
+Sound belongs to the live build. `DeviceFrame` supplies a working `play` only when the screen takes
+input, so a still is silent by construction, exactly as it is inert; a live build can be muted with
+the `sound` prop or `?sound=off`. A browser refuses audio before the page's first gesture, and that
+refusal is dropped quietly - the next press is a gesture.
+
+The storyboard format's own `sound` field is still carried and not played: no source set's
+storyboard sounds are in the repo to play.
 
 ## Render modes
 

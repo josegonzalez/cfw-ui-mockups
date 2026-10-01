@@ -43,10 +43,11 @@ inventory, alongside the reference material extracted from its upstream source.
 | DS Style | [themes/ds-style.md](themes/ds-style.md) | [themes/ds-style/reference/](themes/ds-style/reference/) |
 | Wii Menu | [themes/wii-menu.md](themes/wii-menu.md) | [themes/wii-menu/reference/](themes/wii-menu/reference/) |
 | spruceOS | [themes/spruceos.md](themes/spruceos.md) | [themes/spruceos/reference/](themes/spruceos/reference/) |
+| Dreamcast BIOS | [themes/dreamcast-bios.md](themes/dreamcast-bios.md) | [themes/dreamcast-bios/reference/](themes/dreamcast-bios/reference/) |
 | Example OS | [themes/example-cfw.md](themes/example-cfw.md) | none - it is a scaffold, not a reproduction |
 
 Pages still carrying a status banner describe the original mockups; each is rewritten for the
-React implementation as its theme is ported. All twelve sets above are ported.
+React implementation as its theme is ported. All thirteen sets above are ported.
 
 **[themes/example-cfw.md](themes/example-cfw.md) is the template for adding a theme.** It is
 ported, and it documents what a theme is made of and how to start a new one.
@@ -63,6 +64,8 @@ its Flutter source, so its page compares against that and the frames from the pr
 DS Style renders headlessly, so its page compares against frames the launcher drew itself. The
 Wii Menu is closed, so its page compares against recordings of the console and the WM4K texture
 pack. spruceOS's PyUI renders headlessly too, so its page compares against frames PyUI drew itself.
+The Dreamcast BIOS is closed as well, but its textures, font and strings are decoded from the boot
+ROM, so its page compares against the ROM and a recording of the menu on a console.
 
 - [porting/elementerial.md](porting/elementerial.md)
 - [porting/playstation-x.md](porting/playstation-x.md)
@@ -75,6 +78,7 @@ pack. spruceOS's PyUI renders headlessly too, so its page compares against frame
 - [porting/ds-style.md](porting/ds-style.md)
 - [porting/wii-menu.md](porting/wii-menu.md)
 - [porting/spruceos.md](porting/spruceos.md)
+- [porting/dreamcast-bios.md](porting/dreamcast-bios.md)
 - [porting/example-cfw.md](porting/example-cfw.md)
 
-All twelve sets are ported, so this list is complete.
+All thirteen sets are ported, so this list is complete.
