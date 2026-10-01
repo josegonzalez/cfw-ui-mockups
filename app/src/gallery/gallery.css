@@ -400,47 +400,86 @@
   background: color-mix(in srgb, var(--card-accent, var(--gal-neon)) 16%, var(--gal-surface-2));
 }
 
-.gal-btn:focus-visible,
-.gal-screen-link:focus-visible {
+.gal-btn:focus-visible {
   outline: 2px solid var(--gal-neon);
   outline-offset: 2px;
 }
 
-/* --- screen index -------------------------------------------------------- */
+/* --- compare views: facet cards ------------------------------------------ */
 
-.gal__screens {
+.gal__section-link {
+  margin-left: auto;
+  color: var(--gal-neon);
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.gal__section-link:hover {
+  text-decoration: underline;
+}
+
+.gal-facet-cards {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  gap: 10px;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 12px;
   margin-top: 24px;
 }
 
-.gal-screen-link {
+.gal-facet-card {
   display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 13px 16px;
+  flex-direction: column;
+  gap: 8px;
+  padding: 14px 16px;
   border: 1px solid var(--gal-line);
   border-radius: 10px;
   background: var(--gal-surface);
   color: var(--gal-ink);
-  font-size: 14px;
   text-decoration: none;
   transition:
     border-color 0.15s ease,
     background 0.15s ease;
 }
 
-.gal-screen-link:hover {
+.gal-facet-card:hover {
   border-color: color-mix(in srgb, var(--gal-neon) 50%, transparent);
   background: var(--gal-surface-2);
 }
 
-.gal-screen-link__meta {
+.gal-facet-card:focus-visible {
+  outline: 2px solid var(--gal-neon);
+  outline-offset: 2px;
+}
+
+/* One bar per set that has the view, in its accent - how widely shared a view is, at a glance. */
+.gal-facet-card__sets {
+  display: flex;
+  gap: 4px;
+  min-height: 6px;
+}
+
+.gal-facet-card__set {
+  width: 18px;
+  height: 6px;
+  border-radius: 3px;
+}
+
+.gal-facet-card__label {
+  font-size: 16px;
+  font-weight: 650;
+}
+
+.gal-facet-card__desc {
+  color: var(--gal-ink-2);
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.gal-facet-card__meta {
+  margin-top: auto;
   color: var(--gal-ink-3);
   font-size: 12px;
-  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
 }
 
 /* --- notes and footer ---------------------------------------------------- */
@@ -504,13 +543,73 @@
   background: var(--gal-bg);
 }
 
+.gal-viewer__chrome {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  max-width: 1120px;
+}
+
 .gal-viewer__bar {
   display: flex;
   align-items: center;
   gap: 14px;
   flex-wrap: wrap;
   width: 100%;
-  max-width: 1120px;
+}
+
+/* A label column, so a long device list wraps under itself rather than under its label. */
+.gal-viewer__row {
+  display: grid;
+  grid-template-columns: 104px minmax(0, 1fr);
+  align-items: baseline;
+  gap: 14px;
+}
+
+.gal-viewer__label {
+  color: var(--gal-ink-3);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+/* --- tags ---------------------------------------------------------------- */
+
+/* Types in the cyan accent, elements in the pink, so the two facets read apart at a glance. */
+.gal-tags {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.gal-tag {
+  padding: 3px 9px;
+  border: 1px solid;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.gal-tag--type {
+  border-color: color-mix(in srgb, var(--gal-neon) 50%, transparent);
+  color: var(--gal-neon);
+}
+
+.gal-tag--element {
+  border-color: color-mix(in srgb, var(--gal-neon-2) 50%, transparent);
+  color: #f7a3c6;
+}
+
+.gal-tag:hover {
+  background: var(--gal-surface-2);
+}
+
+.gal-tag:focus-visible {
+  outline: 2px solid var(--gal-neon);
+  outline-offset: 2px;
 }
 
 .gal-viewer__title {
@@ -530,7 +629,7 @@
   }
 
   .gal-btn,
-  .gal-screen-link {
+  .gal-facet-card {
     transition: none;
   }
 
@@ -691,5 +790,270 @@
 @media (prefers-reduced-motion: reduce) {
   .gal-subsets__opt {
     transition: none;
+  }
+}
+
+/* --- views page ---------------------------------------------------------- */
+
+/*
+ * Every set's take on one view, side by side: a sidebar of facets and a wall of stills. Built
+ * after the Game UI Database, whose whole idea is that the same screen is easiest to judge next
+ * to other people's.
+ */
+.gal-views {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--gal-bg);
+  color: var(--gal-ink);
+}
+
+.gal-views__bar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 32px;
+  border-bottom: 1px solid var(--gal-line);
+}
+
+.gal-views__name {
+  font-size: 15px;
+  font-weight: 650;
+}
+
+.gal-views__body {
+  display: grid;
+  grid-template-columns: 260px minmax(0, 1fr);
+  flex-grow: 1;
+}
+
+.gal-views__nav {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  padding: 24px 16px;
+  border-right: 1px solid var(--gal-line);
+  background: var(--gal-surface);
+}
+
+.gal-views__facet {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.gal-views__facet-title {
+  margin: 0 0 8px 10px;
+  color: var(--gal-ink-3);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.gal-views__type {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  padding: 7px 10px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  color: var(--gal-ink-2);
+  font-size: 14px;
+  text-decoration: none;
+}
+
+.gal-views__type:hover {
+  color: var(--gal-ink);
+  background: var(--gal-surface-2);
+}
+
+.gal-views__type--on {
+  border-color: color-mix(in srgb, var(--gal-neon) 60%, transparent);
+  background: color-mix(in srgb, var(--gal-neon) 14%, var(--gal-surface));
+  color: var(--gal-ink);
+}
+
+.gal-views__count {
+  color: var(--gal-ink-3);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.gal-views__elements {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 0 4px;
+}
+
+.gal-views__element {
+  padding: 4px 9px;
+  border: 1px solid var(--gal-line);
+  border-radius: 6px;
+  background: var(--gal-surface-2);
+  color: var(--gal-ink-2);
+  font-size: 12.5px;
+  text-decoration: none;
+}
+
+.gal-views__element:hover {
+  color: var(--gal-ink);
+}
+
+.gal-views__element--on {
+  border-color: color-mix(in srgb, var(--gal-neon-2) 70%, transparent);
+  background: color-mix(in srgb, var(--gal-neon-2) 16%, var(--gal-surface));
+  color: var(--gal-ink);
+}
+
+.gal-views__type:focus-visible,
+.gal-views__element:focus-visible,
+.gal-views__set:focus-visible,
+.gal-tile:focus-visible {
+  outline: 2px solid var(--gal-neon);
+  outline-offset: 2px;
+}
+
+.gal-views__main {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 28px 32px 64px;
+  min-width: 0;
+}
+
+.gal-views__head {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.gal-views__title {
+  margin: 0;
+  font-size: 30px;
+  font-weight: 700;
+}
+
+.gal-views__desc {
+  margin: 0;
+  color: var(--gal-ink-2);
+  font-size: 15px;
+}
+
+.gal-views__subhead {
+  margin: 12px 0 -12px;
+  color: var(--gal-ink-2);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.gal-views__sets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.gal-views__set {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border: 1px solid var(--gal-line);
+  border-radius: 999px;
+  background: var(--gal-surface);
+  color: var(--gal-ink-3);
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.gal-views__set--on {
+  background: var(--gal-surface-2);
+  color: var(--gal-ink);
+}
+
+.gal-views__set:not(.gal-views__set--on) .gal-views__dot {
+  opacity: 0.35;
+}
+
+.gal-views__dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex: none;
+}
+
+/* Fixed-width columns, because a still's scale is decided before it is laid out. */
+.gal-views__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, 288px);
+  gap: 24px 20px;
+  align-items: start;
+}
+
+.gal-tile {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  color: var(--gal-ink);
+  text-decoration: none;
+}
+
+.gal-tile[hidden] {
+  display: none;
+}
+
+.gal-tile__title {
+  margin-top: 6px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.gal-tile__meta {
+  color: var(--gal-ink-3);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.gal-tile:hover .gal-still {
+  border-color: color-mix(in srgb, var(--gal-neon) 60%, transparent);
+}
+
+/*
+ * The tile's box. It sizes and clips; the still inside lays out at native resolution and is
+ * scaled from the top left, the same arrangement as the device frame.
+ */
+.gal-still {
+  /* Content-box, so the width the still is scaled to is the width inside the border. */
+  box-sizing: content-box;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--gal-line);
+  border-radius: 8px;
+  background: #000;
+}
+
+.gal-still__inner {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform-origin: 0 0;
+  pointer-events: none;
+}
+
+@media (max-width: 760px) {
+  .gal-views__body {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .gal-views__nav {
+    border-right: 0;
+    border-bottom: 1px solid var(--gal-line);
   }
 }

@@ -1,6 +1,7 @@
 import type { DeviceSlug } from '../../device/devices'
 import type { ScreenManifestEntry } from '../manifest'
 import type { HudKind } from './library'
+import { LIVE_TAGS, type ScreenTags } from '../taxonomy'
 
 /**
  * One device.
@@ -35,6 +36,30 @@ export interface SlotScreenDef {
  * here too, which is what makes it comparable with the `shelf` still in `settle.spec.ts`.
  */
 export const SHELF_SELECTED = 2
+
+/**
+ * Tags by screen. The three insert stills and the eject are `loading`: the cart travelling into
+ * the slot is slot's launch. The playing still is the running game with nothing over it, and doze
+ * is the panel off: neither draws anything the element vocabulary names.
+ */
+export const SLOT_TAGS: Record<string, ScreenTags> = {
+  shelf: { types: ['game-list'], elements: ['shelf', 'hint-bar'] },
+  'shelf-wallpaper': { types: ['game-list'], elements: ['shelf', 'hint-bar'] },
+  'insert-falling': { types: ['loading'], elements: ['shelf'] },
+  'insert-caught': { types: ['loading'], elements: ['shelf'] },
+  'insert-seated': { types: ['loading'], elements: ['shelf'] },
+  playing: { types: ['gameplay'], elements: [] },
+  'hud-volume': { types: ['overlay'], elements: ['slider', 'artwork-panel'] },
+  'hud-brightness': { types: ['overlay'], elements: ['slider', 'artwork-panel'] },
+  'hud-rewind': { types: ['overlay'], elements: ['progress-bar', 'artwork-panel'] },
+  ejecting: { types: ['loading'], elements: ['shelf'] },
+  polaroids: {
+    types: ['save-states', 'game-switcher'],
+    elements: ['carousel', 'artwork-panel', 'page-indicator', 'hint-bar'],
+  },
+  'set-clock': { types: ['date-time'], elements: ['stepper', 'hint-bar'] },
+  doze: { types: ['power'], elements: [] },
+}
 
 export const SLOT_SCREENS: readonly SlotScreenDef[] = [
   { slug: 'shelf', title: 'Shelf', view: 'shelf', selected: SHELF_SELECTED },
@@ -93,6 +118,7 @@ export const SLOT_MANIFEST: readonly ScreenManifestEntry[] = SLOT_DEVICES.flatMa
     screen: 'interactive',
     title: 'Interactive',
     interactive: true,
+    ...LIVE_TAGS,
   },
   ...SLOT_SCREENS.map((s) => ({
     theme: 'slot' as const,
@@ -100,5 +126,6 @@ export const SLOT_MANIFEST: readonly ScreenManifestEntry[] = SLOT_DEVICES.flatMa
     screen: s.slug,
     title: s.title,
     interactive: false,
+    ...SLOT_TAGS[s.slug]!,
   })),
 ])

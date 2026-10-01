@@ -24,6 +24,7 @@ it relies on something a simple renderer lacks.
 | --- | --- |
 | [devices.md](devices.md) | Canonical device slugs, screen resolutions and aspect classes |
 | [frameworks.md](frameworks.md) | Candidate frameworks for implementing these mockups for real, and their capability gaps |
+| [views.md](views.md) | The screen-type and UI-element vocabulary every screen is tagged with, and the views page that compares them across sets |
 
 ## Themes
 

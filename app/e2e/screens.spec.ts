@@ -1,5 +1,7 @@
 import { expect, test } from '@playwright/test'
 import { SCREEN_MANIFEST as ROUTES, screenId as routeId } from '../src/themes/manifest'
+import { SCREEN_TYPES } from '../src/themes/taxonomy'
+import { viewsHref } from '../src/themes/views'
 
 /**
  * Every screen, checked for the faults that unit tests structurally cannot see.
@@ -157,13 +159,31 @@ for (const route of ROUTES) {
   })
 }
 
-test('the landing page reaches every route', async ({ page }) => {
+/*
+ * Every route is reachable without typing a URL. The landing page links each set's live build;
+ * the views pages link every static screen once, on its set's first device; and the device
+ * switcher in the viewer reaches the rest - which has its own test below.
+ */
+test('every screen is reachable from the landing page or a views page', async ({ page }) => {
   await page.goto('/')
+  const reached = new Set<string>()
+  const collect = async () => {
+    for (const href of await page
+      .locator('a[href^="#"]')
+      .evaluateAll((links) => links.map((a) => a.getAttribute('href')!.slice(1)))) {
+      const [theme, , screen] = href.split('/')
+      reached.add(`${theme}/${screen}`)
+    }
+  }
+  await collect()
+
+  for (const slug of Object.keys(SCREEN_TYPES)) {
+    await page.goto(`/${viewsHref('type', slug)}`)
+    await collect()
+  }
 
   for (const route of ROUTES) {
-    // At least one link, not exactly one: a theme card also links its own live build, so a
-    // route can legitimately be reachable from two places.
-    await expect(page.locator(`a[href="#${routeId(route)}"]`).first()).toBeAttached()
+    expect(reached, routeId(route)).toContain(`${route.theme}/${route.screen}`)
   }
 })
 

@@ -1,5 +1,6 @@
 import type { DeviceSlug } from '../../device/devices'
 import type { ScreenManifestEntry } from '../manifest'
+import { LIVE_TAGS, type ScreenTags } from '../taxonomy'
 import type { Seed } from './machine'
 
 export const DS_STYLE_DEVICES: readonly DeviceSlug[] = ['rg-sp']
@@ -62,13 +63,66 @@ export const DS_STYLE_SCREENS: readonly DsScreenDef[] = [
   { slug: 'lcd-grid', title: 'LCD grid', seed: { prefs: { lcd: true } } },
 ]
 
+/**
+ * What each still is, by slug. Every view carries the title bar's clock except About and Snake,
+ * whose bar swaps it for a page number or a score. The default view mode is Horizontal, so Games,
+ * Favourites and Recents are carousels. Settings values are plain text, so no toggles.
+ */
+export const DS_STYLE_TAGS: Record<string, ScreenTags> = {
+  home: { types: ['home'], elements: ['artwork-panel', 'status-bar'] },
+  'home-games': { types: ['home'], elements: ['artwork-panel', 'status-bar'] },
+  'home-apps': { types: ['home'], elements: ['artwork-panel', 'status-bar'] },
+  'home-settings': { types: ['home'], elements: ['artwork-panel', 'status-bar'] },
+  'home-power': { types: ['home'], elements: ['artwork-panel', 'status-bar'] },
+  systems: { types: ['system-list'], elements: ['list', 'status-bar'] },
+  games: { types: ['game-list'], elements: ['carousel', 'artwork-panel', 'status-bar'] },
+  'games-vertical': { types: ['game-list'], elements: ['carousel', 'artwork-panel', 'status-bar'] },
+  'games-list': { types: ['game-list'], elements: ['list', 'status-bar'] },
+  'games-list-art': { types: ['game-list'], elements: ['list', 'artwork-panel', 'status-bar'] },
+  'games-marquee': { types: ['game-list'], elements: ['list', 'status-bar'] },
+  favourites: { types: ['collection', 'game-list'], elements: ['carousel', 'artwork-panel', 'status-bar'] },
+  recents: { types: ['collection', 'game-list'], elements: ['carousel', 'artwork-panel', 'status-bar'] },
+  apps: { types: ['apps'], elements: ['list', 'status-bar'] },
+  search: { types: ['search'], elements: ['keyboard', 'status-bar'] },
+  'search-results': { types: ['search', 'game-list'], elements: ['carousel', 'artwork-panel', 'status-bar'] },
+  'launch-mode': { types: ['game-list'], elements: ['list', 'popup-menu', 'status-bar'] },
+  'confirm-shutdown': { types: ['power'], elements: ['dialog', 'artwork-panel', 'status-bar'] },
+  'favourite-added': { types: ['collection', 'game-list'], elements: ['carousel', 'artwork-panel', 'dialog', 'status-bar'] },
+  launching: { types: ['loading'], elements: ['toast', 'artwork-panel', 'status-bar'] },
+  volume: { types: ['overlay'], elements: ['slider', 'artwork-panel', 'status-bar'] },
+  brightness: { types: ['overlay'], elements: ['slider', 'artwork-panel', 'status-bar'] },
+  settings: { types: ['settings'], elements: ['list', 'status-bar'] },
+  'settings-browsing': { types: ['settings'], elements: ['list', 'status-bar'] },
+  'settings-artwork': { types: ['settings'], elements: ['list', 'status-bar'] },
+  'settings-appearance': { types: ['settings', 'appearance'], elements: ['list', 'status-bar'] },
+  'settings-startup': { types: ['settings'], elements: ['list', 'status-bar'] },
+  'settings-sound': { types: ['settings'], elements: ['list', 'status-bar'] },
+  'settings-system': { types: ['settings'], elements: ['list', 'status-bar'] },
+  'settings-controls': { types: ['settings', 'controls'], elements: ['list', 'status-bar'] },
+  'settings-bind': { types: ['controls', 'settings'], elements: ['list', 'dialog', 'status-bar'] },
+  'setting-help': { types: ['settings', 'help'], elements: ['list', 'dialog', 'status-bar', 'text-block'] },
+  help: { types: ['help'], elements: ['list', 'page-indicator', 'status-bar', 'text-block'] },
+  'help-2': { types: ['help'], elements: ['list', 'page-indicator', 'status-bar', 'text-block'] },
+  about: { types: ['about'], elements: ['page-indicator', 'text-block'] },
+  'about-2': { types: ['about'], elements: ['page-indicator', 'text-block'] },
+  snake: { types: ['apps'], elements: [] },
+  'dark-home': { types: ['home'], elements: ['artwork-panel', 'status-bar'] },
+  'dark-games': { types: ['game-list'], elements: ['list', 'status-bar'] },
+  red: { types: ['home'], elements: ['artwork-panel', 'status-bar'] },
+  'bright-green': { types: ['home'], elements: ['artwork-panel', 'status-bar'] },
+  purple: { types: ['home'], elements: ['artwork-panel', 'status-bar'] },
+  'gba-art': { types: ['game-list'], elements: ['carousel', 'artwork-panel', 'status-bar'] },
+  'lcd-grid': { types: ['home'], elements: ['artwork-panel', 'status-bar'] },
+}
+
 export const DS_STYLE_MANIFEST: readonly ScreenManifestEntry[] = DS_STYLE_DEVICES.flatMap((device) => [
-  { theme: 'ds-style' as const, device, screen: 'interactive', title: 'Interactive', interactive: true },
+  { theme: 'ds-style' as const, device, screen: 'interactive', title: 'Interactive', interactive: true, ...LIVE_TAGS },
   ...DS_STYLE_SCREENS.map((s) => ({
     theme: 'ds-style' as const,
     device,
     screen: s.slug,
     title: s.title,
     interactive: false,
+    ...DS_STYLE_TAGS[s.slug]!,
   })),
 ])

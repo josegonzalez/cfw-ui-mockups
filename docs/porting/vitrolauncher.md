@@ -124,6 +124,13 @@ for free.
 painted a 999px-radius translucent ellipse across the entire screen. Nesting it inside the pill
 fixed it. Numerically nothing was wrong: the pill's own geometry was correct throughout.
 
+**Waves gone from a page of stills.** The waves shader asks for a WebGL context, and a browser
+keeps only a handful. On the views page, where a comparison puts many stills side by side, the
+oldest contexts were dropped and their canvases went blank. A still now draws its one frame on a
+canvas that is never attached, copies it onto the 2D canvas it shows, and releases the context
+(`app/src/render/stillGl.ts`). `e2e/views.spec.ts` reads the pixels of every tile's canvas, and
+was run against the unfixed renderers to show that it fails.
+
 ## The fallback variants
 
 Vitro is where the two render modes earn their keep, because it is the only set that uses a

@@ -1,5 +1,6 @@
 import type { DeviceSlug } from '../../device/devices'
 import type { ScreenManifestEntry } from '../manifest'
+import { LIVE_TAGS, type ScreenTags } from '../taxonomy'
 import { VIEWS } from './library'
 
 /**
@@ -9,6 +10,36 @@ import { VIEWS } from './library'
  * This one runs on a console with a single fixed output, so a second device would be a fiction.
  */
 export const NEXTUI_DEVICES: readonly DeviceSlug[] = ['n64']
+
+/**
+ * What each view is for and built from, keyed by view slug. The posed variants (title pills, a
+ * palette) take their underlying view's tags.
+ */
+export const NEXTUI_VIEW_TAGS: Record<string, ScreenTags> = {
+  browser: { types: ['game-list'], elements: ['list', 'artwork-panel', 'hint-bar'] },
+  collections: { types: ['collection'], elements: ['list', 'hint-bar'] },
+  'history-favorites': { types: ['collection'], elements: ['list', 'artwork-panel', 'hint-bar'] },
+  'settings-editor': { types: ['settings'], elements: ['list', 'toggle', 'hint-bar'] },
+  'menu-colors': { types: ['appearance'], elements: ['list', 'hint-bar'] },
+  'palette-picker': { types: ['appearance'], elements: ['list', 'hint-bar'] },
+  'color-editor': { types: ['appearance'], elements: ['hint-bar'] },
+  'load-rom': { types: ['game-details'], elements: ['artwork-panel', 'hint-bar'] },
+  'load-disk': { types: ['game-details'], elements: ['text-block', 'hint-bar'] },
+  'load-emulator': { types: ['game-details'], elements: ['text-block', 'hint-bar'] },
+  'file-info': { types: ['file-manager'], elements: ['text-block', 'hint-bar'] },
+  'system-info': { types: ['about'], elements: ['text-block', 'hint-bar'] },
+  'flashcart-info': { types: ['about'], elements: ['list', 'hint-bar'] },
+  credits: { types: ['about'], elements: ['text-block', 'hint-bar'] },
+  rtc: { types: ['date-time'], elements: ['text-block', 'hint-bar'] },
+  'music-player': { types: ['media-player'], elements: ['progress-bar', 'hint-bar'] },
+  'image-viewer': { types: ['media-player'], elements: ['artwork-panel', 'hint-bar'] },
+  'text-viewer': { types: ['media-player'], elements: ['text-block', 'hint-bar'] },
+  'extract-file': { types: ['file-manager'], elements: ['text-block', 'hint-bar'] },
+  'datel-code-editor': { types: ['settings'], elements: ['list', 'toggle', 'hint-bar'] },
+  'cpakfs-manager': { types: ['file-manager'], elements: ['list', 'hint-bar'] },
+  'cpak-dump-info': { types: ['file-manager'], elements: ['text-block', 'hint-bar'] },
+  'cpak-note-dump-info': { types: ['file-manager'], elements: ['text-block', 'hint-bar'] },
+}
 
 /** A posed screen: a view, and the palette and cursor position it is captured at. */
 export interface NextUiScreenDef {
@@ -73,6 +104,7 @@ export const NEXTUI_MANIFEST: readonly ScreenManifestEntry[] = NEXTUI_DEVICES.fl
     screen: 'interactive',
     title: 'Interactive',
     interactive: true,
+    ...LIVE_TAGS,
   },
   ...NEXTUI_SCREENS.map((s) => ({
     theme: 'nextui' as const,
@@ -80,5 +112,6 @@ export const NEXTUI_MANIFEST: readonly ScreenManifestEntry[] = NEXTUI_DEVICES.fl
     screen: s.slug,
     title: s.title,
     interactive: false,
+    ...NEXTUI_VIEW_TAGS[s.view]!,
   })),
 ])

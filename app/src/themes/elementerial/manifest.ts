@@ -1,5 +1,6 @@
 import type { DeviceSlug } from '../../device/devices'
 import type { ScreenManifestEntry } from '../manifest'
+import { LIVE_TAGS, type ScreenTags } from '../taxonomy'
 import type { SchemeStyle } from './palette'
 import type { ElementerialView } from './index'
 
@@ -34,6 +35,21 @@ export const ELEMENTERIAL_SCREENS: readonly ElementerialScreen[] = [
   { slug: 'menu', title: 'Menu', view: 'menu', scheme: 'gb', style: 'light', system: 'gb' },
 ]
 
+/**
+ * What each screen is, by slug. The shared chrome (hint bar, clock, wifi and battery glyphs) is
+ * on every view except the menu, which draws none behind its panel.
+ */
+export const ELEMENTERIAL_TAGS: Record<string, ScreenTags> = {
+  system: { types: ['system-list'], elements: ['carousel', 'hint-bar', 'status-bar'] },
+  'gamelist-basic': { types: ['game-list'], elements: ['list', 'hint-bar', 'status-bar'] },
+  'gamelist-detailed': { types: ['game-list', 'game-details'], elements: ['list', 'artwork-panel', 'hint-bar', 'status-bar'] },
+  'gamelist-video': { types: ['game-list'], elements: ['list', 'artwork-panel', 'hint-bar', 'status-bar'] },
+  grid: { types: ['game-list'], elements: ['grid', 'hint-bar', 'status-bar'] },
+  boxes: { types: ['game-list'], elements: ['grid', 'hint-bar', 'status-bar'] },
+  elementflix: { types: ['game-list'], elements: ['carousel', 'artwork-panel', 'hint-bar', 'status-bar'] },
+  menu: { types: ['settings'], elements: ['list', 'toggle'] },
+}
+
 export const ELEMENTERIAL_MANIFEST: readonly ScreenManifestEntry[] = ELEMENTERIAL_DEVICES.flatMap(
   (device) => [
     {
@@ -42,6 +58,7 @@ export const ELEMENTERIAL_MANIFEST: readonly ScreenManifestEntry[] = ELEMENTERIA
       screen: 'interactive',
       title: 'Interactive',
       interactive: true,
+      ...LIVE_TAGS,
     },
     ...ELEMENTERIAL_SCREENS.map((screen) => ({
       theme: 'elementerial' as const,
@@ -49,6 +66,7 @@ export const ELEMENTERIAL_MANIFEST: readonly ScreenManifestEntry[] = ELEMENTERIA
       screen: screen.slug,
       title: screen.title,
       interactive: false,
+      ...ELEMENTERIAL_TAGS[screen.slug]!,
     })),
   ],
 )

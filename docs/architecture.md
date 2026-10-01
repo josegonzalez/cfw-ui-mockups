@@ -162,6 +162,29 @@ simple renderer lacks - blur, shaders, arbitrary masks, reflections - declare bo
 screenshotted. The degraded look is therefore designed against the original rather than
 discovered later. See [portability.md](portability.md).
 
+## The gallery and the views page
+
+The application around the screens is a gallery, routed by URL fragment so it works from any
+subpath and from the screenshot suite. `#<theme>/<device>/<screen>` opens one screen,
+`#docs/...` opens a notes page, and `#views`, `#views/type/<slug>` and `#views/element/<slug>`
+open the views page.
+
+Every screen is listed once in its theme's `manifest.ts`, as plain data with no React, and
+carries its tags there: `types` for what it is for and `elements` for what it is built from,
+from the closed vocabulary in `app/src/themes/taxonomy.ts`. The views page lines up every set's
+screens for one tag, and the viewer bar links a screen's tags and offers the same view in other
+sets. [views.md](views.md) has the vocabulary and the tagging rules.
+
+A tile on the views page is the screen's own route under `ViewOverridesProvider` with motion
+settled, sound off and the bezel dropped (`bare`), scaled down. It is the same build as the
+screen's own page, so it cannot drift from it. A tile mounts only when it scrolls near the
+viewport.
+
+A still that draws with WebGL draws its one frame on a canvas that is never attached, copies it
+onto the 2D canvas it shows, and releases the context (`app/src/render/stillGl.ts`). A browser
+keeps only a handful of live contexts, and a page of stills would otherwise run past that limit
+and blank the oldest.
+
 ## Assets
 
 Theme assets live under `app/src/themes/<theme>/assets/` and are resolved through Vite, so a

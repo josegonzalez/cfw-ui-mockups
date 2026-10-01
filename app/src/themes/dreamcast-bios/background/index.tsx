@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useScreen } from '../../../device/ScreenContext'
 import { useWebEffects } from '../../../render/RenderModeProvider'
+import { bakeStillGl, stillGlCanvas } from '../../../render/stillGl'
 import { SCENERY, VERT, frag, skyAt, type Palette, type Scenery } from './sky'
 
 /** The fallback draws a pixel of sky per this many device pixels each way, then scales it up. */
@@ -98,13 +99,15 @@ export function Sky({ scenery = 'open' }: { scenery?: Scenery }) {
   const glCanvas = useRef<HTMLCanvasElement>(null)
   const twoCanvas = useRef<HTMLCanvasElement>(null)
   const [glReady, setGlReady] = useState(false)
-  const useGl = webEffects && glReady
+  // A still shows the 2D canvas whichever drew it: its GL frame is copied there (`stillGl.ts`).
+  const useGl = webEffects && glReady && animate
 
   useEffect(() => {
     const two = twoCanvas.current
     const ctx = two?.getContext('2d')
     if (!two || !ctx) return
-    const sky = webEffects && glCanvas.current ? createSkyGl(glCanvas.current, palette) : null
+    const glTarget = animate ? glCanvas.current : stillGlCanvas(w, h)
+    const sky = webEffects && glTarget ? createSkyGl(glTarget, palette) : null
     setGlReady(sky !== null)
     const low = document.createElement('canvas')
     low.width = Math.round(w / FALLBACK_STEP)
@@ -112,7 +115,10 @@ export function Sky({ scenery = 'open' }: { scenery?: Scenery }) {
     const render = (t: number) => (sky ? sky.draw(t) : drawSkyFallback(ctx, low, t, palette))
 
     render(0)
-    if (!animate) return () => sky?.dispose()
+    if (!animate) {
+      if (sky && glTarget) bakeStillGl(glTarget, ctx)
+      return () => sky?.dispose()
+    }
 
     let raf = 0
     let start: number | null = null

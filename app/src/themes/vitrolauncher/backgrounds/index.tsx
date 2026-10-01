@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useScreen } from '../../../device/ScreenContext'
 import { useWebEffects } from '../../../render/RenderModeProvider'
+import { bakeStillGl, stillGlCanvas } from '../../../render/stillGl'
 import { hexToRgb } from '../palette'
 import { drawClouds, drawSimple, makeClouds } from './clouds'
 import { drawParticles, makeDotSprite, makeMotes, moteTint } from './particles'
@@ -40,11 +41,12 @@ export function Background({ theme, accent, bg, light }: BackgroundProps) {
    */
   const wantGl = theme === 'waves' && webEffects
   const [glReady, setGlReady] = useState(false)
-  const useGl = wantGl && glReady
+  // A still shows the 2D canvas whichever drew it: its GL frame is copied there (`stillGl.ts`).
+  const useGl = wantGl && glReady && animate
 
   useEffect(() => {
     const two = twoCanvas.current
-    const gl = glCanvas.current
+    const gl = animate ? glCanvas.current : stillGlCanvas(w, h)
     if (!two) return
 
     const ctx = two.getContext('2d')
@@ -79,7 +81,10 @@ export function Background({ theme, accent, bg, light }: BackgroundProps) {
     }
 
     render(0, 0)
-    if (!animate) return () => wave?.dispose()
+    if (!animate) {
+      if (wave && gl) bakeStillGl(gl, ctx)
+      return () => wave?.dispose()
+    }
 
     let raf = 0
     let start: number | null = null

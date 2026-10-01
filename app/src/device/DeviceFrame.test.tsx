@@ -12,6 +12,7 @@ import {
   type DeviceSlug,
 } from './devices'
 import { useScreen } from './ScreenContext'
+import { ViewOverridesProvider } from './ViewOverrides'
 import { useButtonPress, useInput, useInteractive } from '../input/InputProvider'
 import { useRenderMode } from '../render/RenderModeProvider'
 
@@ -107,6 +108,38 @@ describe('DeviceFrame', () => {
     expect(container.querySelector('.device-viewport')).toBeNull()
     expect(container.querySelector('.device__controls')).toBeNull()
     expect(container.querySelector('.screen')).not.toBeNull()
+  })
+
+  it('sizes a bare screen itself, since no viewport is left to do it', () => {
+    const { container } = render(
+      <DeviceFrame device="rg35xx" bare>
+        <Probe />
+      </DeviceFrame>,
+    )
+
+    const el = container.querySelector<HTMLElement>('.device__screen')!
+    expect(el.style.getPropertyValue('--screen-w')).toBe(String(getDevice('rg35xx').w))
+    expect(el.style.getPropertyValue('--screen-h')).toBe(String(getDevice('rg35xx').h))
+  })
+
+  it('takes bare from the view overrides, and lets a prop win', () => {
+    const { container, rerender } = render(
+      <ViewOverridesProvider overrides={{ bare: true }}>
+        <DeviceFrame device="rg35xx">
+          <Probe />
+        </DeviceFrame>
+      </ViewOverridesProvider>,
+    )
+    expect(container.querySelector('.device-viewport')).toBeNull()
+
+    rerender(
+      <ViewOverridesProvider overrides={{ bare: true }}>
+        <DeviceFrame device="rg35xx" bare={false}>
+          <Probe />
+        </DeviceFrame>
+      </ViewOverridesProvider>,
+    )
+    expect(container.querySelector('.device-viewport')).not.toBeNull()
   })
 
   it('renders the full button cluster', () => {

@@ -1,5 +1,6 @@
 import type { DeviceSlug } from '../../device/devices'
 import type { ScreenManifestEntry } from '../manifest'
+import { LIVE_TAGS, type ScreenTags } from '../taxonomy'
 import type { Seed } from './machine'
 
 /** Every device spruceOS runs on that this repo has a shell for (`spruce/<device>/`, `mainui.py:63-117`). */
@@ -121,6 +122,52 @@ export const SPRUCEOS_SCREENS: readonly SpruceScreenDef[] = [
   { slug: 'game-switcher-popup', title: 'Game Switcher popup', seed: { events: 'm', gsTrigger: true } },
 ]
 
+const SB = 'status-bar' as const
+
+/**
+ * What each still is for and is built from, by slug: a slug carries the same tags on every device.
+ * The bottom bar is not a hint bar here - SPRUCE ships its button icons transparent, so the bar is a
+ * plain strip. The top bar's status icons are hidden on a grid, a carousel and the Game Switcher,
+ * which title it with the focused game instead.
+ */
+const SPRUCEOS_TAGS: Readonly<Record<string, ScreenTags>> = {
+  'main-menu': { types: ['home'], elements: ['grid', SB] },
+  'main-games': { types: ['home'], elements: ['grid', SB] },
+  'main-apps': { types: ['home'], elements: ['grid', SB] },
+  'main-settings': { types: ['home'], elements: ['grid', SB] },
+  'main-popup': { types: ['home'], elements: ['popup-menu', 'grid', SB] },
+  'main-popup-down': { types: ['home'], elements: ['popup-menu', 'grid', SB] },
+  games: { types: ['system-list'], elements: ['grid', SB] },
+  'games-row2': { types: ['system-list'], elements: ['grid', SB] },
+  'system-popup': { types: ['system-list'], elements: ['popup-menu', 'grid', SB] },
+  'game-list': { types: ['game-list'], elements: ['list', 'artwork-panel', SB] },
+  'game-list-down': { types: ['game-list'], elements: ['list', 'artwork-panel', SB] },
+  'game-list-grid': { types: ['game-list'], elements: ['grid'] },
+  'game-list-icons': { types: ['game-list'], elements: ['list', SB] },
+  'game-list-carousel': { types: ['game-list'], elements: ['carousel'] },
+  'game-popup': { types: ['game-list'], elements: ['popup-menu', 'list', 'artwork-panel', SB] },
+  'game-config': { types: ['settings'], elements: ['list', 'stepper', SB] },
+  'boxart-prompt': { types: ['settings'], elements: ['dialog', SB] },
+  favorites: { types: ['collection', 'game-list'], elements: ['list', 'artwork-panel', SB] },
+  recents: { types: ['collection', 'game-list'], elements: ['list', 'artwork-panel', SB] },
+  'search-keyboard': { types: ['search'], elements: ['keyboard', SB] },
+  apps: { types: ['apps'], elements: ['list', SB] },
+  'apps-down': { types: ['apps'], elements: ['list', SB] },
+  'apps-popup': { types: ['apps'], elements: ['popup-menu', 'list', SB] },
+  settings: { types: ['settings'], elements: ['list', 'stepper', SB] },
+  'settings-bottom': { types: ['settings'], elements: ['list', 'stepper', SB] },
+  'settings-power': { types: ['power'], elements: ['dialog', SB] },
+  'settings-theme-settings': { types: ['settings', 'appearance'], elements: ['list', SB] },
+  'settings-sound': { types: ['settings'], elements: ['list', 'stepper', SB] },
+  'settings-additional': { types: ['settings'], elements: ['list', SB] },
+  'settings-animation': { types: ['settings'], elements: ['list', 'stepper', SB] },
+  'settings-tasks': { types: ['settings', 'apps'], elements: ['list', SB] },
+  'settings-about': { types: ['about'], elements: ['list', SB] },
+  'game-switcher': { types: ['game-switcher'], elements: ['artwork-panel'] },
+  'game-switcher-next': { types: ['game-switcher'], elements: ['artwork-panel'] },
+  'game-switcher-popup': { types: ['game-switcher'], elements: ['popup-menu', 'artwork-panel', SB] },
+}
+
 /** A still's seed on one device, with that device's override applied. */
 export function seedFor(def: SpruceScreenDef, device: DeviceSlug): Seed {
   const events = def.overrides?.[device]
@@ -135,12 +182,13 @@ export function stillsFor(device: DeviceSlug): readonly SpruceScreenDef[] {
 }
 
 export const SPRUCEOS_MANIFEST: readonly ScreenManifestEntry[] = SPRUCEOS_DEVICES.flatMap((device) => [
-  { theme: 'spruceos' as const, device, screen: 'interactive', title: 'Interactive', interactive: true },
+  { theme: 'spruceos' as const, device, screen: 'interactive', title: 'Interactive', interactive: true, ...LIVE_TAGS },
   ...stillsFor(device).map((s) => ({
     theme: 'spruceos' as const,
     device,
     screen: s.slug,
     title: s.title,
     interactive: false,
+    ...SPRUCEOS_TAGS[s.slug]!,
   })),
 ])

@@ -2,9 +2,11 @@ import { useEffect, useState } from 'react'
 import { Landing } from './gallery/Landing'
 import { NotesViewer, notesPathFromHash } from './gallery/NotesViewer'
 import { ViewerBar } from './gallery/ViewerBar'
+import { ViewsPage } from './gallery/ViewsPage'
 import { ViewOverridesProvider, parseViewOverrides } from './device/ViewOverrides'
 import { ROUTES } from './themes/registry'
 import { findRoute } from './routes'
+import { viewsTargetFromHash } from './themes/views'
 import './gallery/gallery.css'
 
 /**
@@ -31,6 +33,9 @@ export function App() {
 
   const notes = notesPathFromHash(hash)
   if (notes) return <NotesViewer path={notes} />
+
+  const views = viewsTargetFromHash(hash)
+  if (views) return <ViewsPage target={views} />
 
   const route = findRoute(ROUTES, hash)
   if (!route) return <Landing />

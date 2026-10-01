@@ -1,5 +1,6 @@
 import type { DeviceSlug } from '../../device/devices'
 import type { ScreenManifestEntry } from '../manifest'
+import { LIVE_TAGS, type ScreenTags } from '../taxonomy'
 
 export type ExampleView = 'main-menu' | 'game-list'
 
@@ -8,6 +9,11 @@ export const EXAMPLE_VIEWS: readonly ExampleView[] = ['main-menu', 'game-list']
 export const EXAMPLE_VIEW_LABEL: Record<ExampleView, string> = {
   'main-menu': 'Main menu',
   'game-list': 'Game list',
+}
+
+export const EXAMPLE_VIEW_TAGS: Record<ExampleView, ScreenTags> = {
+  'main-menu': { types: ['home'], elements: ['list', 'hint-bar', 'status-bar'] },
+  'game-list': { types: ['game-list'], elements: ['list', 'artwork-panel', 'hint-bar'] },
 }
 
 /**
@@ -27,6 +33,7 @@ export const EXAMPLE_MANIFEST: readonly ScreenManifestEntry[] = EXAMPLE_DEVICES.
       screen: 'interactive',
       title: 'Interactive',
       interactive: true,
+      ...LIVE_TAGS,
     },
     ...EXAMPLE_VIEWS.map((view) => ({
       theme: 'example-cfw' as const,
@@ -34,6 +41,7 @@ export const EXAMPLE_MANIFEST: readonly ScreenManifestEntry[] = EXAMPLE_DEVICES.
       screen: view,
       title: EXAMPLE_VIEW_LABEL[view],
       interactive: false,
+      ...EXAMPLE_VIEW_TAGS[view],
     })),
   ],
 )

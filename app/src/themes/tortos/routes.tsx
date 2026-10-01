@@ -4,7 +4,7 @@ import { Tortos } from '.'
 import { TortosInteractive } from './Interactive'
 import { TORTOS_MANIFEST, TORTOS_SCREENS } from './manifest'
 
-const BY_SLUG = new Map(TORTOS_SCREENS.map((s) => [s.slug, s]))
+const BY_SLUG = new Map<string, (typeof TORTOS_SCREENS)[number]>(TORTOS_SCREENS.map((s) => [s.slug, s]))
 
 /**
  * Mount each manifest entry.

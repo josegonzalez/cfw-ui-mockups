@@ -4,7 +4,7 @@ import { SimpleOs } from '.'
 import { SimpleOsInteractive } from './Interactive'
 import { SIMPLEOS_MANIFEST, SIMPLEOS_SCREENS } from './manifest'
 
-const BY_SLUG = new Map(SIMPLEOS_SCREENS.map((s) => [s.slug, s]))
+const BY_SLUG = new Map<string, (typeof SIMPLEOS_SCREENS)[number]>(SIMPLEOS_SCREENS.map((s) => [s.slug, s]))
 
 /**
  * Mount each manifest entry.

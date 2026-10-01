@@ -1,5 +1,6 @@
 import type { DeviceSlug } from '../../device/devices'
 import type { ScreenManifestEntry } from '../manifest'
+import { LIVE_TAGS, type ScreenTags } from '../taxonomy'
 import type { View } from './library'
 
 /**
@@ -10,8 +11,30 @@ import type { View } from './library'
  */
 export const SIMPLEOS_DEVICES: readonly DeviceSlug[] = ['rg-ds']
 
+export type SimpleOsSlug =
+  | 'boot'
+  | 'home'
+  | 'home-page-2'
+  | 'archive'
+  | 'options'
+  | 'network'
+  | 'retroachievements'
+  | 'update'
+  | 'game-settings'
+  | 'power'
+  | 'this-game'
+  | 'controls'
+  | 'controls-binding'
+  | 'clock'
+  | 'in-game'
+  | 'quick-menu'
+  | 'game-switcher'
+  | 'saved'
+  | 'video'
+  | 'unlock'
+
 export interface SimpleOsScreenDef {
-  readonly slug: string
+  readonly slug: SimpleOsSlug
   readonly title: string
   readonly view: View
   readonly home?: number
@@ -55,6 +78,29 @@ export const SIMPLEOS_SCREENS: readonly SimpleOsScreenDef[] = [
   { slug: 'unlock', title: 'Achievement unlocked', view: 'game', running: 9, toast: true },
 ]
 
+export const SIMPLEOS_SCREEN_TAGS: Record<SimpleOsSlug, ScreenTags> = {
+  'boot': { types: ['boot'], elements: ['logo', 'text-block'] },
+  'home': { types: ['home'], elements: ['grid', 'page-indicator', 'status-bar', 'hint-bar'] },
+  'home-page-2': { types: ['home'], elements: ['grid', 'page-indicator', 'status-bar', 'hint-bar'] },
+  'archive': { types: ['collection'], elements: ['list', 'status-bar', 'hint-bar'] },
+  'options': { types: ['settings'], elements: ['list', 'status-bar', 'hint-bar'] },
+  'network': { types: ['network', 'settings'], elements: ['list', 'toggle', 'status-bar', 'hint-bar'] },
+  'retroachievements': { types: ['achievements', 'settings'], elements: ['list', 'toggle', 'status-bar', 'hint-bar'] },
+  'update': { types: ['settings'], elements: ['list', 'status-bar', 'hint-bar'] },
+  'game-settings': { types: ['settings'], elements: ['list', 'toggle', 'status-bar', 'hint-bar'] },
+  'power': { types: ['power', 'settings'], elements: ['list', 'status-bar', 'hint-bar'] },
+  'this-game': { types: ['settings'], elements: ['list', 'toggle', 'status-bar', 'hint-bar'] },
+  'controls': { types: ['controls'], elements: ['list', 'status-bar', 'hint-bar'] },
+  'controls-binding': { types: ['controls'], elements: ['list', 'status-bar', 'hint-bar'] },
+  'clock': { types: ['date-time'], elements: ['stepper', 'status-bar', 'hint-bar'] },
+  'in-game': { types: ['gameplay'], elements: [] },
+  'quick-menu': { types: ['in-game-menu'], elements: ['list'] },
+  'game-switcher': { types: ['game-switcher'], elements: ['list'] },
+  'saved': { types: ['save-states', 'overlay'], elements: ['toast'] },
+  'video': { types: ['settings'], elements: ['list', 'toggle', 'status-bar', 'hint-bar'] },
+  'unlock': { types: ['achievements', 'overlay'], elements: ['toast'] },
+}
+
 export const SIMPLEOS_MANIFEST: readonly ScreenManifestEntry[] = SIMPLEOS_DEVICES.flatMap(
   (device) => [
     {
@@ -63,6 +109,7 @@ export const SIMPLEOS_MANIFEST: readonly ScreenManifestEntry[] = SIMPLEOS_DEVICE
       screen: 'interactive',
       title: 'Interactive',
       interactive: true,
+      ...LIVE_TAGS,
     },
     ...SIMPLEOS_SCREENS.map((s) => ({
       theme: 'simpleos' as const,
@@ -70,6 +117,7 @@ export const SIMPLEOS_MANIFEST: readonly ScreenManifestEntry[] = SIMPLEOS_DEVICE
       screen: s.slug,
       title: s.title,
       interactive: false,
+      ...SIMPLEOS_SCREEN_TAGS[s.slug],
     })),
   ],
 )

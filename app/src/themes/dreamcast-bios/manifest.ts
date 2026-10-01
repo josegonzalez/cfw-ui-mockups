@@ -1,5 +1,6 @@
 import type { DeviceSlug } from '../../device/devices'
 import type { ScreenManifestEntry } from '../manifest'
+import { LIVE_TAGS, type ScreenTags } from '../taxonomy'
 import type { Seed } from './machine'
 
 export const DREAMCAST_BIOS_DEVICES: readonly DeviceSlug[] = ['dreamcast']
@@ -55,13 +56,48 @@ export const DREAMCAST_BIOS_SCREENS: readonly DreamcastScreenDef[] = [
   { slug: 'music-disc-visualizer-3d', title: 'Music, with disc, visualiser, hidden 3D mode', seed: { realMode: true, disc: true, events: 'daa', seconds: 4 } },
 ]
 
+/**
+ * What each still is for and is built from. The `-3d` twins take their original's tags, so only the
+ * normal slugs are listed. The BIOS has no on-screen button legend; only the main menu has a clock.
+ */
+const TAGS: Readonly<Record<string, ScreenTags>> = {
+  main: { types: ['home'], elements: ['grid', 'status-bar'] },
+  'main-settings': { types: ['home'], elements: ['grid', 'status-bar'] },
+  boot: { types: ['boot'], elements: ['logo'] },
+  'boot-clock': { types: ['setup', 'date-time'], elements: ['dialog'] },
+  'no-disc': { types: ['empty-state'], elements: ['dialog'] },
+  settings: { types: ['settings'], elements: ['list'] },
+  'settings-language': { types: ['settings'], elements: ['list', 'dialog'] },
+  'settings-clock': { types: ['settings', 'date-time'], elements: ['list', 'dialog'] },
+  'settings-sound': { types: ['settings'], elements: ['list', 'dialog'] },
+  'settings-auto-start': { types: ['settings'], elements: ['list', 'dialog'] },
+  'settings-card-clock': { types: ['settings', 'date-time'], elements: ['list', 'dialog'] },
+  'settings-cards-set': { types: ['settings', 'date-time'], elements: ['list', 'dialog'] },
+  'file-cards': { types: ['file-manager'], elements: ['tabs', 'list'] },
+  'file-list': { types: ['file-manager'], elements: ['grid'] },
+  'file-menu': { types: ['file-manager'], elements: ['popup-menu', 'grid'] },
+  'file-all-menu': { types: ['file-manager'], elements: ['popup-menu', 'grid'] },
+  'file-delete': { types: ['file-manager'], elements: ['dialog', 'grid'] },
+  'file-deleted': { types: ['file-manager'], elements: ['dialog', 'grid'] },
+  'file-destination': { types: ['file-manager'], elements: ['tabs', 'list'] },
+  music: { types: ['media-player'], elements: ['list'] },
+  'music-repeat': { types: ['media-player'], elements: ['list'] },
+  'music-disc': { types: ['media-player'], elements: ['list', 'artwork-panel'] },
+  'music-disc-playing': { types: ['media-player'], elements: ['list', 'artwork-panel'] },
+  'music-disc-visualizer': { types: ['media-player'], elements: ['list', 'artwork-panel'] },
+}
+
+/** A still's tags; a hidden 3D mode twin is tagged as its original. */
+const tagsOf = (slug: string): ScreenTags => TAGS[slug.replace(/-3d$/, '')]!
+
 export const DREAMCAST_BIOS_MANIFEST: readonly ScreenManifestEntry[] = DREAMCAST_BIOS_DEVICES.flatMap((device) => [
-  { theme: 'dreamcast-bios' as const, device, screen: 'interactive', title: 'Interactive', interactive: true },
+  { theme: 'dreamcast-bios' as const, device, screen: 'interactive', title: 'Interactive', interactive: true, ...LIVE_TAGS },
   ...DREAMCAST_BIOS_SCREENS.map((s) => ({
     theme: 'dreamcast-bios' as const,
     device,
     screen: s.slug,
     title: s.title,
     interactive: false,
+    ...tagsOf(s.slug),
   })),
 ])
