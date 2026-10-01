@@ -322,7 +322,7 @@ export const THEMES: readonly ThemeEntry[] = [
     summary:
       'The menu the Dreamcast boots to with no disc in: power-on, then Play, File, Music and Settings over a sky it renders live, the memory card manager, the CD player and every Settings box. Its textures, its system font, its strings and its sounds are decoded from the boot ROM itself.',
     highlights: [
-      'Textures, font, strings and sounds decoded from the boot ROM by a script you run on your own dump',
+      'Textures, font, strings, sounds and the 3D models decoded from the boot ROM by a script you run on your own dump',
       'The system font rebuilt as two faces, fill and outline, stacked as the menu draws them',
       'A live sky as a shader, with the same function drawn on the CPU as its fallback',
     ],

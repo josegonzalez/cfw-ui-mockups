@@ -38,6 +38,17 @@ are into the recording `c69qVhS_WOU` (see `README.md`); frames are in `frames/`.
   of 4-bit ADPCM - 353,002 samples, 8.00s at 44.1 kHz. The formats are in `bios_sound.py`'s
   docstring, after [dakrk/manatools](https://github.com/dakrk/manatools); the envelope arithmetic
   follows Flycast's `core/hw/aica/sgc_if.cpp`.
+- **Models.** Sega Ninja chunk models, the format X-Hax/sa_tools' `SAModel` library reads, mapped
+  at `0x8c000000` plus their ROM offset. The BIOS's object table at `0x6f3c0` lists the main menu's
+  roots: the controller at `0x4106c`, the memory card at `0x46b3c`, the note at `0x428a4` and the
+  clock at `0x44a9c`. Their motion table at `0x6f524` holds their focus motions, 60 frames each, a
+  key every frame - paired to their roots because each motion's first keys are the root's own
+  position and tilt. The decoder's docstring has the format.
+- **The models' speed.** The focused controller rocks one way at 34.0s, 35.0s and 36.0s: a cycle a
+  second, its 60 keys at the console's 60 Hz.
+- **The models' light and alpha.** The controller's red and blue at 200,180 in `frames/main.png`,
+  solved against the sky beside it at 110,180, give a brightness of about 0.76 and an alpha of about
+  0.62, where its material's is 0.95.
 - **Which sound is which.** Onsets in the recording's audio track, identified by correlation with
   the rendered sequences: the cursor at 34.41s and on every clock-editor step from 13.8s; confirm at
   29.59s, 36.65s, 40.32s, 56.17s, 103.56s and 133.59s; back at 52.71s, 68.48s and 141.83s; the alert

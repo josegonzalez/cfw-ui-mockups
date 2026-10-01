@@ -5,12 +5,13 @@
 | `bios/` | Decoded from the Dreamcast boot ROM v1.01d (`dc_boot.bin`, MPR-21931/MPR-21933, sha1 `8951d1bb219ab2ff8583033d2119c899cc81f18c`) by [`extract-assets.py`](../../../../../docs/themes/dreamcast-bios/reference/extract-assets.py): every PowerVR texture the ROM carries, named where the port uses it and by its ROM offset where it does not. `back-focus.png` is `back.png` with its swirl filled red, as the menu draws it focused, and `wordmark-dark.png` is `wordmark.png` darkened as power-on draws it |
 | `fonts/` | The BIOS system font, decoded from the same ROM by the same script and rebuilt as two TTFs: `DreamcastBiosFill.ttf` (the glyphs emboldened) and `DreamcastBiosEdge.ttf` (their halo). Latin-1, the four button icons the strings use, and 日本語 |
 | `sounds/` | Decoded and rendered from the same ROM by `bios_sound.py`: `boot.wav` is the ROM's own boot stream, decoded; the rest are its menu sequences, played through its own tone bank by a model of the sound chip. Named by where the recording plays each; `error` and `sequence-4` are never heard, and not used |
-| `drawn/` | Drawn for this port: the four main-menu models (`controller`, `vmu`, `note`, `alarm`), which the BIOS renders from 3D geometry rather than textures, the Settings row icons (`lips`, `watch`, `speaker`, `question`), and the power-on swirl (`swirl`) |
+| `models/` | The main menu's four models, decoded from the same ROM by `bios_models.py`: each mesh with its colours, its resting transform, and the 60-frame motion it plays while focused |
+| `drawn/` | Drawn for this port: File's controller and memory card (`controller`, `vmu`), the Settings row icons (`lips`, `watch`, `speaker`, `question`), and the power-on swirl (`swirl`) |
 
 The ROM is not in this repository and is not needed to build it. The script is kept so the decoded
 files can be checked against a dump, and it refuses a ROM whose hash it does not know.
 
-The decoded textures, font and sounds are Sega's. They are here with the repository owner's approval and
+The decoded textures, font, sounds and models are Sega's. They are here with the repository owner's approval and
 are not covered by this repository's own licence. Sega and Dreamcast are Sega's trademarks.
 
 | File | ROM offset | Format |

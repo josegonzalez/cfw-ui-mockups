@@ -52,8 +52,12 @@ user supplies, refuses any ROM whose hash it does not know, and writes:
   of tiny looped tones, which [`bios_sound.py`](dreamcast-bios/reference/bios_sound.py) renders
   through a small model of the chip - its envelopes, filter and pan, without its reverb.
 
-The 3D models on the main menu - the controller, the memory card, the note and the alarm clock -
-are geometry in the ROM, not textures, and are redrawn.
+- **The models.** The main menu's controller, memory card, note and alarm clock are Sega Ninja
+  chunk models in the ROM, mapped as the BIOS runs at `0x8c000000` plus their offset: vertices with
+  normals, triangle strips, materials with colour and alpha, and a tree of transformed parts.
+  [`bios_models.py`](dreamcast-bios/reference/bios_models.py) finds them through the BIOS's own
+  object table at `0x6f3c0`, flattens each into one mesh, and pairs each with the 60-frame motion it
+  plays while focused - the controller and clock rock, the memory card turns, the note bobs.
 
 ## Geometry
 
@@ -77,11 +81,17 @@ lays out 1:1 in it with nothing inset. Every box is measured from the reference 
 | Only the sky | 150 ms | 36.75-36.9s |
 | The next screen fades up | 100 ms | 36.9-37.0s |
 | A focused option's blob: yellow, then green | 200 ms each | 37.05-37.85s |
-| The focused model turns one way and the other | about 1200 ms | 36.0-36.65s |
+| The focused model's own motion from the ROM, round and round | 60 frames at 60 Hz: 1 s | 34-36s, a cycle a second |
 | Power-on: the wordmark written in, then the swirl drawn, then held | 1.5-4s, 4.8-6s, to 9s | 0-9s |
 
 The sky never stops: screens come and go over it. It is a shader, with the same function drawn on
-the CPU at a quarter of the resolution as its fallback; a still draws it at t = 0.
+the CPU at a quarter of the resolution as its fallback; a still draws it at t = 0. The main menu's
+models are the same kind of thing - a WebGL scene with a CPU rasteriser of the same scene as its
+fallback (`models/`) - and a still draws them at rest, which is frame 0 of every motion.
+
+The models are drawn orthographically, at 11.6 pixels a unit centred on world (0, 1), where the
+ROM's own transforms put them over the capture's; lit mostly ambient; and at 0.65 of their
+materials' alpha, which the capture's colours against the sky give.
 
 ## Colour
 
@@ -127,7 +137,7 @@ BACK, drawn on the screens that have one, does what B does.
 
 ## Assets
 
-`bios/`, `fonts/` and `sounds/` are decoded from the boot ROM; `drawn/` is drawn for the port. Provenance is in
+`bios/`, `fonts/`, `sounds/` and `models/` are decoded from the boot ROM; `drawn/` is drawn for the port. Provenance is in
 `app/src/themes/dreamcast-bios/assets/SOURCE.md`.
 
 ## Files
@@ -139,6 +149,7 @@ BACK, drawn on the screens that have one, does what B does.
 | `layout.ts`, `palette.ts`, `motion.ts` | geometry, colours and durations, each with where it was measured |
 | `library.ts`, `strings.ts`, `assets.ts` | the clock, the saves, the ROM's strings and asset lookup |
 | `background/` | the sky: `sky.ts` holds the function in TypeScript and GLSL, `index.tsx` the render loop |
+| `models/` | the main menu's models: `scene.ts` the projection, transforms, light and motion sampling; `gl.ts` the shader; `raster.ts` the CPU fallback; `MenuModels.tsx` the render loop |
 | `views/` | `Boot`, `Main`, `NoDisc`, `Settings`, `File`, `Music`, and `parts` |
 | `manifest.ts`, `routes.tsx`, `Interactive.tsx` | the stills and the live build |
 

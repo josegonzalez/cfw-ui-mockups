@@ -20,6 +20,9 @@ emboldened - each stroke doubled a pixel to the right - in white, over a dark ha
 all round (`frames/zoom-text.png`). So the font is rebuilt as two TTFs, the bold face and its halo,
 which the port stacks halo first.
 
+The main menu's four models are in the ROM as Sega Ninja chunk models, with the motion each plays
+while focused; `bios_models.py`, beside this script, decodes them, and its docstring has the format.
+
 The menu's sounds are in the ROM too, from 0x1a0000: the boot jingle as a stereo ADPCM stream, and
 the menu's effects as sequences played through a small bank of looped tones. `bios_sound.py`, beside
 this script, decodes the one and renders the others; its docstring has the formats.
@@ -33,10 +36,12 @@ Run in a container, from the repo root:
       sh -c 'pip -q install pillow fonttools && python docs/themes/dreamcast-bios/reference/extract-assets.py'
 """
 import hashlib
+import json
 import struct
 import sys
 from pathlib import Path
 
+import bios_models
 import bios_sound
 from fontTools.fontBuilder import FontBuilder
 from fontTools.pens.ttGlyphPen import TTGlyphPen
@@ -46,6 +51,11 @@ ROM = Path(sys.argv[1] if len(sys.argv) > 1 else '/bios/dc_boot.bin')
 OUT = Path('app/src/themes/dreamcast-bios/assets/bios')
 FONTS = Path('app/src/themes/dreamcast-bios/assets/fonts')
 SOUNDS = Path('app/src/themes/dreamcast-bios/assets/sounds')
+MODELS = Path('app/src/themes/dreamcast-bios/assets/models')
+
+# Root object -> name, for the main menu's models: the BIOS's own object table at 0x6f3c0 lists
+# them, and each sits where its item's pill is (`bios_models.py`, `frames/main.png`).
+MAIN_MODELS = {0x4106C: 'controller', 0x46B3C: 'vmu', 0x428A4: 'note', 0x44A9C: 'clock'}
 
 # Sequence -> name, by where the reference recording plays each one (times into c69qVhS_WOU, heard
 # in its own audio). The last two are never heard in it, and are written for completeness.
@@ -257,6 +267,46 @@ def build_font(glyphs: dict[int, Pixels], family: str, path: Path) -> None:
     fb.save(str(path))
 
 
+def write_models(data: bytes) -> None:
+    """
+    Each main-menu model as the port draws it: its mesh in its own space, its resting transform, and
+    the 60-frame motion it plays while focused, every frame keyed. Angles are in degrees.
+    """
+    meshes, _ = bios_models.extract(data, MAIN_MODELS)
+    MODELS.mkdir(parents=True, exist_ok=True)
+    for mesh in meshes:
+        if mesh['name'] not in MAIN_MODELS.values():
+            continue
+        rest = mesh['flags']['root_transform']
+        motion = mesh['flags']['motion'][0]
+        # Only the root moves while a model is focused; its other nodes keep their poses.
+        keys = motion['nodes'][0]
+        frames = motion['frames']
+
+        def track(channel: str, at_rest: list[float], scale: float = 1.0) -> list[list[float]]:
+            got = {k[0]: k[1:] for k in keys.get(channel, [])}
+            return [[round(v * scale, 4) for v in got.get(f, at_rest)] for f in range(frames)]
+
+        bams = 360 / 0x10000
+        out = {
+            'name': mesh['name'],
+            'root': mesh['root'],
+            'positions': [round(v, 5) for v in mesh['positions']],
+            'normals': [round(v, 4) for v in mesh['normals']],
+            'colors': mesh['colors'],
+            'indices': mesh['indices'],
+            'rest': {'pos': rest['pos'], 'ang': [round(a * bams, 4) for a in rest['ang_bams']], 'scl': rest['scl']},
+            'motion': {
+                'offset': motion['offset'],
+                'frames': frames,
+                'pos': track('pos', rest['pos']),
+                'ang': track('ang', rest['ang_bams'], bams),
+                'scl': track('scl', rest['scl']),
+            },
+        }
+        (MODELS / f'{mesh["name"]}.json').write_text(json.dumps(out, separators=(',', ':')) + '\n')
+
+
 def main() -> None:
     data = ROM.read_bytes()
     digest = hashlib.sha1(data).hexdigest()
@@ -306,6 +356,8 @@ def main() -> None:
     (SOUNDS / 'boot.wav').write_bytes(bios_sound.boot_sound(data))
     for i, wav in bios_sound.menu_sounds(data).items():
         (SOUNDS / f'{SEQUENCES.get(i, f"sequence-{i}")}.wav').write_bytes(wav)
+
+    write_models(data)
 
     glyphs = font_glyphs(data)
     build_font({c: bold(pixels(g)) for c, g in glyphs.items()}, 'Dreamcast BIOS Fill', FONTS / 'DreamcastBiosFill.ttf')

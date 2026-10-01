@@ -4,7 +4,8 @@ Where each file here came from. Everything was fetched and cut in a container, n
 
 | File | Source |
 | --- | --- |
-| `extract-assets.py` | Decodes the boot ROM's textures, system font, English strings and sounds into `app/src/themes/dreamcast-bios/assets/` and `strings-en.txt`. Run it on your own `dc_boot.bin`; the command is at the top of the script |
+| `extract-assets.py` | Decodes the boot ROM's textures, system font, English strings, sounds and models into `app/src/themes/dreamcast-bios/assets/` and `strings-en.txt`. Run it on your own `dc_boot.bin`; the command is at the top of the script |
+| `bios_models.py` | Finds and decodes the ROM's Ninja chunk models and their motions; `extract-assets.py` imports it |
 | `bios_sound.py` | Decodes the boot sound and renders the menu's sequences; `extract-assets.py` imports it |
 | `strings-en.txt` | The English string table, as the script reads it out of the ROM, one string a line |
 | `source-notes.md` | Every measured value, and every ROM offset, with where it came from |

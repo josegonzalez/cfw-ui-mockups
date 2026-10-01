@@ -21,13 +21,13 @@ export const BAR = { h: 62 } as const
 export const LOGO: Box = { x: 30, y: 29, w: 136, h: 34 }
 export const CLOCK = { right: 612, y: 38 } as const
 
-/** The main menu: each item's model, and the pill under it with its label. */
+/** The main menu's label pills. Its models are placed by their own transforms (`models/scene.ts`). */
 export const MAIN = {
-  play: { model: { x: 124, y: 86, w: 130, h: 118 }, pill: { x: 205, y: 202, w: 114, h: 42 } },
-  file: { model: { x: 366, y: 88, w: 84, h: 114 }, pill: { x: 427, y: 202, w: 114, h: 42 } },
-  music: { model: { x: 110, y: 278, w: 132, h: 98 }, pill: { x: 205, y: 365, w: 114, h: 42 } },
-  settings: { model: { x: 352, y: 270, w: 116, h: 108 }, pill: { x: 427, y: 365, w: 114, h: 42 } },
-} as const satisfies Record<string, { model: Box; pill: Box }>
+  play: { pill: { x: 205, y: 202, w: 114, h: 42 } },
+  file: { pill: { x: 427, y: 202, w: 114, h: 42 } },
+  music: { pill: { x: 205, y: 365, w: 114, h: 42 } },
+  settings: { pill: { x: 427, y: 365, w: 114, h: 42 } },
+} as const satisfies Record<string, { pill: Box }>
 
 /** BACK, where each screen puts it. */
 export const BACK_SIZE = 56

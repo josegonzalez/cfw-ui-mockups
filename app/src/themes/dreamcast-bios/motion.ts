@@ -17,11 +17,6 @@ export const MOTION = {
   /** A focused option's blob: yellow, then green, and again (37.05-37.85s). */
   blink: { on: 200, off: 200 },
   /**
-   * The focused model on the main menu turns a little one way, back, and the other way (36.0-36.65s).
-   * The period is an estimate: the turn is slow and small, and 20 frames a second does not pin it.
-   */
-  rock: { period: 1200, narrow: 0.86 },
-  /**
    * Power-on, on grey (`frames/boot-logo.png`): the wordmark is written in left to right (1.5-4s,
    * "Dr" at 2s and "Dreamc" at 3s), the swirl drawn after it (4.8-6s), and the whole held until
    * the screen after it takes over (9s). The boot sound starts at 0.47s, heard in the recording.
@@ -39,29 +34,6 @@ export const BLINK: StoryboardMap = {
     ],
   },
 }
-
-/**
- * The focused model's turn, as the width it projects to: facing, turned, facing, turned the other
- * way. A turn either way narrows the model alike, so the channel is `scaleX` and a still rests
- * facing.
- */
-export const ROCK: StoryboardMap = (() => {
-  const q = MOTION.rock.period / 4
-  const n = MOTION.rock.narrow
-  return {
-    _: {
-      repeat: 'forever',
-      animations: [0, 1, 2, 3].map((i) => ({
-        property: 'scaleX' as const,
-        from: i % 2 ? n : 1,
-        to: i % 2 ? 1 : n,
-        begin: i * q,
-        duration: q,
-        mode: 'easeInOut' as const,
-      })),
-    },
-  }
-})()
 
 export const FADE_IN: StoryboardMap = {
   open: { animations: [{ property: 'opacity', from: 0, duration: MOTION.screenIn, mode: 'linear' }] },

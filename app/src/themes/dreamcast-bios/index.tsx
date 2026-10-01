@@ -162,7 +162,8 @@ export function DreamcastBios(seed: DreamcastBiosProps) {
   const leaving = state.pending !== null
   return (
     <div className="dreamcast-bios" data-theme="dreamcast-bios" data-view={v.kind}>
-      <Sky />
+      {/* Power-on is grey with no sky; the sky comes in as the screen after it starts to fade up. */}
+      {booting && state.pending === null ? null : <Sky />}
       {/* The fade out only: the new screen comes back at once and its own storyboard fades it up. */}
       <div
         style={{

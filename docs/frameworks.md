@@ -877,16 +877,16 @@ Missing from both frameworks:
 - **A fade to the sky rather than to black.** Leaving a screen, its contents fade out over the sky
   in 100ms, the sky shows alone for 150ms, and the next screen fades up in 100ms; a dialog fades up
   in 100ms. All are linear. The contents are translucent - the Settings rows at 0.72, the dialogs at
-  0.9, the models at 0.82 - so a screen has to fade as one composed layer, not element by element,
+  0.9, the models at 0.65 of their materials' alpha - so a screen has to fade as one composed layer, not element by element,
   and the opacities nest: a blinking blob inside a dialog fading up inside a screen fading out.
   Apostrophe's `ap_fade_draw` fills black over the frame (`include/apostrophe.h:712-721`);
   gabagool's router hard-cuts, and `fade` is zero-hit in it. A layer's alpha needs render to texture
   and `SetAlphaMod`: Apostrophe has neither, and gabagool has both only inside `internal/`
   (`internal/helpers.go:382, 410`).
 - **Looping tracks with a resting value.** A focused option's blob blinks yellow over green, 200ms
-  each, forever - a step, not a fade (`BLINK`, `motion.ts`). The focused main-menu model rocks by
-  narrowing to 0.86 and back on `easeInOut`, a 1200ms cycle repeated forever (`ROCK`; the period is
-  an estimate). A still rests with the blob yellow and the model facing. The only blinks in either
+  each, forever - a step, not a fade (`BLINK`, `motion.ts`). The focused main-menu model plays its
+  own motion from the ROM, 60 keys a second, round and round. A still rests with the blob yellow
+  and every model at frame 0. The only blinks in either
   framework are the keyboards' 500ms carets, hand-rolled inside the widget
   (`include/apostrophe_widgets.h:1727-1732`; `pkg/gabagool/keyboard.go:75-76, 164`). Named curves and
   looping tracks are zero-hit in both.
@@ -906,6 +906,13 @@ Missing from both frameworks:
   support.
 - **A grid.** The file list is an 8x3 grid of saves with ALL above it and BACK below, the card
   picker is four ports of two sockets, and the main menu is 2x2. Grid is absent in both.
+- **3D models, lit, translucent and moving.** The main menu's four models are the ROM's own meshes -
+  656 vertices for the controller - drawn with depth, per-vertex light and alpha, the focused one
+  following its 60-frame motion of position, rotation and scale (`models/`). Both frameworks draw
+  only rectangles and textures: `RenderGeometry` and `Vertex` are zero-hit in both (the textured
+  geometry row above), and neither has a depth buffer (`DEPTH_TEST`, `zbuffer` and `depth_buffer`
+  are zero-hit in both). A port could pre-render each model's 60
+  frames as sprites - 240 images - trading memory for the missing path.
 - **Sound.** The BIOS sounds every press - the cursor, confirm, back, an alert as a warning opens -
   and plays an eight-second boot sound at power-on, all decoded or rendered from its ROM into 16-bit
   WAVs (`assets/sounds/`). Neither framework plays audio: `Mix_`, `SDL_mixer`, `OpenAudio` and
@@ -914,10 +921,9 @@ Missing from both frameworks:
 
 Not on this list:
 
-- **The models.** They are redrawn SVGs here. Apostrophe has no SVG, and gabagool reaches `oksvg`
-  only inside `ProcessMessage` (`pkg/gabagool/process_message.go:406`), but each model is one static
-  picture a port would ship as PNG with its 0.82 alpha baked in. The rock changes only its width,
-  which a destination rect gives.
+- **The drawn icons.** File's controller and memory cards and the Settings icons are SVGs here.
+  Apostrophe has no SVG, and gabagool reaches `oksvg` only inside `ProcessMessage`
+  (`pkg/gabagool/process_message.go:406`), but each is one static picture a port would ship as PNG.
 - **The blobs and lozenges.** A 46x36 ellipse, and Music's radial-gradient lozenges. `ellipse` and
   `radial` are zero-hit in both, but both can be images.
 - **Theming.** One look; nothing is switchable.

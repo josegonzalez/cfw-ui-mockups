@@ -15,14 +15,22 @@ where it came from.
 
 The issue asked whether the textures could be extracted from the BIOS file. They can: the ROM
 keeps them as ordinary PowerVR texture chunks, and the port's `bios/` directory is that ROM's own
-pixels. So are its font and its every string. What cannot be extracted as a picture is the menu's
-3D models, which are geometry.
+pixels. So are its font, its every string, its sounds, and the main menu's 3D models with the
+motions they play - the ROM keeps them as Sega Ninja chunk models, and the port draws them as they
+are.
 
 ## Deviations
 
-- **The main menu's models are drawn.** The controller, memory card, note and alarm clock are 3D
-  models the BIOS lights and turns; the port draws each as a flat SVG, a little see-through as the
-  real ones are, and approximates the focused model's turn by narrowing it.
+- **The models' camera and light are fitted, not read.** The ROM holds the models, their places and
+  their motions, but no camera or light the decoder could find: the port views them orthographically,
+  which lines them up with the capture, lights them mostly ambient, and draws them at 0.65 of their
+  materials' alpha, all fitted to the capture's colours. Translucent faces are depth-tested in draw
+  order, where the PowerVR sorts them per pixel, so a model's inner faces can blend a little
+  differently.
+- **The pills are flat.** The ROM has the main menu's label pills as models too; the port draws them
+  as boxes, because they carry the labels, which are the ROM's strings in its font.
+- **File's controller and memory cards are drawn.** The ROM has them as models as well; the port
+  still draws them as SVGs.
 - **The sky is procedural.** The BIOS renders its sky and the swirl of cloud below the menu in 3D.
   The port draws a flat reading of what that produces - gradient, drifting clouds, a turning disc of
   cloud - as a shader. The ROM's own 64x64 cloud texture is decoded but not used: tiled flat, it
