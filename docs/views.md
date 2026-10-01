@@ -22,7 +22,10 @@ near the viewport, because the largest comparison holds dozens of full screens.
 
 There are three other ways in:
 
-- The landing page's "Compare views" cards, one per screen type.
+- The landing page's "Compare by view" tab: a matrix of every set against every screen type,
+  built by `coverage()` in `app/src/themes/views.ts`. A column header opens that type's
+  comparison, and a filled cell opens the first screen of that type the comparison shows for
+  that set. Its "Compare by UI element" link opens the views index for the element facet.
 - The viewer bar's tag chips, which link each of a screen's types and elements to its comparison.
 - The viewer bar's "Same view in" row, which jumps to the first screen of each other set that
   shares this screen's primary type, on the same device where that set has it.

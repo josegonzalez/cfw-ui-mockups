@@ -86,6 +86,27 @@ export function facetSummary(facet: Facet, slug: string): FacetSummary {
 }
 
 /**
+ * Which sets draw which screen type, and the screen that stands for each pairing.
+ *
+ * The landing page's matrix is this, one row per set and one column per type. Each cell is the
+ * first screen `screensFor` lists for that set, so a cell opens the same screen the type's
+ * comparison shows first for that set rather than a second opinion about which one is canonical.
+ */
+export function coverage(): ReadonlyMap<ScreenType, ReadonlyMap<string, ScreenManifestEntry>> {
+  const out = new Map<ScreenType, Map<string, ScreenManifestEntry>>()
+
+  for (const slug of Object.keys(SCREEN_TYPES) as ScreenType[]) {
+    const byTheme = new Map<string, ScreenManifestEntry>()
+    for (const entry of screensFor('type', slug)) {
+      if (!byTheme.has(entry.theme)) byTheme.set(entry.theme, entry)
+    }
+    out.set(slug, byTheme)
+  }
+
+  return out
+}
+
+/**
  * The same view in every other set: the first screen each other theme has with this screen's
  * primary type.
  *

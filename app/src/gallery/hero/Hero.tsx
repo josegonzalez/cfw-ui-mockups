@@ -4,7 +4,7 @@ import { HERO } from './content'
 import { StatRow } from './StatRow'
 
 /**
- * The page's hero: a real device, booting.
+ * The page's hero: a real handheld, booting.
  *
  * The frame on the right is the same component the gallery mounts, running the same theme - so
  * the hero shows the actual thing rather than a picture of it. It plays the sequence the
@@ -34,14 +34,16 @@ export function Hero() {
           <a className="gal-btn gal-btn--primary" href="#example-cfw/rg35xx/interactive">
             Try a live screen
           </a>
-          <a className="gal-btn" href="#themes-heading">
+          <a className="gal-btn" href="#browse">
             See the sets
           </a>
         </div>
       </div>
 
+      {/* A horizontal handheld. The RG40XX H has the same 640x480 panel as the RG35XX it
+          replaced here, so the showcase lays out identically; only the body around it changed. */}
       <div className="hero__stage" aria-hidden="true">
-        <DeviceFrame device="rg35xx" animate={false} interactive={false} scale={0.76}>
+        <DeviceFrame device="rg40xx" animate={false} interactive={false} scale={0.5}>
           <DeviceShowcase />
         </DeviceFrame>
       </div>

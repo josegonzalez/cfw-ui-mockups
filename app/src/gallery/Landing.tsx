@@ -1,147 +1,24 @@
-import type { CSSProperties } from 'react'
-import { DEVICES } from '../device/devices'
-import { SCREEN_MANIFEST, screenId } from '../themes/manifest'
-import { SCREEN_TYPES } from '../themes/taxonomy'
-import { viewsHref } from '../themes/views'
-import { THEMES, catalogueTotals, type ThemeEntry } from '../themes/catalogue'
+import { THEMES } from '../themes/catalogue'
+import { Browse } from './Browse'
 import { Hero } from './hero/Hero'
 import { NOTES_PREFIX } from './NotesViewer'
-import { FacetCard } from './ViewsPage'
 import './gallery.css'
 import './hero/hero.css'
 
-function ThemeCard({ theme }: { theme: ThemeEntry }) {
-  const screens = SCREEN_MANIFEST.filter((s) => s.theme === theme.slug && !s.interactive)
-  const live = SCREEN_MANIFEST.find((s) => s.theme === theme.slug && s.interactive)
-
-  // The card carries its subject's accent, so four cards read as four different firmwares
-  // rather than four rows of the same page.
-  const style = {
-    '--card-accent': theme.accent,
-    '--card-accent-wash': `linear-gradient(155deg,
-      color-mix(in srgb, ${theme.accent} 22%, #0b0d13),
-      color-mix(in srgb, ${theme.accent} 6%, #0b0d13))`,
-  } as CSSProperties
-
-  return (
-    <article className="gal-card" style={style} aria-labelledby={`theme-${theme.slug}`}>
-      <div className="gal-card__art">
-        <div className="gal-card__screen">
-          <img className="gal-card__img" src={theme.preview} alt={theme.previewAlt} loading="lazy" />
-        </div>
-      </div>
-
-      <div className="gal-card__body">
-        <div className="gal-card__kicker">
-          <span>{theme.kind}</span>
-          {theme.author ? <span aria-hidden="true">·</span> : null}
-          {theme.author ? <span>by {theme.author}</span> : null}
-        </div>
-
-        <h3 className="gal-card__name" id={`theme-${theme.slug}`}>
-          {theme.name}
-        </h3>
-
-        <p className="gal-card__summary">{theme.summary}</p>
-
-        <ul className="gal-card__list">
-          {theme.highlights.map((point) => (
-            <li key={point}>{point}</li>
-          ))}
-        </ul>
-
-        {theme.swatches.length > 0 ? (
-          <div className="gal-swatches" role="img" aria-label={`${theme.name} palette`}>
-            {theme.swatches.map((hex) => (
-              <span key={hex} className="gal-swatch" style={{ background: hex }} />
-            ))}
-          </div>
-        ) : null}
-
-        <div className="gal-card__meta">
-          <span className="gal-chip gal-chip--status">
-            {theme.ported ? 'Interactive' : 'Archived'}
-          </span>
-          <span className="gal-chip">
-            {theme.views} {theme.views === 1 ? 'view' : 'views'}
-          </span>
-          {theme.devices.map((slug) => (
-            <span key={slug} className="gal-chip">
-              {/* Model name only. The full label lists every variant, which wraps a card's
-                  chip row onto three lines without telling you anything the resolution does
-                  not. */}
-              {DEVICES[slug].label.replace(/^(Anbernic|Trimui) /, '').split(' / ')[0]} ·{' '}
-              {DEVICES[slug].w}x{DEVICES[slug].h}
-            </span>
-          ))}
-          <span className="gal-chip">{theme.fonts.join(', ')}</span>
-        </div>
-
-        <div className="gal-card__actions">
-          {live ? (
-            <a className="gal-btn gal-btn--primary" href={`#${screenId(live)}`}>
-              Open the live build
-            </a>
-          ) : null}
-
-          {screens.length > 0 ? (
-            <a className="gal-btn" href={`#${screenId(screens[0]!)}`}>
-              Browse screens
-            </a>
-          ) : null}
-
-          <a className="gal-btn" href={`#${NOTES_PREFIX}${theme.docPath}`}>
-            Read the notes
-          </a>
-        </div>
-      </div>
-    </article>
-  )
+/** "Elementerial by mluizvitor, PlayStation X by pajarorrojo, ..." - every set with an author. */
+function credits(): string {
+  return THEMES.filter((t) => t.author)
+    .map((t) => `${t.name} by ${t.author}`)
+    .join(', ')
 }
 
 export function Landing() {
-  const totals = catalogueTotals()
-
   return (
     <div className="gal">
       <div className="gal__inner">
         <Hero />
 
-        <section className="gal__section" aria-labelledby="themes-heading">
-          <div className="gal__section-head">
-            <h2 className="gal__section-title" id="themes-heading">
-              The sets
-            </h2>
-            <span className="gal__section-note">
-              {totals.ported} of {totals.themes} rebuilt in React so far - the rest are archived and
-              still render
-            </span>
-          </div>
-
-          <div className="gal__themes">
-            {THEMES.map((theme) => (
-              <ThemeCard key={theme.slug} theme={theme} />
-            ))}
-          </div>
-        </section>
-
-        <section className="gal__section" aria-labelledby="views-heading">
-          <div className="gal__section-head">
-            <h2 className="gal__section-title" id="views-heading">
-              Compare views
-            </h2>
-            <span className="gal__section-note">The same screen, as each set draws it</span>
-            <a className="gal__section-link" href={viewsHref()}>
-              Browse every view
-            </a>
-          </div>
-
-          <div className="gal-facet-cards">
-            {Object.keys(SCREEN_TYPES).map((slug) => (
-              <FacetCard key={slug} facet="type" slug={slug} />
-            ))}
-          </div>
-        </section>
+        <Browse />
 
         <section className="gal__section" aria-labelledby="about-heading">
           <div className="gal__section-head">
@@ -186,10 +63,8 @@ export function Landing() {
         </section>
 
         <footer className="gal__footer">
-          Every set reproduces someone else's work. Elementerial is by mluizvitor, PlayStation X by
-          pajarorrojo, Vitro Launcher by KevDoy. Documentation lives in{' '}
-          <a href={`#${NOTES_PREFIX}docs/README.md`}>docs/</a>; the original vanilla-JS mockups are archived under{' '}
-
+          Every set reproduces someone else's work: {credits()}. Documentation lives in{' '}
+          <a href={`#${NOTES_PREFIX}docs/README.md`}>docs/</a>.
         </footer>
       </div>
     </div>
