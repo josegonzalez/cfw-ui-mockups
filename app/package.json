@@ -19,7 +19,7 @@
     "build-storybook": "storybook build"
   },
   "dependencies": {
-    "marked": "^18.0.14",
+    "marked": "^18.1.0",
     "react": "^19.3.0",
     "react-dom": "^19.3.0"
   },
